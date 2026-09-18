@@ -1,4 +1,4 @@
-Shader "Unlit/Auroras"
+Shader "Render/Auroras"
 {
     Properties
     {

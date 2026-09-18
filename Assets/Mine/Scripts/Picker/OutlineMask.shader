@@ -1,4 +1,4 @@
-Shader "Mine/Picker/OutlineMask"
+Shader "Picker/OutlineMask"
 {
     // ════════════════════════════════════════════════════════════
     //  OutlineMask — 选中物体 Mask 输出（物体=1，背景=0）

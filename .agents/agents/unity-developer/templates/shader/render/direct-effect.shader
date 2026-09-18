@@ -9,12 +9,12 @@
 //  使用方式:
 //    1. 复制到 Assets/Mine/Shaders/Render/<YourEffect>/, 改名 + 替换 ⚠️
 //    2. 定位: 直接渲染在物体上的效果材质 —— 无阴影/深度 Pass 义务
-//    3. 选型: 需要标准光照/阴影三 Pass → standard-shader.shader
+//    3. 选型: 需要标准光照/阴影/深度/法线四 Pass → standard-shader.shader
 //       需要算法拆库 → 本族 effect-shader.shader + effect-function.hlsl
 //    4. 全屏效果 → postprocess 族（RendererFeature）, 本族不做面片直绘
 // ═══════════════════════════════════════════════════════════════
 
-Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路径一致）
+Shader "Render/YourEffect" // ⚠️ 重命名为你的效果名（与文件名一致）
 {
     // ═══ Properties — 对外参数, [Header] 分组; 单 Pass 直写无其他义务 ═══
     Properties
@@ -50,6 +50,7 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
         float4 positionOS : POSITION;
         float2 uv         : TEXCOORD0;
         // ⚠️ 需要法线/切线: float3 normalOS : NORMAL;（+ Vert 里 TransformObjectToWorldNormal）
+        UNITY_VERTEX_INPUT_INSTANCE_ID
     };
 
     struct Varyings
@@ -59,6 +60,7 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
         // ⚠️ 需要世界坐标/法线做光照或视角效果时打开:
         // float3 positionWS : TEXCOORD1;
         // float3 normalWS   : TEXCOORD2;
+        UNITY_VERTEX_OUTPUT_STEREO
     };
 
     // ════════════════════════════════════════════════════════════
@@ -66,7 +68,9 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
     // ════════════════════════════════════════════════════════════
     Varyings Vert(Attributes input)
     {
-        Varyings output;
+        Varyings output = (Varyings)0;
+        UNITY_SETUP_INSTANCE_ID(input);
+        UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
         output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
         output.uv = input.uv;
         return output;
@@ -77,6 +81,7 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
     // ════════════════════════════════════════════════════════════
     half4 Frag(Varyings input) : SV_Target
     {
+        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
         float2 uv = input.uv * _MainTex_ST.xy + _MainTex_ST.zw;
         half4 color = _BaseColor * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
 
@@ -98,7 +103,7 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
         {
             // ⚠️ Pass 命名 PascalCase（多 Pass 时必需, 如 "XRayReveal"; 参考 XRay2/）
             Name "YourEffectPass"
-            Tags { "LightMode" = "UniversalForward" }
+            Tags { "LightMode" = "UniversalForwardOnly" }
 
             Cull Back
             ZWrite On
@@ -111,7 +116,8 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
             //   （实源: Assets/Mine/Shaders/Render/XRay2/）
 
             HLSLPROGRAM
-            #pragma target 2.0
+            #pragma target 3.0
+            #pragma multi_compile_instancing
             #pragma vertex Vert
             #pragma fragment Frag
             ENDHLSL

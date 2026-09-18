@@ -1,4 +1,4 @@
-Shader "Unlit/NewUnlitShader"
+Shader "Render/HiddenObj"
 {
     Properties
     {

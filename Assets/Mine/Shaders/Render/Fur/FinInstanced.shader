@@ -1,4 +1,4 @@
-Shader "Custom/Fur/FinInstanced"
+Shader "Render/FinInstanced"
 {
     Properties
     {

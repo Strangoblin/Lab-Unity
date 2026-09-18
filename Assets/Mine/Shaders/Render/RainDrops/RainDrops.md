@@ -214,7 +214,7 @@ DropConfig 解包 → aspect / gridUV / id / st / Hash2D
 ### 前置条件
 
 1. **URP Asset** → 勾选 **Opaque Texture**
-2. 材质指定为 `Mine/RainDrops`
+2. 材质指定为 `Render/RainDrops`
 3. 渲染队列自动 Transparent
 
 ### 添加新图层

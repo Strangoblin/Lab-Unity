@@ -1,4 +1,4 @@
-Shader "Custom/BoidInstance"
+Shader "Boid/BoidInstance"
 {
     Properties 
     {
@@ -10,7 +10,7 @@ Shader "Custom/BoidInstance"
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-    #include "Assets/Mine/Special/HLSL/LightFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/NPRFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/AdditionalLightsFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/TBN.hlsl"
 

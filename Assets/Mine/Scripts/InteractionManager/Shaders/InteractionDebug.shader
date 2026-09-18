@@ -1,4 +1,4 @@
-Shader "Mine/Interaction/Debug"
+Shader "InteractionManager/InteractionDebug"
 {
     // ═══════════════════════════════════════════════════════════════
     //  测试可视化 Shader — 在平面/网格上显示 _InteractionResultTex。

@@ -13,6 +13,8 @@
 
 适用于常规材质 Shader（PBR、Toon、Unlit 等），核心原则：**结构分明、功能解耦、功能分级**。
 
+Unity 6 / URP 17 管线能力以 [网格材质模板契约](../../../templates/standard/shader/README.md) 为准；下文布局示意不代表完整管线能力。PBRToon 是算法参考，不代替当前 URP 接口定义。
+
 ### 1. 整体布局
 
 ```

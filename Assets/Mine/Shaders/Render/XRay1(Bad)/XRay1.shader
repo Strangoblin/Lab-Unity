@@ -1,4 +1,4 @@
-Shader "Unlit/XRay1"
+Shader "Render/XRay1"
 {
     Properties
     {

@@ -1,4 +1,4 @@
-Shader "Mine/Picker/Picker"
+Shader "Picker/Picker"
 {
     // ════════════════════════════════════════════════════════════
     //  Picker — GPU 屏幕空间选物 MRT Shader

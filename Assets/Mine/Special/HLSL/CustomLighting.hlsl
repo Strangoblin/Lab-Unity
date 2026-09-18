@@ -1,3 +1,8 @@
+// ════════════════════════════════════════════════════════════
+//  CustomLighting — DEPRECATED：仅保留旧 Shader Graph 的 Forward 光照兼容接口
+// ════════════════════════════════════════════════════════════
+// 新手写 Shader 使用 LightFunction.hlsl 获取主光、NPRFunction.hlsl 计算风格化光照。
+// 两者不直接替代 Shader Graph 的 _float / _half 接口；旧图迁移前保留本文件与 GUID。
 #ifndef CUSTOM_LIGHTING_INCLUDED
 #define CUSTOM_LIGHTING_INCLUDED
 

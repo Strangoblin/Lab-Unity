@@ -2,7 +2,7 @@
 //  InteriorMapping — Box / Hemisphere 单房间室内映射
 //  一张 2D InteriorMap 提供完整室内投射内容。
 // ════════════════════════════════════════════════════════════
-Shader "Mine/Render/InteriorMapping"
+Shader "Render/InteriorMapping"
 {
     Properties
     {

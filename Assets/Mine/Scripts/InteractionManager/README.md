@@ -36,8 +36,8 @@ UniversalInteractionManager           ← 总控
 2. 场景中创建正交相机子物体，挂载 `UniversalAdditionalCameraData`，Renderer 设为 CustomRenderer
 3. 在 GameObject 上挂载 `UniversalInteractionManager`，拖入相机
 4. 同一 GameObject 上挂载 `WaterInteractionProcessor`，拖入 WaterInteraction.compute
-5. 场景中放置 debug 平面（材质用 `Mine/Interaction/Debug`）
-6. 交互物体使用 `Mine/Interaction/InteractorObject` Shader
+5. 场景中放置 debug 平面（材质用 `InteractionManager/InteractionDebug`）
+6. 交互物体使用 `InteractionManager/InteractorObject` Shader
 
 ---
 

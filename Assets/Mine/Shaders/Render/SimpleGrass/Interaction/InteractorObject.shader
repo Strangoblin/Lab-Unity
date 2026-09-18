@@ -1,4 +1,4 @@
-Shader "Custom/InteractorObject"
+Shader "Render/InteractorObject"
 {
     Properties
     {

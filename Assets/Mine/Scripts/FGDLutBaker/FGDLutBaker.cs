@@ -132,7 +132,7 @@ namespace Mine.FGDLutBaker
 
         private static Material GetMaterial(int sampleCount, int resolution)
         {
-            Shader shader = Shader.Find("Hidden/Mine/FGDPacker");
+            Shader shader = Shader.Find("FGDLutBaker/FGDPacker");
             if (shader == null) return null;
 
             var mat = new Material(shader)

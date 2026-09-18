@@ -1,4 +1,4 @@
-Shader "Mine/ObjInCard"
+Shader "Render/ObjInCard"
 {
     Properties
     {

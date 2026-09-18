@@ -85,9 +85,34 @@ def test_roslyn_paths_use_shared_agent_root() -> None:
     assert validate_path(legacy_path)["status"] == "DENIED"
 
 
+def test_mine_write_scope() -> None:
+    for path in (
+        "Assets/Mine/Special/HLSL/PBRFunction.hlsl",
+        "Assets/Mine/Shaders/Render/Test.shader",
+        "Assets/Mine/Scripts/Test.cs",
+        "Assets/Mine/Textures/Test.png",
+        str(ROOT / "Assets/Mine/Special/HLSL/PBRFunction.hlsl"),
+        "tmp/test.txt",
+    ):
+        assert validate_path(path)["status"] == "OK", path
+    for path in (
+        "Assets/MineOther/test.hlsl",
+        "Assets/Mine/../Other/test.hlsl",
+        "Assets/Other/test.hlsl",
+        "tmpOther/test.txt",
+        ".agents/agents/meta-developer/AGENT.md",
+    ):
+        assert validate_path(path)["status"] == "DENIED", path
+    with TemporaryDirectory(dir=ROOT / "tmp") as allowed, TemporaryDirectory() as outside:
+        link = Path(allowed) / "outside"
+        link.symlink_to(outside, target_is_directory=True)
+        assert validate_path(str(link / "test.hlsl"))["status"] == "DENIED"
+
+
 if __name__ == "__main__":
     test_project_root_and_stable_ids()
     test_basename_ambiguity_and_missing_are_explicit()
     test_g_knowledge_reports_canonical_resolution()
     test_roslyn_paths_use_shared_agent_root()
+    test_mine_write_scope()
     print("PASS: knowledge-path and Roslyn path contracts")

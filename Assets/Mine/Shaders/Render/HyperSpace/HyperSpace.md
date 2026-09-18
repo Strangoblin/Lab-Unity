@@ -1,6 +1,6 @@
 # HyperSpace
 
-`Mine/Render/HyperSpace` 是 Benoit Marini（2020）Shadertoy 片段的最小 Unity 材质移植。
+`Render/HyperSpace` 是 Benoit Marini（2020）Shadertoy 片段的最小 Unity 材质移植。
 
 ## 源代码对应关系
 

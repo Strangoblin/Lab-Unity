@@ -100,7 +100,7 @@ public static class YourBaker
 
     private static Material GetMaterial()
     {
-        Shader shader = Shader.Find("Hidden/<YourTool>/<YourPacker>"); // ⚠️ 与包内 shader 路径一致
+        Shader shader = Shader.Find("<YourTool>/<YourPacker>"); // ⚠️ 与工具 Shader 的菜单路径一致
         if (shader == null)
         {
             Debug.LogError("YourBaker: Shader not found. Ensure it exists in the project.");

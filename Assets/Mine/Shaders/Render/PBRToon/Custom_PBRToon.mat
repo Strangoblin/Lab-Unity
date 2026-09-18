@@ -12,7 +12,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - ENABLE_CELTOON
+  - ENABLE_OUTLINE
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -40,23 +40,41 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _SSSLut:
+        m_Texture: {fileID: 2800000, guid: f60ff6966ac0b4e79920047f016364ef, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SSSTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _Anisotropy: 0
-    - _EnableCelToon: 1
-    - _EnableOutline: 0
+    - _Brightness: 2
+    - _EnableCelToon: 0
+    - _EnableOutline: 1
+    - _FillLightStrength: 1
+    - _FillLightWeight: 0.5
     - _Metallic: 0
     - _OutlineColor: 0.8
     - _OutlineScale: 0.5
     - _RimRange: 0.5
     - _RimStrength: 0.5
-    - _Roughness: 0
+    - _Roughness: 1
+    - _SSSRange: 1
+    - _SSSScatter: 0.15
+    - _SSSStrength: 2
+    - _SSSWeight: 0.5
+    - _ToonBrightness: 0.25
+    - _ToonRange: 0.5
     - _ToonRemap: 0.42
     - _ToonRimRange: 0.2
     - _ToonRoughness: 0.75
-    - _ToonSharpness: 0.1
-    - _ToonSmoothness: 0.1
+    - _ToonSharpness: 0
+    - _ToonSmoothness: 0.5
     - _ToonStep: 1.9
+    - _ToonWeight: 0.5
     m_Colors:
     - _BaseColor: {r: 0.8784314, g: 0.42164707, b: 0.42164707, a: 1}
     - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}

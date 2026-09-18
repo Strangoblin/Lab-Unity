@@ -1,4 +1,4 @@
-Shader "Hidden/CelToon/SSR"
+Shader "PostProcess/SSR"
 {
     Properties
     {

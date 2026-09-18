@@ -1,4 +1,4 @@
-Shader "Mine/RainDrops"
+Shader "Render/RainDrops"
 {
     Properties
     {
@@ -40,7 +40,7 @@ Shader "Mine/RainDrops"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
-    #include "Assets/Mine/Special/HLSL/LightFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/NPRFunction.hlsl"
     #include "RainDrop.hlsl"
 
     CBUFFER_START(UnityPerMaterial)

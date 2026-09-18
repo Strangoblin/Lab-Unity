@@ -4,7 +4,7 @@
 //  License: CC BY-NC-SA 4.0
 // ════════════════════════════════════════════════════════════
 
-Shader "Mine/Render/HyperTube"
+Shader "Render/HyperTube"
 {
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"

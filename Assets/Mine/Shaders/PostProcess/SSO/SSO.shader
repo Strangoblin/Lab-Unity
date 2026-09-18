@@ -1,4 +1,4 @@
-Shader "Custom/SSO"
+Shader "PostProcess/SSO"
 {
     Properties
     {

@@ -74,7 +74,7 @@ public class POSSFeature : ScriptableRendererFeature
             m_S = s;
             renderPassEvent = RenderPassEvent.AfterRenderingShadows;
             profilingSampler = new ProfilingSampler("POSS Caster");
-            var shader = Shader.Find("Hidden/POSS/ShadowCaster");
+            var shader = Shader.Find("PostProcess/POSSShadowCaster");
             if (shader != null) m_ShadowCasterMaterial = new Material(shader);
         }
 

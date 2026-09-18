@@ -4,7 +4,7 @@
 //  用 SV_Position 计算像素坐标→UV，绕过 URP 兼容模式下的 texcoord 传递问题。
 //  positionSS.x / _LutResolution.x = NdotV,  positionSS.y / _LutResolution.y = roughness
 // ════════════════════════════════════════════════════════════════════════════
-Shader "Hidden/Mine/FGDPacker"
+Shader "FGDLutBaker/FGDPacker"
 {
     Properties
     {

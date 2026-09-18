@@ -8,6 +8,11 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-09-17-urp17-material-templates.md](2026-09-17-urp17-material-templates.md) | 2026-09-17 | Unity 6/URP 17 材质模板升级：实例化、Stereo、四 Pass 一致性及能力契约 |
+| [2026-09-17-debug-validation-route.md](2026-09-17-debug-validation-route.md) | 2026-09-17 | 2D 验证对齐 PostProcess/Debug 资源与材质优先的 DebugOutputFeature |
+| [2026-09-17-shader-validation-branches.md](2026-09-17-shader-validation-branches.md) | 2026-09-17 | 2D 全屏与 3D 网格验证并列接入 compile/runtime；明确隔离渲染与证据边界 |
+| [2026-09-17-shader-menu-naming.md](2026-09-17-shader-menu-naming.md) | 2026-09-17 | 固化 Mine Shader 菜单路径命名，同步 Shader/Baker 模板与规范索引 |
+| [2026-09-14-mine-write-scope.md](2026-09-14-mine-write-scope.md) | 2026-09-14 | Unity 门禁可写范围统一为 Assets/Mine；补充目录边界和软链越界回归测试 |
 | [2026-09-10-meta-mcp-bypass.md](2026-09-10-meta-mcp-bypass.md) | 2026-09-10 | meta-developer 与体系路径绕过 Unity MCP；g_entry 收紧为 unity-developer，并新增边界回归测试 |
 | [2026-09-10-unity-cli-routing.md](2026-09-10-unity-cli-routing.md) | 2026-09-10 | unity-editor skill 增加官方 Editor CLI 与 unityctl 的选择边界、同项目双实例安全约束及适配同步说明 |
 | [2026-09-04-agent-architecture-cutover.md](2026-09-04-agent-architecture-cutover.md) | 2026-09-04 | 架构解耦收尾 P0-P3 + skills 软链切流（已执行 fdf9106，人工确认） — 最终验收全绿（fixture phase7） |

@@ -13,6 +13,8 @@
 
 ## 关键架构决策
 
+- Shader 参数端点策略：统一在参数入口钳制合法范围，避免逐计算追加冗余保护；尚未统一实施时明确记录待办。见 [2026-09-18-parameter-range-policy.md](2026-09-18-parameter-range-policy.md)。
+
 - PCSS 阴影：PSSM 4-cascade split → tiled atlas → blocker search → penumbra → variable PCF
 - POSS 逐物体软阴影：Shadow Atlas Tile Grid → Compute 屏幕空间解算 → PCF 软边缘，与 CSM 共存
 - 交互系统：Manager/Processor 分离架构，RT 管理下放，正交相机 CustomRenderer 深度比较输入
@@ -26,6 +28,8 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-09-18-parameter-range-policy.md](2026-09-18-parameter-range-policy.md) | 2026-09-18 | 参数 0/1 端点风险统一入口钳制，原型阶段避免逐点冗余保护；Snowy 纹理风效 |
+| [2026-09-17-pbrtoon-urp17.md](2026-09-17-pbrtoon-urp17.md) | 2026-09-17 | PBRToon 五 Pass 实例化/Stereo 与 URP 17 结构迁移，保留原材质算法 |
 | [2026-07-24-pcss-integration.md](2026-07-24-pcss-integration.md) | 2026-07-24 | PCSS 软阴影完整方案 |
 | [2026-07-30-interaction-system.md](2026-07-30-interaction-system.md) | 2026-07-30 | 正交交互系统：Manager/Processor 架构 + Verlet 波方程 + 移动域重投影 |
 | [2026-07-30-fgd-lut-baker.md](2026-07-30-fgd-lut-baker.md) | 2026-07-30 | FGD LUT 烘焙工具 + ENVFunction 合并 + _UseFGDLut 自动检测 |
@@ -40,3 +44,4 @@
 | [2026-09-03-generator-unification.md](2026-09-03-generator-unification.md) | 2026-09-03 | Curve/Noise Generator 统一：CurveBake 共享骨架去重 + C2 余数/空结果修复 + period 死参清理 + PackChannels 下沉 + 窗口迁工具目录 Editor/ |
 | [2026-09-03-render-hlsl-template-families.md](2026-09-03-render-hlsl-template-families.md) | 2026-09-03 | render 家族落地(直写单 Pass + 复杂材质对) + hlsl 新家族：Special/HLSL 共享库三档依赖决策表 + 私有/共享拆库裁决 |
 | [2026-09-04-interior-mapping-archive.md](2026-09-04-interior-mapping-archive.md) | 2026-09-04 | InteriorMapping + InteriorMap Baker 完成归档：正式产物、方向/投影约定、验证证据与迁移/清理结果 |
+| [2026-09-17-uv-aspect-anisotropy.md](2026-09-17-uv-aspect-anisotropy.md) | 2026-09-17 | UV 空间各向异性：屏幕 UV 内做 R/S 必然剪切/拉伸 + 逆映射语义 + TRS2D_InverseTransformUV |

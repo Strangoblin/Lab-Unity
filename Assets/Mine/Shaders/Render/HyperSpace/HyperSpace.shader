@@ -4,7 +4,7 @@
 //  License: CC BY-NC-SA 3.0
 // ════════════════════════════════════════════════════════════
 
-Shader "Mine/Render/HyperSpace"
+Shader "Render/HyperSpace"
 {
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"

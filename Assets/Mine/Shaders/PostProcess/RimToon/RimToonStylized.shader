@@ -1,4 +1,4 @@
-Shader "Custom/RimToonStylized"
+Shader "PostProcess/RimToonStylized"
 {
     Properties
     {

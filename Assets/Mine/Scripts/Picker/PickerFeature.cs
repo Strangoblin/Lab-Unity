@@ -181,7 +181,7 @@ namespace Mine.Picker
                 return _cachedRenderers;
             }
         rebuild:
-            var shader = _pickerShader != null ? _pickerShader : Shader.Find("Mine/Picker/Picker");
+            var shader = _pickerShader != null ? _pickerShader : Shader.Find("Picker/Picker");
             if (shader == null) return System.Array.Empty<Renderer>();
 
             var all = Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None);

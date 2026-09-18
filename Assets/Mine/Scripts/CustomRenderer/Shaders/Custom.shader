@@ -1,4 +1,4 @@
-Shader "Custom/CustomRenderer"
+Shader "CustomRenderer/Custom"
 {
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"

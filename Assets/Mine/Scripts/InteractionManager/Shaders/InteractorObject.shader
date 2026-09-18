@@ -1,4 +1,4 @@
-Shader "Mine/Interaction/InteractorObject"
+Shader "InteractionManager/InteractorObject"
 {
     // ═══════════════════════════════════════════════════════════════
     //  互动物体 Shader — 两个 Pass：

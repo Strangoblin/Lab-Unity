@@ -79,22 +79,23 @@ def resolve_target_dir(file_type: str, category: str, effect: str = "") -> dict:
 def validate_path(path: str) -> dict:
     """校验写入路径是否在合法目录内."""
     allowed_prefixes = [
-        os.path.join(PROJECT_ROOT, "Assets/Mine/Shaders"),
-        os.path.join(PROJECT_ROOT, "Assets/Mine/Scripts"),
+        os.path.join(PROJECT_ROOT, "Assets/Mine"),
         os.path.join(PROJECT_ROOT, ".agents", "agents", "unity-developer", "scripts", "roslyn"),
         os.path.join(PROJECT_ROOT, "tmp"),
     ]
 
     full = os.path.join(PROJECT_ROOT, path) if not os.path.isabs(path) else path
-    full = os.path.normpath(full)
+    full = os.path.abspath(full)
+    resolved = os.path.realpath(full)
 
     for prefix in allowed_prefixes:
-        if full.startswith(os.path.normpath(prefix)):
+        if (os.path.commonpath([full, prefix]) == prefix
+                and os.path.commonpath([resolved, os.path.realpath(prefix)]) == os.path.realpath(prefix)):
             return {"status": "OK", "path": path, "full_path": full}
 
     return {
         "status": "DENIED",
         "error": "PATH_NOT_ALLOWED",
         "path": path,
-        "hint": f"路径必须在以下目录内: Assets/Mine/Shaders/, Assets/Mine/Scripts/, scripts/roslyn/, tmp/",
+        "hint": "路径必须在以下目录内: Assets/Mine/, .agents/agents/unity-developer/scripts/roslyn/, tmp/",
     }

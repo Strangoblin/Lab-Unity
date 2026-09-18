@@ -1,4 +1,4 @@
-Shader "Unlit/XR1"
+Shader "Render/XR1"
 {
     Properties
     {

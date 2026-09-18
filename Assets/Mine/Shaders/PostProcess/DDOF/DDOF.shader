@@ -1,4 +1,4 @@
-Shader "Custom/DDOF"// Dynamic Depth of Field
+Shader "PostProcess/DDOF"// Dynamic Depth of Field
 {
     Properties
     {

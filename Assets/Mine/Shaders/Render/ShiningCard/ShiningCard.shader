@@ -1,4 +1,4 @@
-Shader "Mine/ShiningCard"
+Shader "Render/ShiningCard"
 {
     Properties
     {

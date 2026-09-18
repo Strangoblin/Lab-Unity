@@ -1,6 +1,6 @@
 # HyperTube
 
-`Mine/Render/HyperTube` 是 Frostbyte Shadertoy 片段的 Unity 6 / URP 材质移植，保留原始的十步体积光线步进、Dot Noise、隧道约束、扰动和 ACES 色调映射。
+`Render/HyperTube` 是 Frostbyte Shadertoy 片段的 Unity 6 / URP 材质移植，保留原始的十步体积光线步进、Dot Noise、隧道约束、扰动和 ACES 色调映射。
 
 ## 源代码对应关系
 

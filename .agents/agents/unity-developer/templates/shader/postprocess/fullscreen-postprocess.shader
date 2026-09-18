@@ -9,7 +9,7 @@
 //  使用: 复制此文件 → 替换 ⚠️ 标记 → 创建 Material → Feature 引用
 // ═══════════════════════════════════════════════════════════════
 
-Shader "Hidden/⚠️YourEffectName"
+Shader "PostProcess/⚠️YourEffectName"
 {
     Properties
     {

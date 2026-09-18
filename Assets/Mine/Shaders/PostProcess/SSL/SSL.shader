@@ -1,4 +1,4 @@
-Shader "Hidden/CelToon/SSL"
+Shader "PostProcess/SSL"
 {
     Properties
     {

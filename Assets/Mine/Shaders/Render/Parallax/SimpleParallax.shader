@@ -1,4 +1,4 @@
-Shader "Custom/Parallax/SimpleParallax"
+Shader "Render/SimpleParallax"
 {
     Properties
     {

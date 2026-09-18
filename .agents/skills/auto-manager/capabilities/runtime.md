@@ -1,6 +1,10 @@
 # runtime — 运行时验证
 
-> Play Mode 进入/退出、日志获取、自动诊断。
+> 按验证目标选择静态渲染或 Play Mode，并检查日志。
+
+## Shader 验证分支
+
+Shader 任务先按 [2D / 3D 渲染检查](shader-validation.md) 选择验证载体。静态 3D 材质可在隔离预览场景验证；需要帧间行为或运行时初始化时再执行下述 Play Mode 流程。2D 后处理保留真实相机管线检查。
 
 ---
 

@@ -33,7 +33,7 @@
 //    urp_ReflProbes_Atlas 在后处理 pass 中 fallback 探针数据不可达 → 淡蓝。
 // ════════════════════════════════════════════════════════════════
 
-Shader "Hidden/CelToon/SSPR"
+Shader "PostProcess/SSPR"
 {
     Properties { _MainTex ("Texture", 2D) = "white" {} }
 

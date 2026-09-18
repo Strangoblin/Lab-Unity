@@ -19,13 +19,15 @@ Shader-family division: `standard/` = function-independent skeletons · `postpro
 
 | 需求 | 起点 |
 |---|---|
-| 生产标准材质(光照 + 阴影 + 深度三 Pass 义务) | [standard-shader.shader](../../standard/shader/standard-shader.shader)(standard/ 族) |
+| 标准材质(光照 + 阴影 + 深度 + 法线四 Pass) | [standard-shader.shader](../../standard/shader/standard-shader.shader)(standard/ 族) |
 | 直写单 Pass 效果(自包含,无阴影/深度 Pass) | 本族 direct-effect.shader |
 | 复杂效果 + 算法拆同目录私有库 | 本族 effect-shader.shader + effect-function.hlsl 对 |
 | 全屏后处理管线 | [postprocess/](../postprocess/README.md) 族 |
 | 跨效果复用的函数抽共享库 | `Assets/Mine/Special/HLSL/` → [hlsl/](../hlsl/README.md) 族模板 |
 
 **拆库裁决**:单效果私有数学 / 专属 SDF → 同目录本地库(本族复杂对形态);跨效果横切(模糊 / BRDF / 光照 / 法线混合)→ Special/HLSL 共享库(hlsl/ 族)。
+
+Unity 6 / URP 17 的默认能力、实例化与 XR 边界见 [网格材质能力契约](../../standard/shader/README.md#网格材质能力契约unity-60003--urp-173)；单 Pass 模板保持轻量，不自动增加阴影/深度 Pass。
 
 ## 实源(Assets 路径,只读参考)
 

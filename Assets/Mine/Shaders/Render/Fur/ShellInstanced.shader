@@ -1,4 +1,4 @@
-Shader "Custom/Fur/ShellInstanced"
+Shader "Render/ShellInstanced"
 {
     Properties
     {

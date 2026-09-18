@@ -105,7 +105,11 @@ unityctl play exit
 
 **固定调试 Feature**
 
-调试独立全屏 Shader（非 Feature 自带 Debug）时，使用通用 [DebugOutputFeature](Assets/Mine/Scripts/Debug/DebugOutputFeature.md)：绑定 Shader 直接覆盖到真实相机颜色目标，Inspector 指定 `debugShader` + 勾选 `settings.debug` 即可，无需临时 Roslyn 脚本。
+调试独立全屏 Shader（非 Feature 自带 Debug）时，复用以下现有链路，无需临时 Roslyn 脚本或另建 Probe 管线：
 
-**提醒**：调试开关是编辑器资产修改，验证结束后恢复 `Debug=Off` 和原始 Active 状态；不要把调试开关作为最终画面配置提交。
+- 调试 Shader 位于 `Assets/Mine/Shaders/PostProcess/Debug/`；`DebugOutput.shader` 提供当前场景颜色的通道、曝光、UV 等可视化，`InteriorMappingScreenDebug.shader` 用于专用效果调试。按用途选择，不自动替换为通用 Shader。
+- 固定 [DebugOutputFeature](../../../../../../Assets/Mine/Scripts/Debug/DebugOutputFeature.md) 位于 `Assets/Mine/Scripts/Debug/`，负责实际 RenderGraph Blit 与相机输出；Shader 所在目录本身不负责执行。
+- Inspector 优先指定 `settings.debugMaterial`，保留目标 Shader 的纹理、参数与关键字；未指定材质时才用 `settings.debugShader` 创建默认参数材质。可直接绑定待检全屏效果的材质，无需复制到 Debug 目录。
+- 开启 Feature Active 和 `settings.debug`，执行材质第 0 个 Pass；显示参数由 Shader/Material 持有。输入当前场景色 `_BlitTexture`，Shader 使用 URP `Blit.hlsl` 的 `Vert` / `Varyings`。
 
+**提醒**：调试配置是编辑器资产修改，验证前记录材质/Shader 引用、Debug 和 Active，结束后恢复原状态；不要把临时调试配置作为最终画面配置提交。

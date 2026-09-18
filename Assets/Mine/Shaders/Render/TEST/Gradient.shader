@@ -1,4 +1,4 @@
-Shader "Custom/Gradient"
+Shader "Render/Gradient"
 {
     Properties
     {

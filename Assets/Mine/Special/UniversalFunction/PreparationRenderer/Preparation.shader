@@ -1,4 +1,4 @@
-Shader "Custom/Preparation"
+Shader "PreparationRenderer/Preparation"
 {
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"

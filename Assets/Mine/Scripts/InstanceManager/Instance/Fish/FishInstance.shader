@@ -1,4 +1,4 @@
-Shader "Custom/FishInstance"
+Shader "Fish/FishInstance"
 {
     Properties
     {

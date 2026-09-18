@@ -1,4 +1,4 @@
-Shader "Custom/Fur/Shell"
+Shader "Render/Shell"
 {
 	Properties
 	{

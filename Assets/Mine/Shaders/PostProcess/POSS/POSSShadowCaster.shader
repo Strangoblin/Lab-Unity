@@ -4,7 +4,7 @@
 //  TransformObjectToHClip 自动输出光源空间的深度。
 //  由 POSSFeature CasterPass 作为 override material 使用。
 // ════════════════════════════════════════════════════════════
-Shader "Hidden/POSS/ShadowCaster"
+Shader "PostProcess/POSSShadowCaster"
 {
     SubShader
     {

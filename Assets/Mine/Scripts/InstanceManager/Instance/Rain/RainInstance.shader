@@ -1,4 +1,4 @@
-Shader "Custom/RainInstance"
+Shader "Rain/RainInstance"
 {
     Properties
     {

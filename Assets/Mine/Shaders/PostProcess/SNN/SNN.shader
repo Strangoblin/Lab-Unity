@@ -1,4 +1,4 @@
-Shader "Custom/SNN"
+Shader "PostProcess/SNN"
 {
     Properties
     {

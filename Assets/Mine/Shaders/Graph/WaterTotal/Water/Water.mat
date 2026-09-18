@@ -92,7 +92,10 @@ Material:
     - _CastShadows: 0
     - _Caustics: 1
     - _CausticsIntensity: 1
-    - _CausticsScale: 0
+    - _CausticsMeanDirect: 0.75
+    - _CausticsMeanGrazing: 0.35
+    - _CausticsScale: 0.002
+    - _CausticsSharpness: 1
     - _Cull: 2
     - _DIFFUSE: 1
     - _DebugMode: 0
@@ -170,6 +173,7 @@ Material:
     - _ZWrite: 1
     - _ZWriteControl: 0
     m_Colors:
+    - _CausticsIncidentDir: {r: 0, g: 11.8, b: 0, a: 0}
     - _Deep_Color: {r: 0, g: 0.20810206, b: 0.3537736, a: 0.9490196}
     - _Flow_Color: {r: 0, g: 0, b: 0, a: 0}
     - _Foam_Color: {r: 1, g: 1, b: 1, a: 1}

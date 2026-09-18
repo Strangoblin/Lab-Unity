@@ -1,4 +1,4 @@
-Shader "Hidden/SSSM"
+Shader "PostProcess/SSSM"
 {
     Properties
     {

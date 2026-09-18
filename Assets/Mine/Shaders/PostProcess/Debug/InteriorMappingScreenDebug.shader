@@ -4,7 +4,7 @@
 //  使用与 InteriorMapping 物体 Shader 共用的求交、展开和房间合成函数。
 //  DebugFeature 只负责全屏输出；相机位置和房间参数由本 Shader 自己持有。
 
-Shader "Hidden/Mine/InteriorMappingScreenDebug"
+Shader "PostProcess/InteriorMappingScreenDebug"
 {
     Properties
     {

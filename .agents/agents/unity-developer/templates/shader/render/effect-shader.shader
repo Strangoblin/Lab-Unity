@@ -15,7 +15,7 @@
 //    抽 Assets/Mine/Special/HLSL/（hlsl/ 家族模板）, Shader 内不写算法细节
 // ═══════════════════════════════════════════════════════════════
 
-Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路径一致）
+Shader "Render/YourEffect" // ⚠️ 重命名为你的效果名（与文件名一致）
 {
     // ═══ Properties — 参数暴露; 复杂效果把「模式选择」交给 [Enum] ═══
     Properties
@@ -60,6 +60,7 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
         float4 positionOS : POSITION;
         float3 normalOS   : NORMAL;
         float2 uv         : TEXCOORD0;
+        UNITY_VERTEX_INPUT_INSTANCE_ID
     };
 
     struct YourEffectVaryings
@@ -68,6 +69,7 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
         float2 uv         : TEXCOORD0;
         float3 positionWS : TEXCOORD1;
         float3 normalWS   : TEXCOORD2;
+        UNITY_VERTEX_OUTPUT_STEREO
     };
 
     // ════════════════════════════════════════════════════════════
@@ -75,7 +77,9 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
     // ════════════════════════════════════════════════════════════
     YourEffectVaryings Vert(YourEffectAttributes input)
     {
-        YourEffectVaryings output;
+        YourEffectVaryings output = (YourEffectVaryings)0;
+        UNITY_SETUP_INSTANCE_ID(input);
+        UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
         output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
         output.uv         = input.uv;
         output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
@@ -88,6 +92,7 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
     // ════════════════════════════════════════════════════════════
     half4 Frag(YourEffectVaryings input) : SV_Target
     {
+        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
         float2 uv = input.uv * _MainTex_ST.xy + _MainTex_ST.zw;
         half4 color = _BaseColor * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, uv);
 
@@ -115,14 +120,15 @@ Shader "Mine/Render/YourEffect" // ⚠️ 重命名为你的效果名（与路�
         {
             // ⚠️ Pass 命名 PascalCase, 与功能对应（InteriorMapping 先例）
             Name "YourEffect"
-            Tags { "LightMode" = "UniversalForward" }
+            Tags { "LightMode" = "UniversalForwardOnly" }
 
             Cull Back // ⚠️ 双面/内腔效果改 Cull Off（InteriorMapping 先例）
             ZWrite On
             ZTest LEqual
 
             HLSLPROGRAM
-            #pragma target 2.0
+            #pragma target 3.0
+            #pragma multi_compile_instancing
             #pragma vertex Vert
             #pragma fragment Frag
             // ⚠️ 需要多光源/阴影变体时追加 #pragma multi_compile（Water/PBRToon 先例）

@@ -1,4 +1,4 @@
-Shader "Mine/PCSS/PCSSTemplate"
+Shader "PostProcess/PCSSTemplate"
 {
     Properties
     {

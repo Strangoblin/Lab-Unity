@@ -1,4 +1,4 @@
-Shader "Hidden/RimToonScreen"
+Shader "PostProcess/RimToonScreen"
 {
     Properties
     {

@@ -1,4 +1,4 @@
-Shader "Hidden/CelToon/StochasticSSR"
+Shader "PostProcess/StochasticSSR"
 {
     Properties { _MainTex ("Texture", 2D) = "white" {} }
 

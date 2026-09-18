@@ -1,5 +1,5 @@
-using System;
 using UnityEngine;
+using System;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
@@ -7,7 +7,7 @@ using UnityEngine.Rendering.Universal;
 namespace Mine.RenderingDebug
 {
     // ════════════════════════════════════════════════════════════
-    //  DebugOutputFeature — 将绑定 Shader 直接覆盖到屏幕
+    //  DebugOutputFeature — 将绑定材质或 Shader 直接覆盖到屏幕
     // ════════════════════════════════════════════════════════════
 
     /// <summary>
@@ -19,7 +19,17 @@ namespace Mine.RenderingDebug
         [Serializable]
         public sealed class Settings
         {
+            [Tooltip("优先使用此材质，保留纹理、参数和关键字。")]
+            public Material debugMaterial;
+
+            [Tooltip("未指定材质时，使用此 Shader 的默认参数。")]
             public Shader debugShader;
+
+            [Tooltip("在 Pass 0 之后执行的材质 Pass；-1 表示仅复制输出。")]
+            [Min(-1)] public int additionalPassIndex = -1;
+
+            [Tooltip("被测 Shader 需要场景深度时开启。")]
+            public bool requireDepth;
 
             [Header("Debug")]
             public bool debug;
@@ -38,14 +48,28 @@ namespace Mine.RenderingDebug
             {
                 public TextureHandle source;
                 public TextureHandle destination;
+                public Material material;
+                public int passIndex;
             }
 
-            private readonly Material _material;
+            private Material _material;
+            private int _additionalPassIndex = -1;
+            private bool _requireDepth;
 
             public ShaderPass(Material material)
             {
                 _material = material;
                 renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
+                requiresIntermediateTexture = true;
+            }
+
+            public void SetMaterial(Material material, int additionalPassIndex, bool requireDepth)
+            {
+                _material = material;
+                _additionalPassIndex = material != null && additionalPassIndex >= 0
+                    && additionalPassIndex < material.passCount ? additionalPassIndex : -1;
+                _requireDepth = requireDepth;
+                ConfigureInput(requireDepth ? ScriptableRenderPassInput.Depth : ScriptableRenderPassInput.None);
             }
 
             public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
@@ -54,7 +78,7 @@ namespace Mine.RenderingDebug
                 UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
                 TextureHandle destination = resourceData.activeColorTexture;
 
-                if (_material == null || !destination.IsValid())
+                if (_material == null || !destination.IsValid() || resourceData.isActiveTargetBackBuffer)
                     return;
 
                 RenderTextureDescriptor descriptor = cameraData.cameraTargetDescriptor;
@@ -77,6 +101,8 @@ namespace Mine.RenderingDebug
                     passData.output = output;
 
                     builder.UseTexture(destination, AccessFlags.Read);
+                    if (_requireDepth && resourceData.cameraDepthTexture.IsValid())
+                        builder.UseTexture(resourceData.cameraDepthTexture, AccessFlags.Read);
                     builder.UseTexture(output, AccessFlags.Write);
                     builder.AllowPassCulling(false);
 
@@ -98,15 +124,23 @@ namespace Mine.RenderingDebug
                 {
                     passData.source = output;
                     passData.destination = destination;
+                    passData.material = _material;
+                    passData.passIndex = _additionalPassIndex;
 
                     builder.UseTexture(output, AccessFlags.Read);
-                    builder.UseTexture(destination, AccessFlags.ReadWrite);
+                    builder.UseTexture(destination, AccessFlags.Write);
+                    if (_requireDepth && resourceData.cameraDepthTexture.IsValid())
+                        builder.UseTexture(resourceData.cameraDepthTexture, AccessFlags.Read);
                     builder.AllowPassCulling(false);
 
                     builder.SetRenderFunc((OutputPassData data, UnsafeGraphContext context) =>
                     {
                         CommandBuffer commandBuffer = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
-                        Blitter.BlitCameraTexture(commandBuffer, data.source, data.destination);
+                        if (data.passIndex >= 0)
+                            Blitter.BlitCameraTexture(commandBuffer, data.source, data.destination,
+                                data.material, data.passIndex);
+                        else
+                            Blitter.BlitCameraTexture(commandBuffer, data.source, data.destination);
                     });
                 }
             }
@@ -121,16 +155,28 @@ namespace Mine.RenderingDebug
         {
             ReleaseResources();
 
-            if (settings.debugShader != null)
-            {
-                _ownedMaterial = CoreUtils.CreateEngineMaterial(settings.debugShader);
-                _pass = new ShaderPass(_ownedMaterial);
-            }
+            _pass = new ShaderPass(null);
         }
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if (settings.debug && _pass != null)
+            if (!settings.debug || _pass == null)
+                return;
+
+            Material material = settings.debugMaterial;
+            if (material != null || settings.debugShader == null ||
+                (_ownedMaterial != null && _ownedMaterial.shader != settings.debugShader))
+                ReleaseOwnedMaterial();
+
+            if (material == null && settings.debugShader != null)
+            {
+                if (_ownedMaterial == null)
+                    _ownedMaterial = CoreUtils.CreateEngineMaterial(settings.debugShader);
+                material = _ownedMaterial;
+            }
+
+            _pass.SetMaterial(material, settings.additionalPassIndex, settings.requireDepth);
+            if (material != null)
                 renderer.EnqueuePass(_pass);
         }
 
@@ -145,7 +191,11 @@ namespace Mine.RenderingDebug
         private void ReleaseResources()
         {
             _pass = null;
+            ReleaseOwnedMaterial();
+        }
 
+        private void ReleaseOwnedMaterial()
+        {
             if (_ownedMaterial != null)
             {
                 CoreUtils.Destroy(_ownedMaterial);

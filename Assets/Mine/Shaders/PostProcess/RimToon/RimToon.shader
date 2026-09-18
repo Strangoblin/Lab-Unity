@@ -1,4 +1,4 @@
-Shader "Custom/RimToon"
+Shader "PostProcess/RimToon"
 {
     Properties
     {
@@ -20,7 +20,7 @@ Shader "Custom/RimToon"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
-    #include "Assets/Mine/Special/HLSL/LightFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/NPRFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/RimLightFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/AdditionalLightsFunction.hlsl"
 

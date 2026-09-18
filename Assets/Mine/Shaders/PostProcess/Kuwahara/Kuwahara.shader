@@ -1,4 +1,4 @@
-Shader "Hidden/Kuwahara"
+Shader "PostProcess/Kuwahara"
 {
     Properties
     {

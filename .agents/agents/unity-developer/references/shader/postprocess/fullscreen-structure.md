@@ -254,4 +254,4 @@ Assets/Mine/Shaders/XxxPostEffect/
 - 使用 `half4(color, 1)` 直接返回中间值来可视化（如返回 positionWS、normal、depth 等），方便在屏幕上看各步骤效果
 - Debug 开关独立于效果开关，二者互不干扰
 - `ConfigureInput(ScriptableRenderPassInput.Color | Depth | Normal)` 确保 RenderGraph 正确传入所需纹理
-- 需要把独立 Shader 全屏输出到真实相机管线人工观察 → 用通用调试 Feature [DebugOutputFeature](Assets/Mine/Scripts/Debug/DebugOutputFeature.md)（Inspector 指定 shader + 勾选 debug）；完整流程（编译检查 → snapshot → logs → Game View）见 [feature-script-structure.md](feature-script-structure.md)「屏幕调试方法」
+- 需要把独立 Shader 全屏输出到真实相机管线人工观察 → 复用 `Shaders/PostProcess/Debug/` 调试资源与固定 Feature，优先绑定材质；输入优先级和完整流程见 [feature-script-structure.md](feature-script-structure.md)「屏幕调试方法」。

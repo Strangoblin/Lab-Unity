@@ -3,7 +3,7 @@
 //  私有功能库：Assets/Mine/Shaders/Render/Water/WaterFunction.hlsl
 // ═══════════════════════════════════════════════════════════════
 
-Shader "Custom/Water"
+Shader "Render/Water"
 {
     Properties
     {
@@ -33,8 +33,8 @@ Shader "Custom/Water"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
     #include "Assets/Mine/Special/HLSL/DepthDiffFunction.hlsl"
-    #include "Assets/Mine/Special/HLSL/ShadowFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/LightFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/NPRFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/BlendFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/PBRFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/ENVFunction.hlsl"

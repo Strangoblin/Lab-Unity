@@ -51,4 +51,5 @@ unityctl asset refresh
 
 ## 引用
 
+- Shader 编译后的 [2D / 3D 渲染检查](shader-validation.md)：区分资源刷新、Pass 编译和实际 GPU 输出。
 - 错误诊断详情：[../../../rules/shader-development.md](../../../rules/shader-development.md)

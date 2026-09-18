@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════════════════════
 //  TheStarryNight — 星夜全屏后处理：星空（环+扇+星点）+ 山水多层 + 麦田前景
 // ════════════════════════════════════════════════════════════
-Shader "Mine/VanGogh/TheStarryNight"
+Shader "Render/TheStarryNight"
 {
     Properties
     {

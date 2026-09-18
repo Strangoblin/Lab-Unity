@@ -1,4 +1,4 @@
-Shader "Unlit/Checker"
+Shader "Render/Checker"
 {
     Properties
     {

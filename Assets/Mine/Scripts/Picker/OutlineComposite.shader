@@ -1,4 +1,4 @@
-Shader "Mine/Picker/OutlineComposite"
+Shader "Picker/OutlineComposite"
 {
     // ════════════════════════════════════════════════════════════
     //  OutlineComposite — 全屏后处理：Mask 四邻采样描边 + 合成

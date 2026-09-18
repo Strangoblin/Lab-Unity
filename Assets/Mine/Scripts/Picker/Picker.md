@@ -86,10 +86,10 @@ GPU Picker 是一套纯 GPU 驱动的屏幕空间选物方案，由两个子系�
 
 | 文件 | Shader 名 | Pass | 用途 |
 |---|---|---|---|
-| `Picker.shader` | `Mine/Picker/Picker` | PickerMRT (0) | MRT 输出：RGB24 ObjectID / Depth / Normal |
+| `Picker.shader` | `Picker/Picker` | PickerMRT (0) | MRT 输出：RGB24 ObjectID / Depth / Normal |
 | | | UniversalForward (1) | 可见渲染：ID→色相映射 |
-| `OutlineMask.shader` | `Mine/Picker/OutlineMask` | OutlineMask | 选中物体 → R8 mask (1.0) |
-| `OutlineComposite.shader` | `Mine/Picker/OutlineComposite` | OutlineComposite | 全屏后处理：四邻采样 + 描边色 + 原色混合 |
+| `OutlineMask.shader` | `Picker/OutlineMask` | OutlineMask | 选中物体 → R8 mask (1.0) |
+| `OutlineComposite.shader` | `Picker/OutlineComposite` | OutlineComposite | 全屏后处理：四邻采样 + 描边色 + 原色混合 |
 
 ---
 
@@ -133,13 +133,13 @@ Readback: id = data[0] << 16 | data[1] << 8 | data[2]
 ### 前置条件
 
 1. **URP Renderer** 需添加 `PickerFeature` + `OutlineFeature`（位于 `BeforeRenderingPostProcessing`）
-2. **可选物体** 需使用 `Mine/Picker/Picker` shader，设置唯一 `_ObjectID`
+2. **可选物体** 需使用 `Picker/Picker` shader，设置唯一 `_ObjectID`
 3. **PickerReadback** MonoBehaviour 挂载到场景 GameObject
 
 ### 添加可选物体
 
 ```csharp
-var mat = new Material(Shader.Find("Mine/Picker/Picker"));
+var mat = new Material(Shader.Find("Picker/Picker"));
 mat.SetInt("_ObjectID", uniqueId);  // 1–16,777,215
 renderer.sharedMaterial = mat;
 ```
