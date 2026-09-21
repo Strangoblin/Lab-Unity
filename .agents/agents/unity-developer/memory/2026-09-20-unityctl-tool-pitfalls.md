@@ -1,10 +1,10 @@
 ---
 name: unityctl-tool-pitfalls
-description: unityctl 取像与生命周期命令的三个机制坑：screenshot capture 坏、editor run/stop 非 Play Mode、script eval 编译错误静默。
+description: unityctl 的四个机制坑：screenshot capture 坏、editor run/stop 非 Play Mode、script eval 编译错误静默、editor run 在本机找不到 Unity（非 Hub 布局）。
 date: 2026-09-20
 ---
 
-# 2026-09-20 — unityctl 工具的坑（取像 / 生命周期 / 求值）
+# 2026-09-20 — unityctl 工具的坑（取像 / 生命周期 / 求值 / 启动路径）
 
 > 本文件是 **unityctl 使用层踩坑的唯一权威位置**。
 > 画面与 RT 的**判读方法论**在 [2026-09-20-rt-readback-pitfalls.md](2026-09-20-rt-readback-pitfalls.md)。
@@ -67,3 +67,34 @@ date: 2026-09-20
   （如 `UnityEngine.Rendering.Universal.ScriptableRendererData`），比 `-u` 可靠。
 - 别用非 ASCII 变量名 —— 中文标识符会显著加剧诊断难度。
 - 多语句写 `var x = ...; return ...;`；单表达式**不要**再写 `return`，会与自动包裹的 `return` 冲突。
+
+## 坑 4 — `editor run` 在本机找不到 Unity（非 Hub 布局，必须带 `--unity-path`）
+
+本机 Unity 装在 `/Applications/Unity/Unity-6000.3.14f1/Unity.app`，
+**不是** Hub 的 `/Applications/Unity/Hub/Editor/<version>/`；`unityctl editor run` 只按 Hub 默认路径查找，
+因此未带路径时必然报：
+
+```text
+Error: Unity 6000.3.14f1 not found in Unity Hub.
+  Expected locations:
+    /Applications/Unity/Hub/Editor/6000.3.14f1
+  Use --unity-path to specify the Unity executable manually.
+```
+
+`/Applications/Unity/Hub/Editor/` 在该机器上**根本不存在**，
+`~/Library/Application Support/UnityHub/secondaryInstallPath.json` 为空字符串。
+
+**结论**：本机启动 Editor 一律带路径；找不到路径时用
+`mdfind "kMDItemCFBundleIdentifier == 'com.unity3d.UnityEditor5.x'"` 定位。
+
+```bash
+unityctl editor run --unity-path /Applications/Unity/Unity-6000.3.14f1/Unity.app
+```
+
+> **未定因，不要据此断言 unityctl 或 Unity 损坏**：2026-09-21 用 `--unity-path` 启动后，
+> CLI 报出 `Unity started (PID: …)`，Unity 也完成了 licensing（Unity Personal、Expiration Unlimited），
+> 随后进程即退出。`~/Library/Logs/Unity/Editor.log` 里 `COMMAND LINE ARGUMENTS` 段
+> **只有二进制路径、没有 `-projectPath`**，项目加载与资源导入段完全没发生；
+> 预期落点 `.unityctl/editor.log` 从未被创建（`.unityctl/` 下仍只有 8 月的 `editor-prev.log`），
+> 无 `Temp/UnityLockfile`。同一次尝试里 bridge（真实宿主，已运行 4h+）始终报 `Unity not connected`，
+> 与「沙盒 bridge 与真实宿主 Editor 不互通」的既有边界一致，但**该次启动失败的根因未确认**。
