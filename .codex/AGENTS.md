@@ -55,5 +55,6 @@ Codex 的正常读取入口仍是根 `AGENTS.md` → `.agents/README.md`；这�
 ## 与 Claude 的协作
 
 - 对等模型：共享源 `.agents/` 单点维护，Claude 与 Codex 各自薄适配、独立会话执行开发。
-- Claude 侧负责：知识体系、门禁链、review、入口同步；Codex 侧负责：开发任务执行（落地执行 + 自主开发全流程）。
-- 派发约定：`.codex/INTERFACE.md` §3；链路排障：`.codex/SKILL.md`。
+- **两侧都是完整的开发引擎**，可独立承接并落地任务；不互为派发/从属关系。
+- 分工差异只有一处：`Assets/Mine/` 的 MCP 门禁通道（write_gated / delete_gated）**只有 Claude 侧持有**——需走完整门禁链的产出交给 Claude 合入；Codex 自行写入前用 `check_norm.py` 自查。
+- 并行协作约定：`.codex/INTERFACE.md` §3；链路排障：`.codex/SKILL.md`。

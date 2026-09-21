@@ -29,7 +29,7 @@
 - `AGENTS.md` — 普通文件（非软链），平台无关渐进入口。
 - `.mcp.json` — MCP 注册（`uv run python .mcp/server.py`，每客户端会话独立进程）。
 
-### `.agents/`（共享核心，165 tracked）
+### `.agents/`（共享核心，190 tracked）
 
 | 子层 | 内容 | 唯一编辑位 |
 |---|---|---|
@@ -39,7 +39,7 @@
 | `knowledge/` | 领域路由索引（`unity/`），不复制正文 | `.agents/knowledge/` |
 | `interfaces/` | 跨平台契约：`knowledge-paths.md`（知识 ID/resolver）+ 本文件（拓扑） | `.agents/interfaces/` |
 
-### `.claude/`（Claude 适配层，26 tracked，正文零副本）
+### `.claude/`（Claude 适配层，25 tracked，正文零副本）
 
 - `CLAUDE.md` — 薄入口（读根 AGENTS.md → `.agents/`）。
 - `agents/` — `unity-developer.md`、`meta-developer.md` 软链 → `.agents/agents/<role>/AGENT.md`；`<role>/` 子目录（memory/references/cli/scripts/templates）软链 → `.agents` 同层。
@@ -48,7 +48,7 @@
 - `hooks/guard-bash.sh`、`settings.json`（+`settings.local.json` 本地 gitignored）— 平台配置，非共享内容。
 - 全层无断链（`find -L .claude -type l` 零输出）。
 
-### `.codex/`（Codex 适配层，33 tracked）
+### `.codex/`（Codex 适配层，39 tracked）
 
 - `AGENTS.md`、`INTERFACE.md` — 薄适配入口；`SKILL.md` — codex-opencode-go 接入手册。
 - `config.toml`（+bak）、`hooks.json` + `hooks/guard-bash.sh` — 平台配置。
@@ -57,7 +57,7 @@
 - `tmp/` — 工作文档，不入扫描与提交。
 - 目录级软链 `.codex/{agents/<role>,rules,skills,knowledge,interfaces}` → `.agents` 已提交；`verify.py` 通过 `CODEX_SHARED_LINKS` 契约固定目标与断链检查。
 
-### `.mcp/`（执行门禁，24 tracked）
+### `.mcp/`（执行门禁，26 tracked）
 
 - `server.py` 入口 + `gate_center.py`；`gates/`：g_entry / g_knowledge / g_file / g_mode / g_plan / g_script / g_web_search。
 - `validation/`：`knowledge_paths.py`（resolver）、`norms.py` + `check_norm.py`（写入内容规范）、`deletion.py`（删除不可恢复性）+ `delete_gated.py`（删除门禁 Bash 通道）、`project_paths.py`、`script_library.py`。

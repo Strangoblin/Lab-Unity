@@ -55,7 +55,7 @@ unityctl editor run
 |---|---|
 | Unity 开发、渲染、脚本和 Editor | `.agents/agents/unity-developer/AGENT.md` |
 | agent 体系、skills、rules、路径与适配层 | `.agents/agents/meta-developer/AGENT.md` |
-| Codex 派发与链路 | `.agents/skills/codex-orchestrate/SKILL.md`、`.agents/skills/codex-bridge/SKILL.md` |
+| Codex 链路与双边契约 | `.agents/skills/codex-opencode-go/SKILL.md`、`.agents/skills/codex-bridge/SKILL.md` |
 
 全局路由表仍由 `~/.claude/agents/default.md` 管理，不属于项目共享 SSOT。
 

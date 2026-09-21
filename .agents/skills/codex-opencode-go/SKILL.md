@@ -176,7 +176,7 @@ ocw -m opencode-go/deepseek-v4-pro "任务文本"
 
 **实测耗时**（deepseek-v4-flash，2026-09-21）：纯文本 **7s**；带一次文件写入的 agent 循环 **9s**。→ **短任务不慢**，别把长会话的上下文压缩问题误当成基础延迟。
 
-> ⚠️ **`--auto` 会绕过门禁**：它放行一切「未被显式禁止」的操作（写文件、执行命令）。在 `Unity/Lab` 里直接派它写 `Assets/Mine/` 会**跳过 `write_gated`**，违反项目规则。沿用既有约定——**opencode 产出 → Claude review → 经门禁链合入**（同 [codex-orchestrate](../codex-orchestrate/SKILL.md)）；日常让它在**沙盒副本或非门禁目录**里干活。
+> ⚠️ **`--auto` 会绕过门禁**：它放行一切「未被显式禁止」的操作（写文件、执行命令）。在 `Unity/Lab` 里直接派它写 `Assets/Mine/` 会**跳过 `write_gated`**，违反项目规则。沿用既有约定——**opencode 产出 → Claude review → 经门禁链合入**（同 `codex exec` 产出的合入方式，见 `.codex/INTERFACE.md` §3）；日常让它在**沙盒副本或非门禁目录**里干活。
 
 ## 关键验证命令
 

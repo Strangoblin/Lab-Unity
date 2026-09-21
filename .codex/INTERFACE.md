@@ -2,7 +2,7 @@
 
 > 本文件是 **Codex 侧**对外接口的权威来源。共享权威源是 `.agents/`（入口见项目根 `AGENTS.md`）；`.claude/` 与 `.codex/` 是各自客户端的薄适配层，`.mcp/` 是执行门禁基础设施。
 > 知识模型：**单一权威源 `.agents/`，Codex 直接读取**（2026-09-04 随架构解耦重构切流；此前"直接读 .claude/"模型已废止）。
-> Claude 侧对应接口由 3 个 skill 组成（分工见 §1.1）：codex-bridge（契约+入口同步）、codex-orchestrate（派发编排）、codex-opencode-go（链路搭建与排障）。
+> Claude 侧对应接口由 2 个 skill 组成（分工见 §1.1）：codex-bridge（契约+入口同步）、codex-opencode-go（链路搭建与排障）。
 
 ## 1. 本侧（Codex）能力声明
 
@@ -15,15 +15,14 @@
 | 链路 | 直连 `https://opencode.ai/zen/go/v1`（`wire_api = "responses"`，无代理）。**全部配置在全局 `~/.codex/config.toml`**；项目级 `.codex/config.toml` 已退役（2026-08-25 归档为 `config.toml.bak-20260825`——Codex 忽略项目级 provider 类 key） |
 | 审查模型 | `review_model` 必须显式指向本区域可用模型（默认 `deepseek-v4-flash`）——auto_review 审批走独立模型，不设则提权全部 403 |
 | 模型目录 | 全局 `~/.codex/model-catalogs/opencode-go.json` + config.toml `model_catalog_json`（VSCode 面板模型列表来源） |
-| 门禁边界 | Codex **无 MCP 工具链**，不持有 write_gated 通道——`Assets/Mine/` 写入的门禁约束由派发方（Claude）执行：Codex 开发产出经 Claude review + 门禁链后合入；合入前自查 `python3 .mcp/validation/check_norm.py <file>` |
+| 门禁边界 | Codex **无 MCP 工具链**，不持有 write_gated 通道——Codex 自行写 `Assets/Mine/` 前先自查 `python3 .mcp/validation/check_norm.py <file>`；需走完整门禁链的产出由持 MCP 通道的一侧（Claude）合入 |
 
 ### 1.1 Claude 侧对应 skill 分工
 
 | Skill | 职责 |
 |-------|------|
 | `codex-bridge` | 双边契约（本文档对侧）+ AGENTS.md 入口同步（共享源变更 → 更新入口指引） |
-| `codex-orchestrate` | 派发编排（codex exec 模板、沙箱、验证流程、任务书约定；开发任务与基础任务统一路由） |
-| `codex-opencode-go` | 链路搭建与排障（config.toml / auth.json / 模型可用性 / 404/403/stream 问题） |
+| `codex-opencode-go` | 链路搭建与排障（config.toml / auth.json / 模型可用性 / 404/403/stream 问题；含 opencode CLI 接入与派活） |
 
 ## 2. 接口文件清单
 
@@ -40,15 +39,17 @@
 | `~/.codex/config.toml` | 实际生效的直连配置（主模型 / review_model / provider / catalog） | 双边 |
 | `~/.codex/auth.json` | API key（不入 git，chmod 600） | 双边 |
 
-## 3. 派发约定（Claude → Codex）
+## 3. 并行协作约定（Claude ↔ Codex）
 
-- 调用：`codex exec -C <项目根> --sandbox workspace-write --skip-git-repo-check "<prompt>"`（Claude 侧由 codex-orchestrate skill 执行）
-- 路由：默认使用共享 `unity-developer` 角色，体系维护使用共享 `meta-developer` 角色；模式在 prompt 中显式指定 Production / Research / Experiment。**开发任务同样可派发 Codex**，派发时显式引用 `.agents/agents/<role>/AGENT.md` 并附任务书字段（目标/涉及文件/约束/验收标准/模式）
-- prompt 要求：自包含（Codex 经根 AGENTS.md 读 `.agents/` 权威源——共享角色正文、rules/、references/——再按任务书执行）、明确输出格式、限定文件范围
-- 大任务（>2KB）：Claude 写任务书到 `/tmp/codex-task.md`，Codex 读取执行，避免上下文截断
-- 结果：stdout 即回报内容，改动经 Claude review（git diff）；涉及 `Assets/Mine/` 的改动经门禁链确认后合入
-- 沙箱红线：`--sandbox read-only`（只查）/ `workspace-write`（✅ 默认）/ `danger-full-access`（⛔ 永不使用）
-- 模型：默认 `deepseek-v4-flash`（全局 config.toml 主模型，实际以全局配置为准）；复杂任务可 `--model` 覆盖
+Claude 与 Codex 是**对等并行**的两个开发引擎，**不是派发/从属关系**（与 §6 一致）。各自独立承接任务、独立落地。
+
+- **知识源**：两侧都**直接读 `.agents/`**（入口：根 `AGENTS.md` → `.agents/README.md` → 角色 `AGENT.md` / `rules/` / `references/`）。不互为镜像，也不需要任一侧代为转述
+- **角色路由**：按任务选共享角色（`unity-developer` 开发 / `meta-developer` 体系维护），显式引用 `.agents/agents/<role>/AGENT.md`，并说明 Production / Research / Experiment 模式
+- **门禁边界**：`Assets/Mine/` 的 `write_gated` / `delete_gated` 通道**只有 Claude 侧的 MCP 工具持有**。Codex 自行写 `Assets/Mine/` 前先自查 `python3 .mcp/validation/check_norm.py <file>`；需走完整门禁链的产出交给 Claude 合入
+- **并发安全**：同一 git 仓库内两个引擎**同时写文件**会互相冲突，应避免；只读并行无碍
+- **Codex 侧调用**：`codex exec -C <项目根> --sandbox workspace-write --skip-git-repo-check "<prompt>"`；沙箱红线 `--sandbox read-only`（只查）/ `workspace-write`（✅ 默认）/ `danger-full-access`（⛔ 永不使用）
+- **大任务（>2KB 指令）**：写成任务书文件让执行方读取，避免上下文截断
+- **模型**：默认 `deepseek-v4-flash`（全局 config.toml 主模型，实际以全局配置为准）；复杂任务可 `--model` 覆盖
 
 ## 4. 同步规则（共享单源）
 

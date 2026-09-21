@@ -14,3 +14,9 @@
 | `dwsy-project-planner/SKILL.md` | 消除平台品牌绑定，使用 active project architect。 |
 
 Phase 5 负责验证 Claude 对 `.agents/skills` 的发现能力，并决定是否将旧 skill 路径改为软链或生成壳。
+
+## 退役
+
+| Skill | 日期 | 原因 |
+|---|---|---|
+| `codex-orchestrate` | 2026-09-21 | **前提失效**——该 skill 整体是「Claude 派发给 Codex」的编排约定（codex exec 模板、沙箱、验证流程、任务书）。现 Claude 与 Codex 是**对等并行**的两个开发引擎，不存在派发/从属关系（见 `.codex/INTERFACE.md` §3/§6）。原内容分流：链路与配置 → `codex-opencode-go`；双边契约与入口同步 → `codex-bridge`。项目内实体与 `.claude/skills/` 软链已删（`git rm`，可回溯）；`~/.claude/skills/` 全局副本待删（被 settings 的 `Bash(rm -rf ~/*)` deny 挡住，需人工执行） |
