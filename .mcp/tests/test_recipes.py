@@ -302,6 +302,100 @@ async def test_cli_check_norm():
     print("  ✅ CLI: 合法 exit 0 / 违规 exit 1")
 
 
+def test_deletion_classify():
+    """deletion.classify: tracked-clean / tracked-dirty / untracked / missing + GUID 引用.
+
+    在隔离的临时 git 仓库里验 —— 不碰本仓库的工作区与索引。
+    """
+    print("\n── 删除后果验证: 工作区分类 (隔离临时仓库) ──")
+    import tempfile
+    from validation.deletion import classify, read_guid, guid_referenced_elsewhere
+
+    with tempfile.TemporaryDirectory() as repo:
+        def git(*args):
+            subprocess.run(("git", "-c", "user.email=t@t", "-c", "user.name=t", *args),
+                           cwd=repo, capture_output=True, text=True, check=True)
+
+        git("init", "-q")
+        for name in ("clean.txt", "dirty.txt"):
+            with open(os.path.join(repo, name), "w", encoding="utf-8") as f:
+                f.write("x")
+        git("add", "-A")
+        git("commit", "-qm", "init")
+        with open(os.path.join(repo, "dirty.txt"), "w", encoding="utf-8") as f:
+            f.write("changed")
+
+        r = classify(repo, ["clean.txt", "dirty.txt", "nope.txt"])
+        assert r["clean.txt"]["state"] == "tracked-clean", r
+        assert r["dirty.txt"]["state"] == "tracked-dirty", r
+        assert r["nope.txt"]["state"] == "missing", r
+        assert r["clean.txt"]["recoverable"], f"tracked-clean 应可恢复: {r}"
+        assert not r["dirty.txt"]["recoverable"], f"tracked-dirty 不可恢复: {r}"
+
+        # GUID 引用: Assets/B.asset 引用了 Assets/A.meta 的 guid
+        guid = "0123456789abcdef0123456789abcdef"
+        os.makedirs(os.path.join(repo, "Assets"))
+        with open(os.path.join(repo, "Assets", "A.meta"), "w", encoding="utf-8") as f:
+            f.write(f"fileFormatVersion: 2\nguid: {guid}\n")
+        with open(os.path.join(repo, "Assets", "B.asset"), "w", encoding="utf-8") as f:
+            f.write(f"m_Script: {{guid: {guid}, type: 3}}\n")
+
+        assert read_guid(os.path.join(repo, "Assets", "A.meta")) == guid
+        assert read_guid(os.path.join(repo, "clean.txt")) == "", "非 .meta 应返回空串"
+        refs = guid_referenced_elsewhere(repo, "Assets/A.meta", guid)
+        assert refs == ["Assets/B.asset"], f"应只报出引用方: {refs}"
+        assert guid_referenced_elsewhere(repo, "Assets/B.asset", guid) == ["Assets/A.meta"], \
+            "无引用时应剔除自身"
+    print("  ✅ 四分状态 + recoverable 标记 + GUID 引用（剔自身）判定正确")
+
+
+async def test_delete_gated():
+    print("\n── delete_gated: 门禁 / 作用域 / reason / 审计 / 幂等 ──")
+    target = os.path.join(TMP, "test_delete.txt")
+    with open(target, "w", encoding="utf-8") as f:
+        f.write("x")
+
+    await call("gate_reset")
+    await call("gate_set_recipe", name="Quick")
+
+    # 未过门禁 → DENIED（与 write_gated 同一道闸）
+    r = await call("delete_gated", paths=["tmp/test_delete.txt"], reason="单元测试")
+    assert r["status"] == "DENIED" and r["error"] == "GATE_NOT_PASSED", f"got {r}"
+
+    await call("gate_pass", gate_id="g_entry", agent="unity-developer")
+    await call("gate_pass", gate_id="g_knowledge", loaded_files=HIGH_PRIO, status="COMPLETE")
+
+    # 作用域（与 write_gated 同一函数）
+    r = await call("delete_gated", paths=["/etc/hosts"], reason="越界测试")
+    assert r["status"] == "DENIED" and r["error"] == "PATH_NOT_ALLOWED", f"got {r}"
+
+    # reason 必填
+    r = await call("delete_gated", paths=["tmp/test_delete.txt"], reason="   ")
+    assert r["status"] == "DENIED" and r["error"] == "MISSING_REASON", f"got {r}"
+
+    # 正常删除: tmp/ 未入库 → 放行且标注不可恢复
+    r = await call("delete_gated", paths=["tmp/test_delete.txt"], reason="单元测试清理")
+    assert r["status"] == "OK" and r["count"] == 1, f"got {r}"
+    assert not os.path.isfile(target), "文件应已删除"
+    assert r["deleted"][0]["state"] == "untracked", f"got {r}"
+    assert r["deleted"][0]["recoverable"] is False, f"untracked 应标注不可恢复: {r}"
+
+    # 审计落 deletes
+    st = await call("gate_status")
+    assert st["deletes"] and st["deletes"][-1]["count"] == 1, f"审计未记录: {st.get('deletes')}"
+    assert st["deletes"][-1]["reason"] == "单元测试清理", f"审计应含 reason: {st['deletes'][-1]}"
+
+    # 幂等: 重复执行同一清单 → missing 跳过, 不报错
+    r = await call("delete_gated", paths=["tmp/test_delete.txt"], reason="重复执行")
+    assert r["status"] == "OK" and r["count"] == 0, f"got {r}"
+
+    # gate_reset 清空删除审计
+    await call("gate_reset")
+    st = await call("gate_status")
+    assert st["deletes"] == [], f"gate_reset 应清空删除审计: {st['deletes']}"
+    print("  ✅ 门禁 / 作用域 / reason 必填 / 删除 / 审计 / 幂等 / 重置 均正确")
+
+
 async def main():
     print("=" * 50)
     print("  Gate Tests (consequence-verification v2)")
@@ -322,6 +416,8 @@ async def main():
     await test_no_gates_denied()
     await test_atomic_write()
     await test_cli_check_norm()
+    test_deletion_classify()
+    await test_delete_gated()
     await test_restart_recovery()   # 放最后: 子进程管理自己的 state.json, 不干扰进程内用例
 
     print("\n" + "=" * 50)

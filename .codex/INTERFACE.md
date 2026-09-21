@@ -73,6 +73,6 @@
 | 共享层 `.agents/` | 角色正文、rules、references、templates、scripts、skills、memory 的唯一编辑位置 |
 | Claude `.claude/` | Claude 平台适配：settings、hooks、rules 自动注入、agent/skill 发现兼容层 |
 | Codex `.codex/` | Codex 平台适配：config、hooks、tests、tmp、运行时角色 toml 与 agent 文档 |
-| MCP `.mcp/` | 执行门禁与规范验证（write_gated / check_norm） |
+| MCP `.mcp/` | 执行门禁与规范验证（write_gated / delete_gated / check_norm） |
 
 Claude 与 Codex 对等执行开发任务（落地执行 + 自主全流程）；知识体系与门禁链由共享维护方（meta-developer）裁决，不默认任一侧的从属关系。

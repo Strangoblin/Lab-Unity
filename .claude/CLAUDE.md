@@ -36,7 +36,7 @@ Action: proceed | load agent first
 
 - Unity 功能、Shader、C#、Editor 验证 → `unity-developer`。
 - agent / skill / reference / rule / 路径体系维护 → `meta-developer`。
-- `Assets/Mine/` 写入必须经过 MCP `g_entry` + `g_knowledge` 与 `write_gated`；Codex 侧使用 `python3 .mcp/validation/check_norm.py <file>` 自查。
+- `Assets/Mine/` 写入必须经过 MCP `g_entry` + `g_knowledge` 与 `write_gated`，删除必须经过 `delete_gated`（settings 的 `Edit(/Assets/Mine/**)` deny 连带命中 Bash，MCP 是唯一通道）；Codex 侧使用 `python3 .mcp/validation/check_norm.py <file>` 自查。
 - 删除、移动旧副本或架构切换前，必须保留回退点并列出精确清单；禁止 `git stash --all`。
 
 ## 运行验证

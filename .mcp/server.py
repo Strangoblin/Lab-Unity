@@ -5,6 +5,7 @@
   write_gated 对内容执行结构规范检查（后果验证，新增行 diff）
 
 模式（recipe）经 gate_set_recipe 声明；脚本决策/文件分类降级为 write_gated 注解（记录不阻塞）。
+delete_gated 是 write_gated 的对称面 —— 删除无内容可查，后果验证落在「不可恢复性」上。
 Codex 对等通道: python .mcp/validation/check_norm.py <file>
 
 工具:
@@ -15,6 +16,7 @@ Codex 对等通道: python .mcp/validation/check_norm.py <file>
   gate_reset()                        — 重置
   script_list()                       — 列出脚本库
   write_gated(path, content, ...)     — 门禁 + 规范检查后写入
+  delete_gated(paths, reason)         — 门禁 + 不可恢复性检查后删除
 """
 
 import json, os, asyncio
@@ -22,8 +24,10 @@ from mcp.server import MCPServer
 
 from gate_center import state, GATE_REGISTRY, RECIPES
 from validation.script_library import list_scripts, validate_decision
-from validation.project_paths import validate_path
+from validation.project_paths import validate_path, PROJECT_ROOT
 from validation.norms import check_content, _existing_lines
+from validation.deletion import (classify, read_guid, guid_referenced_elsewhere,
+                                 orphan_meta_warnings)
 
 server = MCPServer(name="unity-gate", version="0.5.0")
 
@@ -75,7 +79,8 @@ async def gate_status() -> str:
         "passed": sorted(state.passed),
         "remaining": state.remaining,
         "contexts": {k: v for k, v in state.contexts.items()},
-        "writes": state.writes[-20:],   # 最近 20 条写入审计
+        "writes": state.writes[-20:],     # 最近 20 条写入审计
+        "deletes": state.deletes[-20:],   # 最近 20 条删除审计
     }, ensure_ascii=False)
 
 
@@ -187,6 +192,104 @@ async def write_gated(path: str, content: str, mode: str = "", script_decision: 
             pass
         return json.dumps({"status": "ERROR", "error": str(e),
                            "hint": "文件写入失败。"})
+
+
+# ═══ delete_gated — 带门禁删除（不可恢复性验证）═══
+
+@server.tool()
+async def delete_gated(paths: list[str], reason: str) -> str:
+    """门禁校验后删除文件 —— write_gated 的对称面。
+
+    门禁: 与 write_gated 同一道闸（配方门禁全过）+ 同一套路径作用域。
+    后果验证（validation/deletion.py）—— 删除无内容可查，验的是**不可恢复性**:
+      tracked-clean → 放行（git 可恢复）
+      tracked-dirty → 硬拦：删了只剩历史版本
+      untracked     → 放行，结果标注不可恢复
+      .meta 的 GUID 仍被 Assets/ 引用 → 硬拦
+    整批 all-or-nothing: 任一路径被拦则整批不执行。
+
+    Args:
+        paths: 待删文件路径列表（项目相对，作用域同 write_gated）
+        reason: 删除原因（必填，进审计）
+    """
+    if not reason or not reason.strip():
+        return json.dumps({"status": "DENIED", "error": "MISSING_REASON",
+                           "hint": "reason 必填 —— 删除必须留下可追溯的原因。"},
+                          ensure_ascii=False)
+    if not paths:
+        return json.dumps({"status": "DENIED", "error": "EMPTY_PATHS",
+                           "hint": "paths 为空。"}, ensure_ascii=False)
+
+    # ── 作用域校验（与 write_gated 同一函数）──
+    checked: list[tuple] = []
+    for p in paths:
+        path_check = validate_path(p)
+        if path_check["status"] != "OK":
+            return json.dumps({**path_check, "offending_path": p}, ensure_ascii=False)
+        checked.append((p, path_check["full_path"]))
+
+    # ── 门禁（与 write_gated 同一道闸）──
+    gate_check = state.can_write()
+    if gate_check["status"] != "OK":
+        return json.dumps(gate_check, ensure_ascii=False)
+
+    rel_paths = [p for p, _ in checked]
+
+    # ── 后果验证 1: 不可恢复性 ──
+    status = classify(PROJECT_ROOT, rel_paths)
+    blocked = [{"path": p, **info} for p, info in status.items()
+               if info["state"] in ("tracked-dirty", "unknown")]
+
+    # ── 后果验证 2: .meta GUID 引用 ──
+    for p, full in checked:
+        guid = read_guid(full)
+        if not guid:
+            continue
+        refs = guid_referenced_elsewhere(PROJECT_ROOT, p, guid)
+        if refs:
+            blocked.append({"path": p, "state": "guid-referenced", "recoverable": False,
+                            "detail": f"GUID {guid} 仍被其他文件引用",
+                            "referenced_by": refs[:5]})
+
+    if blocked:
+        return json.dumps({
+            "status": "DENIED", "error": "DELETION_UNSAFE", "blocked": blocked,
+            "hint": "整批未执行。tracked-dirty 先提交或还原；guid-referenced 先解除引用。",
+        }, ensure_ascii=False)
+
+    # ── 执行（missing 跳过 —— 批量清单可重复执行）──
+    deleted, failed = [], []
+    for p, full in checked:
+        info = status[p]
+        if info["state"] == "missing":
+            continue
+        try:
+            os.remove(full)
+            deleted.append({"path": p, "state": info["state"],
+                            "recoverable": info["recoverable"]})
+        except OSError as e:
+            failed.append({"path": p, "error": str(e)})
+
+    deleted_paths = [d["path"] for d in deleted]
+    state.deletes.append({
+        "paths": deleted_paths, "count": len(deleted), "reason": reason.strip(),
+        "recipe": state.recipe,
+        "unrecoverable": [d["path"] for d in deleted if not d["recoverable"]],
+    })
+    if len(state.deletes) > 100:
+        state.deletes = state.deletes[-100:]
+
+    response = {
+        "status": "OK", "deleted": deleted, "count": len(deleted),
+        "recipe": state.recipe, "passed": sorted(state.passed),
+        "reason": reason.strip(),
+    }
+    if failed:
+        response["failed"] = failed
+    warnings = orphan_meta_warnings(PROJECT_ROOT, deleted_paths)
+    if warnings:
+        response["warnings"] = warnings   # 提示不阻断
+    return json.dumps(response, ensure_ascii=False)
 
 
 # ═══ main ═══
