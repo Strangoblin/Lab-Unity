@@ -20,8 +20,8 @@ public class MyEffect : VolumeComponent, IPostProcessComponent
     [Tooltip("Effect intensity.")]
     public ClampedFloatParameter intensity = new ClampedFloatParameter(0f, 0f, 1f);
 
-    [Tooltip("Blur radius in pixels.")]
-    public ClampedIntParameter radius = new ClampedIntParameter(4, 1, 16);
+    [Tooltip("Filter footprint in input pixels; does not change sample count.")]
+    public ClampedFloatParameter filterRadius = new ClampedFloatParameter(4f, 0.5f, 16f);
 
     [Tooltip("Tint color.")]
     public ColorParameter tint = new ColorParameter(Color.white, hdr: false, showAlpha: false, showEyeDropper: true);
@@ -59,7 +59,7 @@ void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
     if (m_Settings == null || !m_Settings.IsActive()) return;
 
     float intensity = m_Settings.intensity.value;
-    int radius = m_Settings.radius.value;
+    float filterRadius = m_Settings.filterRadius.value;
     Color tint = m_Settings.tint.value;
 }
 ```

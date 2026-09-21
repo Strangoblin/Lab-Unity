@@ -45,6 +45,11 @@
 （「High」只提分辨率、不提采样数）。但**决定「分布方式」而非总成本的量不进档位**
 （如 PSSM 的 `pssmLambda`）—— 「同源」不等于「都该进档位」。
 
+**⑥ 空间滤波把预算与感受野分开。** Blur、SNN、Kuwahara、双边滤波和屏幕空间
+Resolve 的采样数/分布/下采样率归 `Performance` 质量档；半径归 `Artistic`，只缩放
+固定 offset，不得进入循环边界。统一实现与验收见
+[spatial-filter-budget.md](../../shader/postprocess/spatial-filter-budget.md)。
+
 ## 档位化前置检查 — 参数半接线
 
 把尺寸类参数升格为档位前，先确认它**两侧都接线**：

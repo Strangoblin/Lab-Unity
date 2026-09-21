@@ -68,12 +68,22 @@ float3 AO_KernelDirection(float2 xi, float3 normalWS)
 }
 
 // ════════════════════════════════════════════════════════════════
+//  Distance falloff — inverse-square-weighted occluder contribution.
+//  falloff = 0 disables it (factor is exactly 1.0, no change).
+// ════════════════════════════════════════════════════════════════
+float AO_DistanceFalloff(float occluderDistance, float falloffK)
+{
+    return rcp(1.0 + occluderDistance * occluderDistance * falloffK);
+}
+
+// ════════════════════════════════════════════════════════════════
 //  SSAO — kernel points reprojected onto the depth buffer; near geometry occludes.
 // ════════════════════════════════════════════════════════════════
 float AO_SsaoOcclusion(float2 uv, float3 positionWS, float3 normalWS, float centerEyeDepth)
 {
     float2 rotation = AO_Noise(floor(uv * _AOSourceSize.zw));
     int sampleCount = clamp(_AOSampleCount, 1, 32);
+    float falloffK = max(_AOParams.z, 0.0);
     float occlusion = 0.0;
     [loop]
     for (int sampleIndex = 0; sampleIndex < sampleCount; ++sampleIndex)
@@ -89,7 +99,10 @@ float AO_SsaoOcclusion(float2 uv, float3 positionWS, float3 normalWS, float cent
             continue;
         float occluderEyeDepth = SST_EyeDepth(rawDepth);
         if (sampleEyeDepth - occluderEyeDepth > _AOParams.y && centerEyeDepth - occluderEyeDepth < _AOParams.x)
-            occlusion += 1.0;
+        {
+            float occluderDistance = distance(positionWS, SST_WorldPosition(sampleUV, rawDepth));
+            occlusion += AO_DistanceFalloff(occluderDistance, falloffK);
+        }
     }
     return 1.0 - occlusion / sampleCount;
 }
@@ -105,10 +118,11 @@ float AO_HbaoOcclusion(float2 uv, float3 positionWS, float3 normalWS, float cent
     int stepCount = clamp(_AOStepCount, 1, 32);
     float rotation = AO_Noise(floor(uv * _AOSourceSize.zw)).x * TWO_PI;
     float pixelsPerUnit = unity_OrthoParams.w > 0.5
-        ? 0.5 * _ScreenParams.y * unity_CameraProjection[1][1]
-        : 0.5 * _ScreenParams.y * unity_CameraProjection[1][1] / max(centerEyeDepth, 0.0001);
+        ? 0.5 * _AOSourceSize.w * unity_CameraProjection[1][1]
+        : 0.5 * _AOSourceSize.w * unity_CameraProjection[1][1] / max(centerEyeDepth, 0.0001);
     float stepPixels = clamp(_AOParams.x * pixelsPerUnit / stepCount, 1.0, 64.0);
     float sineBias = _AOFilterParams.z;
+    float falloffK = max(_AOParams.z, 0.0);
     float occlusion = 0.0;
     [loop]
     for (int directionIndex = 0; directionIndex < directionCount; ++directionIndex)
@@ -137,7 +151,9 @@ float AO_HbaoOcclusion(float2 uv, float3 positionWS, float3 normalWS, float cent
                 continue;
             float tangentDistance = length(delta - upVS * dot(delta, upVS));
             horizon = max(horizon, dot(delta, upVS) / lengthVS);
-            occluded = max(occluded, saturate(horizon - sineBias) * saturate(1.0 - tangentDistance / _AOParams.x));
+            occluded = max(occluded, saturate(horizon - sineBias)
+                * saturate(1.0 - tangentDistance / _AOParams.x)
+                * AO_DistanceFalloff(lengthVS, falloffK));
         }
         occlusion += occluded;
     }
@@ -178,6 +194,37 @@ float AO_Blur(float2 uv, float2 axis)
             continue;
         float weight = exp2(-0.5 * tap * tap) * AO_GuideWeight(sampleUV, centerEyeDepth, normalWS);
         sum += SAMPLE_TEXTURE2D_X_LOD(_BlitTexture, sampler_PointClamp, sampleUV, 0).r * weight;
+        totalWeight += weight;
+    }
+    return totalWeight > 0.0001 ? sum / totalWeight : 1.0;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  Resolve — depth/normal-guided four-tap upsample, unoccluded on rejection.
+// ════════════════════════════════════════════════════════════════
+float AO_Resolve(float2 uv)
+{
+    float rawDepth = SST_SampleDepth(uv);
+    float3 normalWS = AO_SampleNormal(uv);
+    if (!SST_IsSurface(rawDepth) || dot(normalWS, normalWS) < 0.25)
+        return 1.0;
+    normalWS = normalize(normalWS);
+    float centerEyeDepth = SST_EyeDepth(rawDepth);
+    float2 pixel = uv * _AOSourceSize.zw - 0.5;
+    float2 basePixel = floor(pixel);
+    float2 fraction = frac(pixel);
+    float sum = 0.0;
+    float totalWeight = 0.0;
+    [unroll]
+    for (int tap = 0; tap < 4; ++tap)
+    {
+        float2 offset = float2(tap & 1, tap >> 1);
+        float2 sampleUV = (basePixel + offset + 0.5) * _AOSourceSize.xy;
+        if (any(sampleUV <= 0.0) || any(sampleUV >= 1.0))
+            continue;
+        float2 bilinear = lerp(1.0 - fraction, fraction, offset);
+        float weight = bilinear.x * bilinear.y * AO_GuideWeight(sampleUV, centerEyeDepth, normalWS);
+        sum += SAMPLE_TEXTURE2D_X_LOD(_AOTexture, sampler_PointClamp, sampleUV, 0).r * weight;
         totalWeight += weight;
     }
     return totalWeight > 0.0001 ? sum / totalWeight : 1.0;

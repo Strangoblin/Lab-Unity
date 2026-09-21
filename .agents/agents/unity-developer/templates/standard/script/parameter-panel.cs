@@ -89,6 +89,10 @@ public class YourEffectSettings
     [Tooltip("保边模糊强度：0 = 关闭")]
     [Range(0f, 2f)] public float blur = 1f;
 
+    // 滤波半径只改变感受野；采样数、分布与下采样率由 Performance 档位决定。
+    [Tooltip("空间滤波覆盖半径；不改变采样次数")]
+    [Range(0.5f, 8f)] public float filterRadius = 2f;
+
     // ════════════════════ Debug ════════════════════
     // 与前三组正交：不调效果，只改「显示什么」。每个 Feature 必须有一个。
 

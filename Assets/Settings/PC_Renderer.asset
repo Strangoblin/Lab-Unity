@@ -37,30 +37,6 @@ MonoBehaviour:
   m_OutlineMaskShader: {fileID: 0}
   m_OutlineCompositeShader: {fileID: 0}
   m_DebugShowMask: 0
---- !u!114 &-4619955152373537009
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 32e50a66f0cad48cba423fa7aaefef83, type: 3}
-  m_Name: DiffuseGIFeature
-  m_EditorClassIdentifier: Assembly-CSharp::DiffuseGIFeature
-  m_Active: 1
-  settings:
-    shader: {fileID: 4800000, guid: 0f1271be0061c430aa91678b9a119c1b, type: 3}
-    maxDistance: 5
-    thickness: 0.15
-    normalBias: 0.03
-    depthSigma: 0.15
-    performance: 1
-    intensity: 1
-    distanceFalloff: 0
-    receiverAlbedo: {r: 0.8, g: 0.8, b: 0.8, a: 1}
-    debug: 0
 --- !u!114 &-4316052137097848494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,30 +53,6 @@ MonoBehaviour:
   m_MaskShader: {fileID: 0}
   m_CompositeShader: {fileID: 0}
   m_DebugShowMask: 0
---- !u!114 &-1758144391843978723
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 560a7aad0eafe4abf856044a53b8d2de, type: 3}
-  m_Name: PCSSFeature
-  m_EditorClassIdentifier: Assembly-CSharp::PCSSFeature
-  m_Active: 0
-  settings:
-    pcssComputeShader: {fileID: 7200000, guid: 65166691e0d5f45989acb87e917ddd89, type: 3}
-    pssmLambda: 0.75
-    depthBias: 0.1
-    normalBias: 0
-    performance: 2
-    softness: 0.5
-    blur: 1
-    temporal: 0.9
-    showShadowMap: 1
-    temporalDebug: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,15 +78,9 @@ MonoBehaviour:
     probeSamplingDebugTexture: {fileID: 2800000, guid: 24ec0e140fb444a44ab96ee80844e18e, type: 3}
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
-  - {fileID: 7833122117494664109}
-  - {fileID: 223963607245372406}
-  - {fileID: 7840093813185564073}
-  - {fileID: 6441417510976136481}
   - {fileID: -6861971581733455524}
-  - {fileID: -1758144391843978723}
-  - {fileID: -4619955152373537009}
-  - {fileID: 4084880287550926522}
-  m_RendererFeatureMap: ad6b866f10d7b46cf6bb79d4b6ad1b03a9cda9d4c89bcd6c21a5b61f198364595cb9f3e33361c5a01d624b9cfdd099e70f278a38449fe2bfbaee7799fa68b038
+  - {fileID: 342700495237574708}
+  m_RendererFeatureMap: 5cb9f3e33361c5a03470fce24884c104
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -163,7 +109,7 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
---- !u!114 &223963607245372406
+--- !u!114 &342700495237574708
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -172,17 +118,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 897f571967d514698be308bd42ae0dc0, type: 3}
-  m_Name: SSPRFeature
-  m_EditorClassIdentifier: Assembly-CSharp::SSPRFeature
+  m_Script: {fileID: 11500000, guid: 98f6ffda5ec5e47f5ae8700bdfb519ba, type: 3}
+  m_Name: SpecularGIFeature
+  m_EditorClassIdentifier: Assembly-CSharp::SpecularGIFeature
   m_Active: 0
   settings:
-    ssprShader: {fileID: 4800000, guid: fe86975ca462b417b8f88618b61baf91, type: 3}
-    traceDownsample: 1
-    maxDistance: 9.9
-    flipFade: 0.05
-    smoothness: 1
-    showReflection: 1
+    shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
+    skyCubemap: {fileID: 0}
+    maxDistance: 50
+    thickness: 0.05
+    normalBias: 0.03
+    quality: 1
+    roughness: 0.097
+    intensity: 1
+    planarStrength: 1
+    planarThreshold: 0.95
+    planarFadeStart: 15
+    planarFadeEnd: 50
+    skyMaxMip: 6
+    temporalBlend: 0.5
+    debug: 6
 --- !u!114 &2669520963029075480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,30 +156,6 @@ MonoBehaviour:
   m_OutlineMaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_OutlineCompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
---- !u!114 &4084880287550926522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5689a32b8a7414b44a6c7a044525f860, type: 3}
-  m_Name: AOFeature
-  m_EditorClassIdentifier: Assembly-CSharp::AOFeature
-  m_Active: 1
-  settings:
-    shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
-    mode: 1
-    radius: 1
-    bias: 0.02
-    angleBias: 10
-    falloff: 1
-    depthSigma: 0.15
-    performance: 1
-    intensity: 1
-    debug: 0
 --- !u!114 &4655793570601728598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241,82 +172,3 @@ MonoBehaviour:
   m_MaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_CompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
---- !u!114 &6441417510976136481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59babb7daa8e46c42843fb05f3114ff5, type: 3}
-  m_Name: SSRFeature
-  m_EditorClassIdentifier: Assembly-CSharp::SSRFeature
-  m_Active: 0
-  settings:
-    ssrShader: {fileID: 4800000, guid: 7252a6ae0aadcc04ab92ed7c3b9ec861, type: 3}
-    stepSize: 0.5
-    maxDistance: 10
-    stepCount: 64
-    binCount: 6
-    mipCount: 4
-    thickness: 0.05
-    smoothness: 1
-    jitterScale: 0.5
-    blurScale: 0.5
-    SSRFeature: 1
-    ssrType: 1
---- !u!114 &7833122117494664109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f62c9c65cf3354c93be831c8bc075510, type: 3}
-  m_Name: ScreenSpaceAmbientOcclusion
-  m_EditorClassIdentifier: 
-  m_Active: 0
-  m_Settings:
-    AOMethod: 0
-    Downsample: 0
-    AfterOpaque: 0
-    Source: 1
-    NormalSamples: 1
-    Intensity: 0.4
-    DirectLightingStrength: 0.25
-    Radius: 0.3
-    Samples: 1
-    BlurQuality: 0
-    Falloff: 100
-    SampleCount: -1
---- !u!114 &7840093813185564073
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4eac0fd98d0a49c9b3043bdb907b435, type: 3}
-  m_Name: StochasticSSRFeature
-  m_EditorClassIdentifier: Assembly-CSharp::StochasticSSRFeature
-  m_Active: 0
-  settings:
-    stochasticSSRShader: {fileID: 4800000, guid: e1158dd2972fc4090bdfed6a6a495d02, type: 3}
-    traceDownsample: 1
-    stepSize: 0.5
-    maxDistance: 10
-    stepCount: 64
-    thickness: 0.05
-    resolveDownsample: 2
-    roughness: 0
-    resolveRadius: 2
-    resolveQuality: 2
-    skyFallback: 0.4
-    temporalBlend: 0.9
-    debug: 0

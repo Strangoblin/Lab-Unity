@@ -8,6 +8,9 @@ These code templates form the pieces of a fullscreen postprocess feature. This d
 | [urp-renderpass.cs](urp-renderpass.cs) | Unity 6 RenderGraph postprocess pass (single-pass skeleton; multi-pass as comment) |
 | [volume-template.cs](volume-template.cs) | VolumeComponent integration |
 | [compute-template.compute](compute-template.compute) | Screen-space depth Compute template |
+| [spatial-filter-budget.hlsl](spatial-filter-budget.hlsl) | Blur/SNN/Kuwahara/Resolve 的质量档采样预算与独立半径骨架 |
+
+空间滤波必须遵循 [Spatial Filter Sampling Budget](../../../references/shader/postprocess/spatial-filter-budget.md)：Quality 固定样本数/分布/下采样率，Radius 只缩放 offset，不能进入循环边界。
 
 ## 后处理系统文档写作要点
 

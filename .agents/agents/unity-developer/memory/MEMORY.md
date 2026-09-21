@@ -13,6 +13,10 @@
 
 ## 关键架构决策
 
+- **空间滤波的质量档与半径正交**：Blur、SNN、Kuwahara、双边滤波和屏幕空间 Resolve 中，Quality 固定样本数/分布/下采样率，Radius 只缩放固定 offset、改变感受野，禁止进入循环边界。默认档必须复现重构前预算与画面；统一规范和模板见 [spatial-filter-budget.md](../references/shader/postprocess/spatial-filter-budget.md)。
+
+- **SpecularGI 是分层回退链而非平级模式**：镜面/GGX 采样 → SSR 几何首命中 → SSPR 远景候选 → Cubemap 环境回退 → 5×5 空间重建 → 时域累积。`SampleSH` 不作为镜面天空；Procedural Skybox 没有可直接提取的 Cubemap，必须显式绑定或另做捕获。单射线 SSSR 的稳定性依赖低分辨率 trace、足够空间样本和连续历史，不能按随机来源硬拒绝或对 1 spp 结果做紧邻域颜色钳制。见 [2026-09-21-speculargi-unified-fallback.md](2026-09-21-speculargi-unified-fallback.md)。
+
 - Shader 参数端点策略：统一在参数入口钳制合法范围，避免逐计算追加冗余保护；尚未统一实施时明确记录待办。见 [2026-09-18-parameter-range-policy.md](2026-09-18-parameter-range-policy.md)。
 
 - 效果参数分三层：**Technical**（几何/投影/深度偏移——为正确性而调，连续可调）、**Performance**（纯成本、不需要微调——**划档位**，枚举）、**Artistic**（一个参数对应一个观感维度，开关类参数一律「0 = 关闭」而非独立 bool + 强度）。第三层的判据是「成本占比 + 是否需要微调」两个正交问题，不是「属于技术还是美术」。实现细节内化为 shader 常量，不进任何一组。见 [2026-09-20-parameter-layering.md](2026-09-20-parameter-layering.md)。
@@ -36,6 +40,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-09-21-speculargi-unified-fallback.md](2026-09-21-speculargi-unified-fallback.md) | 2026-09-21 | **SpecularGI 统一反射链落地**：SSSR/GGX 使用 SSR 首命中，SSPR 与显式 Cubemap 依次回退；按 Camera 保存颜色/深度历史；闪烁根因是初版 1/2 分辨率+9 点、来源拒绝/硬钳制，以及空 Cubemap 下 hit/黑色 miss 高方差。最终改为 Medium 1/4、5×5 25 点、连续时域，并用 HistoryWeight 证实时域有效；用户确认效果正确。 |
 | [2026-09-21-opencode-era-ledger.md](2026-09-21-opencode-era-ledger.md) | 2026-09-21 | **任务台账（2026-08-10 → 09-21）**：时间基点 = 首个 `opencode-go` 会话 08-10 08:06；按主题聚合已完成任务并指向权威记录；标注 **7 项无 memory 记录的任务**（09-11 水面、09-14/09-15 光照库、09-16 光照文件弃用、08-26 Van Gogh 移植等）；在飞项与 09-21 清理动作。**新会话冷启动入口** |
 | [2026-09-21-diffusegi-ssgi-phase3.md](2026-09-21-diffusegi-ssgi-phase3.md) | 2026-09-21 | **DiffuseGI（SSGI Phase 3）落地、事件排序修复与验收**：Intensity=0 位精确、天空不参与 gather、正交可用、三档接线正确、滤波是保边弱平滑（≈4.47%）；**排序修复** = `BeforeRenderingTransparents` → `AfterRenderingSkybox`（让合成早于 `_CameraOpaqueTexture` 拷贝）；旧的「调试 RT 污染 / gather 命中透明几何」两条结论已撤回（截屏伪影）；残留水面变暗已定性为管线路径差异（197 px / −0.027，与 GI 和事件无关）。附离屏 RT 对照采集法与四条工具/API 陷阱 |
 | [2026-09-21-ssgi-phase4-ao.md](2026-09-21-ssgi-phase4-ao.md) | 2026-09-21 | **AO（SSGI Phase 4）落地与验收**：SSAO 半球核 / HBAO 水平线积分双模式、四 Pass（Trace/BlurH/BlurV/Composite）、可见度约定 `V`、档位 (除数,方向,步进) = Low(4,4,6)/Medium(2,6,8)/High(2,8,12)；持久化进 `PC_Renderer.asset`（第 8 个 Feature）；离屏对照读数：`intensity 0.0001→1` 只变暗不变亮、天空 100% 可见、无像素 < 0.5、合成公式中位误差 0.0000、两次采集逐字节一致；**三个新陷阱** = 跨帧回读全局纹理必得 `UnityBlack` 4×4 / 后处理色彩分级改写 Debug 灰度 / `SaveAssets` 回写整个会话态（曾把 DiffuseGI 的 `m_Active` 写成 0，已修回）。HBAO 为有意简化版，不得当 Bavoil 2008 等价实现引用 |

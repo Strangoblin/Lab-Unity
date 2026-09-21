@@ -23,7 +23,6 @@ public class AOFeature : ScriptableRendererFeature
         [Range(0.1f, 5f)] public float radius = 1f;
         [Range(0.001f, 0.5f)] public float bias = 0.02f;
         [Range(0f, 60f)] public float angleBias = 10f;
-        [Range(0f, 4f)] public float falloff = 1f;
         [Range(0.01f, 2f)] public float depthSigma = 0.15f;
 
         [Header("Performance")]
@@ -31,6 +30,7 @@ public class AOFeature : ScriptableRendererFeature
 
         [Header("Artistic")]
         [Range(0f, 4f)] public float intensity = 1f;
+        [Range(0f, 4f)] public float falloff = 0f;
 
         [Header("Debug")]
         public DebugMode debug = DebugMode.Off;

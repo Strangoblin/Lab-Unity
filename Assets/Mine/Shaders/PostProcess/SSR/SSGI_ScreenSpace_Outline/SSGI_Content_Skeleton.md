@@ -153,7 +153,7 @@ float3 SampleGGX_VNDF(float2 xi, float alpha) {
 
 ## Phase 3: Diffuse GI — 屏幕空间间接漫反射
 
-> 2026-09-21：Shader 与 RenderGraph 管线已落地；使用方法、参数、近似边界见 [DiffuseGI.md](../DiffuseGI.md)。
+> 2026-09-21：Shader 与 RenderGraph 管线已落地；使用方法、参数、近似边界见 [DiffuseGI.md](../../SSGI/DiffuseGI/DiffuseGI.md)。
 
 ### 已实现管线
 
@@ -211,15 +211,15 @@ Final.rgb = Scene.rgb + intensity × receiverAlbedo × GI.rgb
 
 - C# 已通过本机 Unity 6000.3.14f1 / URP 17.3 程序集的 Roslyn 编译。
 - 新增代码经过项目 write_gated 与规范检查。
-- 2026-09-21 经离屏 RT 对照测量：Intensity=0 与禁用位精确一致；天空盒不参与 gather（差值 0.00000000）；正交投影可用；三档性能经 uniform 回读确认接线；`Time.timeScale = 0` 时位精确；修复后 intensity 0 → 1 有 28370 px 变亮（平均 +0.03144，最大 +0.57568）。数值表见 [`DiffuseGI.md`](../DiffuseGI.md) §验收。
-- 事件排序（本轮修复）：旧值 `BeforeRenderingTransparents` 使 GI 合成晚于 `m_CopyColorPass`，透明物体（Water/RainDrops）折射到未叠加 GI 的 `_CameraOpaqueTexture`，把水面的 GI 盖回原状；已改为 `AfterRenderingSkybox`（同事件下自定义 Feature 先于 URP 内置 Pass）。旧的“调试 RT 污染 = in-place 读写别名”“gather 命中透明几何”两条结论已撤回，理由见 [`DiffuseGI.md`](../DiffuseGI.md) §事件排序。残留的水面轻微变暗（197 px / −0.027）已重新定性为开放项。
+- 2026-09-21 经离屏 RT 对照测量：Intensity=0 与禁用位精确一致；天空盒不参与 gather（差值 0.00000000）；正交投影可用；三档性能经 uniform 回读确认接线；`Time.timeScale = 0` 时位精确；修复后 intensity 0 → 1 有 28370 px 变亮（平均 +0.03144，最大 +0.57568）。数值表见 [`DiffuseGI.md`](../../SSGI/DiffuseGI/DiffuseGI.md) §验收。
+- 事件排序（本轮修复）：旧值 `BeforeRenderingTransparents` 使 GI 合成晚于 `m_CopyColorPass`，透明物体（Water/RainDrops）折射到未叠加 GI 的 `_CameraOpaqueTexture`，把水面的 GI 盖回原状；已改为 `AfterRenderingSkybox`（同事件下自定义 Feature 先于 URP 内置 Pass）。旧的“调试 RT 污染 = in-place 读写别名”“gather 命中透明几何”两条结论已撤回，理由见 [`DiffuseGI.md`](../../SSGI/DiffuseGI/DiffuseGI.md) §事件排序。残留的水面轻微变暗（197 px / −0.027）已重新定性为开放项。
 - 薄墙漏光、深度边缘串色、相机运动稳定性未测；视觉质量需在 Game View 人工确认，静态检查不等于画面验证。
 
 ---
 
 ## Phase 4: SSAO + HBAO — 环境光遮蔽
 
-> 2026-09-21：Shader 与 RenderGraph 管线已落地；使用方法、参数、近似边界与验收读数见 [AO.md](../AO.md)。
+> 2026-09-21：Shader 与 RenderGraph 管线已落地；使用方法、参数、近似边界与验收读数见 [AO.md](../../SSGI/AO/AO.md)。
 
 ### 已实现管线
 
@@ -273,8 +273,8 @@ Forward 后处理拿不到逐像素的"环境光 / 间接光"分量，所以合�
 
 - C# 通过本机 Unity 6000.3.14f1 / URP 17.3 程序集的 Roslyn 编译；`ShaderUtil.GetShaderMessages("PostProcess/AO")` 0 条。
 - 已持久化进 `Assets/Settings/PC_Renderer.asset`（8 个 Feature 中的 `AOFeature`，`m_Active=1`，事件 `AfterRenderingSkybox`）。
-- 2026-09-21 离屏相机对照采集（642×522、关闭后处理）：可见度 HBAO 均值 0.983 / SSAO 0.984，天空行 100% 可见度 = 1.00，可见度 < 0.9 占 6.5% / 6.6%；`intensity 0.0001 → 1` 只变暗不变亮；逐像素 `lin(composite)/lin(base) == V` 中位误差 0.0000。数值表见 [`AO.md`](../AO.md) §验收。
-- 两条工具陷阱（跨帧回读 `_AOTexture` 必得全 0；Debug 视图会被后处理色彩分级改写）记在 [`AO.md`](../AO.md) §已知陷阱。
+- 2026-09-21 离屏相机对照采集（642×522、关闭后处理）：可见度 HBAO 均值 0.983 / SSAO 0.984，天空行 100% 可见度 = 1.00，可见度 < 0.9 占 6.5% / 6.6%；`intensity 0.0001 → 1` 只变暗不变亮；逐像素 `lin(composite)/lin(base) == V` 中位误差 0.0000。数值表见 [`AO.md`](../../SSGI/AO/AO.md) §验收。
+- 两条工具陷阱（跨帧回读 `_AOTexture` 必得全 0；Debug 视图会被后处理色彩分级改写）记在 [`AO.md`](../../SSGI/AO/AO.md) §已知陷阱。
 
 ---
 
@@ -346,24 +346,27 @@ FinalColor = DirectLighting
 ## 文件结构
 
 ```
-Assets/Mine/Shaders/PostProcess/SSR/
-├── SSR.shader                     ← 主 Shader（Pass 编排，现阶段）
-├── SSRFeature.cs                  ← C# RecordRenderGraph
-├── RayMarchFunction.hlsl          ← 步进策略（已解偶，无需修改）
-├── RaySampleFunction.hlsl         ← 采样策略（逐步添加新函数）
-├── DiffuseGIFeature.cs            ← Phase 3 独立 RenderGraph 管线
-├── DiffuseGI.shader               ← Trace / Blur H/V / Resolve / Composite
-├── DiffuseGIFunction.hlsl         ← 半球采样 + 空域滤波
-├── ScreenSpaceTrace.hlsl          ← 无 BRDF 权重的几何首命中
-├── DiffuseGI.md                   ← Phase 3 使用、参数与限制
-├── AOFeature.cs                   ← Phase 4 独立 RenderGraph 管线
-├── AO.shader                      ← Trace / Blur H / Blur V / Composite
-├── AOFunction.hlsl                ← SSAO / HBAO 遮蔽估计、双边滤波与合成
-├── AO.md                          ← Phase 4 使用、参数与限制
-├── SSGI_Filter.hlsl               ← 时域+空域滤波（Phase 5 计划）
-├── SSGI_Common.hlsl               ← 共享工具函数（GGX采样、半球采样等）
-└── SSGI_ScreenSpace_Outline/
-    └── SSGI_Content_Skeleton.md   ← 本文件
+Assets/Mine/Shaders/PostProcess/
+├── SSR/
+│   ├── SSR.shader                     ← 原 SSR 实验入口
+│   ├── SSRFeature.cs
+│   ├── RayMarchFunction.hlsl
+│   ├── RaySampleFunction.hlsl
+│   ├── ScreenSpaceTrace.hlsl          ← 三个 SSGI 模块共用的几何追踪
+│   └── SSGI_ScreenSpace_Outline/
+│       └── SSGI_Content_Skeleton.md   ← 本文件
+└── SSGI/
+    ├── SpecularGI/                    ← Phase 2：SSSR → SSPR → SkyBox
+    ├── DiffuseGI/                     ← Phase 3：Trace / Blur / Resolve / Composite
+    │   ├── DiffuseGIFeature.cs
+    │   ├── DiffuseGI.shader
+    │   ├── DiffuseGIFunction.hlsl
+    │   └── DiffuseGI.md
+    └── AO/                            ← Phase 4：SSAO / HBAO / Blur / Resolve
+        ├── AOFeature.cs
+        ├── AO.shader
+        ├── AOFunction.hlsl
+        └── AO.md
 ```
 
 ---

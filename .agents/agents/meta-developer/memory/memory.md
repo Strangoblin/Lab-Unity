@@ -8,6 +8,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-09-21-spatial-filter-budget-guidance.md](2026-09-21-spatial-filter-budget-guidance.md) | 2026-09-21 | **空间滤波参数契约与模板**：Quality 固定样本数/分布/下采样率，Radius 只缩放 offset 和感受野；覆盖 Blur/SNN/Kuwahara/Bilateral/SSGI Resolve，修正 fullscreen 旧表述并新增 9/16/25 tap HLSL 骨架。 |
 | [2026-09-21-delete-gated.md](2026-09-21-delete-gated.md) | 2026-09-21 | 删除通道 delete_gated — Assets/Mine 删除被封死的真因是**权限路径规则连带命中 Bash 的 rm/mv**（而非 `rm -rf` deny；且 `Write(path)` 是死规则、deny 不可被 allow/hook 覆盖）；补删除闸（不可恢复性判定）而非放松 deny；**MCP + Bash CLI 两通道判定同源**、审计落盘 `.mcp/deletes.jsonl`；附「MCP 工具表按会话冻结、重启进程不刷新」 |
 | [2026-09-20-parameter-panel-template.md](2026-09-20-parameter-panel-template.md) | 2026-09-20 | 面板参数分层（Technical/Performance/Artistic/Debug）入 standard 规范 + 骨架；实测暴露模板从未被验过（2 个 .cs 带真实 API 错误 + 1 个 .shader 带 emoji 标识符），据此把「模板可编译」重定义为「模板 API 可核验」并落地 `check_api_refs.py`，同时纠正一条写反的 VolumeComponent 规范 |
 | [2026-09-17-urp17-material-templates.md](2026-09-17-urp17-material-templates.md) | 2026-09-17 | Unity 6/URP 17 材质模板升级：实例化、Stereo、四 Pass 一致性及能力契约 |

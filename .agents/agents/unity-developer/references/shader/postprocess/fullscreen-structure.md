@@ -62,12 +62,11 @@ SubShader
 
 **① 计算密集型参数 → 关键字模式切换**
 
-步进次数、采样次数、采样半径等影响循环次数的参数，避免在运行时通过 Material.SetFloat 传递，改为关键字编译不同变体：
+步进次数、采样次数等决定循环成本的参数，避免在运行时通过 Material.SetFloat 传递，改为质量关键字编译不同变体。采样半径只缩放固定样本分布，不得改变循环次数；完整契约见 [Spatial Filter Sampling Budget](spatial-filter-budget.md)。
 
 ```hlsl
-// ✗ 避免：运行时动态步进（每次循环判断，GPU 无法优化分支）
+// ✓ 质量档在编译期选择固定循环预算
 #pragma shader_feature _ BLUR_BILATERAL_LOW BLUR_BILATERAL_MEDIUM BLUR_BILATERAL_HIGH
-// ✓ 优选：编译时确定循环次数 / 采样模式
 ```
 
 C# Feature 中通过 `EnableKeyword` / `DisableKeyword` 控制：
