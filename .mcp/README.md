@@ -30,12 +30,14 @@ Validation (validation/)           ← script_library.py + norms.py + deletion.p
 |------|------|
 | `gate_set_recipe(name)` | 声明模式: Production / Research / Experiment / Debug / Minimal / Quick |
 | `gate_pass(gate_id, **ctx)` | 通过 g_entry / g_knowledge |
-| `gate_status()` | 当前状态 + 写入审计 |
+| `gate_status()` | 当前状态 + 写入审计 + 删除审计 |
 | `gate_list()` | 列出所有门禁 + 配方（含退役标记） |
 | `gate_reset()` | 重置 |
 | `script_list()` | 列出 scripts/roslyn/ |
 | `write_gated(path, content, ...)` | 门禁 + 规范检查通过才放行写入（注解非阻塞记录） |
 | `delete_gated(paths, reason)` | 门禁 + 不可恢复性检查通过才放行删除（批量，all-or-nothing） |
+
+删除另有 Bash 通道 `validation/delete_gated.py`（同一道门禁），见下节。
 
 ## 配方
 
@@ -83,9 +85,20 @@ Production / Research / Experiment / Debug / Minimal / Quick 均使用唯一链 
 
 另有 Unity 专属检查：删 `.meta` 前用 `grep -rlF` 查其 GUID 是否仍被 `Assets/` 下其他文件引用，命中即硬拦（`guid-referenced`）。删资产却留下同名 `.meta`（或反之）只报 `orphan-meta` / `orphan-asset` 警告，不阻断——成对删除是调用方的责任，工具不擅自扩大删除范围。
 
-整批 **all-or-nothing**：任一路径被拦则整批不执行，`blocked` 列出原因。成功时写入 `state.deletes` 审计（`gate_status` 可见，保留最近 20 条）。
+整批 **all-or-nothing**：任一路径被拦则整批不执行，`blocked` 列出原因。
 
-> 存在的理由：`Assets/Mine/` 的直接 `Write`/`Edit` 被 settings deny（逼写入走 `write_gated`），而 Claude Code 的路径规则会**连带命中 Bash**——`rm`/`mv` 即便在 allow 列表里也被拦。MCP 工具调用不经该路径匹配，因此 `delete_gated` 是 `Assets/Mine/` 下唯一可用的删除通道。
+**两个通道，同一道门禁**——判定同源（都走 `deletion.evaluate`），不允许各判一套：
+
+| 通道 | 入口 | 用途 |
+|---|---|---|
+| MCP | `mcp__unity-gate__delete_gated` | 会话内常规调用 |
+| Bash | `python3 .mcp/validation/delete_gated.py --reason "..." <paths...>` | MCP 工具表未刷新时、或脚本化批量删除 |
+
+CLI 的门禁状态读 `.mcp/state.json`（与 `can_write` 同语义）——**只消费已通过的链，不提供过门禁的入口**；`--reason` 必填，支持 `--dry-run`（判定可删但不执行）。退出码 `0` = 成功 / `1` = 被拦 / `2` = 用法错误。
+
+**删除审计落盘** `.mcp/deletes.jsonl`（JSONL，不入库，`gate_status` 另显最近 20 条）：写入有产物本身即记录，**删除没有——日志是唯一痕迹**。两个通道都追加，含 `channel` 字段区分，并记 `argv` 便于溯源。
+
+> 存在的理由：`Assets/Mine/` 的直接 `Write`/`Edit` 被 settings deny（逼写入走 `write_gated`），而 Claude Code 的路径规则会**连带命中 Bash**——`rm`/`mv` 即便在 allow 列表里也被拦。MCP 调用与 Python 子进程都不经该路径匹配，故这一对通道是 `Assets/Mine/` 下可用的删除路径。
 
 ## Codex 对等
 
@@ -113,8 +126,12 @@ python3 .mcp/validation/check_api_refs.py --compile <自足骨架.cs>           
 # 测试
 uv run python tests/test_recipes.py
 
-# 规范检查 CLI
+# 规范检查 CLI（Codex 对等通道）
 python validation/check_norm.py Assets/Mine/Shaders/Render/Xxx/Xxx.shader
+
+# 删除门禁 CLI（Bash 通道，与 MCP delete_gated 同一道门禁）
+python3 .mcp/validation/delete_gated.py --reason "<原因>" <路径...>
+python3 .mcp/validation/delete_gated.py --reason "<原因>" --dry-run <路径...>   # 只判定不执行
 
 # 模板 API 核验（meta 层，仓库根执行）
 python3 .mcp/validation/check_api_refs.py .agents/agents/unity-developer/templates

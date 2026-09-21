@@ -1,6 +1,8 @@
 # 门禁运行时状态 — 进程内存 + state.json 双份, 不入库
 .mcp/state.json
 .mcp/state.json.tmp
+# 删除审计 — 删除不留产物, 这份日志是唯一痕迹 (运行时状态, 不入库)
+.mcp/deletes.jsonl
 
 # Codex / Unity 本地运行产物
 .codex/tmp/*

@@ -47,13 +47,22 @@ date: 2026-09-21
 - 成对删除是调用方责任：删资产留 `.meta`（或反之）只报 `orphan-meta`/`orphan-asset` 警告，不阻断，工具不擅自扩大删除范围。
 - 整批 **all-or-nothing**；`reason` 必填；成功写 `state.deletes` 审计（`gate_status` 可见）。
 
-参照 [2026-09-01-gate-state-persistence.md](2026-09-01-gate-state-persistence.md)：审计**不落盘**（会话内），与 `writes` 同策略——两者都改文件系统，产物本身即持久记录。
+### 两个通道 + 审计落盘（同日追加）
+
+MCP 侧上线后暴露一个客户端限制：**Claude Code 的 MCP 工具表按会话冻结**——重启 stdio 进程不会刷新（服务器确实在跑新代码，`gate_status` 出现 `deletes` 字段为证，但工具仍调不到），需 `/mcp` 重连或换会话。故补 **Bash 通道** `.mcp/validation/delete_gated.py`。
+
+- **判定同源**：MCP 与 CLI 都调 `deletion.evaluate()`，不允许各判一套（否则两通道必然分叉）。`server.py` 改为消费同一函数。
+- **CLI 的门禁**读 `.mcp/state.json`，语义等同 `can_write`——**只消费已通过的链，不提供过门禁的入口**（过链只能走 MCP 的 `gate_set_recipe` + `gate_pass`）。
+- 支持 `--dry-run`；退出码 `0`=成功 / `1`=被拦 / `2`=用法错误。
+
+**审计改为落盘** `.mcp/deletes.jsonl`（JSONL，入 `.gitignore`）：写入有产物本身即记录，**删除没有——日志是唯一痕迹**。这是与 `writes` 的**有意不对称**（`writes` 仍不落盘）；两通道都追加，带 `channel` 与 `argv` 便于溯源。
 
 ## 验证
 
-- `.mcp/tests/test_recipes.py` 新增 `test_deletion_classify()`（**隔离临时 git 仓库**，不碰真仓库索引）+ `test_delete_gated()`（门禁/作用域/reason/审计/幂等/重置）→ 全套 `All tests passed ✓`
+- `.mcp/tests/test_recipes.py` 新增 `test_deletion_classify()`（**隔离临时 git 仓库**，不碰真仓库索引）+ `test_delete_gated()`（门禁/作用域/reason/审计/幂等/重置）+ `test_cli_delete_gated()`（用法/门禁同源/作用域/dry-run/落盘审计/幂等）→ 全套 `All tests passed ✓`
 - `server.list_tools()` 确认 `delete_gated` 已注册（8 个工具）
-- 待办：**live server 需重连**才可调用（stdio 进程每会话一个，改代码不会热加载）
+- **端到端实测**（Bash → CLI → `Assets/Mine`）：`tracked-dirty` 文件（item 4 未提交的 `AOFunction.hlsl`）被正确拦为 `DELETION_UNSAFE`；`--dry-run` 对 clean 文件放行；再用 `write_gated` 在 `Assets/Mine` 造点号开头的探针 → CLI 实删成功、文件消失、审计落盘、零残留。**证明 deny 不拦 Python 子进程的命令行，CLI 通道在 `Assets/Mine` 下真实可用**。
+- item 5 已执行：`DiffuseGIFeature.cs.new` + `.new.meta` 经 MCP `delete_gated` 删除（`count: 2`，均 untracked / `recoverable: false`，无 orphan 警告）。**注意 MCP 工具表需 `/mcp` 重连刷新——重启服务器进程不够。**
 
 ## 同步清单（链路保障）
 
@@ -62,4 +71,5 @@ date: 2026-09-21
 ## 遗留
 
 - `Write(/Assets/Mine/**)` 是死规则，除触发启动告警外无作用——可清理（未动，属用户权限配置）。
-- 若日后要放开 `Assets/Mine` 的 Bash 删除/移动：需删 `Edit(/Assets/Mine/**)` 并改用 `PreToolUse` hook，**代价是丢掉 `sed`/`tee`/重定向的写入覆盖**——与「所有写入走 write_gated」的目标冲突，须用户裁决。
+- 若日后要放开 `Assets/Mine` 的 Bash 删除/移动：需删 `Edit(/Assets/Mine/**)` 并改用 `PreToolUse` hook，**代价是丢掉 `sed`/`tee`/重定向的写入覆盖**——与「所有写入走 write_gated」的目标冲突，须用户裁决。**现已不必**：CLI 通道已补上，无需动权限配置。
+- **Codex 的删除权限未变更**：CLI 是 Bash 通道，技术上也对 Codex 可见；是否允许 Codex 使用属政策裁决，未擅自写进 `.codex/` 文档。

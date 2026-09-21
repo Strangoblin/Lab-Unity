@@ -14,7 +14,8 @@
 """
 
 from __future__ import annotations
-import os, re, subprocess
+import json, os, re, subprocess
+from datetime import datetime, timezone
 
 # Unity .meta 的 guid 行：`guid: <32 位小写十六进制>`
 GUID_RE = re.compile(r"^guid:\s*([0-9a-f]{32})\s*$", re.M)
@@ -123,3 +124,49 @@ def orphan_meta_warnings(project_root: str, deleting: list[str]) -> list[dict]:
                 warnings.append({"path": p, "id": "orphan-meta",
                                  "detail": f"遗留的 {meta} 将成为孤儿 .meta"})
     return warnings
+
+
+# ════════════════════════════════════════════════════════════════
+#  共用判定 — MCP delete_gated 与 CLI 必须同源，不能各判一套
+# ════════════════════════════════════════════════════════════════
+
+def evaluate(project_root: str, checked: list[tuple[str, str]]) -> dict:
+    """收集阻断项，并回带分类结果。
+
+    checked = [(项目相对路径, 绝对路径)]。
+    返回 {"blocked": [...], "status": {path: classify 结果}}；
+    blocked 为空即整批可删（调用方负责 all-or-nothing）。
+    """
+    status = classify(project_root, [p for p, _ in checked])
+    blocked = [{"path": p, **info} for p, info in status.items()
+               if info["state"] in ("tracked-dirty", "unknown")]
+
+    for p, full in checked:
+        guid = read_guid(full)
+        if not guid:
+            continue
+        refs = guid_referenced_elsewhere(project_root, p, guid)
+        if refs:
+            blocked.append({"path": p, "state": "guid-referenced", "recoverable": False,
+                            "detail": f"GUID {guid} 仍被其他文件引用",
+                            "referenced_by": refs[:5]})
+    return {"blocked": blocked, "status": status}
+
+
+# ════════════════════════════════════════════════════════════════
+#  删除审计 — 写入有产物即记录，删除没有，故必须落盘
+# ════════════════════════════════════════════════════════════════
+
+AUDIT_FILE = os.path.join(".mcp", "deletes.jsonl")
+
+
+def append_audit(project_root: str, record: dict) -> None:
+    """追加一条删除记录（JSONL）。失败静默 —— 与 state.json 同策略，审计不阻塞删除。"""
+    try:
+        path = os.path.join(project_root, AUDIT_FILE)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(json.dumps({"ts": datetime.now(timezone.utc).isoformat(), **record},
+                               ensure_ascii=False) + "\n")
+    except OSError:
+        pass

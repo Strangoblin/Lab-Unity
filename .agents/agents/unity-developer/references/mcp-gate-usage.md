@@ -76,9 +76,19 @@ gate_set_recipe → gate_pass(g_entry) → gate_pass(g_knowledge) → write_gate
 - **路径作用域与门禁同 write_gated**：必须过同一道 `can_write`，路径过同一个 `validate_path`
 - **`.meta` GUID 检查**：删 `.meta` 前查其 GUID 是否仍被 `Assets/` 下其他文件引用，命中 → `guid-referenced` 阻断
 - **成对删除是调用方的责任**：删资产留 `.meta`（或反之）只报 `orphan-meta` / `orphan-asset` 警告，不阻断，工具不擅自扩大删除范围
-- **整批 all-or-nothing**：任一被拦则整批不执行，`blocked` 列出原因；`reason` 必填，进 `gate_status` 的 `deletes` 审计
+- **整批 all-or-nothing**：任一被拦则整批不执行，`blocked` 列出原因；`reason` 必填
+- **审计落盘** `.mcp/deletes.jsonl`：写入有产物本身即记录，**删除没有，日志是唯一痕迹**；两个通道都追加并记 `channel`
 
-> 为什么需要这条通道：`Assets/Mine/` 的 `Edit` deny 规则会**连带命中 Bash**（`rm`/`mv`/`cp`/`sed`/`tee` 与重定向），且 deny 优先级不可被 allow 覆盖。MCP 工具调用不经该路径检查，因此 `delete_gated` 是 `Assets/Mine/` 下唯一可用的删除通道。
+**两个通道，同一道门禁**（判定同源 `deletion.evaluate`，不会各判一套）：
+
+| 通道 | 入口 |
+|------|------|
+| MCP | `mcp__unity-gate__delete_gated`（会话内常规） |
+| Bash | `python3 .mcp/validation/delete_gated.py --reason "<原因>" <路径...>` |
+
+CLI 的门禁状态读 `.mcp/state.json`，**只消费已通过的链，不提供过门禁的入口**；支持 `--dry-run`；退出码 `0`=成功 / `1`=被拦 / `2`=用法错误。
+
+> 为什么需要这条通道：`Assets/Mine/` 的 `Edit` deny 规则会**连带命中 Bash**（`rm`/`mv`/`cp`/`sed`/`tee` 与重定向），且 deny 优先级不可被 allow 覆盖。MCP 调用与 Python 子进程都不经该路径匹配，故这一对通道是 `Assets/Mine/` 下可用的删除路径。
 
 ## 注解（非阻塞，记录审计）
 
@@ -112,5 +122,5 @@ Codex 产出合入前自查；Claude merge review 复查同一检查（与 write
 ## 提醒
 
 - 门禁状态持久化于 `.mcp/state.json`（进程内 + 落盘双份）——**server 进程空闲重启后自动恢复**，无需重走链。新任务第一件事仍是 `gate_set_recipe()` 显式声明；`gate_reset()` 会清空持久化（含删除审计）。若遇 `NO_RECIPE`：先 `gate_status()` 确认真空，再 `gate_set_recipe()` 重走链
-- `write_gated` / `delete_gated` 的**审计只在会话内存**（各留最近 100 条，`gate_status` 显示最近 20 条），不落盘——两者都改文件系统，落盘的产物本身就是持久记录
+- **审计有意不对称**：`write_gated` 只在会话内存（留最近 100 条，`gate_status` 显示最近 20 条）——写入的产物本身就是持久记录；`delete_gated` **另落盘** `.mcp/deletes.jsonl`，因为删除不留产物，日志是唯一痕迹（见上节）
 - 错误/行为疑问先跑 `.mcp/tests/test_recipes.py`（All tests passed 为准）

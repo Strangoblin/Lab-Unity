@@ -396,6 +396,61 @@ async def test_delete_gated():
     print("  ✅ 门禁 / 作用域 / reason 必填 / 删除 / 审计 / 幂等 / 重置 均正确")
 
 
+async def test_cli_delete_gated():
+    """delete_gated.py CLI: 与 MCP 同一道门禁、同一套判定、同一份落盘审计。"""
+    print("\n── delete_gated.py CLI (Bash 通道) ──")
+    cli = os.path.join(ROOT, "validation", "delete_gated.py")
+    env = dict(os.environ, PYTHONPATH=ROOT)
+    audit = os.path.join(ROOT, "deletes.jsonl")
+    target = os.path.join(TMP, "cli_del.txt")
+
+    def run(*args):
+        return subprocess.run([sys.executable, cli, *args],
+                              capture_output=True, text=True, env=env)
+
+    # 用法: 无路径 / 无 reason → exit 2
+    assert run("--reason", "x").returncode == 2, "无路径应 exit 2"
+    assert run("tmp/cli_del.txt").returncode == 2, "无 reason 应 exit 2"
+
+    # 门禁未过（前序用例已 gate_reset → state.json 不存在）→ 与 MCP 同一道闸
+    r = run("--reason", "单元测试", "tmp/cli_del.txt")
+    assert r.returncode == 1 and "NO_RECIPE" in r.stdout, f"got {r.stdout}"
+
+    await call("gate_set_recipe", name="Quick")
+    await call("gate_pass", gate_id="g_entry", agent="unity-developer")
+    await call("gate_pass", gate_id="g_knowledge", loaded_files=HIGH_PRIO, status="COMPLETE")
+
+    # 作用域（与 MCP 同一个 validate_path）
+    r = run("--reason", "越界", "/etc/hosts")
+    assert r.returncode == 1 and "PATH_NOT_ALLOWED" in r.stdout, f"got {r.stdout}"
+
+    with open(target, "w", encoding="utf-8") as f:
+        f.write("x")
+
+    # --dry-run: 判定可删但不执行
+    r = run("--reason", "干跑", "--dry-run", "tmp/cli_del.txt")
+    assert r.returncode == 0 and json.loads(r.stdout)["dry_run"] is True, f"got {r.stdout}"
+    assert os.path.isfile(target), "--dry-run 不应删除"
+
+    # 实删 + 落盘审计（删除不留产物，日志是唯一痕迹）
+    before = os.path.getsize(audit) if os.path.isfile(audit) else 0
+    r = run("--reason", "CLI 单元测试清理", "tmp/cli_del.txt")
+    assert r.returncode == 0 and json.loads(r.stdout)["count"] == 1, f"got {r.stdout}"
+    assert not os.path.isfile(target), "文件应已删除"
+    assert os.path.getsize(audit) > before, "应追加审计"
+    last = json.loads(open(audit, encoding="utf-8").read().strip().splitlines()[-1])
+    assert last["channel"] == "cli", f"审计应标 channel=cli: {last}"
+    assert last["reason"] == "CLI 单元测试清理", f"审计应含 reason: {last}"
+    assert last["paths"] == ["tmp/cli_del.txt"], f"审计应含路径: {last}"
+
+    # 幂等: 重复执行同一清单 → missing 跳过
+    r = run("--reason", "重复", "tmp/cli_del.txt")
+    assert r.returncode == 0 and json.loads(r.stdout)["count"] == 0, f"got {r.stdout}"
+
+    await call("gate_reset")
+    print("  ✅ 用法 / 门禁同源 / 作用域 / dry-run / 删除 / 落盘审计 / 幂等 均正确")
+
+
 async def main():
     print("=" * 50)
     print("  Gate Tests (consequence-verification v2)")
@@ -418,6 +473,7 @@ async def main():
     await test_cli_check_norm()
     test_deletion_classify()
     await test_delete_gated()
+    await test_cli_delete_gated()
     await test_restart_recovery()   # 放最后: 子进程管理自己的 state.json, 不干扰进程内用例
 
     print("\n" + "=" * 50)

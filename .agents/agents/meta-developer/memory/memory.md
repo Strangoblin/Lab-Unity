@@ -8,7 +8,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
-| [2026-09-21-delete-gated.md](2026-09-21-delete-gated.md) | 2026-09-21 | 删除通道 delete_gated — Assets/Mine 删除被封死的真因是**权限路径规则连带命中 Bash 的 rm/mv**（而非 `rm -rf` deny；且 `Write(path)` 是死规则、deny 不可被 allow/hook 覆盖）；补 MCP 删除闸（不可恢复性判定）而非放松 deny |
+| [2026-09-21-delete-gated.md](2026-09-21-delete-gated.md) | 2026-09-21 | 删除通道 delete_gated — Assets/Mine 删除被封死的真因是**权限路径规则连带命中 Bash 的 rm/mv**（而非 `rm -rf` deny；且 `Write(path)` 是死规则、deny 不可被 allow/hook 覆盖）；补删除闸（不可恢复性判定）而非放松 deny；**MCP + Bash CLI 两通道判定同源**、审计落盘 `.mcp/deletes.jsonl`；附「MCP 工具表按会话冻结、重启进程不刷新」 |
 | [2026-09-20-parameter-panel-template.md](2026-09-20-parameter-panel-template.md) | 2026-09-20 | 面板参数分层（Technical/Performance/Artistic/Debug）入 standard 规范 + 骨架；实测暴露模板从未被验过（2 个 .cs 带真实 API 错误 + 1 个 .shader 带 emoji 标识符），据此把「模板可编译」重定义为「模板 API 可核验」并落地 `check_api_refs.py`，同时纠正一条写反的 VolumeComponent 规范 |
 | [2026-09-17-urp17-material-templates.md](2026-09-17-urp17-material-templates.md) | 2026-09-17 | Unity 6/URP 17 材质模板升级：实例化、Stereo、四 Pass 一致性及能力契约 |
 | [2026-09-17-debug-validation-route.md](2026-09-17-debug-validation-route.md) | 2026-09-17 | 2D 验证对齐 PostProcess/Debug 资源与材质优先的 DebugOutputFeature |
@@ -50,7 +50,8 @@
 - `meta-developer` ✅ — references, memory
 
 ### 待办
-- [ ] **MCP live server 重连**（2026-09-21）：`delete_gated` 已落在 `.mcp/server.py` 并过测试，但 stdio server 每会话独立进程、不热加载——需 `/mcp` 重连（或会话重启/进程空闲回收）后才可作为 `mcp__unity-gate__delete_gated` 调用
+- [x] **MCP live server 重连**（2026-09-21）：`delete_gated` 已落地并过测试；重启 stdio 进程**不够**（工具表按会话冻结），须 `/mcp` 重连——已由用户完成，item 5 两个文件已删。Bash 通道 `validation/delete_gated.py` 已补，此后不依赖重连
+- [ ] **Codex 是否可用 Bash 删除通道**（2026-09-21）：`validation/delete_gated.py` 技术上也对 Codex 可见；是否授权属政策裁决，未擅自写进 `.codex/` 文档
 - [ ] `settings.json` 的 `Write(/Assets/Mine/**)` 为死规则（从不被读取，仅触发启动告警），可清理——用户权限配置，未擅动
 - [x] `.claude/skills/` 实体副本 → 逐 skill 相对软链（2026-09-04 裁决方案二，人工确认后执行；32 文件 → 9 软链）
 - [ ] 删除已迁移旧路径的 compatibility stubs（agent/rules 软链为发现机制保留；仅剩 `.claude/agents/<role>/` 空目录壳物理清理，无 git 足迹）

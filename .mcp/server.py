@@ -6,6 +6,7 @@
 
 模式（recipe）经 gate_set_recipe 声明；脚本决策/文件分类降级为 write_gated 注解（记录不阻塞）。
 delete_gated 是 write_gated 的对称面 —— 删除无内容可查，后果验证落在「不可恢复性」上。
+Bash 通道: python .mcp/validation/delete_gated.py --reason "..." <paths...>（同一道门禁）
 Codex 对等通道: python .mcp/validation/check_norm.py <file>
 
 工具:
@@ -26,8 +27,7 @@ from gate_center import state, GATE_REGISTRY, RECIPES
 from validation.script_library import list_scripts, validate_decision
 from validation.project_paths import validate_path, PROJECT_ROOT
 from validation.norms import check_content, _existing_lines
-from validation.deletion import (classify, read_guid, guid_referenced_elsewhere,
-                                 orphan_meta_warnings)
+from validation.deletion import evaluate, append_audit, orphan_meta_warnings
 
 server = MCPServer(name="unity-gate", version="0.5.0")
 
@@ -233,24 +233,9 @@ async def delete_gated(paths: list[str], reason: str) -> str:
     if gate_check["status"] != "OK":
         return json.dumps(gate_check, ensure_ascii=False)
 
-    rel_paths = [p for p, _ in checked]
-
-    # ── 后果验证 1: 不可恢复性 ──
-    status = classify(PROJECT_ROOT, rel_paths)
-    blocked = [{"path": p, **info} for p, info in status.items()
-               if info["state"] in ("tracked-dirty", "unknown")]
-
-    # ── 后果验证 2: .meta GUID 引用 ──
-    for p, full in checked:
-        guid = read_guid(full)
-        if not guid:
-            continue
-        refs = guid_referenced_elsewhere(PROJECT_ROOT, p, guid)
-        if refs:
-            blocked.append({"path": p, "state": "guid-referenced", "recoverable": False,
-                            "detail": f"GUID {guid} 仍被其他文件引用",
-                            "referenced_by": refs[:5]})
-
+    # ── 后果验证: 不可恢复性 + .meta GUID 引用（与 CLI 同源: deletion.evaluate）──
+    ev = evaluate(PROJECT_ROOT, checked)
+    status, blocked = ev["status"], ev["blocked"]
     if blocked:
         return json.dumps({
             "status": "DENIED", "error": "DELETION_UNSAFE", "blocked": blocked,
@@ -271,13 +256,15 @@ async def delete_gated(paths: list[str], reason: str) -> str:
             failed.append({"path": p, "error": str(e)})
 
     deleted_paths = [d["path"] for d in deleted]
-    state.deletes.append({
-        "paths": deleted_paths, "count": len(deleted), "reason": reason.strip(),
-        "recipe": state.recipe,
+    record = {
+        "channel": "mcp", "paths": deleted_paths, "count": len(deleted),
+        "reason": reason.strip(), "recipe": state.recipe,
         "unrecoverable": [d["path"] for d in deleted if not d["recoverable"]],
-    })
+    }
+    state.deletes.append(record)
     if len(state.deletes) > 100:
         state.deletes = state.deletes[-100:]
+    append_audit(PROJECT_ROOT, record)   # 落盘 —— 删除不留产物，日志是唯一痕迹
 
     response = {
         "status": "OK", "deleted": deleted, "count": len(deleted),
