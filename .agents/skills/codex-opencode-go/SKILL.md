@@ -34,6 +34,7 @@ disable_response_storage = true
 [model_providers.opencode-go]
 name = "OpenCode Go"
 base_url = "https://opencode.ai/zen/go/v1"   # ⚠️ 必须带 /v1
+requires_openai_auth = true   # ⚠️ 必填（2026-08-21 实测）：codex 0.149+ 收紧认证，自定义 provider 不再默认回退 auth.json，缺此行 → 401 Missing API key
 wire_api = "responses"
 stream_idle_timeout_ms = 300000
 request_max_retries = 2
@@ -46,16 +47,19 @@ stream_max_retries = 2
 2. **写配置**：创建 `~/.codex/config.toml`（用上面模板）+ `~/.codex/auth.json`（填有效 key）
 3. **验证**：`codex exec "Reply with exactly: OK"` → 应输出 `OK`
 
-## 模型可用性（2026-08 实测）
+## 模型可用性（2026-08-25 实测）
 
-| 模型 | 状态 |
-|------|------|
-| `deepseek-v4-flash` | ✅ 默认（需在 opencode 工作台开启「提供商 → 启用部署在中国的模型」，2026-08-11 实测通过） |
-| `deepseek-v4-pro` | ✅ 无区域限制（备选） |
-| `mimo-v2.5` | ✅ 可用 |
-| `gpt-5.6-luna` / `glm-5.2` / `qwen3.8-max` / `kimi-k3` / `minimax-m3` | ✅ 可用 |
+| 模型 | 直连 | 走美国代理（如 `HTTP(S)_PROXY=http://127.0.0.1:7890`） |
+|------|------|------|
+| `deepseek-v4-flash` | ✅ 默认（需在 opencode 工作台开启「提供商 → 启用部署在中国的模型」） | ✅ |
+| `deepseek-v4-pro` | ✅ 无区域限制（备选） | ✅ |
+| `gpt-5.6-luna` | ❌ 403 `unsupported_country_region_territory` | ✅ **需美国代理** |
+| `mimo-v2.5` / `glm-5.2` | ❌ 500 上游内部错误（与代理无关） | ❌ |
+| `qwen3.8-max` / `kimi-k3` / `minimax-m3` | ❌ 401 `not supported for format openai`（不支持 responses 格式） | ❌ |
 
-切模型：改 `config.toml` 的 `model = "xxx"`。
+切模型：改 `config.toml` 的 `model = "xxx"`；CLI 临时切换用 `codex exec --model xxx`。
+
+**GPT 模型使用要点**：`gpt-5.6-luna` 有地区限制，Codex CLI 需挂美国代理环境变量（`export HTTPS_PROXY=http://127.0.0.1:7890`）后才可调用；VSCode 扩展则需让扩展进程走代理（VSCode `http.proxy` 设置或系统代理）。环境变量里的旧 srt 代理（56310）2026-08-25 已失效。
 
 ## 项目级隔离（CODEX_HOME）
 
@@ -74,14 +78,58 @@ codex exec "..."   # 读项目级 config.toml + auth.json
 |------|------|------|
 | 扩展报 `unknown variant chat/completions, expected responses` | Codex 26.803 不支持 chat/completions | `wire_api = "responses"` |
 | 上游 401 Invalid API key | auth.json key 失效 | 更新 auth.json，重新去 opencode.ai 生成 |
+| 上游 401 `Missing API key`（**CLI 同配置却正常**，或扩展内置 codex 0.149+ 必现） | codex 0.149.0 收紧认证：自定义 provider（`requires_openai_auth = false` 默认）不再回退读 auth.json | provider 块加 `requires_openai_auth = true`（走 auth.json 的 OPENAI_API_KEY）+ **Reload Window**。勿用 `env_key` 替代——env_key 只认环境变量，GUI 扩展进程拿不到；且与 requires_openai_auth 互斥 |
+| 本地报 `Missing environment variable: OPENAI_API_KEY` | 配了 `env_key` 但环境变量未导出（0.149+ env_key 纯环境变量，无 auth.json 回退） | 若走 env_key 方案需 `export OPENAI_API_KEY=...`（仅 CLI 有效，扩展无效）；推荐改用 `requires_openai_auth = true` |
 | 上游 403 `only available hosted in China` | 模型需中国区 opt-in | 去 opencode 工作台开启「提供商 → 启用部署在中国的模型」；不开则换 deepseek-v4-pro 等无限制模型 |
+| 上游 403 `unsupported_country_region_territory` | 模型有地区限制（如 gpt-5.6-luna 需美国） | 给 Codex CLI 挂美国代理环境变量（`export HTTPS_PROXY=http://127.0.0.1:7890`）；VSCode 扩展配 `http.proxy` 或系统代理。直测：`curl -x http://127.0.0.1:7890 -X POST https://opencode.ai/zen/go/v1/responses ...` |
 | 404 Not Found（HTML 页） | `base_url` 漏 `/v1` | 必须 `https://opencode.ai/zen/go/v1` |
 | `Model metadata for X not found` warning | Codex 无该模型元数据，用 fallback | 无害，可忽略；或在 config 显式声明 `model_context_window` 等字段 |
 | `Ignored unsupported project-local config keys: model_provider, model_providers` | **项目级** `.codex/config.toml` 不支持 provider 类 key（Codex 只认 user-level `~/.codex/config.toml`） | 模型/provider 只写在全局 `~/.codex/config.toml`；项目级 config 只放 trust_level 等 key |
 | VSCode 面板模型选择器只有默认 gpt 模型（看不到 opencode-go 的 8 个） | `model_catalog_json` 未配置 / catalog 文件缺失（伴随 CLI 侧 `Model metadata not found` warning） | 重建 `~/.codex/model-catalogs/opencode-go.json`（每模型必含 `visibility:"list"`、`supported_reasoning_levels`、`truncation_policy` 等完整字段）+ config.toml 顶层加 `model_catalog_json = "绝对路径"` + **Reload Window**。catalog 是面板模型列表的唯一来源，与代理无关，直连也必须保留 |
 | `Codex could not start` / webview 卡住 | 扩展启动需连 chatgpt.com / github.com，网络不通 | 检查外网连通性；重载重试 |
+| `codex doctor` 报 WS 超时（**只在 ClashX 关掉「增强模式」的普通规则模式下出现**，开 TUN 就正常） | 官方 provider 默认走 Responses WebSocket（`wss://chatgpt.com/backend-api/...`），WS 客户端**不认 macOS 系统代理**（doctor：`respect system proxy: disabled`）→ 握手超时；但同状态下 HTTPS 可达（`ChatGPT inference URL reachable (HTTP 405)`） | **通常无需处理**：codex 自带 WS→HTTPS 自动降级（`warning: Falling back from WebSockets to HTTPS transport`），CLI 实测照常工作。若桌面对话框确有问题，唯一对症的官方杠杆是 `codex features enable respect_system_proxy`（under development）。⚠️ **勿改 `[model_providers.openai]`**——`openai` 是保留的内置 ID，覆盖会让 codex 完全起不来 |
+| 配置疑似被改坏 / codex 起不来 | — | 校验**必须用 `codex features list`**（真加载器，配置坏了直接报错）。⚠️ **`codex doctor` 不能当校验器**：配置加载失败时它静默回退默认配置继续跑，只在顶部留一行 `✗ config config could not be loaded` |
 | VSCode 改了 config.toml 不生效 | 扩展用内存缓存 | Reload Window |
 | 模型身份幻觉（自称 GPT） | 模型训练数据问题，正常现象 | 忽略，以 config.toml 的 model 为准 |
+
+## 网络传输（Responses WebSocket）与 cx-http / cx-ws 的撤销
+
+官方 provider 默认传输是 **Responses WebSocket**（doctor 可见 `endpoint wss://chatgpt.com/backend-api/<redacted>`、
+`supports websockets: true`）。WS 客户端不认 macOS 系统代理（doctor：`system proxy: manual` 但
+`respect system proxy: disabled`），所以在 ClashX 关掉「增强模式」、只留普通规则模式时会握手超时。
+**但 HTTPS 在同状态下可达，且 codex 自带 WS→HTTPS 自动降级**，实测普通规则模式下 CLI 正常工作：
+
+```
+$ codex exec "Reply with exactly: OK"
+warning: Falling back from WebSockets to HTTPS transport. stream disconnected before completion: Connection refused (os error 61)
+codex → OK        (exit 0)
+```
+
+> **2026-09-14 撤销**：曾短暂提供 `cx-http` / `cx-ws` 两个开关，实现是写
+> `[model_providers.openai] supports_websockets = false`。**这是非法配置**——`openai` 是 codex
+> **保留的内置 provider ID**，覆盖它会让配置整体加载失败、codex 完全起不来：
+> `model_providers contains reserved built-in provider IDs: 'openai'. Built-in providers cannot be overridden.`
+> 已从 `~/.codex/switch-codex.sh` 与 `.zshrc` 中移除。
+
+**为什么当时没发现**：用 `codex doctor` 当校验器。它在配置加载失败时会**静默回退默认配置继续跑**，
+只在顶部留一行 `✗ config config could not be loaded`；当时用 `sed` 过滤输出恰好滤掉了这行，
+把"WS 检测行消失"误读成"WS 被关掉了"。**校验配置一律用 `codex features list`。**
+
+已排除的替代杠杆：
+
+| 杠杆 | 结论 |
+|------|------|
+| `[model_providers.openai]` 任何键 | ❌ 保留 ID，不可覆盖 |
+| 改名 provider 复制官方 | ❌ 换名后 ChatGPT OAuth 认证模式丢失 |
+| `model_catalog_json` + `prefer_websockets: false` | ❌ 实测**不能阻止 WS 首次尝试**；且自定义 catalog 会冻结模型列表 |
+| `responses_websockets` / `_v2` 特性开关 | ❌ 0.153 已 **removed** |
+| `codex features enable respect_system_proxy` | ✅ 官方对症方案（under development），**唯一真正治本** |
+
+验证连通性（**必须在沙箱外跑**，Claude Code 沙箱会 MITM 掉 TLS 导致误判为网络不通）：
+
+```bash
+codex doctor          # 完整输出，不要 sed 过滤——顶部那行 ✗ config 是关键信号
+```
 
 ## opencode CLI / VSCode 扩展接入（2026-09-21 实测）
 
@@ -199,5 +247,5 @@ curl -s "https://opencode.ai/zen/go/v1/models" -H "Authorization: Bearer $OPENAI
 
 ## 与 CC-Switch 的关系
 
-- **项目 Agent → OpenCode Go**：仍走 CC-Switch 本地代理（15721），Claude 走 Anthropic Messages 格式，需要 CC-Switch 做翻译
+- **Claude Code → OpenCode Go**：仍走 CC-Switch 本地代理（15721），Claude 走 Anthropic Messages 格式，需要 CC-Switch 做翻译
 - **Codex → OpenCode Go**：**直连**（responses 原生格式），与 CC-Switch 完全无关
