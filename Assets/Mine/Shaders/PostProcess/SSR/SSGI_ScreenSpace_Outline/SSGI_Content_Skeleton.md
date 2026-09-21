@@ -219,59 +219,62 @@ Final.rgb = Scene.rgb + intensity × receiverAlbedo × GI.rgb
 
 ## Phase 4: SSAO + HBAO — 环境光遮蔽
 
-### SSAO（基础）
+> 2026-09-21：Shader 与 RenderGraph 管线已落地；使用方法、参数、近似边界与验收读数见 [AO.md](../AO.md)。
 
-**原理：** 在屏幕空间半球内随机采样深度，统计被遮挡比例。
+### 已实现管线
 
-```hlsl
-float occlusion = 0;
-for (int i = 0; i < kernelSize; i++) {
-    float3 samplePos = positionVS + kernel[i] * radius;
-    float4 clip = mul(Projection, float4(samplePos, 1));
-    float2 sampleUV = (clip.xy / clip.w) * 0.5 + 0.5;
-    float sampleDepth = LinearEyeDepth(SampleSceneDepth(sampleUV));
-    occlusion += (samplePos.z > sampleDepth) ? 1.0 : 0.0;  // 被遮挡
-}
-ao = 1.0 - occlusion / kernelSize;
+```text
+AOFeature（AfterRenderingSkybox，早于 URP 的 _CameraOpaqueTexture 拷贝）
+    本帧不透明场景色 + 天空盒 + 深度 + 法线
+      → AO.shader / Trace（SSAO 半球核 或 HBAO 水平线积分）
+      → BlurHorizontal → BlurVertical（眼深 + 法线双边）
+      → Composite（全分辨率，双线性上采样后乘场景色，更新 cameraColor）
 ```
 
-**优化：** 1/2 分辨率 + depth-only bilateral blur
+- `AOFunction.hlsl`：两条遮蔽分支共用「引导读取 → 旋转 → 追踪 → 可见度」骨架，`AO_Trace` 是统一入口。
+- `ScreenSpaceTrace.hlsl`：复用 Phase 3 引入的几何层（深度采样、眼深/世界重建、投影），不引入第二套几何库。
+- 低分辨率追踪（Medium / High 为宽高各 1/2，Low 为 1/4）+ 5 点双边滤波 + 双线性上采样；`depthSigma` 是滤波的几何深度阈值。
+- 独立 Debug：AO / Depth / Normal；Off 为合成模式。
+- 档位与 SSAO 样本数 / HBAO 方向数 / 步进预算同源展开（`AOFeature.GetTier`）：
 
-### HBAO（方向感知）
+| 性能档 | 宽高除数 | SSAO 样本数 = HBAO 方向数 | 步进/方向 |
+|---|---|---|---|
+| Low | 4 | 4 | 6 |
+| Medium | 2 | 6 | 8 |
+| High | 2 | 8 | 12 |
 
-**算法步骤（NVIDIA 2008）：**
+### 估计量约定
 
-```
-1. 深度线性化 + 视空间位置重建
-
-2. 方向切片：
-   N 个等角方向（通常 4-8），每方向独立步进
-   16 层 de-interleaved 纹理（同方向像素分一组 → 缓存友好）
-
-3. 地平线角度追踪：
-   每步计算仰角 tan(h) = (S_z - P_z) / dist
-   追踪最大地平线角度
-
-4. 遮挡积分：
-   AO += falloff(dist²) * (sin(h_max) - sin(t))
-   t = 切平面倾角（由法线确定）
-
-5. Cross-bilateral blur
+```text
+V（可见度，1 = 无遮挡，0 = 全遮蔽）由 Trace 输出；天空与无效引导返回 1
+occlusionApplied = saturate((1 - V) × Intensity)
+Final.rgb        = Scene.rgb × (1 - occlusionApplied)
 ```
 
-**关键细节：** 切线角度 t 防止曲面上自遮挡；角度偏差 30° 应对低纹理曲面。
+Trace 输出的是**可见度**而不是遮蔽量：滤波与合成全程按可见度处理，`Intensity` 只在合成乘一次。滤波后发布 `_AOTexture`，仅限同相机同帧消费。
 
-### 实施步骤
+### 与既有 SSAO 的关系（方案 A：AO 自乘场景色）
 
-1. 添加 `Frag_SSAO()` → 最简单原型验证
-2. 添加 `Frag_HBAO()` → 方向切片 + 角度追踪
-3. 两种模式统一输出到 `_AOTexture`
-4. 更新 Composite 公式：`Final = Direct + Diffuse*AO + Specular*AO`
+Forward 后处理拿不到逐像素的"环境光 / 间接光"分量，所以合成是**整色相乘**，AO 也会压暗直接光照。这正是 URP 自带 SSAO 的 `AfterOpaque` 路径同样的近似（`ShaderLibrary/SSAO.hlsl` + `SSAO_AfterOpaque` 变体）。"只乘到间接光"需要逐像素材质光照数据或 Deferred，留作后续。
 
-### 依赖
+### 与 Bavoil 2008 的差异（有意简化，不得当作等价实现引用）
 
-- 无特殊依赖，仅需深度 + 法线
-- HBAO 需要 16 层 de-interleaved RT
+仰角相对**切线平面**测量，不是原文"视线 → 水平线"的完整切线框架；**不做 16 层 de-interleaved 纹理**（方向与步进在同一像素内完成）；无按方向的地平线权重与 30° 固定偏移；步长按眼深折算屏幕像素并夹在 `[1, 64]`。
+
+### 尚未实施
+
+- 原提纲的统一 Composite（`Final = Direct + IndirectDiffuse×AO + IndirectSpecular×AO + Ambient×(1-AO)`）：未实施。方案 A 已把 AO 乘进本 Feature 的场景色，后续统一 Composite **不能**再叠乘同一 AO 系数。
+- 与 DiffuseGI 的联动（`IndirectDiffuse × AO`）：未接线。全局纹理只在同相机同帧有效，且 AO Feature 未启用时槽位无绑定。
+- 时域抖动与累积（Phase 5）、几何引导上采样、HBAO 的 de-interleaved 分组、HiZ / Compute 迁移。
+- `falloff` 仍是预留参数（传入 `_AOParams.z` 未被消费）。
+- 未测：SSAO 与 HBAO 的目视质量对比、大半径下的屏幕边缘行为、运动稳定性、正交投影下的 `radius` 手感、档位的运行期 uniform 回读。
+
+### 验收记录
+
+- C# 通过本机 Unity 6000.3.14f1 / URP 17.3 程序集的 Roslyn 编译；`ShaderUtil.GetShaderMessages("PostProcess/AO")` 0 条。
+- 已持久化进 `Assets/Settings/PC_Renderer.asset`（8 个 Feature 中的 `AOFeature`，`m_Active=1`，事件 `AfterRenderingSkybox`）。
+- 2026-09-21 离屏相机对照采集（642×522、关闭后处理）：可见度 HBAO 均值 0.983 / SSAO 0.984，天空行 100% 可见度 = 1.00，可见度 < 0.9 占 6.5% / 6.6%；`intensity 0.0001 → 1` 只变暗不变亮；逐像素 `lin(composite)/lin(base) == V` 中位误差 0.0000。数值表见 [`AO.md`](../AO.md) §验收。
+- 两条工具陷阱（跨帧回读 `_AOTexture` 必得全 0；Debug 视图会被后处理色彩分级改写）记在 [`AO.md`](../AO.md) §已知陷阱。
 
 ---
 
@@ -353,6 +356,10 @@ Assets/Mine/Shaders/PostProcess/SSR/
 ├── DiffuseGIFunction.hlsl         ← 半球采样 + 空域滤波
 ├── ScreenSpaceTrace.hlsl          ← 无 BRDF 权重的几何首命中
 ├── DiffuseGI.md                   ← Phase 3 使用、参数与限制
+├── AOFeature.cs                   ← Phase 4 独立 RenderGraph 管线
+├── AO.shader                      ← Trace / Blur H / Blur V / Composite
+├── AOFunction.hlsl                ← SSAO / HBAO 遮蔽估计、双边滤波与合成
+├── AO.md                          ← Phase 4 使用、参数与限制
 ├── SSGI_Filter.hlsl               ← 时域+空域滤波（Phase 5 计划）
 ├── SSGI_Common.hlsl               ← 共享工具函数（GGX采样、半球采样等）
 └── SSGI_ScreenSpace_Outline/
@@ -369,8 +376,8 @@ Assets/Mine/Shaders/PostProcess/SSR/
 | SSR (镜面) | HiZProcess | BinProcess | 默认 DDA；w 危险时切换 March3D |
 | SSR (粗糙) | HiZProcess（锥角增大 mip） | March3D | roughness < 0.6 |
 | Diffuse GI | SST_Trace（世界空间首命中） | HiZ（待接入） | 独立几何结果，避免 SSR 光滑度权重 |
-| SSAO | HitTest（短距离） | — | 半径小（1-2 世界单位） |
-| HBAO | 角度切片步进 | — | 4-8 方向独立步进 |
+| SSAO | 半球核深度比较（`SST_SampleDepth`） | — | 半径小（1-2 世界单位）、视图无关 |
+| HBAO | 切线平面水平线积分（4-8 方向独立步进） | — | 方向感知遮蔽 |
 
 ---
 
