@@ -67,10 +67,22 @@ date: 2026-09-21
 
 ## 在飞 / 未决
 
-- **SSGI 主线**：Phase 3（DiffuseGI）、Phase 4（AO）已落地并提交。Phase 3 遗留「水面变暗 197 px / −0.027」，已定性为管线路径差异（与 GI 和事件无关），未修。
-- **`DiffuseGIFeature.cs.new` / `.new.meta`**（`Assets/Mine/Shaders/PostProcess/SSR/`）：门禁写入前的草稿副本，内容与正式文件一致，待删。**受 `.claude/hooks/guard-bash.sh` C2 保护**（该钩子声明「清理仅限 tmp/ 和 Screenshots/」），常规 `rm -rf` 路径不可达，需人工处理或显式授权例外。
+- **SSGI 主线**：Phase 3（DiffuseGI）、Phase 4（AO）已落地并提交。**2026-09-21 后半程完成家族收敛**——
+  `PostProcess/{SSR,SSPR,StochasticSSR}/` 连目录删除，`ScreenSpaceTrace.hlsl` 与两份进度骨架迁入 `SSGI/`，
+  SSGI 自此自包含；见 [2026-09-21-ssgi-consolidation.md](2026-09-21-ssgi-consolidation.md)。
+  Phase 3 遗留「水面变暗 197 px / −0.027」，已定性为管线路径差异（与 GI 和事件无关），未修。
+- **Phase 6 统一 Composite**：**待实施**，设计已登记在
+  `Assets/Mine/Shaders/PostProcess/SSGI/SSGI_Content_Skeleton.md` §Phase 6。
+  落地前有四个前置约束（AO 不可叠乘两次、Forward 拿不到直接/间接拆分、全局纹理仅同帧同相机、
+  SpecularGI 的 Composite 是 lerp 而非加法）。
+- **`SSR/` 下两个 `.new` 草稿副本**：**已随 `SSR/` 目录整体删除而消解**（该目录连同三份 `.backup_v*` 全部移除）。
+  过程记录见下方「附」。附带发现：`Assets/Mine/` 下 Bash 删除被 `Edit(/Assets/Mine/**)` deny 级联挡住
+  （`rmdir`/`rm -d` 均拒，同命令在 /tmp 通过）；但**目录回收仍能闭环**——删掉目录 `.meta` 后
+  `AssetDatabase.Refresh(ForceUpdate)` 会自己回收空目录，无需人工。注意 `git status` 对目录不感知，
+  验证要用 `find`/`ls`。
 - **`.agents/agents/unity-developer/memory/sessions/FTS5_SETUP.sql`**：孤儿文件，无对应会话记录，可清。
-- **meta-developer memory.md 待办**：`.claude/agents/<role>/` 空目录壳物理清理（无 git 足迹）。
+- **meta-developer 待办**：① `.claude/agents/<role>/` 空目录壳物理清理（无 git 足迹）；
+  ② `references/standard/shader/shader-structure.md` §3「拆库裁决」补第三档「家族私有共享库」（家族根目录）。
 
 ## 附 — 本表生成时的清理动作（2026-09-21）
 

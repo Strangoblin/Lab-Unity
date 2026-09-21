@@ -23,7 +23,7 @@ Shader "PostProcess/AO"
         int _AODebugMode;
     CBUFFER_END
 
-    #include "Assets/Mine/Shaders/PostProcess/SSR/ScreenSpaceTrace.hlsl"
+    #include "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/AO/AOFunction.hlsl"
 
     // ════════════════════════════════════════════════════════════

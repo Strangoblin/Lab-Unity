@@ -1,5 +1,11 @@
 # Screen Space 渲染解耦骨架
 
+> 2026-09-21：随 SSGI 家族迁入 `Assets/Mine/Shaders/PostProcess/SSGI/`。
+> 当前落地形态：**三个独立 Feature 各自持有一个 Control Layer**（`*Feature.cs` +
+> `RecordRenderGraph`），Compute Layer 是各自的 `.shader` + 私有 HLSL；跨模块共享的
+> 只有 Data Layer 的几何读取（`ScreenSpaceTrace.hlsl`）。SSR 系列（Raymarch / DDA /
+> Hi-Z 三套）已退役，其几何求交能力并入 SpecularGI。
+
 ## 目标
 
 将 SSR / SSGI / SSAO 等屏幕空间算法统一成可替换架构。
@@ -28,7 +34,7 @@ RenderPass - 输出全局纹理
 
 输出: - Result Texture
 
-可替换: - SSR Raymarch - SSR DDA - SSR Hi-Z - SSGI Diffuse - AO Search
+可替换: - SpecularGI Trace（屏幕 / 平面 / Cubemap）- SSGI Diffuse - AO Search
 
 ## 4. Output Layer 输出层
 
@@ -73,7 +79,7 @@ ShaderGraph / Post Effect
 
 只替换 Compute Shader。
 
-## SSR输出建议
+## 镜面输出建议
 
 RGBA:
 

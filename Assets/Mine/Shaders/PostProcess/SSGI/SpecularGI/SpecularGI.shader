@@ -38,7 +38,7 @@ Shader "PostProcess/SpecularGI"
         float4x4 _PreviousViewMatrix;
     CBUFFER_END
 
-    #include "Assets/Mine/Shaders/PostProcess/SSR/ScreenSpaceTrace.hlsl"
+    #include "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGITrace.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGIFilter.hlsl"
