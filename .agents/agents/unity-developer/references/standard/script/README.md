@@ -1,5 +1,6 @@
 # Standard Script References
 
 - [script-structure.md](script-structure.md) — MonoBehaviour, utility, naming, and file organization conventions
+- [parameter-panel.md](parameter-panel.md) — Inspector parameter layering (Technical / Performance / Artistic / Debug) + tier tables
 
-No generic Script template is added yet; that will be designed after this cleanup.
+Code skeletons live under `templates/standard/script/`.

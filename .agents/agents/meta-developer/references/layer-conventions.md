@@ -58,7 +58,7 @@
 | 家族结构 | standard/（函数无关）· script/（责任族）· shader/（特征族）; 现况家族树见各 agent `templates/README.md` |
 | 文件类型 | 可运行的 .shader / .compute / .cs / .hlsl; standard/ 另许 doc .md |
 | 族目录规则 | 独特族（script/*、shader/*）只有 README.md 是 markdown, 其余 = 代码模板体 |
-| 横幅与 ⚠️ | ═ 横幅 + 中文（定位/实源/使用方式）; ⚠️ 只入注释行与字符串 —— 激活代码零内联（可编译承诺） |
+| 横幅与 ⚠️ | ═ 横幅 + 中文（定位/实源/使用方式）; ⚠️ 只入注释行与字符串, **不得进标识符**（非 ASCII 在标识符内是编译错误, 2026-09-20 实测 CS1056） |
 | 占位符 | YourXxx 单一合法 token（YourBaker / YourEffect / YourDomain）, 拷贝后全局替换 |
 | 来源标注 | 头部注释写明 Assets 实源路径; 旧写法按现行规范重写, 不逐字照抄 |
 | Metal 兼容 | 所有模板默认 Metal 兼容 |

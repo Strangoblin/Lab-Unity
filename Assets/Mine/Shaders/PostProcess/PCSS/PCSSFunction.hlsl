@@ -3,8 +3,12 @@
 //  被 PCSS.compute #include 使用
 // ════════════════════════════════════════════════════════════
 
+// 时域累积共享库（跨效果横切，Assets 全路径）
+#include "Assets/Mine/Special/HLSL/TemporalFunction.hlsl"
+
 // ── 质量档位（编译期固定采样数，编译器可展开循环）──
 // 未定义 = High: 32, PCSS_MEDIUM: 16, PCSS_LOW: 8
+// 关键词由 PCSSFeature 按性能档位下发（PerformanceTier.samples）
 #if defined(PCSS_LOW)
     #define BLOCKER_SAMPLES 8
     #define PCF_SAMPLES 8
@@ -32,14 +36,48 @@ Texture2D<float4>   _PCSS_BlurInput;
 RWTexture2D<float4> _PCSS_BlurOutput;
 float _BlurScale;
 
+// ── 时域累积 I/O ──
+// _PCSS_CurrentTex 是 _PCSS_SoftShadow 的 SRV 视图（同一次 dispatch 内
+// 不可既是 SRV 又是 UAV，故当帧信号单独绑定一份只读句柄）
+Texture2D<float4>   _PCSS_CurrentTex;
+Texture2D<float4>   _PCSS_HistoryInput;
+RWTexture2D<float4> _PCSS_TemporalOut;
+RWTexture2D<float4> _PCSS_HistoryOutput;
+float4x4 _PrevViewProj;
+float _FrameIndex;
+float _TemporalBlend;
+float _TemporalReset;
+int   _TemporalDebug;
+
+// ── 时域常量 ──
+// 这四项原为可调参数，参数整理后固定为验证过的默认配置：钳制越紧越不易
+// 拖影、越松越稳；深度/法线置信度决定几何变化时多快丢弃历史。
+// 需要重新暴露为美术参数、或换回邻域盒式钳制时改这里——盒式钳制的
+// Temporal_ClampNeighborhood 仍保留在 TemporalFunction.hlsl 中。
+#define TEMPORAL_CLAMP_RADIUS 2        // 钳制邻域半径（像素）
+#define TEMPORAL_CLAMP_SIGMA  1.5      // 方差包围盒半宽（σ 倍数）
+#define TEMPORAL_DEPTH_SCALE  10.0     // 深度置信度衰减（世界单位）
+#define TEMPORAL_NORMAL_POWER 8.0      // 法线一致性幂次
+
 SamplerState PointClampSampler;
 SamplerState LinearClampSampler;
 
 // ── 屏幕 & 相机 ──
-float2   _ScreenSize;
+// _ScreenSize.xy = 目标尺寸，.zw = 1/尺寸（texel size）——C# 侧按 Vector4 绑定
+float4   _ScreenSize;
 float4   _FrustumRay0, _FrustumRay1, _FrustumRay2, _FrustumRay3;
 float4   _ZBufferParams;
 float3   _WorldSpaceCameraPos;
+
+// ── Atlas 尺寸（2×2 布局）──
+// .x = tile 分辨率, .y = 1/tile, .z = atlas 分辨率(2×tile), .w = 1/atlas
+//
+// 本文件与 PCSS.compute 里所有 texel↔UV 换算原先把 512/1024/2048 写死。
+// 那是「参数半接线」：C# 侧 PCSSFeature 用 shadowMapResolution 决定 RT 分配、
+// 烘焙 _CascadeLightVP、设 viewport，shader 侧却读不到它——默认 2048 下数值
+// 恰好全对，所以缺陷长期不可见；分辨率一旦可调就是必现的画面错乱。
+// 现由 PCSSFeature 按性能档位下发，档位表见 PCSS.md。
+float4   _PCSS_AtlasParams;
 
 // ── 级联 ──
 float4x4 _CascadeLightVP[4];
@@ -50,7 +88,9 @@ float4   _CascadeHalfWidth;
 float4   _CascadeZDistance;
 
 // ── PCSS 参数 ──
-float  _PCSS_LightSize;
+// _PCSS_Softness 是半影尺度（物理上即光源尺寸）：0 = 硬边，越大阴影越软。
+// 注意与旧命名的区别——旧的 _PCSS_Softness 是 PCF 深度偏移的乘数，
+// 该乘数现已固定为 1.0（见 PCSS.compute 的 pcfBias 计算）。
 float  _PCSS_Softness;
 float3 _LightDirection;
 
@@ -99,7 +139,7 @@ float LinearEyeDepthCS(float rawDepth)
 // ════════════════════════════════════════════════════════════
 float BilinearSampleAtlas(float2 atlasUV, float2 tileMin, float2 tileMax)
 {
-    float texelSize = 1.0 / 2048.0;
+    float texelSize = _PCSS_AtlasParams.w;
     float halfTexel = 0.5 * texelSize;
     float2 uv = clamp(atlasUV, tileMin + halfTexel, tileMax - halfTexel);
     float2 coord = uv / texelSize - 0.5;
@@ -198,7 +238,7 @@ float ComputeSlopeBias(float2 screenUV, float halfW0, float zDistCi)
     float3 normalWS = _CameraNormalsTexture.SampleLevel(PointClampSampler, screenUV, 0).xyz * 2.0 - 1.0;
     float NdotL = abs(dot(normalWS, _LightDirection));
     float gradient = sqrt(1.0 - NdotL * NdotL) / NdotL;
-    return saturate((20.0 * halfW0 / 1024.0) * gradient / zDistCi);
+    return saturate((20.0 * halfW0 / _PCSS_AtlasParams.x) * gradient / zDistCi);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -207,7 +247,8 @@ float ComputeSlopeBias(float2 screenUV, float halfW0, float zDistCi)
 float EvaluatePenumbraMask(float2 atlasUV, float2 tileMin, float2 tileMax,
     float receiverDepth, float halfWci, float zDistCi, float epsilon)
 {
-    float preRadiusWS = 0.15 * 512.0 / max(halfWci, 0.001);
+    // preRadius / maskPixels 是 tile 内的像素数，_PCSS_AtlasParams.x 即 tile 分辨率
+    float preRadiusWS = 0.15 * (_PCSS_AtlasParams.x * 0.5) / max(halfWci, 0.001);
 #if UNITY_REVERSED_Z
     float biased = receiverDepth - epsilon;
 #else
@@ -222,7 +263,8 @@ float EvaluatePenumbraMask(float2 atlasUV, float2 tileMin, float2 tileMax,
     [unroll]
     for (int k = 0; k < 4; k++)
     {
-        float sd = BilinearSampleAtlas(atlasUV + preDirs[k] * preRadiusWS / 2048.0, tileMin, tileMax);
+        float sd = BilinearSampleAtlas(
+            atlasUV + preDirs[k] * preRadiusWS * _PCSS_AtlasParams.w, tileMin, tileMax);
         if (DepthCmpLit(sd, biased, 0.0))
             preLit += 1.0;
         else
@@ -235,10 +277,10 @@ float EvaluatePenumbraMask(float2 atlasUV, float2 tileMin, float2 tileMax,
     float preBlocker = preBlockerSum / preBlockerCnt;
     float preDepthDiff = abs(preBlocker - receiverDepth);
     float roughPenumbra = preDepthDiff * zDistCi / max(halfWci, 0.001)
-                        * _PCSS_LightSize * 512.0 / max(halfWci, 0.001);
+                        * _PCSS_Softness * (_PCSS_AtlasParams.x * 0.5) / max(halfWci, 0.001);
 
     float maskPixels = clamp(roughPenumbra * 0.67, 2.0, max(2.0, preRadiusWS));
-    float maskUV = maskPixels / 2048.0;
+    float maskUV = maskPixels * _PCSS_AtlasParams.w;
     float maskBias = epsilon * maskPixels;
 
     float lit = 0.0;
@@ -283,8 +325,8 @@ void BlockerSearch(float2 atlasUV, float2 tileMin, float2 tileMax,
 float EstimatePenumbra(float avgBlocker, float receiverDepth, float zDistCi, float halfWci)
 {
     float depthDiff = abs(avgBlocker - receiverDepth);
-    float penumbraWS = depthDiff * zDistCi / max(halfWci, 0.001) * _PCSS_LightSize;
-    float penumbraPixels = penumbraWS * 512.0 / max(halfWci, 0.001);
+    float penumbraWS = depthDiff * zDistCi / max(halfWci, 0.001) * _PCSS_Softness;
+    float penumbraPixels = penumbraWS * (_PCSS_AtlasParams.x * 0.5) / max(halfWci, 0.001);
     return min(penumbraPixels, 100 / max(halfWci, 0.001));
 }
 
@@ -294,7 +336,7 @@ float EstimatePenumbra(float avgBlocker, float receiverDepth, float zDistCi, flo
 float VariablePCF(float2 atlasUV, float2 tileMin, float2 tileMax,
     float receiverDepth, float penumbraPixels, float pcfBias, float epsilon, int n, float pcfAngle)
 {
-    float pcfRadiusUV = max(penumbraPixels, 1.0) / 2048.0;
+    float pcfRadiusUV = max(penumbraPixels, 1.0) * _PCSS_AtlasParams.w;
     float shadow = 0.0;
     [unroll]
     for (int i = 0; i < n; i++)
@@ -314,7 +356,7 @@ float4 BilateralBlurH(int2 id)
     float4 center = _PCSS_BlurInput.Load(int3(id.x, id.y, 0));
     if (center.a < 0.5) return center;
 
-    float2 screenUV = (id + 0.5) / _ScreenSize;
+    float2 screenUV = (id + 0.5) / _ScreenSize.xy;
     float centerEye = LinearEyeDepthCS(_CameraDepthTexture.SampleLevel(PointClampSampler, screenUV, 0));
 
     float4 sum = 0; float totalW = 0;
@@ -325,7 +367,7 @@ float4 BilateralBlurH(int2 id)
             int2(0, 0), int2((int)_ScreenSize.x - 1, (int)_ScreenSize.y - 1));
         float4 s = _PCSS_BlurInput.Load(int3(sid.x, sid.y, 0));
         float sdEye = LinearEyeDepthCS(
-            _CameraDepthTexture.SampleLevel(PointClampSampler, (sid + 0.5) / _ScreenSize, 0));
+            _CameraDepthTexture.SampleLevel(PointClampSampler, (sid + 0.5) / _ScreenSize.xy, 0));
         float w = Gauss5[i] * exp(-abs(centerEye - sdEye) * BlurDepthSens);
         sum += s * w; totalW += w;
     }
@@ -337,7 +379,7 @@ float4 BilateralBlurV(int2 id)
     float4 center = _PCSS_BlurInput.Load(int3(id.x, id.y, 0));
     if (center.a < 0.5) return center;
 
-    float2 screenUV = (id + 0.5) / _ScreenSize;
+    float2 screenUV = (id + 0.5) / _ScreenSize.xy;
     float centerEye = LinearEyeDepthCS(_CameraDepthTexture.SampleLevel(PointClampSampler, screenUV, 0));
 
     float4 sum = 0; float totalW = 0;
@@ -348,7 +390,7 @@ float4 BilateralBlurV(int2 id)
             int2(0, 0), int2((int)_ScreenSize.x - 1, (int)_ScreenSize.y - 1));
         float4 s = _PCSS_BlurInput.Load(int3(sid.x, sid.y, 0));
         float sdEye = LinearEyeDepthCS(
-            _CameraDepthTexture.SampleLevel(PointClampSampler, (sid + 0.5) / _ScreenSize, 0));
+            _CameraDepthTexture.SampleLevel(PointClampSampler, (sid + 0.5) / _ScreenSize.xy, 0));
         float w = Gauss5[i] * exp(-abs(centerEye - sdEye) * BlurDepthSens);
         sum += s * w; totalW += w;
     }

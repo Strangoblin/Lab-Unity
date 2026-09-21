@@ -6,10 +6,10 @@
 //    com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl
 //    com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl
 //
-//  使用: 复制此文件 → 替换 ⚠️ 标记 → 创建 Material → Feature 引用
+//  使用: 复制此文件 → 全局替换 YourEffect → 按 ⚠️ 处定制 → 创建 Material → Feature 引用
 // ═══════════════════════════════════════════════════════════════
 
-Shader "PostProcess/⚠️YourEffectName"
+Shader "PostProcess/YourEffect" // ⚠️ 重命名为你的效果名（与文件名一致）
 {
     Properties
     {
@@ -44,7 +44,7 @@ Shader "PostProcess/⚠️YourEffectName"
     // Unity 6 中 Blitter.BlitTexture 自动绑定 sampler_LinearClamp
 
     // ═══ Pass 0: 主效果 ═══
-    half4 Frag_⚠️YourEffect(Varyings input) : SV_Target
+    half4 Frag_YourEffect(Varyings input) : SV_Target
     {
         // ⚠️ Metal 注意：_BlitTexture + sampler_LinearClamp 是 Blit.hlsl 提供的
         float2 uv = input.texcoord;
@@ -78,13 +78,13 @@ Shader "PostProcess/⚠️YourEffectName"
 
         Pass
         {
-            Name "⚠️YourEffect" // ⚠️ 替换 pass 名
+            Name "YourEffectPass" // ⚠️ 替换 pass 名
             // ⚠️ 不需要 LightMode tag — Blitter.BlitTexture 不使用它
 
             HLSLPROGRAM
             #pragma target 2.0 // ⚠️ Metal 必须
             #pragma vertex Vert    // Blit.hlsl 提供
-            #pragma fragment Frag_⚠️YourEffect
+            #pragma fragment Frag_YourEffect
             ENDHLSL
         }
 

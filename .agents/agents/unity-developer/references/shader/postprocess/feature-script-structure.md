@@ -15,7 +15,8 @@ public class XxxFeature : ScriptableRendererFeature
     [Serializable]
     public class Settings
     {
-        // ── 面板参数 ──
+        // ── 面板参数 ── 按 Technical / Performance / Artistic / Debug 分层
+        //    规范: references/standard/script/parameter-panel.md
         public Type param;
 
         // ── PropertyToID 预处理 ──

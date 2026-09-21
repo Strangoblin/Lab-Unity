@@ -14,6 +14,7 @@ Gate Center (gate_center.py)      ← 注册表 + 配方表 + 状态追踪
         └── Gates (gates/*.py)     ← check(ctx) → pass | fail
 Validation (validation/)           ← script_library.py + norms.py + check_norm.py
   └── norms.py                     ← 结构规范数据化（后果验证规则）
+  └── check_api_refs.py            ← 模板 API 核验（不属门禁链，见末节）
 ```
 
 三层解耦：**中心不在意门禁内容，配方不在意门禁实现，门禁只在意自身逻辑。**
@@ -69,6 +70,20 @@ Production / Research / Experiment / Debug / Minimal / Quick 均使用唯一链 
 python .mcp/validation/check_norm.py <file>   # exit 0 = 通过; exit 1 = 有 error 违规
 ```
 
+## 模板 API 核验（validation/check_api_refs.py）
+
+**不属门禁链**——模板写入不经 `write_gated`，本 CLI 是 meta-developer 维护 `templates/` 时的自查工具，
+与 `check_norm.py`（业务产出）对称。查的是「模板里写下的 API 确实存在且没过时」，不是「模板能编译」：
+模板是给人拷贝的参考实现，本就有占位符，`.shader`/`.hlsl` 也无从用编译器验。
+
+```bash
+python3 .mcp/validation/check_api_refs.py .agents/agents/unity-developer/templates   # 词法 + 过时 API
+python3 .mcp/validation/check_api_refs.py --compile <自足骨架.cs>                     # 追加真编译
+```
+
+（以上为仓库根执行；本节其余示例沿用 `.mcp/` 内执行的旧写法。）
+判据、边界与控制组要求见 `.agents/agents/meta-developer/references/template-conventions.md`。
+
 ## 使用
 
 ```bash
@@ -77,4 +92,7 @@ uv run python tests/test_recipes.py
 
 # 规范检查 CLI
 python validation/check_norm.py Assets/Mine/Shaders/Render/Xxx/Xxx.shader
+
+# 模板 API 核验（meta 层，仓库根执行）
+python3 .mcp/validation/check_api_refs.py .agents/agents/unity-developer/templates
 ```

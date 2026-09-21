@@ -8,6 +8,7 @@
 .codex/tests/*/output/
 .codex/tests/*/run.log
 /.unityctl/editor.log
+/.unityctl/editor-prev.log
 /.unityctl/bridge.json
 /Screenshots/
 /run.log

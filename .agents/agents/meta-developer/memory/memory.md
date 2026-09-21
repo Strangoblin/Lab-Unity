@@ -8,6 +8,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-09-20-parameter-panel-template.md](2026-09-20-parameter-panel-template.md) | 2026-09-20 | 面板参数分层（Technical/Performance/Artistic/Debug）入 standard 规范 + 骨架；实测暴露模板从未被验过（2 个 .cs 带真实 API 错误 + 1 个 .shader 带 emoji 标识符），据此把「模板可编译」重定义为「模板 API 可核验」并落地 `check_api_refs.py`，同时纠正一条写反的 VolumeComponent 规范 |
 | [2026-09-17-urp17-material-templates.md](2026-09-17-urp17-material-templates.md) | 2026-09-17 | Unity 6/URP 17 材质模板升级：实例化、Stereo、四 Pass 一致性及能力契约 |
 | [2026-09-17-debug-validation-route.md](2026-09-17-debug-validation-route.md) | 2026-09-17 | 2D 验证对齐 PostProcess/Debug 资源与材质优先的 DebugOutputFeature |
 | [2026-09-17-shader-validation-branches.md](2026-09-17-shader-validation-branches.md) | 2026-09-17 | 2D 全屏与 3D 网格验证并列接入 compile/runtime；明确隔离渲染与证据边界 |
@@ -51,3 +52,10 @@
 - [x] `.claude/skills/` 实体副本 → 逐 skill 相对软链（2026-09-04 裁决方案二，人工确认后执行；32 文件 → 9 软链）
 - [ ] 删除已迁移旧路径的 compatibility stubs（agent/rules 软链为发现机制保留；仅剩 `.claude/agents/<role>/` 空目录壳物理清理，无 git 足迹）
 - [x] standard Script/Shader 代码模板（2026-09-03 落盘：standard-script.cs / standard-shader.shader）
+- [x] 模板核验补位（2026-09-20 完成）：`check_api_refs.py` 落 `.mcp/validation/`（词法 + 过时 API，
+      `--compile` 可选深检），控制组三例全抓——其中一例抓出 CLI 自己「过时索引静默为空」的 bug。
+      `urp-renderpass.cs`（3 处，含 2 个真实 API 错误）、`volume-template.cs`（过时 API）、
+      `fullscreen-postprocess.shader`（emoji 标识符）已修，16 个模板全绿。
+      判据与用法写进 `references/template-conventions.md` + `.mcp/README.md`；
+      连带纠正 `rules/csharp-renderpass.md` + `volume-component.md` 写反的 VolumeComponent 规范。
+      详见 [2026-09-20-parameter-panel-template.md](2026-09-20-parameter-panel-template.md)

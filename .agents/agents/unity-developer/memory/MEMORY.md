@@ -36,6 +36,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-09-21-opencode-era-ledger.md](2026-09-21-opencode-era-ledger.md) | 2026-09-21 | **任务台账（2026-08-10 → 09-21）**：时间基点 = 首个 `opencode-go` 会话 08-10 08:06；按主题聚合已完成任务并指向权威记录；标注 **7 项无 memory 记录的任务**（09-11 水面、09-14/09-15 光照库、09-16 光照文件弃用、08-26 Van Gogh 移植等）；在飞项与 09-21 清理动作。**新会话冷启动入口** |
 | [2026-09-21-diffusegi-ssgi-phase3.md](2026-09-21-diffusegi-ssgi-phase3.md) | 2026-09-21 | **DiffuseGI（SSGI Phase 3）落地、事件排序修复与验收**：Intensity=0 位精确、天空不参与 gather、正交可用、三档接线正确、滤波是保边弱平滑（≈4.47%）；**排序修复** = `BeforeRenderingTransparents` → `AfterRenderingSkybox`（让合成早于 `_CameraOpaqueTexture` 拷贝）；旧的「调试 RT 污染 / gather 命中透明几何」两条结论已撤回（截屏伪影）；残留水面变暗已定性为管线路径差异（197 px / −0.027，与 GI 和事件无关）。附离屏 RT 对照采集法与四条工具/API 陷阱 |
 | [2026-09-21-ssgi-phase4-ao.md](2026-09-21-ssgi-phase4-ao.md) | 2026-09-21 | **AO（SSGI Phase 4）落地与验收**：SSAO 半球核 / HBAO 水平线积分双模式、四 Pass（Trace/BlurH/BlurV/Composite）、可见度约定 `V`、档位 (除数,方向,步进) = Low(4,4,6)/Medium(2,6,8)/High(2,8,12)；持久化进 `PC_Renderer.asset`（第 8 个 Feature）；离屏对照读数：`intensity 0.0001→1` 只变暗不变亮、天空 100% 可见、无像素 < 0.5、合成公式中位误差 0.0000、两次采集逐字节一致；**三个新陷阱** = 跨帧回读全局纹理必得 `UnityBlack` 4×4 / 后处理色彩分级改写 Debug 灰度 / `SaveAssets` 回写整个会话态（曾把 DiffuseGI 的 `m_Active` 写成 0，已修回）。HBAO 为有意简化版，不得当 Bavoil 2008 等价实现引用 |
 | [2026-09-20-rt-readback-pitfalls.md](2026-09-20-rt-readback-pitfalls.md) | 2026-09-20 | **RT 回读与画面判读的四个陷阱**（一次误判复盘）：必须全图统计不能抽样；控制组通过 ≠ 结论成立；**「空」可能正是正确答案**（空与否是场景/档位状态的函数）；**目视判读的印象不是证据**（弱信号画面是歧义的，须先算期望→定阈值→再看图） |

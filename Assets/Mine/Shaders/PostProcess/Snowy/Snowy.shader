@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════
-//  Snowy — 屏幕空间六层雪粒子，深度 1 / 2 / 3 各两层
+//  Snowy — 屏幕雪斑与雪天气氛，共享 SnowTex 噪声
 // ════════════════════════════════════════════════════════════
 Shader "PostProcess/Snowy"
 {
@@ -37,54 +37,45 @@ Shader "PostProcess/Snowy"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  SnowyParticleUV — 每层独立周期与随机姿态，共享等比 UV 逆变换
+    //  SnowyParticle — 周期随机落点，噪声扰动 SDF 并淡出
     // ════════════════════════════════════════════════════════════
-    float2 SnowyParticleUV(float2 uv, float layer, float depth, out float visibility)
+    float SnowyParticle(float2 uv)
     {
-        float time = _Time.y * _Wind + (layer + 0.5) / 6.0;
-        float index = floor(time) + layer * 127.0;
+        float time = _Time.y * _Wind * 2;
+        float index = floor(time);
         float cycle = frac(time);
 
         float4 random = (SnowyRandom(index) * 2.0 - 1.0) * _Randomness;
         float2 pivot = float2(0.5, 0.5);
-        float2 translation = float2(random.x, random.y + 0.5 - cycle)
-                           + sin(cycle * TWO_PI + random.x) * 0.1 * (1 - _Wind);
-        float angle = (cycle + random.x) * PI;
-        float scale = (depth + random.x * 0.5) * (cycle + 0.5) * 0.01;
+        float2 translation = random.xy * 0.5;
+        float angle = random.x;
+        float scale = (random.x * 0.25 + 0.75) * 0.1;
+        float alpha  = smoothstep(1.0, 0.3, cycle);
         float aspect = _ScreenParams.x / _ScreenParams.y;
-        visibility = (cos(time + index) * 0.5 + 0.5) * smoothstep(1.0, 0.8, cycle);
-
-        return TRS2D_InverseTransformUV(
+        uv = TRS2D_InverseTransformUV(
             uv, translation, angle, scale, pivot, aspect);
-    }
 
-    float SnowParticle(float2 uv)
-    {
-        float snow = SAMPLE_TEXTURE2D(_SnowTex, sampler_LinearClamp, uv).r;
-        float sdf  = 1.0 - length(uv - 0.5) * 2.0;
-        return sdf;
+        float snow = SAMPLE_TEXTURE2D(_SnowTex, sampler_LinearRepeat, uv + random).r;
+        float sdf = _Frost - length(lerp(uv, snow, 0.5) - 0.5) * 2.0;
+        float particle = saturate(sdf) * alpha * _Frost;
+        return particle;
     }
 
     // ════════════════════════════════════════════════════════════
-    //  Frag_Snowy — 六层依次 Alpha 合成，场景透明度保持不变
+    //  Frag_Snowy — 同一雪斑重复合成十次，保留输入透明度
     // ════════════════════════════════════════════════════════════
     half4 Frag_Snowy(Varyings input) : SV_Target
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+        float2 uv = input.texcoord;
         float4 scene = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
         float3 color = scene.rgb;
 
         [unroll]
-        for (int layer = 0; layer < 10; layer++)
+        for (int i = 0; i < 10; i++)
         {
-            float depth = 1.0 + floor(layer * 0.25);
-            float visibility;
-            float2 particleUV = SnowyParticleUV(input.texcoord, layer, depth, visibility);
-            float  particle = SnowParticle(particleUV);
-            return particle;
-            float2 inside = step(0.0, particleUV) * step(particleUV, 1.0);
-            float  alpha = saturate(particle * inside.x * inside.y * visibility);
-            color = lerp(color, particle, alpha);
+            float particle = SnowyParticle(uv);
+            color = lerp(color, 1, particle);
         }
 
         return half4(color, scene.a);
@@ -97,11 +88,10 @@ Shader "PostProcess/Snowy"
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
         float2 uv = input.texcoord;
-        float wind = _Wind * _Time.y;
         float4 scene    = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
-        float4 atmo1    = SAMPLE_TEXTURE2D_X(_SnowTex, sampler_LinearClamp, frac(uv * 7));
-        float4 atmo2    = SAMPLE_TEXTURE2D_X(_SnowTex, sampler_LinearClamp, frac(uv * 5));
-        float4 atmo3    = SAMPLE_TEXTURE2D_X(_SnowTex, sampler_LinearClamp, frac(float2(uv.x * 0.5 - wind , uv.y)));
+        float4 atmo1    = SAMPLE_TEXTURE2D_X(_SnowTex, sampler_LinearRepeat, uv * 7);
+        float4 atmo2    = SAMPLE_TEXTURE2D_X(_SnowTex, sampler_LinearRepeat, uv * 5);
+        float4 atmo3    = SAMPLE_TEXTURE2D_X(_SnowTex, sampler_LinearRepeat, float2(uv.x * 0.5 - _Wind * _Time.y , uv.y));
 
         float  edge     = min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y));
         float  frost    = 1.0 - smoothstep(0.0, (0.1 + atmo1.x * atmo2.x) * _Frost, edge);

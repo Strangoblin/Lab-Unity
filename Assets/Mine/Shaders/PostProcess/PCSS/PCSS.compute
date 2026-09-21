@@ -4,6 +4,7 @@
 // ════════════════════════════════════════════════════════════
 
 #pragma kernel PCSS_Main
+#pragma kernel PCSS_Temporal
 #pragma kernel PCSS_BlurH
 #pragma kernel PCSS_BlurV
 
@@ -14,13 +15,19 @@
 // ════════════════════════════════════════════════════════════
 //  PCSS_Main — Mask → Blocker Search → Penumbra → PCF
 //  输出 alpha = 1.0（penumbra）/ 0.0（跳过模糊）
+//
+//  采样核角度叠加帧索引（黄金比递增）做时域去相关——没有这一步，
+//  时域累积只是反复累加同一份采样偏差，不收敛。
+//
+//  Atlas 尺寸经 _PCSS_AtlasParams 下发（见 PCSSFunction.hlsl 声明处）：
+//  searchPixels 是 tile 内像素数，乘 1/atlas 得到 atlas UV 半径。
 // ════════════════════════════════════════════════════════════
 [numthreads(NUMTHREAD_X, NUMTHREAD_Y, 1)]
 void PCSS_Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= (uint)_ScreenSize.x || id.y >= (uint)_ScreenSize.y) return;
 
-    float2 screenUV = (id.xy + 0.5) / _ScreenSize;
+    float2 screenUV = (id.xy + 0.5) / _ScreenSize.xy;
     float rawDepth = _CameraDepthTexture.SampleLevel(PointClampSampler, screenUV, 0);
     if (IsSkybox(rawDepth)) { _PCSS_SoftShadow[id.xy] = float4(1, 1, 1, 0); return; }
 
@@ -43,20 +50,96 @@ void PCSS_Main(uint3 id : SV_DispatchThreadID)
 
     float baseBias = ComputeSlopeBias(screenUV, halfW0, zDistCi);
 
-    float searchRadiusUV = searchPixels / 2048.0;
-    float randomAngle = Random1D(id.xy) * 6.28318;
+    float frameJitter = _FrameIndex * 0.618;
+
+    float searchRadiusUV = searchPixels * _PCSS_AtlasParams.w;
+    float randomAngle = Random1D(float2(id.xy) + frameJitter) * 6.28318;
     float avgBlocker, blockerRatio;
     BlockerSearch(atlasUV, tileMin, tileMax, receiverDepth, searchRadiusUV, epsilon, randomAngle,
         BLOCKER_SAMPLES, avgBlocker, blockerRatio);
 
     float penumbraPixels = EstimatePenumbra(avgBlocker, receiverDepth, zDistCi, halfWci);
 
-    float pcfBias = baseBias * (penumbraPixels / 100.0) * _PCSS_Softness;
-    float pcfAngle = Random1D(id.yx) * 6.28318;
+    // PCF 深度偏移：随半影核线性增大（核越大越容易露出自阴影痤疮）
+    float pcfBias = baseBias * (penumbraPixels / 100.0);
+    float pcfAngle = Random1D(float2(id.yx) + frameJitter) * 6.28318;
     float shadow = VariablePCF(atlasUV, tileMin, tileMax, receiverDepth, penumbraPixels, pcfBias, epsilon,
         PCF_SAMPLES, pcfAngle);
 
     _PCSS_SoftShadow[id.xy] = float4(shadow, shadow, shadow, 1);
+}
+
+// ════════════════════════════════════════════════════════════
+//  PCSS_Temporal — 时域累积（重投影 → clamp → 混合）
+//
+//  alpha 全程不参与混合：非 penumbra 像素硬值直通，并把硬值写入历史
+//  当作「此处无有效累积」的标记（alpha=0）；penumbra 像素输出 alpha
+//  恒为 1。下行双边模糊的 mask 语义与接入前完全一致。
+//
+//  历史读在 histUV、写在当帧像素 → 必须 ping-pong 两张历史 RT。
+//
+//  钳制策略固定为方差钳制，半径/σ 与置信度系数见 PCSSFunction.hlsl 的
+//  TEMPORAL_* 常量；_TemporalBlend = 0 时 lerp 权重为 0，等价于关闭时域。
+// ════════════════════════════════════════════════════════════
+[numthreads(NUMTHREAD_X, NUMTHREAD_Y, 1)]
+void PCSS_Temporal(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)_ScreenSize.x || id.y >= (uint)_ScreenSize.y) return;
+
+    float2 screenUV = (id.xy + 0.5) / _ScreenSize.xy;
+    float4 current  = _PCSS_CurrentTex.Load(int3(id.x, id.y, 0));
+
+    // ── 非 penumbra：硬 0/1 与 alpha=0 原样保留，历史标记为无效 ──
+    if (current.a < 0.5)
+    {
+        _PCSS_HistoryOutput[id.xy] = current;
+        _PCSS_TemporalOut[id.xy]   = _TemporalDebug == 0 ? current : float4(0, 0, 0, 1);
+        return;
+    }
+
+    float  rawDepth    = _CameraDepthTexture.SampleLevel(PointClampSampler, screenUV, 0);
+    float3 positionWS  = ReconstructWorldPosition(screenUV, rawDepth);
+    float2 histUV      = screenUV;
+    bool   reprojected = Temporal_ReprojectUV(positionWS, _PrevViewProj, histUV);
+
+    float  confidence = 0.0;
+    float3 result     = current.rgb;
+
+    if (reprojected)
+    {
+        float4 history = _PCSS_HistoryInput.SampleLevel(PointClampSampler, histUV, 0);
+
+        float  histRaw = _CameraDepthTexture.SampleLevel(PointClampSampler, histUV, 0);
+        float3 histPos = ReconstructWorldPosition(histUV, histRaw);
+        float3 curN    = _CameraNormalsTexture.SampleLevel(PointClampSampler, screenUV, 0).xyz * 2.0 - 1.0;
+        float3 histN   = _CameraNormalsTexture.SampleLevel(PointClampSampler, histUV, 0).xyz * 2.0 - 1.0;
+
+        float curEye  = distance(positionWS, _WorldSpaceCameraPos);
+        float histEye = distance(histPos,    _WorldSpaceCameraPos);
+
+        // 历史有效位：须是 penumbra 累积 + 级联未切换 + 非重置帧
+        float valid = history.a > 0.5 ? 1.0 : 0.0;
+        valid *= SelectCascade(positionWS) == SelectCascade(histPos) ? 1.0 : 0.0;
+        valid *= saturate(1.0 - _TemporalReset);
+
+        confidence = Temporal_Confidence(curEye, histEye, curN, histN,
+            TEMPORAL_DEPTH_SCALE, TEMPORAL_NORMAL_POWER) * valid;
+
+        float3 hist = Temporal_ClampVariance(_PCSS_CurrentTex, PointClampSampler,
+            screenUV, _ScreenSize.zw, history.rgb, TEMPORAL_CLAMP_RADIUS, TEMPORAL_CLAMP_SIGMA);
+
+        result = Temporal_Blend(current.rgb, hist, confidence, _TemporalBlend);
+    }
+
+    // 历史始终写真实累积值，调试输出不影响下一帧
+    _PCSS_HistoryOutput[id.xy] = float4(result, 1);
+
+    // ── 调试可视化：R/G 通道承载标量，人工在 Game View 判读 ──
+    if      (_TemporalDebug == 1) result = float3(abs(histUV - screenUV) * 100.0, 0);
+    else if (_TemporalDebug == 2) result = confidence;
+    else if (_TemporalDebug == 3) result = float3(histUV, 0);
+
+    _PCSS_TemporalOut[id.xy] = float4(result, 1);
 }
 
 // ════════════════════════════════════════════════════════════

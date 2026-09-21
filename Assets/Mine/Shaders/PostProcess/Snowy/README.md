@@ -1,24 +1,41 @@
-# Snowy — 屏幕撞击雪斑原型
+# Snowy — 屏幕雪斑与雪天气氛原型
 
-Shader 为 `PostProcess/Snowy`。Pass 0 为撞击雪斑，Pass 1 为现有气氛。两个 Pass 共用唯一的材质噪声纹理 **Snow Noise / _SnowTex**，读取 R 通道。现有材质已迁移 Editor 中的 Noise2DRG.asset 绑定。
+Shader：`PostProcess/Snowy`。所有效果逻辑保留在 Snowy.shader，面片变换复用共享 TRS.hlsl。
 
-## 撞击周期
+## 文件与依赖
 
-保留十层，尺寸倍率 1、2、3 各为 4、4、2 层。各层以十分之一个周期错开：
+- Snowy.shader：两个全屏 Pass。
+- Mine_PostProcess_Snowy.mat：示例材质，SnowTex 绑定 Assets/Textures/Noise2DRG.asset。
+- README.md：当前实现与测试入口。
 
-- cycle=0：重新随机屏幕落点、噪声旋转与尺寸，落点分布在 UV 的 0.05–0.95 内。
-- cycle=0–0.5：圆形 SDF 半径从 0 平滑增长到最大值，生命周期 Alpha 为 1。
-- cycle=0.5–1：半径保持最大值，Alpha 平滑降至 0。
-- 下一周期重新选点；每周期内位置、噪声与朝向固定，不再下落或摆动。
+## Pass 0：屏幕雪斑
 
-sphere SDF 在屏幕平面上表现为圆：`length(particleUV - 0.5) - radius`。固定最大尺寸的 TRS 负责等比坐标映射，SDF 半径控制生长，噪声 R 通道调制透明度，输出白色雪斑。默认白纹理显示圆斑；噪声纹理显示斑驳轮廓内部。软边使用固定 0.02 局部单位。
+每周期随机位置、角度、尺寸；周期内位置不变。时间为 `_Time.y * _Wind * 2`，Randomness 同时影响落点范围、角度与尺寸。
 
-Wind 控制周期速度；Randomness 控制尺寸差异，不关闭随机落点。噪声与面片朝向在淡出阶段保持固定，保证只改变 Alpha。尺寸单位为屏幕高度，不使用真实粒子深度。
+TRS 将屏幕 UV 映射到局部等比空间，SnowTex.r 扰动局部 UV，再计算径向 SDF；Frost 控制雪斑范围与透明度，cycle 驱动淡出。当前版本不再使用前半周期半径生长或深度分层。
 
-## 气氛与测试
+当前循环十次调用相同的 SnowyParticle(uv)，未使用循环索引，所以是同一雪斑重复合成十次以增强覆盖，不是十个独立落点。此次收尾保留该视觉行为与公式。
 
-气氛保留当前精简的霜边、深度雾、纹理风效和调色公式，只将纹理统一为 SnowTex；各气氛采样方式沿用当前版本。粒子噪声使用 LinearRepeat。
+## Pass 1：雪天气氛
 
-DebugOutputFeature 指定 Snowy 材质，开启 Debug，Additional Pass Index=1、Require Depth=true，保存 Renderer 配置。Pass 0 输出粒子，再经 Pass 1 统一处理，因此雪斑仍会受气氛影响。
+1. 屏幕：SnowTex 在 7 倍与 5 倍 UV 下采样，生成静态不规则霜边。
+2. 场景：第三次采样沿 X 方向滚动，调制随场景深度增加的雾。
+3. 调色：降低饱和度并偏蓝灰。
 
-参数 0/1 端点风险依用户约定留待入口统一钳制，不在计算点逐处增加保护。
+两个 Pass 共享唯一噪声纹理 SnowTex，使用 Repeat 采样。气氛当前对 float4 进行混合，因此会改变 Alpha；保持当前原型实现。
+
+## 参数
+
+| 参数 | 默认值 | 作用 |
+|---|---|---|
+| Snow Tex | white | 共享噪声，读取 R 通道 |
+| Randomness | 0.5 | 粒子位置、角度与尺寸变化幅度 |
+| Coldness | 0.3 | 冷调色混合强度 |
+| Frost | 0.5 | 雪斑、霜边与场景雾强度 |
+| Wind | 0.5 | 粒子周期、雪幕滚动与雾距离变化 |
+
+## 测试入口
+
+在 PC_Renderer 的 DebugOutputFeature 中绑定示例材质，开启 Active、Debug，设置 Additional Pass Index=1、Require Depth=true，并保存 Renderer 配置。-1 只执行粒子 Pass。
+
+当前深度解算使用透视相机路径，不包含真实粒子深度、遮挡或世界空间视差。参数端点由后续统一入口钳制处理，遵循项目参数范围约定；此次未追加逐点保护。
