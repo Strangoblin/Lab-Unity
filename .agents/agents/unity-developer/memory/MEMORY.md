@@ -15,7 +15,13 @@
 
 - Shader 参数端点策略：统一在参数入口钳制合法范围，避免逐计算追加冗余保护；尚未统一实施时明确记录待办。见 [2026-09-18-parameter-range-policy.md](2026-09-18-parameter-range-policy.md)。
 
-- PCSS 阴影：PSSM 4-cascade split → tiled atlas → blocker search → penumbra → variable PCF
+- 效果参数分三层：**Technical**（几何/投影/深度偏移——为正确性而调，连续可调）、**Performance**（纯成本、不需要微调——**划档位**，枚举）、**Artistic**（一个参数对应一个观感维度，开关类参数一律「0 = 关闭」而非独立 bool + 强度）。第三层的判据是「成本占比 + 是否需要微调」两个正交问题，不是「属于技术还是美术」。实现细节内化为 shader 常量，不进任何一组。见 [2026-09-20-parameter-layering.md](2026-09-20-parameter-layering.md)。
+
+- **半接线参数**（跨效果通用缺陷形态）：参数在一侧接线、另一侧是硬编码字面量。默认值下两侧数值恰好一致，故长期不可见；参数一旦升格为档位即变必现。**诊断要 grep 数值字面量，不要 grep 参数名**。见 [2026-09-20-parameter-layering.md](2026-09-20-parameter-layering.md)。
+
+- **RenderPassEvent 与同事件内的先后**：`RenderPassEvent` 只分事件，**同事件内自定义 Feature 一定先于 URP 内置 Pass 执行**（插入点决定：`UniversalRendererRenderGraph.cs` 的 `RecordCustomRenderGraphPasses(renderGraph, event)` 调用在每个事件的内置 Pass 之前；自定义 Feature 之间按 `rendererFeatures` 数组顺序）。所以「同事件顺序不可控」的说法不成立，**要核对的是内置 Pass 与目标资源的先后**：例如想让结果进入 `_CameraOpaqueTexture`，必须选 `AfterRenderingSkybox`（早于 `m_CopyColorPass`）而不是 `BeforeRenderingTransparents`，否则透明物体折射到旧拷贝、把效果盖掉。**判读教训**：做「开/关」减法对照前先确认两侧的管线路径一致；把参数从 0 抬到 >0 往往同时把 Feature 从「整体跳过」切换为「启用」，测到的可能是 prepass / 中间色 RT 的路径差异，而不是效果本身。见 [2026-09-21-diffusegi-ssgi-phase3.md](2026-09-21-diffusegi-ssgi-phase3.md)。
+
+- PCSS 阴影：PSSM split（级联数随性能档 2/3/4）→ tiled atlas → blocker search → penumbra → variable PCF。**阴影尚未接入光照合成**——只在特定物体 shader 里挂了 `CustomShadowCaster` 投射；`showShadowMap` 是调试直出。后续才用 PCSS 管线取代 Unity 阴影
 - POSS 逐物体软阴影：Shadow Atlas Tile Grid → Compute 屏幕空间解算 → PCF 软边缘，与 CSM 共存
 - 交互系统：Manager/Processor 分离架构，RT 管理下放，正交相机 CustomRenderer 深度比较输入
 - Shader 组织：`Assets/Mine/Shaders/` 按效果分层
@@ -28,6 +34,12 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-09-21-diffusegi-ssgi-phase3.md](2026-09-21-diffusegi-ssgi-phase3.md) | 2026-09-21 | **DiffuseGI（SSGI Phase 3）落地、事件排序修复与验收**：Intensity=0 位精确、天空不参与 gather、正交可用、三档接线正确、滤波是保边弱平滑（≈4.47%）；**排序修复** = `BeforeRenderingTransparents` → `AfterRenderingSkybox`（让合成早于 `_CameraOpaqueTexture` 拷贝）；旧的「调试 RT 污染 / gather 命中透明几何」两条结论已撤回（截屏伪影）；残留水面变暗已定性为管线路径差异（197 px / −0.027，与 GI 和事件无关）。附离屏 RT 对照采集法与四条工具/API 陷阱 |
+| [2026-09-20-rt-readback-pitfalls.md](2026-09-20-rt-readback-pitfalls.md) | 2026-09-20 | **RT 回读与画面判读的四个陷阱**（一次误判复盘）：必须全图统计不能抽样；控制组通过 ≠ 结论成立；**「空」可能正是正确答案**（空与否是场景/档位状态的函数）；**目视判读的印象不是证据**（弱信号画面是歧义的，须先算期望→定阈值→再看图） |
+| [2026-09-20-unityctl-tool-pitfalls.md](2026-09-20-unityctl-tool-pitfalls.md) | 2026-09-20 | **unityctl 工具三坑**：`screenshot capture` **不可靠**（5 次仅 1 次落盘、报出的分辨率与产物对不上、丢弃传入目录）→ 取像改用 `screenshot window GameView`；`editor run/stop` 是进程生命周期、**`editor stop` 会直接关掉 Editor**；`script eval` 编译错误不回显真错，且 `-u` 加的是 using 而非程序集引用 |
+| [2026-09-20-parameter-layering.md](2026-09-20-parameter-layering.md) | 2026-09-20 | 参数分 Technical/Performance/Artistic 三层：判据是「成本占比 + 是否需要微调」；**半接线参数**（grep 数值字面量而非参数名）；位级等价的字面量参数化；档位表纯函数展开；开关类参数用「0=关闭」；softness 命名错位；blend=0 是 lerp 恒等故不必跳过 dispatch；uniform 绑定契约静态核对 |
+| [2026-09-20-temporal-accum-pcss.md](2026-09-20-temporal-accum-pcss.md) | 2026-09-20 | 时域累积抽离为 TemporalFunction.hlsl 共享库 + PCSS 接入；SetComputeVectorParam 与 uniform 宽度必须匹配；Kernel invalid 的真错只在 Editor.log |
+| [2026-09-20-snowy-wrapup.md](2026-09-20-snowy-wrapup.md) | 2026-09-20 | Snowy 双 Pass 原型收尾、材质旧参数清理、最终实现说明与旧贴图确认删除 |
 | [2026-09-18-parameter-range-policy.md](2026-09-18-parameter-range-policy.md) | 2026-09-18 | 参数 0/1 端点风险统一入口钳制，原型阶段避免逐点冗余保护；Snowy 纹理风效 |
 | [2026-09-17-pbrtoon-urp17.md](2026-09-17-pbrtoon-urp17.md) | 2026-09-17 | PBRToon 五 Pass 实例化/Stereo 与 URP 17 结构迁移，保留原材质算法 |
 | [2026-07-24-pcss-integration.md](2026-07-24-pcss-integration.md) | 2026-07-24 | PCSS 软阴影完整方案 |

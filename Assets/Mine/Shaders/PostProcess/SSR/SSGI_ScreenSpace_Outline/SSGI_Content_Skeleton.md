@@ -153,52 +153,67 @@ float3 SampleGGX_VNDF(float2 xi, float alpha) {
 
 ## Phase 3: Diffuse GI — 屏幕空间间接漫反射
 
-### 算法原理
+> 2026-09-21：Shader 与 RenderGraph 管线已落地；使用方法、参数、近似边界见 [DiffuseGI.md](../DiffuseGI.md)。
 
-半球 cosine-weighted 随机采样 + 屏幕空间步进 + 降噪。
+### 已实现管线
 
-**核心公式：**
-```
-Lo = ∫_Ω (ρ/π) * Li * cos(θ) dω
-   ≈ (ρ/π) * Σ(π * Li_sample) / N          (cos/PDF 抵消)
-```
-
-### 关键优化：Cache-Aware 半球采样
-
-```
-朴素方法：每像素独立旋转采样方向 → 相邻像素射线方向散乱 → L2 缓存频繁失效
-
-优化方法（Intersil Patent）：
-1. 预计算单组 Poisson Disk 采样（Morton 码排序）
-2. 每像素做小扰动 jitter → 同 warp 内射线方向接近
-3. 屏幕空间缓存命中率提升 → 实测最高 62% 加速
+```text
+DiffuseGIFeature（AfterRenderingSkybox，早于 URP 的 _CameraOpaqueTexture 拷贝）
+    本帧不透明场景色 + 天空盒 + 深度 + 法线
+      → DiffuseGI.shader / Trace
+      → BlurHorizontal → BlurVertical
+      → Resolve（几何引导上采样）
+      → Composite（独立目标，更新 cameraColor）
 ```
 
-### 实施步骤
+- `DiffuseGIFunction.hlsl`：TBN + cosine-weighted 半球采样，静态像素随机旋转。
+- `ScreenSpaceTrace.hlsl`：世界空间步进、近平面/clip.w/UV 安全检查、首次深度穿越和二分精炼；几何结果不携带镜面材质权重。
+- 命中法线朝向验证、沿接收法线的起点偏移，以及最大距离/厚度约束。
+- 半分辨率（Low 档为宽高各 1/4）追踪与深度/法线双边滤波，几何引导上采样到全分辨率。
+- 独立 Debug：Trace / Indirect / Confidence，保留 Off 合成模式。
 
-1. 添加 `Frag_SSGI_Diffuse()`:
-   ```hlsl
-   // 1. TBN 构建
-   // 2. Cosine-weighted 半球采样（1-2 rays/pixel）
-   // 3. 屏幕空间步进（March3D 或 DDA，按 w 安全度选择）
-   // 4. 命中选择（取 first-hit 或 weighted blend）
-   // 5. 写入 DiffuseRT
-   ```
-2. 添加空间降噪 Pass:
-   ```hlsl
-   // 1/4 分辨率 bilateral blur (深度 + 法线引导)
-   // 逐级 upsample back to full res
-   ```
-3. 重构 HitProcess → 添加距离衰减：
-   ```hlsl
-   float distAtten = 1.0 / (1.0 + hitDist * hitDist * _DiffuseFalloff);
-   alpha *= distAtten;
-   ```
+### 估计量约定
 
-### 依赖
+```text
+p(ω) = cosθ / π
+GI.rgb = Σ(Li_hit × edgeFade × artisticFalloff) / N
+Final.rgb = Scene.rgb + intensity × receiverAlbedo × GI.rgb
+```
 
-- March3D/HiZProcess 复用
-- 需要新增 DiffuseRT + 降噪 Pass
+`N` 是总射线数，miss 为零贡献，不能只除命中数。`GI.rgb` 是 `E/π` 的近似，不再重复乘 BRDF 的 `1/π` 或余弦。Alpha 仅记录命中置信度，滤波和合成不再次乘 alpha。
+
+输入是相机方向的场景辐亮度近似，并非纯直接漫反射；当前 `receiverAlbedo` 使用统一颜色，尚无逐像素材质反照率/金属遮罩。合成是加法近似，会与场景已有烘焙/探针 GI 重叠。
+
+距离衰减作为美术项仅在 gather 乘一次，默认 0 关闭；不改动 SSR 的 `HitProcess`。骨架末尾的统一 Composite 仍为后续设计，不能再向本输出叠乘同一衰减。
+
+### 接口与复用边界
+
+原 `RayMarchFunction.hlsl` 直接调用镜面专属 `HitProcess`（包含 `_Smoothness`），不能原样用于漫反射。当前新增独立几何函数库，保留 SSR 行为；后续可把 SSR 迁入同一几何接口。新增 `DiffuseGIFeature` 与 SSR Feature 可分别配置。
+
+| 性能档 | 宽高缩放 | 射线/像素 | 步进/射线 |
+|---|---|---|---|
+| Low | 1/4 | 1 | 24 |
+| Medium | 1/2 | 2 | 48 |
+| High | 1/2 | 4 | 64 |
+
+内部发布 `_GITraceTexture` / `_GITexture`，仅限本效果执行后的同相机同帧使用。Intensity=0 且 Debug=Off 时跳过整个 Feature，不可继续消费旧全局绑定。
+
+### 尚未实施
+
+- Cache-Aware 半球采样与相关性能基准：未实现，原提纲的“62% 加速”不代表本实现。
+- 时域累积、重投影、方差钳制留在 Phase 5；固定随机序列降低静止闪烁，但不能消除空间噪声和运动跳变。
+- 屏幕外/遮挡背面信息：屏幕外与天空已验证不贡献 GI，遮挡背面仍无信息。
+- 透明物体：**不在追踪输入内**（事件早于透明绘制）。旧版本用截屏得到的“隐藏 Water/RainDrops 后 GI>0.10 从 39315 px 降到 3952、均值 0.419 → 0.103”是透明几何覆盖调试视图造成的取景伪影；追踪是否命中透明几何需回读 `_GITexture` 全局纹理判定（开放项）。
+- 逐像素反照率与金属遮罩：仍使用统一 `receiverAlbedo`。
+- HiZ 加速、Compute 迁移以及平台/性能全面验收。
+
+### 验收记录
+
+- C# 已通过本机 Unity 6000.3.14f1 / URP 17.3 程序集的 Roslyn 编译。
+- 新增代码经过项目 write_gated 与规范检查。
+- 2026-09-21 经离屏 RT 对照测量：Intensity=0 与禁用位精确一致；天空盒不参与 gather（差值 0.00000000）；正交投影可用；三档性能经 uniform 回读确认接线；`Time.timeScale = 0` 时位精确；修复后 intensity 0 → 1 有 28370 px 变亮（平均 +0.03144，最大 +0.57568）。数值表见 [`DiffuseGI.md`](../DiffuseGI.md) §验收。
+- 事件排序（本轮修复）：旧值 `BeforeRenderingTransparents` 使 GI 合成晚于 `m_CopyColorPass`，透明物体（Water/RainDrops）折射到未叠加 GI 的 `_CameraOpaqueTexture`，把水面的 GI 盖回原状；已改为 `AfterRenderingSkybox`（同事件下自定义 Feature 先于 URP 内置 Pass）。旧的“调试 RT 污染 = in-place 读写别名”“gather 命中透明几何”两条结论已撤回，理由见 [`DiffuseGI.md`](../DiffuseGI.md) §事件排序。残留的水面轻微变暗（197 px / −0.027）已重新定性为开放项。
+- 薄墙漏光、深度边缘串色、相机运动稳定性未测；视觉质量需在 Game View 人工确认，静态检查不等于画面验证。
 
 ---
 
@@ -333,7 +348,12 @@ Assets/Mine/Shaders/PostProcess/SSR/
 ├── SSRFeature.cs                  ← C# RecordRenderGraph
 ├── RayMarchFunction.hlsl          ← 步进策略（已解偶，无需修改）
 ├── RaySampleFunction.hlsl         ← 采样策略（逐步添加新函数）
-├── SSGI_Filter.hlsl               ← 时域+空域滤波（Phase 5 新增）
+├── DiffuseGIFeature.cs            ← Phase 3 独立 RenderGraph 管线
+├── DiffuseGI.shader               ← Trace / Blur H/V / Resolve / Composite
+├── DiffuseGIFunction.hlsl         ← 半球采样 + 空域滤波
+├── ScreenSpaceTrace.hlsl          ← 无 BRDF 权重的几何首命中
+├── DiffuseGI.md                   ← Phase 3 使用、参数与限制
+├── SSGI_Filter.hlsl               ← 时域+空域滤波（Phase 5 计划）
 ├── SSGI_Common.hlsl               ← 共享工具函数（GGX采样、半球采样等）
 └── SSGI_ScreenSpace_Outline/
     └── SSGI_Content_Skeleton.md   ← 本文件
@@ -348,7 +368,7 @@ Assets/Mine/Shaders/PostProcess/SSR/
 | SSPR | 无步进（直接投影） | — | 平面反射约束 |
 | SSR (镜面) | HiZProcess | BinProcess | 默认 DDA；w 危险时切换 March3D |
 | SSR (粗糙) | HiZProcess（锥角增大 mip） | March3D | roughness < 0.6 |
-| Diffuse GI | March3D | HiZProcess | 半球方向多样，世界步进更鲁棒 |
+| Diffuse GI | SST_Trace（世界空间首命中） | HiZ（待接入） | 独立几何结果，避免 SSR 光滑度权重 |
 | SSAO | HitTest（短距离） | — | 半径小（1-2 世界单位） |
 | HBAO | 角度切片步进 | — | 4-8 方向独立步进 |
 
