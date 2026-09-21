@@ -133,7 +133,8 @@ MonoBehaviour:
   - {fileID: -6861971581733455524}
   - {fileID: -1758144391843978723}
   - {fileID: -4619955152373537009}
-  m_RendererFeatureMap: ad6b866f10d7b46cf6bb79d4b6ad1b03a9cda9d4c89bcd6c21a5b61f198364595cb9f3e33361c5a01d624b9cfdd099e70f278a38449fe2bf
+  - {fileID: 4084880287550926522}
+  m_RendererFeatureMap: ad6b866f10d7b46cf6bb79d4b6ad1b03a9cda9d4c89bcd6c21a5b61f198364595cb9f3e33361c5a01d624b9cfdd099e70f278a38449fe2bfbaee7799fa68b038
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -200,6 +201,30 @@ MonoBehaviour:
   m_OutlineMaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_OutlineCompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
+--- !u!114 &4084880287550926522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5689a32b8a7414b44a6c7a044525f860, type: 3}
+  m_Name: AOFeature
+  m_EditorClassIdentifier: Assembly-CSharp::AOFeature
+  m_Active: 1
+  settings:
+    shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
+    mode: 1
+    radius: 1
+    bias: 0.02
+    angleBias: 10
+    falloff: 1
+    depthSigma: 0.15
+    performance: 1
+    intensity: 1
+    debug: 0
 --- !u!114 &4655793570601728598
 MonoBehaviour:
   m_ObjectHideFlags: 0
