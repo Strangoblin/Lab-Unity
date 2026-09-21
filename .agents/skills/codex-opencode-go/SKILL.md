@@ -7,6 +7,9 @@ description: Codex CLI/VSCode 与 opencode CLI/VSCode 扩展接入 OpenCode Go �
 
 > 2026-08-17 起 OpenCode Go **原生支持 `/v1/responses` 端点**，Codex 可直连，不再需要 opencode-go-proxy 协议翻译。配置产物：全局 `~/.codex/config.toml` + `~/.codex/auth.json`；项目级隔离用 `CODEX_HOME`（示例：`Robot/Bot/.codex/`）。
 
+> 🔀 **本文件是项目专用超集**——通用内容 + `Unity/Lab` 专属的「opencode CLI / VSCode 扩展接入」与「派活（`ocw`）」两节。通用版（零项目专属路径，供其他项目用）在 `~/.claude/skills/codex-opencode-go/SKILL.md`。
+> **改通用内容时两处同步**（Codex 侧链路、模型可用性表、排障表等）；纯项目专属内容只改本文件。两份曾长期无声漂移（本文件缺了整批 Codex 侧内容），2026-09-21 才合并补齐——故留此指针。
+
 ## 架构（直连）
 
 ```
