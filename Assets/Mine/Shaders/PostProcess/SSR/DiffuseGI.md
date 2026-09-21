@@ -102,6 +102,8 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 
 **运行期核对（2026-09-21）**：反射读 `PC_Renderer` 的 7 个 Feature，`DiffuseGIFeature ... passEvent=AfterRenderingSkybox`；效果仍然生效 —— intensity 0 → 1 有 28370 px 变亮、平均 +0.03144、最大 +0.57568，`Debug=Indirect` 最大通道 2.2207。
 
+> **「7 个」是测量时点的快照，不是当前值**：同日稍后 AO（Phase 4）注册进同一 Renderer，现为 8 个（见 [AO.md](AO.md)）。本节及其下各表的读数均为该时点采集。
+
 ### 被撤回的旧结论
 
 旧版本把两处现象归因于“与透明 Pass 同事件、顺序不可控导致全局 RT 被改写”，现已撤回：
