@@ -99,40 +99,60 @@ opencode --version        # 预期 1.18.31
 > 本机 npm registry 是内网 `bnpm.byted.org`，不通时加 `--registry=https://registry.npmjs.org/`（单次覆盖，不必改全局配置）。
 > npm 11 会警告 `allow-scripts ... postinstall`，但**实测 postinstall 仍然执行**（`bin/opencode.exe` 与平台包 `bin/opencode` inode 相同 = 硬链接成功，138MB Mach-O arm64 就是真二进制）。该警告在此场景是虚惊，**别据此判断安装失败**。
 
-### 配置：`baseURL` 是这条链路最容易踩的坎
+### 配置：直接用内置 `opencode-go`，**不要**覆盖 baseURL
 
-`~/.config/opencode/opencode.json`：
+`~/.config/opencode/opencode.json` 就两行：
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode/deepseek-v4-flash",
-  "provider": { "opencode": { "options": {
-    "baseURL": "https://opencode.ai/zen/go/v1"
-  } } }
+  "model": "opencode-go/deepseek-v4-flash"
 }
 ```
 
-opencode 内置 `opencode` provider 默认打 Zen 的**按量计费**端点；不覆盖就去不到订阅端点。症状极具迷惑性：**8 个模型名全部能被正常识别**（`> build · deepseek-v4-flash` 照常显示），只在请求时报 `Insufficient balance` 并给出 billing 链接。加 `/zen/go/v1` 后全通。
+opencode **内置了两个 provider**，别搞混——这是这条链路上最容易走错的地方：
 
-### 凭据：走 `opencode auth login`，就**别在 config 写 apiKey**
+| provider | 端点 | 计费 | 说明 |
+|---|---|---|---|
+| `opencode` | `https://opencode.ai/zen/v1` | 按量计费 | OpenCode Zen；余额为 0 时报 `Insufficient balance` |
+| `opencode-go` | `https://opencode.ai/zen/go/v1` | **订阅** | OpenCode Go，36 个模型，与 Codex 用的是同一个 |
+
+> ⚠️ **走错 provider 的症状极具迷惑性**：模型名照样被识别（`> build · deepseek-v4-flash` 正常显示），只在请求时报 `Insufficient balance` + billing 链接。**看到这个错误不要去改 baseURL**——把模型换成 `opencode-go/<模型>` 即可。
+> 覆盖 `provider.opencode.options.baseURL` 只在 **CLI 路径**有效；服务端 `SessionRunner` 用的是**逐模型的 `model.api.url`**（来自目录，不受 provider baseURL 影响），所以覆盖救不了 GUI。模型级 `options.baseURL` 实测同样无效。
+
+### 凭据：`opencode-go` 认的是 `OPENCODE_API_KEY` 环境变量
+
+该 provider 自带 `env: ['OPENCODE_API_KEY']` 声明：
 
 ```bash
-opencode auth login -p opencode      # 选 API key 方式贴入
-opencode auth list                    # 预期 1 credentials（OpenCode Zen / api）
+export OPENCODE_API_KEY='sk-...'      # 持久化就写进 ~/.zshrc
+opencode run -m opencode-go/deepseek-v4-flash "hi"
 ```
 
-> ⚠️ **`{env:VAR}` 空串陷阱**：config 里若写了 `"apiKey": "{env:OPENCODE_API_KEY}"` 而该变量**未设置**，它解析为**空串并盖掉 auth.json 的凭据**，报 `Missing API key`——症状极像「登录没生效」，实为配置覆盖。**二者只能留一个**：用 `auth login` 就不要在 config 里写 `apiKey`。
-> 好处是登录方式**不依赖 shell 环境变量**——扩展新开的终端不必继承任何变量即可用。
+> ❌ **别用 `opencode auth login -p opencode`**——那存的是 `opencode`（Zen 按量计费）provider 的凭据，`opencode-go` **读不到**。症状是「明明登录了却不生效」；`opencode auth list` 显示 `OpenCode Zen / api` 恰恰说明**登错了 provider**。
 
 ### opencode 侧排障
 
 | 症状 | 根因 | 修复 |
 |------|------|------|
-| `Insufficient balance` + billing 链接（模型名却正常显示） | 打到按量计费端点，非订阅端点 | `options.baseURL = "https://opencode.ai/zen/go/v1"` |
-| `Missing API key`，但 `auth list` 明明有凭据 | config 里 `{env:VAR}` 解析成空串盖掉 auth.json | 删掉 config 里的 `apiKey` 行 |
+| `Insufficient balance` + billing 链接（模型名却正常显示） | 用的是 `opencode/`（按量计费）而非 `opencode-go/`（订阅） | 模型改成 `opencode-go/<模型>`；**不要**动 baseURL |
+| `auth list` 有凭据但仍鉴权失败 | 登的是 `opencode` provider；`opencode-go` 读 `OPENCODE_API_KEY` | 设该环境变量，别依赖 `auth login` |
+| `ModelUnavailableError: Model unavailable: opencode/xxx` | 该模型在 Zen 目录里但**不在 Go 订阅内** | 换成 `opencode-go/` 下的模型 |
+| config 里 `"apiKey": "{env:VAR}"` 但变量未设置 | `{env:}` 解析为**空串**并静默盖掉下层凭据，报 `Missing API key` | 删掉那行；`opencode-go` 会自己读 env |
 | 扩展按键无反应 / 无任何输出 | `opencode` CLI 未装或不在 PATH | `npm install -g opencode-ai`；确认 `~/.nvm/.../bin` 在登录 shell PATH 上 |
 | `OPENCODE_SERVER_PASSWORD is not set; server is unsecured` | 正常现象 | 默认只绑 `127.0.0.1`，本机自用无碍 |
+
+### ⚠️ 未解决：Web GUI / headless server 的会话不执行（2026-09-21 实测）
+
+`opencode serve` / `opencode web` 起的 Web GUI（`/app`）**界面能开，但发消息不产生任何回复**：
+
+- `POST /api/session/{id}/prompt` 返回 200，事件流依次收到 `session.next.prompt.admitted` → `session.next.prompted`，**然后断掉**——无后续事件、无消息落库、无错误日志
+- 换全新端口的新实例同样复现 → **不是实例状态污染**
+- **但服务端本身是好的**：`opencode run --attach http://127.0.0.1:4096` 能驱动同一个服务正常出结果 → 坏的只是**裸 HTTP `/prompt` 这条路径**（浏览器走的就是它），不是会话引擎
+- 已排除：进程 cwd 正确、`opencode.db` 的 `project_directory` 正确、项目根目录无异常文件名；显式带 `model`+`agent` 建会话、订阅会话级 `/event` 均无效
+- 伴随一个**未解释的现象**：服务启动约 20 秒后，日志出现一次 `bootstrapping directory=<正确路径>/j<非法字节>`，同一 run 内**先正确后变坏**，来源未定位
+
+**CLI 与 TUI 不受影响**（`opencode run` 与 `opencode-go` 模型实测正常）。在解决前不要依赖 Web GUI。
 
 ### 快捷键与卸载
 
