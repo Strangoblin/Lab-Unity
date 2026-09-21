@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3dcbe7b74f544b58bb86d2e2f92a478, type: 3}
   m_Name: DebugOutput
   m_EditorClassIdentifier: Assembly-CSharp::Mine.RenderingDebug.DebugOutputFeature
-  m_Active: 1
+  m_Active: 0
   settings:
     debugMaterial: {fileID: 2100000, guid: d0ec342ac28694d0da782da25c1d3c21, type: 2}
     debugShader: {fileID: 4800000, guid: dea6b9a78142240deb2a05a75d2ef63c, type: 3}
@@ -37,6 +37,30 @@ MonoBehaviour:
   m_OutlineMaskShader: {fileID: 0}
   m_OutlineCompositeShader: {fileID: 0}
   m_DebugShowMask: 0
+--- !u!114 &-4619955152373537009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32e50a66f0cad48cba423fa7aaefef83, type: 3}
+  m_Name: DiffuseGIFeature
+  m_EditorClassIdentifier: Assembly-CSharp::DiffuseGIFeature
+  m_Active: 1
+  settings:
+    shader: {fileID: 4800000, guid: 0f1271be0061c430aa91678b9a119c1b, type: 3}
+    maxDistance: 5
+    thickness: 0.15
+    normalBias: 0.03
+    depthSigma: 0.15
+    performance: 1
+    intensity: 1
+    distanceFalloff: 0
+    receiverAlbedo: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+    debug: 0
 --- !u!114 &-4316052137097848494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53,6 +77,30 @@ MonoBehaviour:
   m_MaskShader: {fileID: 0}
   m_CompositeShader: {fileID: 0}
   m_DebugShowMask: 0
+--- !u!114 &-1758144391843978723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 560a7aad0eafe4abf856044a53b8d2de, type: 3}
+  m_Name: PCSSFeature
+  m_EditorClassIdentifier: Assembly-CSharp::PCSSFeature
+  m_Active: 0
+  settings:
+    pcssComputeShader: {fileID: 7200000, guid: 65166691e0d5f45989acb87e917ddd89, type: 3}
+    pssmLambda: 0.75
+    depthBias: 0.1
+    normalBias: 0
+    performance: 2
+    softness: 0.5
+    blur: 1
+    temporal: 0.9
+    showShadowMap: 1
+    temporalDebug: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,7 +131,9 @@ MonoBehaviour:
   - {fileID: 7840093813185564073}
   - {fileID: 6441417510976136481}
   - {fileID: -6861971581733455524}
-  m_RendererFeatureMap: ad6b866f10d7b46cf6bb79d4b6ad1b03a9cda9d4c89bcd6c21a5b61f198364595cb9f3e33361c5a0
+  - {fileID: -1758144391843978723}
+  - {fileID: -4619955152373537009}
+  m_RendererFeatureMap: ad6b866f10d7b46cf6bb79d4b6ad1b03a9cda9d4c89bcd6c21a5b61f198364595cb9f3e33361c5a01d624b9cfdd099e70f278a38449fe2bf
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
