@@ -29,7 +29,7 @@ Trace 的 Alpha 保存 `screenConfidence`，供 Screen/Sky Source 调试；时�
 
 ## 参数
 
-统一 SSGI 面板中，Shader、Cubemap、追踪几何、Sky Max Mip 和 Roughness 属于 SpecularGI Settings；Performance、Intensity、Temporal 位于统一顶层。Roughness 是尚无逐像素材质输入时的全局近似，不在独立 Controls 中重复配置。
+统一 SSGI 面板中，Shader、Cubemap、追踪几何、Sky Max Mip 和 Roughness 属于 SpecularGI Settings；Performance、Intensity、Temporal 位于统一顶层。统一 Spatial Filter 的 Blur Strength 控制本模块 5×5 空间滤波，0 跳过滤波并直接上采样，1 保持原效果；独立 Feature 固定为 1。Roughness 是尚无逐像素材质输入时的全局近似，不在独立 Controls 中重复配置。
 
 | 分组 | 参数 | 默认值 | 说明 |
 |---|---|---:|---|

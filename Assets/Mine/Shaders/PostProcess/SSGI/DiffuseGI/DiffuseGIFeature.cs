@@ -111,20 +111,21 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             _temporal.BeginFrame(frameData);
             Record(renderGraph, frameData, TextureHandle.nullHandle, false, _temporal.FrameIndex,
                 _controls.performance, _controls.intensity, _controls.distanceFalloff,
-                _controls.receiverAlbedo, _controls.debug);
+                _controls.receiverAlbedo, _controls.debug, 1f);
             _temporal.CompleteFrame(renderGraph, frameData);
         }
 
         public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData,
-            TextureHandle source, int frameIndex, SSGIQuality performance)
+            TextureHandle source, int frameIndex, SSGIQuality performance, float blurStrength)
         {
             return Record(renderGraph, frameData, source, true, frameIndex, performance,
-                1f, 0f, Color.white, DebugMode.Off);
+                1f, 0f, Color.white, DebugMode.Off, blurStrength);
         }
 
         private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData,
             TextureHandle inputSource, bool integrated, int frameIndex, SSGIQuality performance,
-            float intensity, float distanceFalloff, Color receiverAlbedo, DebugMode debug)
+            float intensity, float distanceFalloff, Color receiverAlbedo, DebugMode debug,
+            float blurStrength)
         {
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             UniversalCameraData camera = frameData.Get<UniversalCameraData>();
@@ -133,6 +134,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 return TextureHandle.nullHandle;
 
             Vector3Int tier = GetTier(performance);
+            blurStrength = Mathf.Clamp01(blurStrength);
             RenderTextureDescriptor fullDesc = camera.cameraTargetDescriptor;
             fullDesc.depthBufferBits = 0;
             fullDesc.msaaSamples = 1;
@@ -147,19 +149,27 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             giDesc.width = Mathf.Max(1, (fullDesc.width + tier.x - 1) / tier.x);
             giDesc.height = Mathf.Max(1, (fullDesc.height + tier.x - 1) / tier.x);
             TextureHandle trace = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Trace", false);
-            TextureHandle blur = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Blur", false);
-            TextureHandle filtered = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Filtered", false);
+            TextureHandle filtered = trace;
+            TextureHandle blur = TextureHandle.nullHandle;
+            if (blurStrength > 0f)
+            {
+                blur = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Blur", false);
+                filtered = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Filtered", false);
+            }
             Vector4 size = new Vector4(1f / giDesc.width, 1f / giDesc.height, giDesc.width, giDesc.height);
             TextureHandle source = integrated ? inputSource : resources.activeColorTexture;
 
             AddPass(renderGraph, resources, "DiffuseGI.Trace", source, trace, 0, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug);
-            AddPass(renderGraph, resources, "DiffuseGI.BlurHorizontal", trace, blur, 1, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug);
-            AddPass(renderGraph, resources, "DiffuseGI.BlurVertical", blur, filtered, 2, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug);
+                intensity, distanceFalloff, receiverAlbedo, debug, blurStrength);
+            if (blurStrength > 0f)
+            {
+                AddPass(renderGraph, resources, "DiffuseGI.BlurHorizontal", trace, blur, 1, tier, size, frameIndex, TextureHandle.nullHandle,
+                    intensity, distanceFalloff, receiverAlbedo, debug, blurStrength);
+                AddPass(renderGraph, resources, "DiffuseGI.BlurVertical", blur, filtered, 2, tier, size, frameIndex, TextureHandle.nullHandle,
+                    intensity, distanceFalloff, receiverAlbedo, debug, blurStrength);
+            }
             AddPass(renderGraph, resources, "DiffuseGI.Resolve", filtered, resolved, 3, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug);
+                intensity, distanceFalloff, receiverAlbedo, debug, blurStrength);
             if (integrated)
                 return resolved;
 
@@ -170,7 +180,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             compositeDesc.clearBuffer = false;
             TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
             AddPass(renderGraph, resources, "DiffuseGI.Composite", source, composite, 4,
-                tier, size, frameIndex, temporal, intensity, distanceFalloff, receiverAlbedo, debug);
+                tier, size, frameIndex, temporal, intensity, distanceFalloff, receiverAlbedo, debug, blurStrength);
             resources.cameraColor = composite;
             return TextureHandle.nullHandle;
         }
@@ -181,7 +191,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         private void AddPass(RenderGraph graph, UniversalResourceData resources, string name,
             TextureHandle source, TextureHandle target, int shaderPass, Vector3Int tier, Vector4 size,
             int frameIndex, TextureHandle signal, float intensity, float distanceFalloff,
-            Color receiverAlbedo, DebugMode debug)
+            Color receiverAlbedo, DebugMode debug, float blurStrength)
         {
             using (var builder = graph.AddRasterRenderPass<PassData>(name, out var data))
             {
@@ -191,7 +201,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 data.traceParams = new Vector4(Mathf.Clamp(_settings.maxDistance, 0.1f, 50f),
                     Mathf.Clamp(_settings.thickness, 0.001f, 1f), Mathf.Clamp(_settings.normalBias, 0.001f, 0.5f),
                     Mathf.Clamp(distanceFalloff, 0f, 4f));
-                data.filterParams = new Vector4(Mathf.Clamp(_settings.depthSigma, 0.01f, 2f), 32f, 0f, 0f);
+                data.filterParams = new Vector4(Mathf.Clamp(_settings.depthSigma, 0.01f, 2f), 32f, blurStrength, 0f);
                 data.sourceSize = size;
                 Color albedo = receiverAlbedo.linear;
                 data.receiverAlbedo = new Color(Mathf.Clamp01(albedo.r), Mathf.Clamp01(albedo.g), Mathf.Clamp01(albedo.b), 1f);

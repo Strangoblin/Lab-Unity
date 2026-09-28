@@ -39,6 +39,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
         internal static readonly int SkyCubemapID = Shader.PropertyToID("_SkyCubemap");
         internal static readonly int SkyMaxMipID = Shader.PropertyToID("_SkyMaxMip");
         internal static readonly int SpatialRadiusID = Shader.PropertyToID("_SpatialRadius");
+        internal static readonly int SpatialBlurStrengthID = Shader.PropertyToID("_SpatialBlurStrength");
         internal static readonly int FrameIndexID = Shader.PropertyToID("_FrameIndex");
         internal static readonly int DebugModeID = Shader.PropertyToID("_DebugMode");
         internal static readonly int SpecularTextureID = Shader.PropertyToID("_SpecularGITexture");
@@ -69,6 +70,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
             public float roughness;
             public float skyMaxMip;
             public float spatialRadius;
+            public float blurStrength;
             public float frameIndex;
             public Cubemap skyCubemap;
         }
@@ -109,7 +111,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
             _temporal.BeginFrame(frameData);
             TextureHandle spatial = RecordSpatial(graph, frameData,
                 TextureHandle.nullHandle, _temporal.FrameIndex,
-                _controls.performance, _settings.roughness, out TextureHandle trace);
+                _controls.performance, _settings.roughness, 1f, out TextureHandle trace);
             if (!spatial.IsValid())
             {
                 _temporal.CompleteFrame(graph, frameData);
@@ -124,15 +126,16 @@ public class SpecularGIFeature : ScriptableRendererFeature
         }
 
         public TextureHandle RecordIntegrated(RenderGraph graph, ContextContainer frameData,
-            TextureHandle source, int frameIndex, SSGIQuality performance, float roughness)
+            TextureHandle source, int frameIndex, SSGIQuality performance, float roughness,
+            float blurStrength)
         {
             return RecordSpatial(graph, frameData, source, frameIndex,
-                performance, roughness, out _);
+                performance, roughness, blurStrength, out _);
         }
 
         TextureHandle RecordSpatial(RenderGraph graph, ContextContainer frameData,
             TextureHandle inputSource, int frameIndex, SSGIQuality performance,
-            float roughness, out TextureHandle traceOutput)
+            float roughness, float blurStrength, out TextureHandle traceOutput)
         {
             traceOutput = TextureHandle.nullHandle;
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
@@ -143,6 +146,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
 
             GetQuality(performance, out int downsample,
                 out int stepCount, out float spatialRadius);
+            blurStrength = Mathf.Clamp01(blurStrength);
             RenderTextureDescriptor descriptor = camera.cameraTargetDescriptor;
             descriptor.depthBufferBits = 0;
             descriptor.msaaSamples = 1;
@@ -153,8 +157,10 @@ public class SpecularGIFeature : ScriptableRendererFeature
             TextureHandle trace = UniversalRenderer.CreateRenderGraphTexture(
                 graph, traceDescriptor, "SpecularGI.Trace", false);
             traceOutput = trace;
-            TextureHandle filtered = UniversalRenderer.CreateRenderGraphTexture(
-                graph, traceDescriptor, "SpecularGI.Filtered", false);
+            TextureHandle filtered = blurStrength > 0f
+                ? UniversalRenderer.CreateRenderGraphTexture(
+                    graph, traceDescriptor, "SpecularGI.Filtered", false)
+                : TextureHandle.nullHandle;
             TextureHandle spatial = UniversalRenderer.CreateRenderGraphTexture(
                 graph, descriptor, "SpecularGI.Spatial", false);
 
@@ -172,13 +178,15 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 data.roughness = Mathf.Clamp01(roughness);
                 data.skyMaxMip = Mathf.Max(_settings.skyMaxMip, 0f);
                 data.spatialRadius = spatialRadius;
+                data.blurStrength = blurStrength;
                 data.frameIndex = frameIndex;
                 data.skyCubemap = _settings.skyCubemap;
 
 
                 builder.UseTexture(source, AccessFlags.Read);
                 builder.UseTexture(trace, AccessFlags.ReadWrite);
-                builder.UseTexture(filtered, AccessFlags.ReadWrite);
+                if (filtered.IsValid())
+                    builder.UseTexture(filtered, AccessFlags.ReadWrite);
                 builder.UseTexture(spatial, AccessFlags.ReadWrite);
                 builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
                 builder.UseTexture(resources.cameraNormalsTexture, AccessFlags.Read);
@@ -189,12 +197,18 @@ public class SpecularGIFeature : ScriptableRendererFeature
                     pass.material.SetFloat(Settings.RoughnessID, pass.roughness);
                     pass.material.SetFloat(Settings.SkyMaxMipID, pass.skyMaxMip);
                     pass.material.SetFloat(Settings.SpatialRadiusID, pass.spatialRadius);
+                    pass.material.SetFloat(Settings.SpatialBlurStrengthID, pass.blurStrength);
                     pass.material.SetFloat(Settings.FrameIndexID, pass.frameIndex);
                     pass.material.SetTexture(Settings.SkyCubemapID, pass.skyCubemap);
                     CommandBuffer commandBuffer = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
                     Blitter.BlitCameraTexture(commandBuffer, pass.source, pass.trace, pass.material, 0);
-                    Blitter.BlitCameraTexture(commandBuffer, pass.trace, pass.filtered, pass.material, 1);
-                    Blitter.BlitCameraTexture(commandBuffer, pass.filtered, pass.spatial, pass.material, 2);
+                    TextureHandle upsampleSource = pass.trace;
+                    if (pass.filtered.IsValid())
+                    {
+                        Blitter.BlitCameraTexture(commandBuffer, pass.trace, pass.filtered, pass.material, 1);
+                        upsampleSource = pass.filtered;
+                    }
+                    Blitter.BlitCameraTexture(commandBuffer, upsampleSource, pass.spatial, pass.material, 2);
                 });
             }
             return spatial;

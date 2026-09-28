@@ -24,6 +24,7 @@ Shader "PostProcess/SpecularGI"
         float _Intensity;
         float _SkyMaxMip;
         float _SpatialRadius;
+        float _SpatialBlurStrength;
         float _FrameIndex;
         float _DebugMode;
     CBUFFER_END

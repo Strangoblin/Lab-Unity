@@ -56,7 +56,7 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 
 ## 参数
 
-统一 SSGI 面板中，DiffuseGI Settings 只包含 Technical；Performance、Intensity、Temporal 位于统一顶层。统一运行固定 Distance Falloff = 0、Receiver Albedo = 白色；这两项仅在独立 DiffuseGI Feature 的 Controls 中开放。
+统一 SSGI 面板中，DiffuseGI Settings 只包含 Technical；Performance、Intensity、Temporal 位于统一顶层。统一 Spatial Filter 的 Blur Strength 控制本模块两次双边滤波，0 跳过两次滤波，1 保持原效果；独立 Feature 固定为 1。统一运行固定 Distance Falloff = 0、Receiver Albedo = 白色；这两项仅在独立 DiffuseGI Feature 的 Controls 中开放。
 
 | 分组 | 参数 | 默认值 | 含义 |
 |---|---|---|---|

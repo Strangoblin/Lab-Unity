@@ -47,7 +47,7 @@ float4 SpecularGI_SpatialResolve(float2 uv)
 
     float4 resolved = totalWeight > 0.0001 ? accumulated / totalWeight : center;
     resolved.a = center.a;
-    return resolved;
+    return lerp(center, resolved, saturate(_SpatialBlurStrength));
 }
 
 float4 SpecularGI_Upsample(float2 uv)
