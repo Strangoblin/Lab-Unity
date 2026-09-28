@@ -1,6 +1,6 @@
 # AO — 屏幕空间环境光遮蔽（SSAO / HBAO）
 
-基于 [SSGI 骨架 Phase 4](../SSGI_Content_Skeleton.md) 实现。独立入口为 `AOFeature.cs`，Shader 为 `PostProcess/AO`；统一运行由 [SSGIFeature](../SSGI.md) 调度。几何工具复用家族共享的 `ScreenSpaceTrace.hlsl`。
+独立入口为 `AOFeature.cs`，Shader 为 `PostProcess/AO`；统一运行由 [SSGIFeature](../SSGI.md) 调度，合成语义见统一运行说明。几何工具复用家族共享的 `ScreenSpaceTrace.hlsl`。
 
 ## 使用
 
@@ -164,6 +164,6 @@ atten = 1 / (1 + d² × falloff)
 
 **未测**（本轮按收尾策略留作开放项）：SSAO 与 HBAO 的目视质量对比、大半径下的屏幕边缘行为、运动稳定性、正交投影下的 `radius` 手感、档位的运行期 uniform 回读、`falloff > 0` 的观感与量级。逐像素读数与采集脚本见当日 memory（`.agents/agents/unity-developer/memory/2026-09-21-ssgi-phase4-ao.md`）。
 
-## 与骨架的对应
+## 与统一管线的对应
 
-骨架 Phase 4 要求"SSAO 原型 → HBAO 方向切片 → 统一输出 `_AOTexture` → 更新 Composite"。本文对应：SSAO / HBAO 两条分支在 `AOFunction.hlsl` 内完成并统一输出可见度；合成落在本 Feature 内（方案 A：AO 自乘场景色），骨架末尾的统一 Composite 公式（`Direct + IndirectDiffuse×AO + IndirectSpecular×AO + Ambient×(1-AO)`）仍为后续设计，**不能**再把同一 AO 系数乘回本 Feature 已处理过的场景色。
+早期设计骨架 Phase 4 要求"SSAO 原型 → HBAO 方向切片 → 统一输出可见度 → 更新 Composite"。本文对应：SSAO / HBAO 两条分支在 `AOFunction.hlsl` 内完成并统一输出可见度。统一 Composite 已由 [SSGI.md](../SSGI.md) §合成语义落地：AO 系数固定乘到场景色与新增 DiffuseGI 上，且只乘一次；独立 AO Feature 的合成仍落在本 Feature 内（AO 自乘场景色），**不能**再把同一 AO 系数乘回本 Feature 已处理过的场景色。

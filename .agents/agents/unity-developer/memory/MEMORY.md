@@ -15,7 +15,9 @@
 
 - **空间滤波的质量档与半径正交**：Blur、SNN、Kuwahara、双边滤波和屏幕空间 Resolve 中，Quality 固定样本数/分布/下采样率，Radius 只缩放固定 offset、改变感受野，禁止进入循环边界。默认档必须复现重构前预算与画面；统一规范和模板见 [spatial-filter-budget.md](../references/shader/postprocess/spatial-filter-budget.md)。
 
-- **SpecularGI 是分层回退链而非平级模式**：镜面/GGX 采样 → SSR 几何首命中 → SSPR 远景候选 → Cubemap 环境回退 → 5×5 空间重建 → 时域累积。`SampleSH` 不作为镜面天空；Procedural Skybox 没有可直接提取的 Cubemap，必须显式绑定或另做捕获。单射线 SSSR 的稳定性依赖低分辨率 trace、足够空间样本和连续历史，不能按随机来源硬拒绝或对 1 spp 结果做紧邻域颜色钳制。见 [2026-09-21-speculargi-unified-fallback.md](2026-09-21-speculargi-unified-fallback.md)。
+- **SSGI 家族统一入口（2026-09-28 落地）**：`SSGIFeature` 同帧调度 AO/DiffuseGI/SpecularGI，三路共用 `SSGITemporalFilter` 公共时域（每路独立 Material，避免 Blend 串用）与 `SSGIComposite` 单次合成；合成语义 `Scene×AOFactor + DiffuseGI×Intensity×AOFactor → lerp(SpecularGI, Fresnel)`，AO 只乘一次。三路 Trace 尺寸统一 Low 1/8、Medium 1/4、High 1/2；统一面板不暴露 Artistic 组；`Intensity=0` 即跳过该路。三个独立 Feature 保留供对照，不与统一 Feature 同开。**收档清理**：两份设计骨架已删（`SSGI_Content_Skeleton.md` / `Screen_Render_Architecture_Skeleton.md`），`PC_Renderer.asset` 只剩 `[DebugOutput, SSGI]` 两个 Feature（旧 SpecularGIFeature 子资产已移除）。见 [2026-09-28-ssgi-integration-and-archive.md](2026-09-28-ssgi-integration-and-archive.md)。
+
+- SpecularGI 是分层回退链而非平级模式：镜面/GGX 采样 → SSR 几何首命中 → SSPR 远景候选 → Cubemap 环境回退 → 5×5 空间重建 → 时域累积。`SampleSH` 不作为镜面天空；Procedural Skybox 没有可直接提取的 Cubemap，必须显式绑定或另做捕获。单射线 SSSR 的稳定性依赖低分辨率 trace、足够空间样本和连续历史，不能按随机来源硬拒绝或对 1 spp 结果做紧邻域颜色钳制。见 [2026-09-21-speculargi-unified-fallback.md](2026-09-21-speculargi-unified-fallback.md)。
 
 - Shader 参数端点策略：统一在参数入口钳制合法范围，避免逐计算追加冗余保护；尚未统一实施时明确记录待办。见 [2026-09-18-parameter-range-policy.md](2026-09-18-parameter-range-policy.md)。
 
@@ -40,6 +42,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-09-28-ssgi-integration-and-archive.md](2026-09-28-ssgi-integration-and-archive.md) | 2026-09-28 | **SSGI 统一整合与收档清理**：Codex 全天 13 提交完成统一入口（`SSGIFeature` 同帧三路 + 公共时域 + 单次合成），17:33 用量限额中断，收档清理由 Claude 接手——删两份设计骨架（4 文件 `delete_gated`）、移除 `PC_Renderer.asset` 旧 SpecularGIFeature 子资产（运行时探针 `features=2`）、修正 AO/DiffuseGI 文档引用。**可复用**：Codex 会话 jsonl 用户消息在 `response_item.role=user`（非 `user_message`）；中断点查 `thread_history_1.sqlite` 最后 failed turn；`m_RendererFeatureMap` 十六进制串是 List<long> 类型失配的死数据，手改 feature 列表无需维护；跨会话确认不被 auto 分类器承认，删除前需本会话点名确认；`unityctl script eval` 多语句须显式 `return` |
 | [2026-09-21-ssgi-consolidation.md](2026-09-21-ssgi-consolidation.md) | 2026-09-21 | **SSGI 家族收敛、SSR 系列退役**：`PostProcess/{SSR,SSPR,StochasticSSR}/` 连目录全删（28 文件走 `delete_gated`）；`ScreenSpaceTrace.hlsl` 迁入 `SSGI/` 根，三处 include 同步改指新路径，消除 SSGI → 待删目录的反向依赖；两份进度骨架迁入 `SSGI/`，新增 Phase 6「统一 Composite 待实施」。**三条可复用经验**：`AssetDatabase.GetDependencies` **不跟踪 HLSL include**（别用它验证 include）；`GetShaderMessages` 的沉默要用**负控探针**先校准（故意 include 不存在路径 → 应报 `Couldn't open include file`），再删旧文件重导入取 0 msg 才算证据；`Assets/Mine/` 下 **Bash 删除被 Edit deny 级联挡住**（`rmdir` 与 `rm -d` 均拒，同命令在 /tmp 通过），而 `delete_gated` 只删文件不删目录 → 空壳目录无合法通道。附「家族私有共享库」第三档归属裁定（规范缺口待 meta-developer 补）与 `.backup_v*` 逐字节可恢复性核对法 |
 | [2026-09-21-speculargi-unified-fallback.md](2026-09-21-speculargi-unified-fallback.md) | 2026-09-21 | **SpecularGI 统一反射链落地**：SSSR/GGX 使用 SSR 首命中，SSPR 与显式 Cubemap 依次回退；按 Camera 保存颜色/深度历史；闪烁根因是初版 1/2 分辨率+9 点、来源拒绝/硬钳制，以及空 Cubemap 下 hit/黑色 miss 高方差。最终改为 Medium 1/4、5×5 25 点、连续时域，并用 HistoryWeight 证实时域有效；用户确认效果正确。 |
 | [2026-09-21-opencode-era-ledger.md](2026-09-21-opencode-era-ledger.md) | 2026-09-21 | **任务台账（2026-08-10 → 09-21）**：时间基点 = 首个 `opencode-go` 会话 08-10 08:06；按主题聚合已完成任务并指向权威记录；标注 **7 项无 memory 记录的任务**（09-11 水面、09-14/09-15 光照库、09-16 光照文件弃用、08-26 Van Gogh 移植等）；在飞项与 09-21 清理动作。**新会话冷启动入口** |

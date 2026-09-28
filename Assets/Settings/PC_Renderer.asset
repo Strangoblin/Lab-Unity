@@ -129,7 +129,6 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
   - {fileID: -6861971581733455524}
-  - {fileID: 342700495237574708}
   - {fileID: -8666594091835673655}
   m_RendererFeatureMap: 5cb9f3e33361c5a03470fce24884c104c9b3a24f9712ba87
   m_UseNativeRenderPass: 1
@@ -160,33 +159,6 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
---- !u!114 &342700495237574708
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98f6ffda5ec5e47f5ae8700bdfb519ba, type: 3}
-  m_Name: SpecularGIFeature
-  m_EditorClassIdentifier: Assembly-CSharp::SpecularGIFeature
-  m_Active: 0
-  settings:
-    shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
-    skyCubemap: {fileID: 0}
-    maxDistance: 50
-    thickness: 0.05
-    normalBias: 0.03
-    roughness: 0.097
-    skyMaxMip: 6
-  controls:
-    temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
-    performance: 1
-    temporalBlend: 0.5
-    intensity: 1
-    debug: 6
 --- !u!114 &2669520963029075480
 MonoBehaviour:
   m_ObjectHideFlags: 0

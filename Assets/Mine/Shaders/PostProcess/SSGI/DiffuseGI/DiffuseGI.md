@@ -1,6 +1,6 @@
 # DiffuseGI — 屏幕空间间接漫反射
 
-基于 [SSGI 骨架 Phase 3](../SSGI_Content_Skeleton.md) 实现。独立入口为 `DiffuseGIFeature.cs`，Shader 为 `PostProcess/DiffuseGI`；统一运行由 [SSGIFeature](../SSGI.md) 调度。
+独立入口为 `DiffuseGIFeature.cs`，Shader 为 `PostProcess/DiffuseGI`；统一运行由 [SSGIFeature](../SSGI.md) 调度，合成语义见统一运行说明。
 
 ## 使用
 
@@ -86,7 +86,7 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 - 单层深度看不到屏幕外和遮挡背面。追踪输入是“不透明几何 + 天空盒”（`AfterRenderingSkybox`，见“事件排序”），**不含透明几何**；透明物体对最终画面的影响是“在合成之后混合上来”，而不是进入 gather。旧版本用截屏测出的“隐藏 Water/RainDrops 后 GI>0.10 从 39315 降到 3952”属于这种覆盖造成的取景伪影（见“被撤回的旧结论”）。未命中时仍不注入额外环境光，沿用原场景的环境照明。
 - 当前接入公共时域双缓冲，启用时逐帧旋转采样并按运动向量、历史深度拒绝。尚未实现方差钳制；遮挡边界和快速光照变化仍可能有拖影。
 - 实际滤波强度有限：GI>0.02 像素上的相对变化约 4.47%，`depthSigma` 从 0.01 调到 2.0 只再改变梯度 1.48e-4。它是保边去噪，不是强平滑。
-- 不实现 AO/HBAO、HiZ 加速、Cache-Aware 专利采样或 Compute 迁移。原骨架中的“最高 62% 加速”不能作为此实现性能结论。
+- 不实现 AO/HBAO、HiZ 加速、Cache-Aware 专利采样或 Compute 迁移。早期设计文档中的“最高 62% 加速”不能作为此实现性能结论。
 - XR、动态分辨率与多相机的运行结果需分别验证；使用纹理数组/立体宏并不等于已完成这些平台验收。
 
 ## 事件排序：透明物体的 GI 可见性（已修复）
@@ -148,4 +148,4 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 
 **尚未测量**（收尾时按开放项处理，未做进一步扫描）：薄墙漏光、深度边缘颜色串色、相机运动稳定性；透明物体在修复后的实际观感需在 Game View 人工确认；`_GITexture` 全局回读以判定 gather 是否命中透明几何；水面变暗的 prepass / 中间纹理归因。
 
-编译与运行检查结果另见骨架 Phase 3 的验收记录；上表只覆盖可离线对照的数值项，视觉质量需在 Game View 人工确认。
+编译与运行检查结果另见当日 memory（`.agents/agents/unity-developer/memory/2026-09-21-diffusegi-ssgi-phase3.md`）；上表只覆盖可离线对照的数值项，视觉质量需在 Game View 人工确认。
