@@ -9,7 +9,7 @@ using UnityEngine.Rendering.Universal;
 
 public class SSGIFeature : ScriptableRendererFeature
 {
-    public enum DebugMode { Off, AO, DiffuseGI, SpecularGI }
+    public enum DebugMode { Off, AO, DiffuseGI, SpecularGI, DiffuseHistoryWeight }
 
     [Serializable]
     public class Settings
@@ -119,7 +119,8 @@ public class SSGIFeature : ScriptableRendererFeature
                     SSGITemporalFilter.Signal.AO, _settings.temporal.ao);
             if (diffuse.IsValid())
                 diffuse = _temporal.Resolve(graph, frameData, diffuse,
-                    SSGITemporalFilter.Signal.DiffuseGI, _settings.temporal.diffuseGI);
+                    SSGITemporalFilter.Signal.DiffuseGI, _settings.temporal.diffuseGI,
+                    _settings.debug == DebugMode.DiffuseHistoryWeight);
             if (specular.IsValid())
                 specular = _temporal.Resolve(graph, frameData, specular,
                     SSGITemporalFilter.Signal.SpecularGI, _settings.temporal.specularGI);

@@ -108,7 +108,9 @@ internal sealed class SSGITemporalFilter
     static readonly int StoreWeightID = Shader.PropertyToID("_SSGIStoreWeight");
 
     readonly Dictionary<int, CameraHistory> _histories = new();
-    readonly Material _material;
+    // RenderGraph records each signal separately; queued draws must not share mutable uniforms.
+    readonly Material[] _signalMaterials = new Material[3];
+    readonly Material _depthMaterial;
     CameraHistory _active;
     int _cameraId;
     TextureHandle _motion;
@@ -117,13 +119,17 @@ internal sealed class SSGITemporalFilter
 
     public SSGITemporalFilter(Shader shader)
     {
-        _material = shader != null ? CoreUtils.CreateEngineMaterial(shader) : null;
+        if (shader == null)
+            return;
+        for (int channel = 0; channel < _signalMaterials.Length; ++channel)
+            _signalMaterials[channel] = CoreUtils.CreateEngineMaterial(shader);
+        _depthMaterial = CoreUtils.CreateEngineMaterial(shader);
     }
 
     public void BeginFrame(ContextContainer frameData)
     {
         _active = null;
-        if (_material == null)
+        if (_depthMaterial == null)
             return;
 
         UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
@@ -160,7 +166,7 @@ internal sealed class SSGITemporalFilter
     }
 
     public TextureHandle Resolve(RenderGraph graph, ContextContainer frameData,
-        TextureHandle current, Signal signal, float blend)
+        TextureHandle current, Signal signal, float blend, bool debugHistoryWeight = false)
     {
         if (_active == null || !current.IsValid())
             return current;
@@ -181,7 +187,7 @@ internal sealed class SSGITemporalFilter
         using (var builder = graph.AddRasterRenderPass<ResolveData>(
                    $"SSGI.{signal}.Temporal", out var data))
         {
-            data.material = _material;
+            data.material = _signalMaterials[channel];
             data.current = current;
             data.historyColor = historyColor;
             data.historyDepth = historyDepth;
@@ -189,7 +195,7 @@ internal sealed class SSGITemporalFilter
             data.previousViewMatrix = _active.previousViewMatrix;
             data.blend = Mathf.Clamp(blend, 0f, 0.98f);
             data.historyValid = historyValid ? 1f : 0f;
-            data.storeWeight = signal == Signal.SpecularGI ? 1f : 0f;
+            data.storeWeight = signal == Signal.SpecularGI || debugHistoryWeight ? 1f : 0f;
 
             builder.UseTexture(current, AccessFlags.Read);
             builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
@@ -232,7 +238,7 @@ internal sealed class SSGITemporalFilter
             using (var builder = graph.AddRasterRenderPass<DepthData>(
                        "SSGI.HistoryDepth", out var data))
             {
-                data.material = _material;
+                data.material = _depthMaterial;
                 data.source = resources.cameraDepthTexture;
                 builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
                 builder.SetRenderAttachment(output, 0, AccessFlags.Write);
@@ -264,7 +270,9 @@ internal sealed class SSGITemporalFilter
         foreach (CameraHistory history in _histories.Values)
             history.Release();
         _histories.Clear();
-        CoreUtils.Destroy(_material);
+        foreach (Material material in _signalMaterials)
+            CoreUtils.Destroy(material);
+        CoreUtils.Destroy(_depthMaterial);
         _active = null;
     }
 

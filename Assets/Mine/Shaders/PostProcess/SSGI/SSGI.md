@@ -17,7 +17,7 @@ Opaque + Skybox
         URP 拷贝 _CameraOpaqueTexture → 透明物体
 ```
 
-RenderGraph 在统一 Feature 内直接传递三张 `TextureHandle`，合成 Pass 对每张实际启用的纹理声明读依赖。`SSGITemporalFilter` 每相机只保留一对眼深度历史，每个启用的模块各保留一对颜色历史；三路复用同一个 Shader 的运动向量重投影、深度拒绝与失效判定。没有 Cubemap 时环境回退为黑色，不使用 `SampleSH`。
+RenderGraph 在统一 Feature 内直接传递三张 `TextureHandle`，合成 Pass 对每张实际启用的纹理声明读依赖。`SSGITemporalFilter` 每相机只保留一对眼深度历史，每个启用的模块各保留一对颜色历史；三路复用同一个 Shader 的运动向量重投影、深度拒绝与失效判定；每路使用独立 Material，避免 RenderGraph 中不同 Blend 参数串用。没有 Cubemap 时环境回退为黑色，不使用 `SampleSH`。
 
 ## 时域历史
 
@@ -40,7 +40,7 @@ AO 固定乘到原场景色和新增 DiffuseGI。Forward 后处理无法拆出�
 
 ## Renderer 配置与调试
 
-`Assets/Settings/PC_Renderer.asset` 已启用统一 SSGI，AO 和 DiffuseGI 使用各自 Medium 档；SpecularGI 参数从原 Feature 复制，旧 SpecularGI Feature 关闭但保留。统一 Debug 提供 AO、DiffuseGI、SpecularGI 三种分量视图；各子模块原有 Debug 字段只在独立 Feature 中使用。
+`Assets/Settings/PC_Renderer.asset` 已启用统一 SSGI；性能档位可在 Renderer 面板中分别调整。SpecularGI 参数从原 Feature 复制，旧 SpecularGI Feature 关闭但保留。统一 Debug 提供 AO、DiffuseGI、SpecularGI 分量视图与 Diffuse History Weight 诊断视图；后者黑色表示历史未使用，灰度值为该像素实际历史权重。各子模块原有 Debug 字段只在独立 Feature 中使用。
 
 统一 Inspector 的「Technical · Modules」只保留各模块的 Shader、追踪几何与滤波参数；SpecularGI 的 Cubemap 与 Sky Max Mip 也在这里。三个模块的性能档位集中在 Performance，强度集中在 Intensity，历史权重集中在 Temporal。统一面板不再暴露 Artistic 组：AO/DiffuseGI 的距离衰减固定为 0，Scene AO 固定为 1，接收反照率固定为白色；全局 Specular Roughness 是缺少逐像素材质数据时的近似值，保留在 SpecularGI 技术设置中。每路 Intensity = 0 即跳过该路追踪和历史解析，无额外启用开关。Debug 是统一合成的分量视图。独立 AO、DiffuseGI、SpecularGI Feature 各自保留 Settings（技术参数）和 Controls（性能、强度、时缓、艺术与独立调试），供单模块对照。\n\n性能档位决定固定采样预算和工作分辨率；AO 世界半径只控制遮蔽覆盖，不改变循环次数。
 
