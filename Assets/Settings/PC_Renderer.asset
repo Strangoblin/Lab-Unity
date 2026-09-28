@@ -15,6 +15,7 @@ MonoBehaviour:
   m_Active: 1
   settings:
     compositeShader: {fileID: 4800000, guid: 0c2cf0c88542b4f5daa3ac19dd7493ff, type: 3}
+    temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
     enableAO: 1
     ao:
       shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
@@ -56,6 +57,8 @@ MonoBehaviour:
       skyMaxMip: 6
       temporalBlend: 0.5
       debug: 6
+    aoTemporalBlend: 0.85
+    diffuseTemporalBlend: 0.9
     sceneAO: 1
     debug: 0
 --- !u!114 &-6861971581733455524
@@ -183,6 +186,7 @@ MonoBehaviour:
   m_Active: 0
   settings:
     shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
+    temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
     skyCubemap: {fileID: 0}
     maxDistance: 50
     thickness: 0.05

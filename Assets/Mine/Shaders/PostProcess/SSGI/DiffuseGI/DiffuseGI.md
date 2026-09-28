@@ -5,7 +5,7 @@
 ## 使用
 
 1. 在实际相机使用的 Universal Renderer Data 上添加 **Diffuse GI Feature**。
-2. 将本目录 `DiffuseGI.shader` 拖入 `settings.shader`。使用序列化引用，确保构建包含 Shader；未指定时不执行。
+2. 将本目录 `DiffuseGI.shader` 拖入 `settings.shader`，将共享 `SSGITemporal.shader` 拖入 `settings.temporalShader`；后者未指定时保留空间结果。
 3. 从 Medium 档、Intensity = 1 开始，在场景中放置受光彩色表面与邻近接收面，观察颜色串染。
 4. Debug 依次检查 Trace、Indirect、Confidence；Off 显示与原场景色相加的结果。
 5. Intensity = 0 且 Debug = Off 时完全跳过本效果。Debug 可独立查看未乘强度的结果。
@@ -21,6 +21,7 @@ Feature 在 `AfterRenderingSkybox` 执行，要求 RenderGraph 开启。输入�
   → Trace（低分辨率，cosine 半球采样 + 世界空间首个命中）
   → BlurHorizontal → BlurVertical（深度/法线双边权重）
   → Resolve（全分辨率几何引导上采样）
+  → SSGITemporalFilter（可选，运动重投影与历史拒绝）
   → Composite（原场景色 + 接收反照率 × 强度 × GI）
 ```
 
@@ -62,6 +63,7 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 | Technical | normalBias | 0.03 | 起点沿接收法线的偏移，过大丢近接触 |
 | Technical | depthSigma | 0.15 | 滤波几何深度阈值，单位同线性视深度 |
 | Performance | performance | Medium | 成本档位，见下表 |
+| Performance | temporalBlend | 0.9 | 最大历史权重；0 关闭历史混合 |
 | Artistic | intensity | 1 | 合成强度，0 关闭（Debug Off 时） |
 | Artistic | distanceFalloff | 0 | 可选距离衰减，0 关闭 |
 | Artistic | receiverAlbedo | sRGB 0.8 | 统一接收反照率近似 |
@@ -80,7 +82,7 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 - `_GITraceTexture`：本相机低分辨率原始估计；`_GITexture`：全分辨率滤波估计。通过 RenderGraph 的 `SetGlobalTextureAfterPass` 发布，消费者须声明全局纹理读依赖。仅在本效果执行后的同相机同帧有效，不是可跨帧保留的历史纹理；禁用效果或相机被跳过时不得消费残留全局绑定。
 - 输入场景色是朝相机方向的出射光近似，含直接光、环境光、可能的已有 GI 和镜面高光；无法恢复真正的漫反射入射光。加法合成可能与烘焙/探针 GI 重复，需要按场景调强度。
 - 单层深度看不到屏幕外和遮挡背面。追踪输入是“不透明几何 + 天空盒”（`AfterRenderingSkybox`，见“事件排序”），**不含透明几何**；透明物体对最终画面的影响是“在合成之后混合上来”，而不是进入 gather。旧版本用截屏测出的“隐藏 Water/RainDrops 后 GI>0.10 从 39315 降到 3952”属于这种覆盖造成的取景伪影（见“被撤回的旧结论”）。未命中时仍不注入额外环境光，沿用原场景的环境照明。
-- Phase 3 使用固定像素采样，无时间抖动和历史帧。低样本仍有空间噪声，运动时仍可能跳变；Phase 5 再引入重投影、历史拒绝和方差钳制。
+- 当前接入公共时域双缓冲，启用时逐帧旋转采样并按运动向量、历史深度拒绝。尚未实现方差钳制；遮挡边界和快速光照变化仍可能有拖影。
 - 实际滤波强度有限：GI>0.02 像素上的相对变化约 4.47%，`depthSigma` 从 0.01 调到 2.0 只再改变梯度 1.48e-4。它是保边去噪，不是强平滑。
 - 不实现 AO/HBAO、HiZ 加速、Cache-Aware 专利采样或 Compute 迁移。原骨架中的“最高 62% 加速”不能作为此实现性能结论。
 - XR、动态分辨率与多相机的运行结果需分别验证；使用纹理数组/立体宏并不等于已完成这些平台验收。

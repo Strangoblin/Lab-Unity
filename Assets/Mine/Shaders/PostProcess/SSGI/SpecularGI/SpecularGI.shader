@@ -16,9 +16,6 @@ Shader "PostProcess/SpecularGI"
 
     TEXTURECUBE(_SkyCubemap);
     SAMPLER(sampler_SkyCubemap);
-    TEXTURE2D_X(_SpecularHistoryColor);
-    TEXTURE2D_X(_SpecularHistoryDepth);
-    TEXTURE2D_X(_SpecularMotionTexture);
     TEXTURE2D_X(_SpecularGITexture);
 
     CBUFFER_START(UnityPerMaterial)
@@ -28,14 +25,10 @@ Shader "PostProcess/SpecularGI"
         float _Intensity;
         float _SkyMaxMip;
         float _SpatialRadius;
-        float _TemporalBlend;
         float _FrameIndex;
-        float _HistoryValid;
-        float _HasMotionVectors;
         float _DebugMode;
         float4x4 _CameraViewMatrix;
         float4x4 _CameraProjectionMatrix;
-        float4x4 _PreviousViewMatrix;
     CBUFFER_END
 
     #include "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl"
@@ -103,18 +96,6 @@ Shader "PostProcess/SpecularGI"
         return SpecularGI_SpatialResolve(input.texcoord);
     }
 
-    half4 Frag_Temporal(Varyings input) : SV_Target
-    {
-        return SpecularGI_TemporalResolve(input.texcoord);
-    }
-
-    half4 Frag_HistoryDepth(Varyings input) : SV_Target
-    {
-        float rawDepth = SST_SampleDepth(input.texcoord);
-        float eyeDepth = SST_IsSurface(rawDepth) ? SST_EyeDepth(rawDepth) : 0.0;
-        return eyeDepth.xxxx;
-    }
-
     // ════════════════════════════════════════════════════════════
     //  Composite and debug — Fresnel blend or source contribution view
     // ════════════════════════════════════════════════════════════
@@ -180,26 +161,6 @@ Shader "PostProcess/SpecularGI"
             #pragma target 3.5
             #pragma vertex Vert
             #pragma fragment Frag_Spatial
-            ENDHLSL
-        }
-
-        Pass
-        {
-            Name "TemporalResolve"
-            HLSLPROGRAM
-            #pragma target 3.5
-            #pragma vertex Vert
-            #pragma fragment Frag_Temporal
-            ENDHLSL
-        }
-
-        Pass
-        {
-            Name "HistoryDepth"
-            HLSLPROGRAM
-            #pragma target 3.5
-            #pragma vertex Vert
-            #pragma fragment Frag_HistoryDepth
             ENDHLSL
         }
 

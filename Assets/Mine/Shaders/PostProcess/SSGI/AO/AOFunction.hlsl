@@ -44,13 +44,14 @@ bool AO_FetchGuide(float2 uv, out float3 positionWS, out float3 normalWS, out fl
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Noise — static per-pixel rotation, no frame-varying temporal signal.
+//  Noise — per-pixel rotation with frame sequence when temporal history is active.
 // ════════════════════════════════════════════════════════════════
 float2 AO_Noise(float2 pixel)
 {
     float3 value = frac(float3(pixel.xyx) * float3(0.1031, 0.1030, 0.0973));
     value += dot(value, value.yzx + 33.33);
-    return frac((value.xx + value.yz) * value.zy);
+    return frac((value.xx + value.yz) * value.zy
+        + float2(_AOFrameIndex * 0.75487766, _AOFrameIndex * 0.5698403));
 }
 
 // ════════════════════════════════════════════════════════════════

@@ -17,6 +17,7 @@ public class AOFeature : ScriptableRendererFeature
     {
         [Header("Technical · Resources")]
         public Shader shader;
+        public Shader temporalShader;
 
         [Header("Technical · Geometry")]
         public Mode mode = Mode.HBAO;
@@ -27,6 +28,7 @@ public class AOFeature : ScriptableRendererFeature
 
         [Header("Performance")]
         public Performance performance = Performance.Medium;
+        [Range(0f, 0.98f)] public float temporalBlend = 0.85f;
 
         [Header("Artistic")]
         [Range(0f, 4f)] public float intensity = 1f;
@@ -41,6 +43,7 @@ public class AOFeature : ScriptableRendererFeature
         internal static readonly int ModeID = Shader.PropertyToID("_AOMode");
         internal static readonly int SampleCountID = Shader.PropertyToID("_AOSampleCount");
         internal static readonly int StepCountID = Shader.PropertyToID("_AOStepCount");
+        internal static readonly int FrameIndexID = Shader.PropertyToID("_AOFrameIndex");
         internal static readonly int DebugModeID = Shader.PropertyToID("_AODebugMode");
         internal static readonly int TextureID = Shader.PropertyToID("_AOTexture");
     }
@@ -62,6 +65,7 @@ public class AOFeature : ScriptableRendererFeature
     {
         private readonly Material _material;
         private readonly Settings _settings;
+        private readonly SSGITemporalFilter _temporal;
 
         class PassData
         {
@@ -75,12 +79,15 @@ public class AOFeature : ScriptableRendererFeature
             public int sampleCount;
             public int stepCount;
             public int debugMode;
+            public int frameIndex;
+            public TextureHandle signal;
         }
 
         public AOPass(Material material, Settings settings)
         {
             _material = material;
             _settings = settings;
+            _temporal = new SSGITemporalFilter(settings.temporalShader);
             // 事件选择与 DiffuseGI 同源：遮挡只需要"不透明 + 天空盒"的深度与法线；
             // 同事件下自定义 Feature 先于 URP 内置 Pass 执行，故 AfterRenderingSkybox 同时满足
             // "天空盒已绘制"与"早于 _CameraOpaqueTexture 颜色拷贝"（URP 17 RenderGraph：
@@ -96,15 +103,17 @@ public class AOFeature : ScriptableRendererFeature
         // ════════════════════════════════════════════════════════════
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
-            Record(renderGraph, frameData, TextureHandle.nullHandle, false);
+            _temporal.BeginFrame(frameData);
+            Record(renderGraph, frameData, TextureHandle.nullHandle, false, _temporal.FrameIndex);
+            _temporal.CompleteFrame(renderGraph, frameData);
         }
 
-        public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData, TextureHandle source)
+        public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData, TextureHandle source, int frameIndex)
         {
-            return Record(renderGraph, frameData, source, true);
+            return Record(renderGraph, frameData, source, true, frameIndex);
         }
 
-        private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData, TextureHandle inputSource, bool integrated)
+        private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData, TextureHandle inputSource, bool integrated, int frameIndex)
         {
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             UniversalCameraData camera = frameData.Get<UniversalCameraData>();
@@ -131,23 +140,27 @@ public class AOFeature : ScriptableRendererFeature
             Vector4 size = new Vector4(1f / aoDesc.width, 1f / aoDesc.height, aoDesc.width, aoDesc.height);
             TextureHandle source = integrated ? inputSource : resources.activeColorTexture;
 
-            AddPass(renderGraph, resources, "AO.Trace", source, occlusion, 0, tier, size);
-            AddPass(renderGraph, resources, "AO.BlurHorizontal", occlusion, blur, 1, tier, size);
-            AddPass(renderGraph, resources, "AO.BlurVertical", blur, filtered, 2, tier, size);
+            AddPass(renderGraph, resources, "AO.Trace", source, occlusion, 0, tier, size, frameIndex, TextureHandle.nullHandle);
+            AddPass(renderGraph, resources, "AO.BlurHorizontal", occlusion, blur, 1, tier, size, frameIndex, TextureHandle.nullHandle);
+            AddPass(renderGraph, resources, "AO.BlurVertical", blur, filtered, 2,
+                tier, size, frameIndex, TextureHandle.nullHandle);
+            aoDesc.width = fullDesc.width;
+            aoDesc.height = fullDesc.height;
+            TextureHandle resolved = UniversalRenderer.CreateRenderGraphTexture(
+                renderGraph, aoDesc, "AO.Resolved", false);
+            AddPass(renderGraph, resources, "AO.Resolve", filtered, resolved, 4,
+                tier, size, frameIndex, TextureHandle.nullHandle);
             if (integrated)
-            {
-                aoDesc.width = fullDesc.width;
-                aoDesc.height = fullDesc.height;
-                TextureHandle resolved = UniversalRenderer.CreateRenderGraphTexture(renderGraph, aoDesc, "AO.Resolved", false);
-                AddPass(renderGraph, resources, "AO.Resolve", filtered, resolved, 4, tier, size);
                 return resolved;
-            }
 
+            TextureHandle temporal = _temporal.Resolve(renderGraph, frameData,
+                resolved, SSGITemporalFilter.Signal.AO, _settings.temporalBlend);
             var compositeDesc = renderGraph.GetTextureDesc(resources.activeColorTexture);
             compositeDesc.name = "AO.Composite";
             compositeDesc.clearBuffer = false;
             TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
-            AddPass(renderGraph, resources, "AO.Composite", source, composite, 3, tier, size);
+            AddPass(renderGraph, resources, "AO.Composite", source, composite, 3,
+                tier, size, frameIndex, temporal);
             resources.cameraColor = composite;
             return TextureHandle.nullHandle;
         }
@@ -156,7 +169,8 @@ public class AOFeature : ScriptableRendererFeature
         //  单阶段记录 — 显式资源依赖与相机独立参数快照
         // ════════════════════════════════════════════════════════════
         private void AddPass(RenderGraph graph, UniversalResourceData resources, string name,
-            TextureHandle source, TextureHandle target, int shaderPass, Vector3Int tier, Vector4 size)
+            TextureHandle source, TextureHandle target, int shaderPass, Vector3Int tier, Vector4 size,
+            int frameIndex, TextureHandle signal)
         {
             using (var builder = graph.AddRasterRenderPass<PassData>(name, out var data))
             {
@@ -173,6 +187,8 @@ public class AOFeature : ScriptableRendererFeature
                 data.sampleCount = tier.y;
                 data.stepCount = tier.z;
                 data.debugMode = (int)_settings.debug;
+                data.frameIndex = frameIndex;
+                data.signal = signal;
 
                 builder.UseTexture(source, AccessFlags.Read);
                 builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
@@ -180,8 +196,13 @@ public class AOFeature : ScriptableRendererFeature
                 builder.SetRenderAttachment(target, 0, AccessFlags.Write);
                 if (shaderPass == 2)
                     builder.SetGlobalTextureAfterPass(target, Settings.TextureID);
-                if (shaderPass == 3 || shaderPass == 4)
+                if (shaderPass == 4)
                     builder.UseGlobalTexture(Settings.TextureID, AccessFlags.Read);
+                if (shaderPass == 3 && signal.IsValid())
+                {
+                    builder.UseTexture(signal, AccessFlags.Read);
+                    builder.AllowGlobalStateModification(true);
+                }
                 builder.SetRenderFunc((PassData pass, RasterGraphContext context) =>
                 {
                     pass.material.SetVector(Settings.ParamsID, pass.parameters);
@@ -191,10 +212,15 @@ public class AOFeature : ScriptableRendererFeature
                     pass.material.SetInt(Settings.SampleCountID, pass.sampleCount);
                     pass.material.SetInt(Settings.StepCountID, pass.stepCount);
                     pass.material.SetInt(Settings.DebugModeID, pass.debugMode);
+                    pass.material.SetInt(Settings.FrameIndexID, pass.frameIndex);
+                    if (pass.signal.IsValid())
+                        context.cmd.SetGlobalTexture(Settings.TextureID, pass.signal);
                     Blitter.BlitTexture(context.cmd, pass.source, new Vector4(1f, 1f, 0f, 0f), pass.material, pass.shaderPass);
                 });
             }
         }
+
+        public void Release() => _temporal.Release();
     }
 
     public Settings settings = new Settings();
@@ -206,6 +232,7 @@ public class AOFeature : ScriptableRendererFeature
     // ════════════════════════════════════════════════════════════
     public override void Create()
     {
+        _pass?.Release();
         CoreUtils.Destroy(_material);
         _material = null;
         _pass = null;
@@ -225,6 +252,7 @@ public class AOFeature : ScriptableRendererFeature
 
     protected override void Dispose(bool disposing)
     {
+        _pass?.Release();
         CoreUtils.Destroy(_material);
         _material = null;
         _pass = null;

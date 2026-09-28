@@ -19,13 +19,14 @@ float3 DiffuseGI_SampleNormal(float2 uv)
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Static pixel rotation — no frame-varying noise without temporal history.
+//  Pixel rotation with frame sequence when temporal history is active.
 // ════════════════════════════════════════════════════════════════
 float2 DiffuseGI_Noise(float2 pixel)
 {
     float3 value = frac(float3(pixel.xyx) * float3(0.1031, 0.1030, 0.0973));
     value += dot(value, value.yzx + 33.33);
-    return frac((value.xx + value.yz) * value.zy);
+    return frac((value.xx + value.yz) * value.zy
+        + float2(_DiffuseGIFrameIndex * 0.75487766, _DiffuseGIFrameIndex * 0.5698403));
 }
 
 // ════════════════════════════════════════════════════════════════

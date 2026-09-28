@@ -16,6 +16,7 @@ public class SSGIFeature : ScriptableRendererFeature
     {
         [Header("Resources")]
         public Shader compositeShader;
+        public Shader temporalShader;
 
         [Header("Modules")]
         public bool enableAO = true;
@@ -24,6 +25,10 @@ public class SSGIFeature : ScriptableRendererFeature
         public DiffuseGIFeature.Settings diffuseGI = new();
         public bool enableSpecularGI = true;
         public SpecularGIFeature.Settings specularGI = new();
+
+        [Header("Temporal")]
+        [Range(0f, 0.98f)] public float aoTemporalBlend = 0.85f;
+        [Range(0f, 0.98f)] public float diffuseTemporalBlend = 0.9f;
 
         [Header("Artistic")]
         [Range(0f, 1f)] public float sceneAO = 1f;
@@ -64,11 +69,13 @@ public class SSGIFeature : ScriptableRendererFeature
         readonly AOFeature.AOPass _aoPass;
         readonly DiffuseGIFeature.DiffuseGIPass _diffusePass;
         readonly SpecularGIFeature.SpecularGIPass _specularPass;
+        readonly SSGITemporalFilter _temporal;
 
         public SSGIPass(Settings settings)
         {
             _settings = settings;
             _compositeMaterial = CoreUtils.CreateEngineMaterial(settings.compositeShader);
+            _temporal = new SSGITemporalFilter(settings.temporalShader);
             if (settings.ao.shader != null)
             {
                 _aoMaterial = CoreUtils.CreateEngineMaterial(settings.ao.shader);
@@ -98,12 +105,25 @@ public class SSGIFeature : ScriptableRendererFeature
                 return;
 
             TextureHandle scene = resources.activeColorTexture;
+            _temporal.BeginFrame(frameData);
+            int frameIndex = _temporal.FrameIndex;
             TextureHandle ao = _settings.enableAO && _settings.ao.intensity > 0f && _aoPass != null
-                ? _aoPass.RecordIntegrated(graph, frameData, scene) : TextureHandle.nullHandle;
+                ? _aoPass.RecordIntegrated(graph, frameData, scene, frameIndex) : TextureHandle.nullHandle;
             TextureHandle diffuse = _settings.enableDiffuseGI && _settings.diffuseGI.intensity > 0f && _diffusePass != null
-                ? _diffusePass.RecordIntegrated(graph, frameData, scene) : TextureHandle.nullHandle;
+                ? _diffusePass.RecordIntegrated(graph, frameData, scene, frameIndex) : TextureHandle.nullHandle;
             TextureHandle specular = _settings.enableSpecularGI && _settings.specularGI.intensity > 0f && _specularPass != null
-                ? _specularPass.RecordIntegrated(graph, frameData, scene) : TextureHandle.nullHandle;
+                ? _specularPass.RecordIntegrated(graph, frameData, scene, frameIndex) : TextureHandle.nullHandle;
+
+            if (ao.IsValid())
+                ao = _temporal.Resolve(graph, frameData, ao,
+                    SSGITemporalFilter.Signal.AO, _settings.aoTemporalBlend);
+            if (diffuse.IsValid())
+                diffuse = _temporal.Resolve(graph, frameData, diffuse,
+                    SSGITemporalFilter.Signal.DiffuseGI, _settings.diffuseTemporalBlend);
+            if (specular.IsValid())
+                specular = _temporal.Resolve(graph, frameData, specular,
+                    SSGITemporalFilter.Signal.SpecularGI, _settings.specularGI.temporalBlend);
+            _temporal.CompleteFrame(graph, frameData);
 
             if (!ao.IsValid() && !diffuse.IsValid() && !specular.IsValid())
                 return;
@@ -165,7 +185,10 @@ public class SSGIFeature : ScriptableRendererFeature
 
         public void Release()
         {
+            _aoPass?.Release();
+            _diffusePass?.Release();
             _specularPass?.Release();
+            _temporal.Release();
             CoreUtils.Destroy(_aoMaterial);
             CoreUtils.Destroy(_diffuseMaterial);
             CoreUtils.Destroy(_compositeMaterial);

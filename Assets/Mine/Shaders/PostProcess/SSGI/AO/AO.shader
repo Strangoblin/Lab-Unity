@@ -21,6 +21,7 @@ Shader "PostProcess/AO"
         int _AOSampleCount;
         int _AOStepCount;
         int _AODebugMode;
+        int _AOFrameIndex;
     CBUFFER_END
 
     #include "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl"
@@ -60,7 +61,7 @@ Shader "PostProcess/AO"
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
         float2 uv = input.texcoord;
-        float visibility = saturate(AO_Resolve(uv));
+        float visibility = saturate(SAMPLE_TEXTURE2D_X_LOD(_AOTexture, sampler_PointClamp, uv, 0).r);
         if (_AODebugMode == 1)
             return float4(visibility.xxx, 1.0);
         if (_AODebugMode == 2)

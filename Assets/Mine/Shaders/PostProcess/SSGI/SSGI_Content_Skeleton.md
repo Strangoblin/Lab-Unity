@@ -15,7 +15,7 @@
 | 2 | Stochastic SSR 粗糙表面反射 | **已并入** SpecularGI 的 GGX 采样级（不再独立成 Feature） |
 | 3 | DiffuseGI 屏幕空间间接漫反射 | 已落地 |
 | 4 | SSAO / HBAO 环境光遮蔽 | 已落地 |
-| 5 | 时域 + 空域滤波系统 | 部分落地：SpecularGI 自持时域；DiffuseGI / AO 只有空域 |
+| 5 | 时域 + 空域滤波系统 | 基础时域已落地：三路共享历史管理、运动重投影和深度拒绝；方差钳制未做 |
 | 6 | 统一 Composite | 已落地：同一不透明输入、三路 TextureHandle、单次合成 |
 
 > **Renderer 注册现状（2026-09-28）**：`PC_Renderer.asset` 已启用统一 SSGI Feature，旧 SpecularGI Feature 保留但关闭。AO、DiffuseGI、SpecularGI 均由统一 Feature 在同帧调度，参数和验收见 [SSGI.md](SSGI.md)。
@@ -26,16 +26,16 @@
 ```text
 不透明场景色 + 深度 + 法线 + 运动向量
   └─ SSGIFeature（AfterRenderingSkybox）
-      ├─ AO → 可见度
-      ├─ DiffuseGI → 间接漫反射
-      └─ SpecularGI → SSSR / SSPR / Cubemap → 时域辐亮度
+      ├─ AO → 可见度 ─────────────┐
+      ├─ DiffuseGI → 间接漫反射 ───┼→ SSGITemporalFilter
+      └─ SpecularGI → SSSR / SSPR / Cubemap ┘
           ↓
       SSGIComposite.shader → cameraColor（一次）
           ↓
       _CameraOpaqueTexture 拷贝与透明物体
 ```
 
-`ScreenSpaceTrace.hlsl` 是家族私有共享几何库；三个算法的私有 HLSL 仍各自维护。
+`ScreenSpaceTrace.hlsl` 是家族私有共享几何库；`SSGITemporalFilter.cs`、`SSGITemporal.shader` 与 `SSGITemporal.hlsl` 是家族私有共享时域层。三个算法的采样与空域 HLSL 仍各自维护。
 旧独立 Feature 保留用于对照，不与统一 Feature 同时启用。
 
 ## 实施路线图
@@ -223,7 +223,7 @@ Final.rgb = Scene.rgb + intensity × receiverAlbedo × GI.rgb
 ### 尚未实施
 
 - Cache-Aware 半球采样与相关性能基准：未实现，原提纲的“62% 加速”不代表本实现。
-- 时域累积、重投影、方差钳制留在 Phase 5；固定随机序列降低静止闪烁，但不能消除空间噪声和运动跳变。
+- 时域累积与重投影已由 Phase 5 公共层接入；方差钳制、动态光照失效判定与运动画质验收仍待完成。
 - 屏幕外/遮挡背面信息：屏幕外与天空已验证不贡献 GI，遮挡背面仍无信息。
 - 透明物体：**不在追踪输入内**（事件早于透明绘制）。旧版本用截屏得到的“隐藏 Water/RainDrops 后 GI>0.10 从 39315 px 降到 3952、均值 0.419 → 0.103”是透明几何覆盖调试视图造成的取景伪影；追踪是否命中透明几何需回读 `_GITexture` 全局纹理判定（开放项）。
 - 逐像素反照率与金属遮罩：仍使用统一 `receiverAlbedo`。
@@ -286,7 +286,7 @@ Forward 后处理拿不到逐像素的"环境光 / 间接光"分量，所以合�
 
 ### 尚未实施
 
-- 时域抖动与累积（Phase 5）、HBAO 的 de-interleaved 分组、HiZ / Compute 迁移。
+- 方差钳制、HBAO 的 de-interleaved 分组、HiZ / Compute 迁移；时域累积已由公共层接入。
 - Forward 场景色仍无法分离直接光，整色 AO 仅是兼容近似；统一 Feature 的 `SceneAO` 可调节此项。
 - 未测：SSAO 与 HBAO 的目视质量对比、大半径下的屏幕边缘行为、运动稳定性、正交投影下的 `radius` 手感、档位的运行期 uniform 回读。
 
@@ -299,65 +299,23 @@ Forward 后处理拿不到逐像素的"环境光 / 间接光"分量，所以合�
 
 ---
 
-## Phase 5: 时域 + 空域滤波系统
+## Phase 5: 时域 + 空域滤波系统 —— 基础时域已落地
 
-> **部分落地**：SpecularGI 自持颜色 + 线性眼深双缓冲历史，按 Camera 隔离，
-> 带 Motion Vector 与前帧视图空间深度拒绝，并有 `History Weight` 调试视图。
-> DiffuseGI 与 AO 目前只有空域双边滤波，尚无时域。
+三个模块先完成各自的空域滤波和全分辨率重建，再把结果交给 `SSGITemporalFilter`。统一 Feature 对同一相机只创建一对 RHalf 眼深历史；AO、DiffuseGI、SpecularGI 各有独立的颜色双缓冲和混合权重。AO 历史为 RHalf，两路 GI 为 ARGBHalf。公共 Shader 按运动向量读取前帧颜色，重建当前像素在前帧视图空间的眼深，与前帧深度比较后降低或拒绝历史权重。
 
-### 统一滤波管线
-
-```
-  采样结果 RT（RGB + 置信度 A）
-        │
-        ▼
-  ┌─────────────────┐
-  │ TemporalAccum    │  ← MotionVector + 历史帧重投影
-  │ (时域累积)       │
-  └────────┬────────┘
-           ▼
-  ┌─────────────────┐
-  │ VarianceClamp    │  ← 压灭萤火虫（clamp to local mean ± variance）
-  │ (方差钳制)       │
-  └────────┬────────┘
-           ▼
-  ┌─────────────────┐
-  │ BilateralBlur    │  ← 深度 + 法线引导的双边模糊
-  │ (空域降噪)       │     1/4 → 1/2 → Full resolution
-  └────────┬────────┘
-           ▼
-      输出 RT
-```
-
-### 已抽取的共享库
-
-`Assets/Mine/Special/HLSL/TemporalFunction.hlsl` — 时域累积的跨效果共享实现
-（项目不开 TAA，时域由各效果自持）。原 StochasticSSR 的私有 temporal pass 是其来源。
+相机停帧、分辨率变化、矩阵突变、运动向量缺失以及模块停用后的双缓冲侧不匹配都会失效历史。AO 与 DiffuseGI 在有效时域输入下推进逐帧采样旋转；独立 Feature 可绑定同一 `SSGITemporal.shader` 使用该实现。SpecularGI 原来的时域代码已迁出，保留 Trace/Spatial 私有算法和历史权重 Debug。
 
 ### 尚未实施
 
-- 统一 `SSGI_Filter.hlsl` 与其中的 `Frag_VarianceClamp` / `Frag_BilateralBlur`。
-- DiffuseGI 与 AO 的时域接入。
-- 分辨率改变、帧间断、相机突变时的历史拒绝策略在三个模块间统一。
-
-### 输入约定
-
-```
-采样层输出格式（所有算法统一）：
-  RT RGBA:  RGB = Lighting Result,  A = Confidence (0-1)
-
-滤波器消费格式：
-  输入: 上述 RT + MotionVector + History RT
-  输出: 滤波后的 RT（同格式）
-```
-
----
+- 邻域颜色/方差钳制、动态光照变化检测以及基于来源变化的拒绝；当前只有几何深度置信度。
+- 统一的跨模块空域滤波器；三路现有空域滤波并不具有相同的语义和工作分辨率。
+- XR、动态分辨率、快速镜头运动与遮挡边界的画质/性能验收。
 
 ## Phase 6: 统一 Composite —— 已落地
 
 三个模块读取同一份不透明场景色，分别输出 AO 可见度、间接漫反射和镜面反射辐亮度。统一 Feature 直接传递 RenderGraph `TextureHandle`，只由 `SSGIComposite.shader` 写回相机颜色。具体公式、Forward 路径的整色 AO 近似、参数及运行验证见 [SSGI.md](SSGI.md)。
 
-AO 在合成中对原场景色最多作用一次，并对新增 DiffuseGI 作用一次；SpecularGI 沿用 Fresnel `lerp`，不把反射当成直接加法。SpecularGI 原有每相机时域历史继续保留。
+AO 在合成中对原场景色最多作用一次，并对新增 DiffuseGI 作用一次；SpecularGI 沿用 Fresnel `lerp`，不把反射当成直接加法。三路时域历史由同一公共管理器维护。
 ---
 
 ## 文件结构
@@ -367,13 +325,16 @@ Assets/Mine/Shaders/PostProcess/SSGI/
 ├── ScreenSpaceTrace.hlsl          ← 家族共享几何层（三个模块的 shader 各自 include）
 ├── SSGIFeature.cs                 ← 三路 RenderGraph 调度与参数入口
 ├── SSGIComposite.shader          ← 单次合成
+├── SSGITemporalFilter.cs        ← 相机/通道历史双缓冲与 RenderGraph 编排
+├── SSGITemporal.shader          ← 共享时域与深度历史 Pass
+├── SSGITemporal.hlsl            ← 运动重投影与深度拒绝
 ├── SSGI.md                        ← 统一运行说明
 ├── SpecularGI/                    ← 镜面 / GGX 分层回退链
 │   ├── SpecularGIFeature.cs
 │   ├── SpecularGI.shader
 │   ├── SpecularGISampling.hlsl    ← GGX VNDF 采样
 │   ├── SpecularGITrace.hlsl       ← 屏幕 / 平面 / Cubemap 三级
-│   ├── SpecularGIFilter.hlsl      ← 空间重建 + 时域
+│   ├── SpecularGIFilter.hlsl      ← 空间重建
 │   └── SpecularGI.md
 ├── DiffuseGI/                     ← 间接漫反射
 │   ├── DiffuseGIFeature.cs

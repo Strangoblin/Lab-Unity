@@ -23,6 +23,7 @@ Shader "PostProcess/DiffuseGI"
         int _GIRayCount;
         int _GIStepCount;
         int _GIDebugMode;
+        int _DiffuseGIFrameIndex;
     CBUFFER_END
 
     #include "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl"

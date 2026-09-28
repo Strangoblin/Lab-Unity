@@ -4,7 +4,7 @@
 **类型:** FullScreenPass  
 **目标管线:** Unity 6 / URP 17 / RenderGraph
 
-统一运行由 [SSGIFeature](../SSGI.md) 在 `AfterRenderingSkybox` 调度；本文以下独立 Feature 管线仍可用于对照和回退。
+统一运行由 [SSGIFeature](../SSGI.md) 在 `AfterRenderingSkybox` 调度；独立 Feature 同样通过共享的 `SSGITemporalFilter` 完成时域重投影，需绑定 `SSGITemporal.shader`。
 
 ## 功能概述
 
@@ -32,7 +32,7 @@ planarWeight = (1 - screenConfidence) × planarConfidence
 skyWeight    = (1 - screenConfidence) × (1 - planarConfidence)
 ```
 
-三者之和为一，回退不会重复增加能量。Trace 输出的 Alpha 保存主导来源编码：屏幕反射为 1，SSPR 为 0.5，Cubemap 为 0。实际辐射仍使用连续三级权重；编码只服务 Debug 和时域来源突变拒绝。
+三者之和为一，回退不会重复增加能量。Trace 输出的 Alpha 保存主导来源编码：屏幕反射为 1，SSPR 为 0.5，Cubemap 为 0。实际辐射仍使用连续三级权重；编码只服务 Debug；时域拒绝当前基于历史眼深度。
 
 ## 参数说明
 
@@ -41,6 +41,7 @@ skyWeight    = (1 - screenConfidence) × (1 - planarConfidence)
 | 参数 | 默认值 | 说明 |
 |---|---:|---|
 | Shader | None | `PostProcess/SpecularGI` |
+| Temporal Shader | None | 共享 `PostProcess/SSGITemporal`，独立 Feature 需绑定 |
 | Sky Cubemap | None | 镜面环境回退；按 Roughness 选择 mip |
 
 ### Technical

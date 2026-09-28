@@ -5,7 +5,7 @@
 ## 使用
 
 1. 在实际相机使用的 Universal Renderer Data 上添加 **AO Feature**。
-2. 将本目录 `AO.shader` 拖入 `settings.shader`。使用序列化引用，确保构建包含 Shader；未指定时不执行。
+2. 将本目录 `AO.shader` 拖入 `settings.shader`，将共享 `SSGITemporal.shader` 拖入 `settings.temporalShader`；后者未指定时保留空间滤波结果。
 3. 从 Medium 档、`Mode = HBAO`、`Radius = 1`、`Falloff = 0`、`Intensity = 1` 开始，在接触面（墙角、地面与道具）观察遮蔽。
 4. Debug 依次检查 AO / Depth / Normal；Off 显示遮蔽乘到场景色上的结果。
 5. `Intensity = 0` 且 `Debug = Off` 时完全跳过本效果。Debug 可独立查看未乘强度的遮蔽。
@@ -20,17 +20,19 @@ Feature 在 `AfterRenderingSkybox` 执行，要求 RenderGraph 开启。输入�
 本帧深度 + 法线
   → Trace（低分辨率，SSAO 半球核 / HBAO 水平线积分，输出可见度 r）
   → BlurHorizontal → BlurVertical（深度/法线双边权重）
-  → Composite（全分辨率，深度/法线引导四点升采样后乘到场景色）
+  → Resolve（全分辨率，深度/法线引导四点升采样）
+  → SSGITemporalFilter（可选，运动重投影与历史拒绝）
+  → Composite（将全分辨率可见度乘到场景色）
 ```
 
 | 文件 | 职责 |
 |---|---|
-| `AOFeature.cs` | 档位、资源依赖、四阶段编排、相机筛选 |
-| `AO.shader` | uniforms、四个 Pass、全屏入口 |
+| `AOFeature.cs` | 档位、资源依赖、空间与时域编排、相机筛选 |
+| `AO.shader` | uniforms、五个 Pass、全屏入口 |
 | `AOFunction.hlsl` | 遮蔽估计、双边滤波、保边升采样与合成 |
 | `ScreenSpaceTrace.hlsl` | 复用：深度采样、眼深/世界重建与投影（几何层，无 BRDF 权重） |
 
-AO RT 使用线性 `R8_UNorm`（单通道可见度），非 MSAA，无 mip。低分辨率档位在宽高上各除 1/2 或 1/4。临时纹理由 RenderGraph 管理；合成读原场景色、写独立目标，最后更新 `resources.cameraColor`。滤波后 `_AOTexture` 通过 `SetGlobalTextureAfterPass` 发布，供同一相机同帧的后续 Feature 消费（当前无线程使用者）。材质在 Create/Dispose 中释放，参数保存到 PassData 并在执行阶段绑定。
+AO RT 使用线性 `R8_UNorm`（单通道可见度），非 MSAA，无 mip。低分辨率档位在宽高上各除 1/2 或 1/4。临时纹理由 RenderGraph 管理；合成读原场景色和全分辨率可见度、写独立目标，最后更新 `resources.cameraColor`。滤波后 `_AOTexture` 供 Resolve 使用；独立合成显式读取 Resolve 或时域纹理。材质在 Create/Dispose 中释放，参数保存到 PassData 并在执行阶段绑定。
 
 ## 算法
 
@@ -59,7 +61,7 @@ for i in N:  S = P + cosineHemisphere(xi_i, N) × radius
 V = 1 - Σ atten_i / N
 ```
 
-`bias` 防止共面自遮蔽；距离门限丢弃半径外的遮挡物。半球方向用与 DiffuseGI 相同的 cosine 采样与静态像素旋转（无时域历史，不用逐帧抖动）。
+`bias` 防止共面自遮蔽；距离门限丢弃半径外的遮挡物。半球方向用与 DiffuseGI 相同的 cosine 采样与像素旋转；公共时域历史可用时按帧推进，无历史时保持静态。
 
 ### HBAO（水平线积分）
 
@@ -127,10 +129,10 @@ atten = 1 / (1 + d² × falloff)
 - **合成是场景色整体相乘**：Forward 后处理拿不到逐像素"环境光 / 间接光"分量，因此 AO 也会压暗直接光照。这是 URP 自带 SSAO 的 `AfterOpaque` 路径同样的近似（`ShaderLibrary/SSAO.hlsl` + `SSAO_*_AfterOpaque` 变体）。真正"只乘到间接光"需要逐像素材质光照数据或 Deferred。
 - **低分辨率信息上限**：固定四点几何引导 Resolve 可抑制轮廓渗漏，但无法恢复 Trace 阶段未采集的薄小几何与高频细节。
 - HBAO 的 de-interleaved 分组、按方向权重、30° 固定偏移未实现（见算法节的差异列表）。
-- 逐帧抖动与时域累积（骨架 Phase 5）未实现：静止画面有静态噪声，运动时无重投影。
+- 已接入公共时域重投影与逐帧采样旋转，但尚无方差钳制；遮挡边界与快速运动需要进一步画质验收。
 - 屏幕外与遮挡背面无信息：大半径会因深度缓冲缺失而产生边缘变亮/变暗。
 - 半透明物体不参与遮挡判定（深度只含不透明 + 天空盒），透明面之后的场景不产生 AO。
-- 与 DiffuseGI 的联动（`IndirectDiffuse × AO`）未接线：`_AOTexture` 虽已发布，但该全局纹理只在同相机同帧内有效，且 AO Feature 未启用时槽位无绑定（会被读成黑色），跨 Feature 消费需要额外契约，属后续工作。
+- AO 与 DiffuseGI 在统一 `SSGIFeature` 合成中联动；独立 Feature 仅供对照，不能与统一 Feature 同时启用。
 
 ## 已知陷阱
 
@@ -142,7 +144,7 @@ atten = 1 / (1 + d² × falloff)
 
 ## 验收
 
-> 下表读数采集于 `falloff`、HBAO 工作分辨率半径修正和几何引导 Resolve 实现**之前**。`falloff = 0` 仍保持原遮挡权重，但 HBAO 搜索覆盖与合成升采样已经改变，因此下表的编译、持久化和确定性结论仍可参考，HBAO/合成的数值读数需要重新采集。
+> 下表读数采集于公共时域接入、`falloff`、HBAO 工作分辨率半径修正和几何引导 Resolve 实现**之前**。`falloff = 0` 仍保持原遮挡权重，但 HBAO 搜索覆盖与合成升采样已经改变，因此下表的编译、持久化和确定性结论仍可参考，HBAO/合成的数值读数需要重新采集。
 
 读数来自 **Play Mode 离屏相机对照采集**：把主相机（642×522）复制到一张 `ARGB32` RT、关闭该相机的后处理，逐配置渲染后回读（脚本 `.codex/tmp/ao/verify3.cs`；`Debug=AO` 直出可见度）。
 
@@ -155,7 +157,7 @@ atten = 1 / (1 + d² × falloff)
 | 遮蔽分布 | 可见度 < 0.9 的像素占比 | HBAO 6.5% / SSAO 6.6%；无像素低于 0.5（未见"整屏变黑"） |
 | 合成方向 | `intensity 0.0001 → 1`（两侧管线路径一致）的逐像素差 | 只变暗不变亮（正差值 0 px）：HBAO 21.6% 像素变暗、平均 −1.77/255；SSAO 5.8%、平均 −5.21/255 |
 | 合成公式 | 逐像素校验 `lin(composite) / lin(base) == V` | 中位误差 0.0000（多数像素位精确相等）；残差为 `ARGB32` 回读的 8 bit 量化放大，集中在暗部，非公式偏差 |
-| 确定性 | `timeScale = 1` 与 `timeScale = 0` 两次采集 | 六张图读数逐字节一致（无时域项） |
+| 确定性（旧版本） | `timeScale = 1` 与 `timeScale = 0` 两次采集 | 历史采集在时域接入前，六张图读数逐字节一致 |
 | 档位接线 | 静态核对 `GetTier` → `PassData` → `SetInt`（**未做运行期 uniform 回读**） | 与档位表一致 |
 
 **未测**（本轮按收尾策略留作开放项）：SSAO 与 HBAO 的目视质量对比、大半径下的屏幕边缘行为、运动稳定性、正交投影下的 `radius` 手感、档位的运行期 uniform 回读、`falloff > 0` 的观感与量级。逐像素读数与采集脚本见当日 memory（`.agents/agents/unity-developer/memory/2026-09-21-ssgi-phase4-ao.md`）。

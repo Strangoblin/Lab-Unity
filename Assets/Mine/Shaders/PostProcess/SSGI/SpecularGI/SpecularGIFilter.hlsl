@@ -50,42 +50,4 @@ float4 SpecularGI_SpatialResolve(float2 uv)
     return resolved;
 }
 
-float4 SpecularGI_TemporalResolve(float2 uv)
-{
-    float4 current = SAMPLE_TEXTURE2D_X_LOD(_BlitTexture, sampler_LinearClamp, uv, 0);
-    if (_HistoryValid < 0.5)
-        return current;
-
-    float2 motion = _HasMotionVectors > 0.5
-        ? SAMPLE_TEXTURE2D_X_LOD(_SpecularMotionTexture, sampler_LinearClamp, uv, 0).xy
-        : 0.0;
-    float2 historyUV = uv - motion;
-    if (any(historyUV <= 0.0) || any(historyUV >= 1.0))
-        return current;
-
-    float rawDepth = SST_SampleDepth(uv);
-    if (!SST_IsSurface(rawDepth))
-        return current;
-
-    float3 positionWS = SST_WorldPosition(uv, rawDepth);
-    float expectedHistoryDepth = -mul(_PreviousViewMatrix, float4(positionWS, 1.0)).z;
-    float historyDepth = SAMPLE_TEXTURE2D_X_LOD(
-        _SpecularHistoryDepth,
-        sampler_PointClamp,
-        historyUV,
-        0).r;
-    float4 history = SAMPLE_TEXTURE2D_X_LOD(
-        _SpecularHistoryColor,
-        sampler_LinearClamp,
-        historyUV,
-        0);
-
-    float depthThreshold = max(0.05, expectedHistoryDepth * 0.05);
-    float depthConfidence = 1.0 - saturate(
-        abs(expectedHistoryDepth - historyDepth) / depthThreshold);
-    float historyWeight = _TemporalBlend * depthConfidence;
-    float3 resolvedColor = lerp(current.rgb, history.rgb, historyWeight);
-    return float4(resolvedColor, historyWeight);
-}
-
 #endif

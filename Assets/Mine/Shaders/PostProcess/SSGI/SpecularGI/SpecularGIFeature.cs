@@ -1,8 +1,7 @@
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 //  SpecularGI Feature — SSSR trace with SSPR and cubemap fallbacks.
-// ═══════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
@@ -13,27 +12,16 @@ public class SpecularGIFeature : ScriptableRendererFeature
     [Serializable]
     public class Settings
     {
-        public enum QualityLevel
-        {
-            Low,
-            Medium,
-            High
-        }
-
+        public enum QualityLevel { Low, Medium, High }
         public enum DebugMode
         {
-            Off,
-            ScreenSource,
-            PlanarSource,
-            SkySource,
-            Trace,
-            Spatial,
-            Temporal,
-            HistoryWeight
+            Off, ScreenSource, PlanarSource, SkySource,
+            Trace, Spatial, Temporal, HistoryWeight
         }
 
         [Header("Resources")]
         public Shader shader;
+        public Shader temporalShader;
         public Cubemap skyCubemap;
 
         [Header("Technical")]
@@ -64,399 +52,228 @@ public class SpecularGIFeature : ScriptableRendererFeature
         internal static readonly int SkyCubemapID = Shader.PropertyToID("_SkyCubemap");
         internal static readonly int SkyMaxMipID = Shader.PropertyToID("_SkyMaxMip");
         internal static readonly int SpatialRadiusID = Shader.PropertyToID("_SpatialRadius");
-        internal static readonly int TemporalBlendID = Shader.PropertyToID("_TemporalBlend");
         internal static readonly int FrameIndexID = Shader.PropertyToID("_FrameIndex");
-        internal static readonly int HistoryValidID = Shader.PropertyToID("_HistoryValid");
-        internal static readonly int HasMotionVectorsID = Shader.PropertyToID("_HasMotionVectors");
         internal static readonly int DebugModeID = Shader.PropertyToID("_DebugMode");
         internal static readonly int CameraViewMatrixID = Shader.PropertyToID("_CameraViewMatrix");
         internal static readonly int CameraProjectionMatrixID = Shader.PropertyToID("_CameraProjectionMatrix");
-        internal static readonly int PreviousViewMatrixID = Shader.PropertyToID("_PreviousViewMatrix");
-        internal static readonly int HistoryColorID = Shader.PropertyToID("_SpecularHistoryColor");
-        internal static readonly int HistoryDepthID = Shader.PropertyToID("_SpecularHistoryDepth");
-        internal static readonly int MotionTextureID = Shader.PropertyToID("_SpecularMotionTexture");
         internal static readonly int SpecularTextureID = Shader.PropertyToID("_SpecularGITexture");
-    }
-
-    sealed class CameraHistory
-    {
-        public RTHandle colorA;
-        public RTHandle colorB;
-        public RTHandle depthA;
-        public RTHandle depthB;
-        public int frameIndex;
-        public int lastRenderedFrame = -1;
-        public Camera camera;
-        public Matrix4x4 previousViewProjection;
-        public Matrix4x4 previousViewMatrix;
-        public bool valid;
-
-        public void Ensure(int width, int height, int cameraId)
-        {
-            if (colorA != null && colorA.rt != null
-                && colorA.rt.width == width && colorA.rt.height == height)
-                return;
-
-            Release();
-            colorA = Allocate(width, height, RenderTextureFormat.ARGBHalf, $"SpecularGI_ColorA_{cameraId}");
-            colorB = Allocate(width, height, RenderTextureFormat.ARGBHalf, $"SpecularGI_ColorB_{cameraId}");
-            depthA = Allocate(width, height, RenderTextureFormat.RHalf, $"SpecularGI_DepthA_{cameraId}");
-            depthB = Allocate(width, height, RenderTextureFormat.RHalf, $"SpecularGI_DepthB_{cameraId}");
-            frameIndex = 0;
-            valid = false;
-        }
-
-        public bool BeginFrame(Matrix4x4 viewProjection, Matrix4x4 viewMatrix)
-        {
-            bool consecutive = lastRenderedFrame < 0 || Time.frameCount - lastRenderedFrame <= 2;
-            bool stableCamera = !valid || MatrixDifference(previousViewProjection, viewProjection) < 4f;
-            bool canReuse = valid && consecutive && stableCamera;
-            previousViewProjection = viewProjection;
-            previousViewMatrix = viewMatrix;
-            lastRenderedFrame = Time.frameCount;
-            return canReuse;
-        }
-
-        public void CompleteFrame()
-        {
-            frameIndex++;
-            valid = true;
-        }
-
-        public void Release()
-        {
-            colorA?.Release();
-            colorB?.Release();
-            depthA?.Release();
-            depthB?.Release();
-            colorA = null;
-            colorB = null;
-            depthA = null;
-            depthB = null;
-            valid = false;
-        }
-
-        static RTHandle Allocate(
-            int width,
-            int height,
-            RenderTextureFormat format,
-            string textureName)
-        {
-            var texture = new RenderTexture(width, height, 0, format)
-            {
-                name = textureName,
-                filterMode = format == RenderTextureFormat.RHalf
-                    ? FilterMode.Point
-                    : FilterMode.Bilinear,
-                wrapMode = TextureWrapMode.Clamp
-            };
-            texture.Create();
-            return RTHandles.Alloc(texture);
-        }
-
-        static float MatrixDifference(Matrix4x4 left, Matrix4x4 right)
-        {
-            float difference = 0f;
-            for (int element = 0; element < 16; ++element)
-                difference += Mathf.Abs(left[element] - right[element]);
-            return difference;
-        }
     }
 
     internal sealed class SpecularGIPass : ScriptableRenderPass
     {
-        sealed class PassData
+        sealed class TraceData
+        {
+            public Material material;
+            public TextureHandle source;
+            public TextureHandle trace;
+            public TextureHandle spatial;
+            public Vector4 traceParams;
+            public Vector4 planarParams;
+            public float roughness;
+            public float skyMaxMip;
+            public float spatialRadius;
+            public float frameIndex;
+            public Cubemap skyCubemap;
+            public Matrix4x4 viewMatrix;
+            public Matrix4x4 projectionMatrix;
+        }
+
+        sealed class CompositeData
         {
             public Material material;
             public TextureHandle source;
             public TextureHandle trace;
             public TextureHandle spatial;
             public TextureHandle temporal;
-            public TextureHandle currentDepth;
-            public TextureHandle composite;
-            public TextureHandle motion;
-            public TextureHandle historyColorRead;
-            public TextureHandle historyDepthRead;
-            public TextureHandle historyColorWrite;
-            public TextureHandle historyDepthWrite;
-            public RTHandle historyColorWriteHandle;
-            public RTHandle historyDepthWriteHandle;
+            public TextureHandle target;
+            public float intensity;
+            public float roughness;
             public Settings.DebugMode debug;
-            public bool hasMotion;
-            public bool integrated;
         }
 
         readonly Settings _settings;
         readonly Material _material;
-        readonly Dictionary<int, CameraHistory> _histories = new();
+        readonly SSGITemporalFilter _temporal;
 
         public SpecularGIPass(Shader shader, Settings settings)
         {
             _settings = settings;
             _material = CoreUtils.CreateEngineMaterial(shader);
+            _temporal = new SSGITemporalFilter(settings.temporalShader);
             renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
-            ConfigureInput(
-                ScriptableRenderPassInput.Color
+            ConfigureInput(ScriptableRenderPassInput.Color
                 | ScriptableRenderPassInput.Depth
                 | ScriptableRenderPassInput.Normal
                 | ScriptableRenderPassInput.Motion);
         }
 
-        public override void RecordRenderGraph(
-            RenderGraph renderGraph,
-            ContextContainer frameData)
+        public override void RecordRenderGraph(RenderGraph graph, ContextContainer frameData)
         {
-            Record(renderGraph, frameData, TextureHandle.nullHandle, false);
+            _temporal.BeginFrame(frameData);
+            TextureHandle spatial = RecordSpatial(graph, frameData,
+                TextureHandle.nullHandle, _temporal.FrameIndex, out TextureHandle trace);
+            if (!spatial.IsValid())
+            {
+                _temporal.CompleteFrame(graph, frameData);
+                return;
+            }
+
+            TextureHandle temporal = _temporal.Resolve(graph, frameData, spatial,
+                SSGITemporalFilter.Signal.SpecularGI, _settings.temporalBlend);
+            _temporal.CompleteFrame(graph, frameData);
+            RecordComposite(graph, frameData, trace, spatial, temporal);
         }
 
-        public TextureHandle RecordIntegrated(
-            RenderGraph renderGraph,
-            ContextContainer frameData,
-            TextureHandle source)
+        public TextureHandle RecordIntegrated(RenderGraph graph, ContextContainer frameData,
+            TextureHandle source, int frameIndex)
         {
-            return Record(renderGraph, frameData, source, true);
+            return RecordSpatial(graph, frameData, source, frameIndex, out _);
         }
 
-        private TextureHandle Record(
-            RenderGraph renderGraph,
-            ContextContainer frameData,
-            TextureHandle inputSource,
-            bool integrated)
+        TextureHandle RecordSpatial(RenderGraph graph, ContextContainer frameData,
+            TextureHandle inputSource, int frameIndex, out TextureHandle traceOutput)
         {
-            var resourceData = frameData.Get<UniversalResourceData>();
-            var cameraData = frameData.Get<UniversalCameraData>();
-            TextureHandle source = integrated ? inputSource : resourceData.activeColorTexture;
-            if (!source.IsValid() || _material == null || cameraData.camera == null)
+            traceOutput = TextureHandle.nullHandle;
+            UniversalResourceData resources = frameData.Get<UniversalResourceData>();
+            UniversalCameraData camera = frameData.Get<UniversalCameraData>();
+            TextureHandle source = inputSource.IsValid() ? inputSource : resources.activeColorTexture;
+            if (!source.IsValid() || _material == null || camera.camera == null)
                 return TextureHandle.nullHandle;
 
-            int width = Mathf.Max(cameraData.cameraTargetDescriptor.width, 1);
-            int height = Mathf.Max(cameraData.cameraTargetDescriptor.height, 1);
-            ReleaseUnusedHistories();
-            int cameraId = cameraData.camera.GetInstanceID();
-            if (!_histories.TryGetValue(cameraId, out CameraHistory history))
-            {
-                history = new CameraHistory();
-                _histories.Add(cameraId, history);
-            }
-
-            history.camera = cameraData.camera;
-            history.Ensure(width, height, cameraId);
-            Matrix4x4 viewMatrix = cameraData.GetViewMatrix();
-            Matrix4x4 projectionMatrix = GL.GetGPUProjectionMatrix(
-                cameraData.GetProjectionMatrix(),
-                true);
-            TextureHandle motion = resourceData.motionVectorColor;
-            bool hasMotion = motion.IsValid();
-            Matrix4x4 previousViewMatrix = history.previousViewMatrix;
-            bool historyValid = history.BeginFrame(
-                projectionMatrix * viewMatrix,
-                viewMatrix) && hasMotion;
-
-            RTHandle historyColorRead = history.frameIndex % 2 == 0 ? history.colorA : history.colorB;
-            RTHandle historyColorWrite = history.frameIndex % 2 == 0 ? history.colorB : history.colorA;
-            RTHandle historyDepthRead = history.frameIndex % 2 == 0 ? history.depthA : history.depthB;
-            RTHandle historyDepthWrite = history.frameIndex % 2 == 0 ? history.depthB : history.depthA;
-
-            GetQuality(_settings.quality, out int downsample, out int stepCount, out float spatialRadius);
-            var colorDescriptor = cameraData.cameraTargetDescriptor;
-            colorDescriptor.depthBufferBits = 0;
-            colorDescriptor.msaaSamples = 1;
-            colorDescriptor.colorFormat = RenderTextureFormat.ARGBHalf;
-
-            var traceDescriptor = colorDescriptor;
-            traceDescriptor.width = Mathf.Max(width >> downsample, 1);
-            traceDescriptor.height = Mathf.Max(height >> downsample, 1);
+            GetQuality(_settings.quality, out int downsample,
+                out int stepCount, out float spatialRadius);
+            RenderTextureDescriptor descriptor = camera.cameraTargetDescriptor;
+            descriptor.depthBufferBits = 0;
+            descriptor.msaaSamples = 1;
+            descriptor.colorFormat = RenderTextureFormat.ARGBHalf;
+            RenderTextureDescriptor traceDescriptor = descriptor;
+            traceDescriptor.width = Mathf.Max(descriptor.width >> downsample, 1);
+            traceDescriptor.height = Mathf.Max(descriptor.height >> downsample, 1);
             TextureHandle trace = UniversalRenderer.CreateRenderGraphTexture(
-                renderGraph,
-                traceDescriptor,
-                "_SpecularGI_Trace",
-                false);
+                graph, traceDescriptor, "SpecularGI.Trace", false);
+            traceOutput = trace;
             TextureHandle spatial = UniversalRenderer.CreateRenderGraphTexture(
-                renderGraph,
-                colorDescriptor,
-                "_SpecularGI_Spatial",
-                false);
-            TextureHandle temporal = UniversalRenderer.CreateRenderGraphTexture(
-                renderGraph,
-                colorDescriptor,
-                "_SpecularGI_Temporal",
-                false);
-            TextureHandle composite = TextureHandle.nullHandle;
-            if (!integrated)
-                composite = UniversalRenderer.CreateRenderGraphTexture(
-                    renderGraph,
-                    colorDescriptor,
-                    "_SpecularGI_Composite",
-                    false);
+                graph, descriptor, "SpecularGI.Spatial", false);
 
-            var depthDescriptor = colorDescriptor;
-            depthDescriptor.colorFormat = RenderTextureFormat.RHalf;
-            TextureHandle currentDepth = UniversalRenderer.CreateRenderGraphTexture(
-                renderGraph,
-                depthDescriptor,
-                "_SpecularGI_CurrentDepth",
-                false);
-
-            TextureHandle historyColorReadTexture = renderGraph.ImportTexture(historyColorRead);
-            TextureHandle historyDepthReadTexture = renderGraph.ImportTexture(historyDepthRead);
-            TextureHandle historyColorWriteTexture = renderGraph.ImportTexture(historyColorWrite);
-            TextureHandle historyDepthWriteTexture = renderGraph.ImportTexture(historyDepthWrite);
-
-            ApplyMaterialParameters(
-                cameraData,
-                history,
-                historyValid,
-                previousViewMatrix,
-                stepCount,
-                spatialRadius,
-                hasMotion);
-
-            using (var builder = renderGraph.AddUnsafePass<PassData>(
-                       "SpecularGI",
-                       out var passData))
+            using (var builder = graph.AddUnsafePass<TraceData>("SpecularGI.TraceSpatial", out var data))
             {
-                passData.material = _material;
-                passData.source = source;
-                passData.trace = trace;
-                passData.spatial = spatial;
-                passData.temporal = temporal;
-                passData.currentDepth = currentDepth;
-                passData.composite = composite;
-                passData.motion = motion;
-                passData.historyColorRead = historyColorReadTexture;
-                passData.historyDepthRead = historyDepthReadTexture;
-                passData.historyColorWrite = historyColorWriteTexture;
-                passData.historyDepthWrite = historyDepthWriteTexture;
-                passData.historyColorWriteHandle = historyColorWrite;
-                passData.historyDepthWriteHandle = historyDepthWrite;
-                passData.debug = _settings.debug;
-                passData.hasMotion = hasMotion;
-                passData.integrated = integrated;
+                data.material = _material;
+                data.source = source;
+                data.trace = trace;
+                data.spatial = spatial;
+                data.traceParams = new Vector4(
+                    Mathf.Max(_settings.maxDistance, 0.001f),
+                    Mathf.Max(_settings.thickness, 0.0001f),
+                    Mathf.Max(_settings.normalBias, 0f), stepCount);
+                data.planarParams = new Vector4(
+                    Mathf.Clamp(_settings.planarThreshold, 0.8f, 0.9999f),
+                    Mathf.Max(_settings.planarFadeStart, 0f),
+                    Mathf.Max(_settings.planarFadeEnd, _settings.planarFadeStart),
+                    Mathf.Clamp01(_settings.planarStrength));
+                data.roughness = Mathf.Clamp01(_settings.roughness);
+                data.skyMaxMip = Mathf.Max(_settings.skyMaxMip, 0f);
+                data.spatialRadius = spatialRadius;
+                data.frameIndex = frameIndex;
+                data.skyCubemap = _settings.skyCubemap;
+                data.viewMatrix = camera.GetViewMatrix();
+                data.projectionMatrix = GL.GetGPUProjectionMatrix(
+                    camera.GetProjectionMatrix(), true);
 
-                builder.UseTexture(source, integrated ? AccessFlags.Read : AccessFlags.ReadWrite);
+                builder.UseTexture(source, AccessFlags.Read);
                 builder.UseTexture(trace, AccessFlags.ReadWrite);
                 builder.UseTexture(spatial, AccessFlags.ReadWrite);
-                builder.UseTexture(temporal, AccessFlags.ReadWrite);
-                builder.UseTexture(currentDepth, AccessFlags.ReadWrite);
-                if (!integrated)
-                    builder.UseTexture(composite, AccessFlags.ReadWrite);
-                builder.UseTexture(historyColorReadTexture, AccessFlags.Read);
-                builder.UseTexture(historyDepthReadTexture, AccessFlags.Read);
-                builder.UseTexture(historyColorWriteTexture, AccessFlags.Write);
-                builder.UseTexture(historyDepthWriteTexture, AccessFlags.Write);
+                builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
+                builder.UseTexture(resources.cameraNormalsTexture, AccessFlags.Read);
                 builder.UseAllGlobalTextures(true);
-                if (hasMotion)
-                    builder.UseTexture(motion, AccessFlags.Read);
-                builder.AllowPassCulling(false);
-
-                builder.SetRenderFunc((PassData data, UnsafeGraphContext context) =>
+                builder.SetRenderFunc((TraceData pass, UnsafeGraphContext context) =>
                 {
+                    pass.material.SetVector(Settings.TraceParamsID, pass.traceParams);
+                    pass.material.SetVector(Settings.PlanarParamsID, pass.planarParams);
+                    pass.material.SetFloat(Settings.RoughnessID, pass.roughness);
+                    pass.material.SetFloat(Settings.SkyMaxMipID, pass.skyMaxMip);
+                    pass.material.SetFloat(Settings.SpatialRadiusID, pass.spatialRadius);
+                    pass.material.SetFloat(Settings.FrameIndexID, pass.frameIndex);
+                    pass.material.SetMatrix(Settings.CameraViewMatrixID, pass.viewMatrix);
+                    pass.material.SetMatrix(Settings.CameraProjectionMatrixID, pass.projectionMatrix);
+                    pass.material.SetTexture(Settings.SkyCubemapID, pass.skyCubemap);
                     CommandBuffer commandBuffer = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
-
-                    Blitter.BlitCameraTexture(commandBuffer, data.source, data.trace, data.material, 0);
-                    Blitter.BlitCameraTexture(commandBuffer, data.trace, data.spatial, data.material, 1);
-
-                    commandBuffer.SetGlobalTexture(Settings.HistoryColorID, data.historyColorRead);
-                    commandBuffer.SetGlobalTexture(Settings.HistoryDepthID, data.historyDepthRead);
-                    if (data.hasMotion)
-                        commandBuffer.SetGlobalTexture(Settings.MotionTextureID, data.motion);
-                    Blitter.BlitCameraTexture(commandBuffer, data.spatial, data.temporal, data.material, 2);
-                    Blitter.BlitCameraTexture(commandBuffer, data.source, data.currentDepth, data.material, 3);
-
-                    commandBuffer.CopyTexture(data.temporal, data.historyColorWriteHandle.nameID);
-                    commandBuffer.CopyTexture(data.currentDepth, data.historyDepthWriteHandle.nameID);
-
-                    if (!data.integrated)
-                    {
-                        TextureHandle output = SelectDebugTexture(data);
-                        if (data.debug == Settings.DebugMode.Off)
-                        {
-                            commandBuffer.SetGlobalTexture(Settings.SpecularTextureID, data.temporal);
-                            Blitter.BlitCameraTexture(commandBuffer, data.source, data.composite, data.material, 4);
-                        }
-                        else
-                        {
-                            SetDebugMode(data.material, data.debug);
-                            Blitter.BlitCameraTexture(commandBuffer, output, data.composite, data.material, 5);
-                        }
-
-                        Blitter.BlitCameraTexture(commandBuffer, data.composite, data.source);
-                    }
+                    Blitter.BlitCameraTexture(commandBuffer, pass.source, pass.trace, pass.material, 0);
+                    Blitter.BlitCameraTexture(commandBuffer, pass.trace, pass.spatial, pass.material, 1);
                 });
             }
+            return spatial;
+        }
 
-            history.CompleteFrame();
-            return temporal;
+        void RecordComposite(RenderGraph graph, ContextContainer frameData,
+            TextureHandle trace, TextureHandle spatial, TextureHandle temporal)
+        {
+            UniversalResourceData resources = frameData.Get<UniversalResourceData>();
+            TextureHandle source = resources.activeColorTexture;
+            RenderTextureDescriptor descriptor = frameData.Get<UniversalCameraData>().cameraTargetDescriptor;
+            descriptor.depthBufferBits = 0;
+            descriptor.msaaSamples = 1;
+            TextureHandle target = UniversalRenderer.CreateRenderGraphTexture(
+                graph, descriptor, "SpecularGI.Composite", false);
+
+            using (var builder = graph.AddUnsafePass<CompositeData>("SpecularGI.Composite", out var data))
+            {
+                data.material = _material;
+                data.source = source;
+                data.trace = trace;
+                data.spatial = spatial;
+                data.temporal = temporal;
+                data.target = target;
+                data.intensity = Mathf.Clamp01(_settings.intensity);
+                data.roughness = Mathf.Clamp01(_settings.roughness);
+                data.debug = _settings.debug;
+
+                builder.UseTexture(source, AccessFlags.ReadWrite);
+                builder.UseTexture(trace, AccessFlags.Read);
+                builder.UseTexture(spatial, AccessFlags.Read);
+                builder.UseTexture(temporal, AccessFlags.Read);
+                builder.UseTexture(target, AccessFlags.ReadWrite);
+                builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
+                builder.UseTexture(resources.cameraNormalsTexture, AccessFlags.Read);
+                builder.UseAllGlobalTextures(true);
+                builder.SetRenderFunc((CompositeData pass, UnsafeGraphContext context) =>
+                {
+                    CommandBuffer commandBuffer = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
+                    pass.material.SetFloat(Settings.IntensityID, pass.intensity);
+                    pass.material.SetFloat(Settings.RoughnessID, pass.roughness);
+                    if (pass.debug == Settings.DebugMode.Off)
+                    {
+                        commandBuffer.SetGlobalTexture(Settings.SpecularTextureID, pass.temporal);
+                        Blitter.BlitCameraTexture(commandBuffer,
+                            pass.source, pass.target, pass.material, 2);
+                    }
+                    else
+                    {
+                        SetDebugMode(pass.material, pass.debug);
+                        TextureHandle selected = pass.debug switch
+                        {
+                            Settings.DebugMode.ScreenSource => pass.trace,
+                            Settings.DebugMode.PlanarSource => pass.trace,
+                            Settings.DebugMode.SkySource => pass.trace,
+                            Settings.DebugMode.Trace => pass.trace,
+                            Settings.DebugMode.Spatial => pass.spatial,
+                            _ => pass.temporal
+                        };
+                        Blitter.BlitCameraTexture(commandBuffer,
+                            selected, pass.target, pass.material, 3);
+                    }
+                    Blitter.BlitCameraTexture(commandBuffer, pass.target, pass.source);
+                });
+            }
         }
 
         public void Release()
         {
-            foreach (CameraHistory history in _histories.Values)
-                history.Release();
-            _histories.Clear();
+            _temporal.Release();
             CoreUtils.Destroy(_material);
         }
 
-        void ApplyMaterialParameters(
-            UniversalCameraData cameraData,
-            CameraHistory history,
-            bool historyValid,
-            Matrix4x4 previousViewMatrix,
-            int stepCount,
-            float spatialRadius,
-            bool hasMotion)
-        {
-            _material.SetVector(
-                Settings.TraceParamsID,
-                new Vector4(
-                    Mathf.Max(_settings.maxDistance, 0.001f),
-                    Mathf.Max(_settings.thickness, 0.0001f),
-                    Mathf.Max(_settings.normalBias, 0f),
-                    stepCount));
-            _material.SetVector(
-                Settings.PlanarParamsID,
-                new Vector4(
-                    Mathf.Clamp(_settings.planarThreshold, 0.8f, 0.9999f),
-                    Mathf.Max(_settings.planarFadeStart, 0f),
-                    Mathf.Max(_settings.planarFadeEnd, _settings.planarFadeStart),
-                    Mathf.Clamp01(_settings.planarStrength)));
-            _material.SetFloat(Settings.RoughnessID, Mathf.Clamp01(_settings.roughness));
-            _material.SetFloat(Settings.IntensityID, Mathf.Clamp01(_settings.intensity));
-            _material.SetFloat(Settings.SkyMaxMipID, Mathf.Max(_settings.skyMaxMip, 0f));
-            _material.SetFloat(Settings.SpatialRadiusID, spatialRadius);
-            _material.SetFloat(Settings.TemporalBlendID, Mathf.Clamp(_settings.temporalBlend, 0f, 0.98f));
-            _material.SetFloat(Settings.FrameIndexID, history.frameIndex);
-            _material.SetFloat(Settings.HistoryValidID, historyValid ? 1f : 0f);
-            _material.SetFloat(Settings.HasMotionVectorsID, hasMotion ? 1f : 0f);
-            _material.SetMatrix(Settings.CameraViewMatrixID, cameraData.GetViewMatrix());
-            _material.SetMatrix(
-                Settings.CameraProjectionMatrixID,
-                GL.GetGPUProjectionMatrix(cameraData.GetProjectionMatrix(), true));
-            _material.SetMatrix(Settings.PreviousViewMatrixID, previousViewMatrix);
-            _material.SetTexture(Settings.SkyCubemapID, _settings.skyCubemap);
-        }
-
-        void ReleaseUnusedHistories()
-        {
-            var staleCameraIds = new List<int>();
-            foreach (KeyValuePair<int, CameraHistory> pair in _histories)
-            {
-                if (pair.Value.camera == null)
-                    staleCameraIds.Add(pair.Key);
-            }
-
-            foreach (int cameraId in staleCameraIds)
-            {
-                _histories[cameraId].Release();
-                _histories.Remove(cameraId);
-            }
-        }
-
-        static void GetQuality(
-            Settings.QualityLevel quality,
-            out int downsample,
-            out int stepCount,
-            out float spatialRadius)
+        static void GetQuality(Settings.QualityLevel quality,
+            out int downsample, out int stepCount, out float spatialRadius)
         {
             switch (quality)
             {
@@ -475,22 +292,6 @@ public class SpecularGIFeature : ScriptableRendererFeature
                     stepCount = 64;
                     spatialRadius = 2f;
                     break;
-            }
-        }
-
-        static TextureHandle SelectDebugTexture(PassData data)
-        {
-            switch (data.debug)
-            {
-                case Settings.DebugMode.Trace:
-                case Settings.DebugMode.ScreenSource:
-                case Settings.DebugMode.PlanarSource:
-                case Settings.DebugMode.SkySource:
-                    return data.trace;
-                case Settings.DebugMode.Spatial:
-                    return data.spatial;
-                default:
-                    return data.temporal;
             }
         }
 
@@ -515,8 +316,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
     {
         _pass?.Release();
         _pass = settings.shader != null
-            ? new SpecularGIPass(settings.shader, settings)
-            : null;
+            ? new SpecularGIPass(settings.shader, settings) : null;
     }
 
     protected override void Dispose(bool disposing)
@@ -526,8 +326,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
     }
 
     public override void AddRenderPasses(
-        ScriptableRenderer renderer,
-        ref RenderingData renderingData)
+        ScriptableRenderer renderer, ref RenderingData renderingData)
     {
         if (_pass != null)
             renderer.EnqueuePass(_pass);
