@@ -27,6 +27,9 @@ public class SpecularGIFeature : ScriptableRendererFeature
         [Range(0.001f, 0.5f)] public float thickness = 0.05f;
         [Range(0f, 0.2f)] public float normalBias = 0.03f;
 
+        [Header("Technical · Material Approximation")]
+        [Range(0f, 1f)] public float roughness = 0.1f;
+
         [Header("Technical · Sky Sampling")]
         [Range(0f, 12f)] public float skyMaxMip = 6f;
 
@@ -46,7 +49,6 @@ public class SpecularGIFeature : ScriptableRendererFeature
     {
         [Header("Artistic")]
         [Range(0f, 1f)] public float intensity = 1f;
-        [Range(0f, 1f)] public float roughness = 0.25f;
 
         [Header("Debug")]
         public Settings.DebugMode debug = Settings.DebugMode.Off;
@@ -106,7 +108,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
             _temporal.BeginFrame(frameData);
             TextureHandle spatial = RecordSpatial(graph, frameData,
                 TextureHandle.nullHandle, _temporal.FrameIndex,
-                _controls.performance, _controls.roughness, out TextureHandle trace);
+                _controls.performance, _settings.roughness, out TextureHandle trace);
             if (!spatial.IsValid())
             {
                 _temporal.CompleteFrame(graph, frameData);
@@ -117,7 +119,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 SSGITemporalFilter.Signal.SpecularGI, _controls.temporalBlend);
             _temporal.CompleteFrame(graph, frameData);
             RecordComposite(graph, frameData, trace, spatial, temporal,
-                _controls.intensity, _controls.roughness, _controls.debug);
+                _controls.intensity, _settings.roughness, _controls.debug);
         }
 
         public TextureHandle RecordIntegrated(RenderGraph graph, ContextContainer frameData,

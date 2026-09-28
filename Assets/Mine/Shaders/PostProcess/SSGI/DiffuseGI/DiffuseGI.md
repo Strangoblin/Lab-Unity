@@ -52,11 +52,11 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 
 `distanceFalloff = 0` 关闭额外衰减。启用后仅在命中贡献中乘一次 `1/(1 + hitDistance² × falloff)`；这是美术控制，不是沿真空射线传播辐亮度的物理衰减。
 
-当前 Forward 后处理没有逐像素材质反照率，`receiverAlbedo` 是统一的接收反照率近似，Inspector 色值在线性化后用于合成。不能用已经受光的场景色冒充 albedo，否则会重复乘光照。接入真正的材质反照率/金属遮罩属于后续材质数据集成。
+当前 Forward 后处理没有逐像素材质反照率。统一 SSGI 使用白色近似；独立 DiffuseGI Feature 仍可用 `receiverAlbedo` 测试统一颜色近似，Inspector 色值在线性化后用于合成。不能用已经受光的场景色冒充 albedo，否则会重复乘光照。真正的材质反照率/金属遮罩需后续单独接入。
 
 ## 参数
 
-统一 SSGI 面板中，下表的 Technical 属于 DiffuseGI Settings；Performance、Intensity、Temporal 与 Artistic 位于统一顶层。独立 DiffuseGI Feature 则把非技术项放在 Controls 中。
+统一 SSGI 面板中，DiffuseGI Settings 只包含 Technical；Performance、Intensity、Temporal 位于统一顶层。统一运行固定 Distance Falloff = 0、Receiver Albedo = 白色；这两项仅在独立 DiffuseGI Feature 的 Controls 中开放。
 
 | 分组 | 参数 | 默认值 | 含义 |
 |---|---|---|---|

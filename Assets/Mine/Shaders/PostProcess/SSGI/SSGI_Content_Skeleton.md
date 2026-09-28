@@ -129,14 +129,14 @@ DiffuseGIFeature（AfterRenderingSkybox，早于 URP 的 _CameraOpaqueTexture �
 ```text
 p(ω) = cosθ / π
 GI.rgb = Σ(Li_hit × edgeFade × artisticFalloff) / N
-Final.rgb = Scene.rgb + intensity × receiverAlbedo × GI.rgb
+Final.rgb = Scene.rgb + intensity × GI.rgb   // 统一入口：白色接收反照率
 ```
 
 `N` 是总射线数，miss 为零贡献，不能只除命中数。`GI.rgb` 是 `E/π` 的近似，不再重复乘 BRDF 的 `1/π` 或余弦。Alpha 仅记录命中置信度，滤波和合成不再次乘 alpha。
 
-输入是相机方向的场景辐亮度近似，并非纯直接漫反射；当前 `receiverAlbedo` 使用统一颜色，尚无逐像素材质反照率/金属遮罩。合成是加法近似，会与场景已有烘焙/探针 GI 重叠。
+输入是相机方向的场景辐亮度近似，并非纯直接漫反射；统一 SSGI 固定白色接收反照率，独立 DiffuseGI Feature 仍可测试全局颜色近似。尚无逐像素材质反照率/金属遮罩；合成是加法近似，会与场景已有烘焙/探针 GI 重叠。
 
-距离衰减作为美术项仅在 gather 乘一次，默认 0 关闭。统一 Composite 不再向本输出叠乘同一衰减。
+距离衰减仅在 gather 乘一次；统一 SSGI 固定为 0，独立 Feature 仍可调节。统一 Composite 不再向本输出叠乘同一衰减。
 
 ### 接口与复用边界
 
@@ -146,9 +146,9 @@ Final.rgb = Scene.rgb + intensity × receiverAlbedo × GI.rgb
 
 | 性能档 | 宽高缩放 | 射线/像素 | 步进/射线 |
 |---|---|---|---|
-| Low | 1/4 | 1 | 24 |
-| Medium | 1/2 | 2 | 48 |
-| High | 1/2 | 4 | 64 |
+| Low | 1/4 | 4 | 24 |
+| Medium | 1/2 | 6 | 48 |
+| High | 1/2 | 8 | 64 |
 
 内部发布 `_GITraceTexture` / `_GITexture`，仅限本效果执行后的同相机同帧使用。Intensity=0 且 Debug=Off 时跳过整个 Feature，不可继续消费旧全局绑定。
 
@@ -158,7 +158,7 @@ Final.rgb = Scene.rgb + intensity × receiverAlbedo × GI.rgb
 - 时域累积与重投影已由 Phase 5 公共层接入；方差钳制、动态光照失效判定与运动画质验收仍待完成。
 - 屏幕外/遮挡背面信息：屏幕外与天空已验证不贡献 GI，遮挡背面仍无信息。
 - 透明物体：**不在追踪输入内**（事件早于透明绘制）。旧版本用截屏得到的“隐藏 Water/RainDrops 后 GI>0.10 从 39315 px 降到 3952、均值 0.419 → 0.103”是透明几何覆盖调试视图造成的取景伪影；追踪是否命中透明几何需回读 `_GITexture` 全局纹理判定（开放项）。
-- 逐像素反照率与金属遮罩：仍使用统一 `receiverAlbedo`。
+- 逐像素反照率与金属遮罩：统一 SSGI 暂用白色接收近似；独立 DiffuseGI 可配置全局 `receiverAlbedo`。
 - HiZ 加速、Compute 迁移以及平台/性能全面验收。
 
 ### 验收记录

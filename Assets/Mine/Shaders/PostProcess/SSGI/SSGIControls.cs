@@ -31,17 +31,6 @@ public sealed class SSGITemporalControls
 }
 
 [Serializable]
-public sealed class SSGIArtisticControls
-{
-    [Range(0f, 4f)] public float aoFalloff;
-    [Range(0f, 4f)] public float diffuseDistanceFalloff;
-    [ColorUsage(false, false)]
-    public Color receiverAlbedo = new(0.8f, 0.8f, 0.8f, 1f);
-    [Range(0f, 1f)] public float specularRoughness = 0.1f;
-    [Range(0f, 1f)] public float sceneAO = 1f;
-}
-
-[Serializable]
 public class SSGIStandaloneControls
 {
     [Header("Resources")]

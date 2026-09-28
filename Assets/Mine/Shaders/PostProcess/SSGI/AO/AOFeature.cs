@@ -112,10 +112,10 @@ public class AOFeature : ScriptableRendererFeature
         }
 
         public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData,
-            TextureHandle source, int frameIndex, SSGIQuality performance, float falloff)
+            TextureHandle source, int frameIndex, SSGIQuality performance)
         {
             return Record(renderGraph, frameData, source, true, frameIndex,
-                performance, 1f, falloff, DebugMode.Off);
+                performance, 1f, 0f, DebugMode.Off);
         }
 
         private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData,

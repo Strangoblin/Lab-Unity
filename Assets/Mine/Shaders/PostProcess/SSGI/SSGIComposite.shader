@@ -18,7 +18,6 @@ Shader "PostProcess/SSGI/Composite"
 
     CBUFFER_START(UnityPerMaterial)
         float4 _SSGIParams;
-        float4 _SSGIReceiverAlbedo;
         float4 _SSGIModuleFlags;
         float _SSGIRoughness;
         float _SSGIDebugMode;
@@ -46,7 +45,7 @@ Shader "PostProcess/SSGI/Composite"
         if (_SSGIModuleFlags.y > 0.5)
             diffuse = max(SAMPLE_TEXTURE2D_X_LOD(_SSGIDiffuseTexture, sampler_PointClamp, uv, 0).rgb, 0.0);
         if (_SSGIDebugMode > 1.5 && _SSGIDebugMode < 2.5)
-            return float4(diffuse * _SSGIReceiverAlbedo.rgb, 1.0);
+            return float4(diffuse, 1.0);
 
         float3 reflection = 0.0;
         if (_SSGIModuleFlags.z > 0.5)
@@ -55,8 +54,8 @@ Shader "PostProcess/SSGI/Composite"
             return float4(reflection, 1.0);
 
         float aoFactor = 1.0 - saturate((1.0 - visibility) * _SSGIParams.x);
-        float3 color = scene.rgb * lerp(1.0, aoFactor, saturate(_SSGIParams.w));
-        color += diffuse * _SSGIReceiverAlbedo.rgb * _SSGIParams.y * aoFactor;
+        float3 color = scene.rgb * aoFactor;
+        color += diffuse * _SSGIParams.y * aoFactor;
 
         if (_SSGIModuleFlags.z > 0.5)
         {

@@ -116,11 +116,10 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         }
 
         public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData,
-            TextureHandle source, int frameIndex, SSGIQuality performance,
-            float distanceFalloff, Color receiverAlbedo)
+            TextureHandle source, int frameIndex, SSGIQuality performance)
         {
             return Record(renderGraph, frameData, source, true, frameIndex, performance,
-                1f, distanceFalloff, receiverAlbedo, DebugMode.Off);
+                1f, 0f, Color.white, DebugMode.Off);
         }
 
         private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData,

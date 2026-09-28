@@ -32,9 +32,6 @@ public class SSGIFeature : ScriptableRendererFeature
         [Header("Temporal")]
         public SSGITemporalControls temporal = new();
 
-        [Header("Artistic")]
-        public SSGIArtisticControls artistic = new();
-
         [Header("Debug")]
         public DebugMode debug = DebugMode.Off;
     }
@@ -49,7 +46,6 @@ public class SSGIFeature : ScriptableRendererFeature
             public TextureHandle diffuse;
             public TextureHandle specular;
             public Vector4 parameters;
-            public Vector4 albedo;
             public Vector4 flags;
             public float roughness;
             public float debug;
@@ -59,7 +55,6 @@ public class SSGIFeature : ScriptableRendererFeature
         static readonly int DiffuseTextureID = Shader.PropertyToID("_SSGIDiffuseTexture");
         static readonly int SpecularTextureID = Shader.PropertyToID("_SSGISpecularTexture");
         static readonly int ParamsID = Shader.PropertyToID("_SSGIParams");
-        static readonly int AlbedoID = Shader.PropertyToID("_SSGIReceiverAlbedo");
         static readonly int ModuleFlagsID = Shader.PropertyToID("_SSGIModuleFlags");
         static readonly int RoughnessID = Shader.PropertyToID("_SSGIRoughness");
         static readonly int DebugID = Shader.PropertyToID("_SSGIDebugMode");
@@ -111,14 +106,13 @@ public class SSGIFeature : ScriptableRendererFeature
             int frameIndex = _temporal.FrameIndex;
             TextureHandle ao = _settings.intensity.ao > 0f && _aoPass != null
                 ? _aoPass.RecordIntegrated(graph, frameData, scene, frameIndex,
-                    _settings.performance.ao, _settings.artistic.aoFalloff) : TextureHandle.nullHandle;
+                    _settings.performance.ao) : TextureHandle.nullHandle;
             TextureHandle diffuse = _settings.intensity.diffuseGI > 0f && _diffusePass != null
                 ? _diffusePass.RecordIntegrated(graph, frameData, scene, frameIndex,
-                    _settings.performance.diffuseGI, _settings.artistic.diffuseDistanceFalloff,
-                    _settings.artistic.receiverAlbedo) : TextureHandle.nullHandle;
+                    _settings.performance.diffuseGI) : TextureHandle.nullHandle;
             TextureHandle specular = _settings.intensity.specularGI > 0f && _specularPass != null
                 ? _specularPass.RecordIntegrated(graph, frameData, scene, frameIndex,
-                    _settings.performance.specularGI, _settings.artistic.specularRoughness) : TextureHandle.nullHandle;
+                    _settings.performance.specularGI, _settings.specularGI.roughness) : TextureHandle.nullHandle;
 
             if (ao.IsValid())
                 ao = _temporal.Resolve(graph, frameData, ao,
@@ -150,12 +144,10 @@ public class SSGIFeature : ScriptableRendererFeature
                     Mathf.Clamp(_settings.intensity.ao, 0f, 4f),
                     Mathf.Clamp(_settings.intensity.diffuseGI, 0f, 4f),
                     Mathf.Clamp01(_settings.intensity.specularGI),
-                    Mathf.Clamp01(_settings.artistic.sceneAO));
-                Color albedo = _settings.artistic.receiverAlbedo.linear;
-                data.albedo = new Vector4(Mathf.Clamp01(albedo.r), Mathf.Clamp01(albedo.g), Mathf.Clamp01(albedo.b), 1f);
+                    0f);
                 data.flags = new Vector4(ao.IsValid() ? 1f : 0f, diffuse.IsValid() ? 1f : 0f,
                     specular.IsValid() ? 1f : 0f, 0f);
-                data.roughness = Mathf.Clamp01(_settings.artistic.specularRoughness);
+                data.roughness = Mathf.Clamp01(_settings.specularGI.roughness);
                 data.debug = (float)_settings.debug;
 
                 builder.UseTexture(scene, AccessFlags.Read);
@@ -172,7 +164,6 @@ public class SSGIFeature : ScriptableRendererFeature
                 builder.SetRenderFunc((CompositeData pass, RasterGraphContext context) =>
                 {
                     pass.material.SetVector(ParamsID, pass.parameters);
-                    pass.material.SetVector(AlbedoID, pass.albedo);
                     pass.material.SetVector(ModuleFlagsID, pass.flags);
                     pass.material.SetFloat(RoughnessID, pass.roughness);
                     pass.material.SetFloat(DebugID, pass.debug);

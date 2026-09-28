@@ -31,18 +31,18 @@ AO 输出可见度 `V`，DiffuseGI 输出尚未乘接收反照率和强度的间
 
 ```text
 AOFactor = 1 - saturate((1 - V) × AOIntensity)
-Color    = Scene × lerp(1, AOFactor, SceneAO)
-Color   += DiffuseGI × ReceiverAlbedo × DiffuseIntensity × AOFactor
+Color    = Scene × AOFactor
+Color   += DiffuseGI × DiffuseIntensity × AOFactor
 Color    = lerp(Color, SpecularGI, saturate(SpecularIntensity × Fresnel))
 ```
 
-`SceneAO` 默认 1，延续原 AO 对整个场景色的近似遮蔽；设为 0 可保留原场景色，只让 AO 调制新增 DiffuseGI。Forward 后处理无法拆出场景色中的直接光与环境光，因此这里不是严格的“仅遮蔽间接光”。SpecularGI 沿用原有 Fresnel 混合，不把反射辐亮度当成无条件加法项。
+AO 固定乘到原场景色和新增 DiffuseGI。Forward 后处理无法拆出场景色中的直接光与环境光，因此这里不是严格的“仅遮蔽间接光”。DiffuseGI 使用白色接收反照率近似；不能把已经受光的场景色当作材质反照率，否则会重复计入光照。相较旧版 0.8 的全局颜色，DiffuseGI 可能变亮，可用统一强度调节。SpecularGI 沿用原有 Fresnel 混合，不把反射辐亮度当成无条件加法项。
 
 ## Renderer 配置与调试
 
 `Assets/Settings/PC_Renderer.asset` 已启用统一 SSGI，AO 和 DiffuseGI 使用各自 Medium 档；SpecularGI 参数从原 Feature 复制，旧 SpecularGI Feature 关闭但保留。统一 Debug 提供 AO、DiffuseGI、SpecularGI 三种分量视图；各子模块原有 Debug 字段只在独立 Feature 中使用。
 
-统一 Inspector 的「Technical · Modules」只保留各模块的 Shader、追踪几何与滤波参数；SpecularGI 的 Cubemap 与 Sky Max Mip 也在这里。三个模块的性能档位集中在 Performance，强度集中在 Intensity，历史权重集中在 Temporal，距离衰减、接收反照率、粗糙度与 Scene AO 集中在 Artistic。每路 Intensity = 0 即跳过该路追踪和历史解析，无额外启用开关。Debug 是统一合成的分量视图。独立 AO、DiffuseGI、SpecularGI Feature 各自保留 Settings（技术参数）和 Controls（性能、强度、时缓、艺术与独立调试），供单模块对照。\n\n性能档位决定固定采样预算和工作分辨率；AO 世界半径只控制遮蔽覆盖，不改变循环次数。
+统一 Inspector 的「Technical · Modules」只保留各模块的 Shader、追踪几何与滤波参数；SpecularGI 的 Cubemap 与 Sky Max Mip 也在这里。三个模块的性能档位集中在 Performance，强度集中在 Intensity，历史权重集中在 Temporal。统一面板不再暴露 Artistic 组：AO/DiffuseGI 的距离衰减固定为 0，Scene AO 固定为 1，接收反照率固定为白色；全局 Specular Roughness 是缺少逐像素材质数据时的近似值，保留在 SpecularGI 技术设置中。每路 Intensity = 0 即跳过该路追踪和历史解析，无额外启用开关。Debug 是统一合成的分量视图。独立 AO、DiffuseGI、SpecularGI Feature 各自保留 Settings（技术参数）和 Controls（性能、强度、时缓、艺术与独立调试），供单模块对照。\n\n性能档位决定固定采样预算和工作分辨率；AO 世界半径只控制遮蔽覆盖，不改变循环次数。
 
 ## 验证与限制
 
