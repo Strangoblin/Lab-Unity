@@ -63,6 +63,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
             public Material material;
             public TextureHandle source;
             public TextureHandle trace;
+            public TextureHandle filtered;
             public TextureHandle spatial;
             public Vector4 traceParams;
             public float roughness;
@@ -152,14 +153,17 @@ public class SpecularGIFeature : ScriptableRendererFeature
             TextureHandle trace = UniversalRenderer.CreateRenderGraphTexture(
                 graph, traceDescriptor, "SpecularGI.Trace", false);
             traceOutput = trace;
+            TextureHandle filtered = UniversalRenderer.CreateRenderGraphTexture(
+                graph, traceDescriptor, "SpecularGI.Filtered", false);
             TextureHandle spatial = UniversalRenderer.CreateRenderGraphTexture(
                 graph, descriptor, "SpecularGI.Spatial", false);
 
-            using (var builder = graph.AddUnsafePass<TraceData>("SpecularGI.TraceSpatial", out var data))
+            using (var builder = graph.AddUnsafePass<TraceData>("SpecularGI.TraceFilterUpsample", out var data))
             {
                 data.material = _material;
                 data.source = source;
                 data.trace = trace;
+                data.filtered = filtered;
                 data.spatial = spatial;
                 data.traceParams = new Vector4(
                     Mathf.Max(_settings.maxDistance, 0.001f),
@@ -174,6 +178,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
 
                 builder.UseTexture(source, AccessFlags.Read);
                 builder.UseTexture(trace, AccessFlags.ReadWrite);
+                builder.UseTexture(filtered, AccessFlags.ReadWrite);
                 builder.UseTexture(spatial, AccessFlags.ReadWrite);
                 builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
                 builder.UseTexture(resources.cameraNormalsTexture, AccessFlags.Read);
@@ -188,7 +193,8 @@ public class SpecularGIFeature : ScriptableRendererFeature
                     pass.material.SetTexture(Settings.SkyCubemapID, pass.skyCubemap);
                     CommandBuffer commandBuffer = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
                     Blitter.BlitCameraTexture(commandBuffer, pass.source, pass.trace, pass.material, 0);
-                    Blitter.BlitCameraTexture(commandBuffer, pass.trace, pass.spatial, pass.material, 1);
+                    Blitter.BlitCameraTexture(commandBuffer, pass.trace, pass.filtered, pass.material, 1);
+                    Blitter.BlitCameraTexture(commandBuffer, pass.filtered, pass.spatial, pass.material, 2);
                 });
             }
             return spatial;
@@ -235,7 +241,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
                     {
                         commandBuffer.SetGlobalTexture(Settings.SpecularTextureID, pass.temporal);
                         Blitter.BlitCameraTexture(commandBuffer,
-                            pass.source, pass.target, pass.material, 2);
+                            pass.source, pass.target, pass.material, 3);
                     }
                     else
                     {
@@ -249,7 +255,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
                             _ => pass.temporal
                         };
                         Blitter.BlitCameraTexture(commandBuffer,
-                            selected, pass.target, pass.material, 3);
+                            selected, pass.target, pass.material, 4);
                     }
                     Blitter.BlitCameraTexture(commandBuffer, pass.target, pass.source);
                 });

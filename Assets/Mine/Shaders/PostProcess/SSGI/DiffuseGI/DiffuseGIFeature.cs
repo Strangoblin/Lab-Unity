@@ -57,7 +57,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         {
             case SSGIQuality.Low: return new Vector3Int(4, 4, 24);
             case SSGIQuality.High: return new Vector3Int(2, 8, 64);
-            default: return new Vector3Int(2, 6, 48);
+            default: return new Vector3Int(4, 6, 48);
         }
     }
 

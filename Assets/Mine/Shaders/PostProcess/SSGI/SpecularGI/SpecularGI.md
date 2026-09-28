@@ -53,7 +53,7 @@ Trace 的 Alpha 保存 `screenConfidence`，供 Screen/Sky Source 调试；时�
 
 ## 历史与调试
 
-每台 Camera 有独立的颜色历史；统一 SSGI 中与 AO、DiffuseGI 共用每相机眼深历史。分辨率变化、帧间断、相机矩阵突变或深度不匹配时拒绝历史。空间阶段使用 5×5 几何权重重建。
+每台 Camera 有独立的颜色历史；统一 SSGI 中与 AO、DiffuseGI 共用每相机眼深历史。分辨率变化、帧间断、相机矩阵突变或深度不匹配时拒绝历史。空间阶段在 Trace 分辨率使用 5×5 几何权重滤波，再以四点几何引导上采样到全分辨率供时间累积。
 
 Debug 提供 Screen Source、Sky Source、Trace、Spatial、Temporal 和 History Weight。Screen/Sky Source 显示两路权重；History Weight 中白色表示历史正常累积，黑色表示历史被拒绝或当前像素没有表面。旧序列化枚举数值保持稳定，已移除的 Planar Source 数值 2 留空。
 

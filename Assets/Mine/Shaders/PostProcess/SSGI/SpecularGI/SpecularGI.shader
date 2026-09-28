@@ -79,6 +79,11 @@ Shader "PostProcess/SpecularGI"
         return SpecularGI_SpatialResolve(input.texcoord);
     }
 
+    half4 Frag_Upsample(Varyings input) : SV_Target
+    {
+        return SpecularGI_Upsample(input.texcoord);
+    }
+
     // ════════════════════════════════════════════════════════════
     //  Composite and debug — Fresnel blend or source contribution view
     // ════════════════════════════════════════════════════════════
@@ -142,6 +147,16 @@ Shader "PostProcess/SpecularGI"
             #pragma target 3.5
             #pragma vertex Vert
             #pragma fragment Frag_Spatial
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "Upsample"
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex Vert
+            #pragma fragment Frag_Upsample
             ENDHLSL
         }
 

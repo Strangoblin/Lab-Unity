@@ -195,7 +195,7 @@ AOFeature（AfterRenderingSkybox，早于 URP 的 _CameraOpaqueTexture 拷贝）
 | 性能档 | 宽高除数 | SSAO 样本数 = HBAO 方向数 | 步进/方向 |
 |---|---|---|---|
 | Low | 4 | 4 | 6 |
-| Medium | 2 | 6 | 8 |
+| Medium | 4 | 6 | 8 |
 | High | 2 | 8 | 12 |
 
 ### 估计量约定
