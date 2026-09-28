@@ -55,7 +55,7 @@ public class AOFeature : ScriptableRendererFeature
     {
         switch (performance)
         {
-            case SSGIQuality.Low: return new Vector3Int(4, 4, 6);
+            case SSGIQuality.Low: return new Vector3Int(8, 4, 6);
             case SSGIQuality.High: return new Vector3Int(2, 8, 12);
             default: return new Vector3Int(4, 6, 8);
         }

@@ -51,6 +51,8 @@ Trace 的 Alpha 保存 `screenConfidence`，供 Screen/Sky Source 调试；时�
 | Medium | 1/4 | 64 |
 | High | 1/2 | 96 |
 
+Trace 宽高按各档除数向上取整，和 AO、DiffuseGI 在相同档位使用同一工作尺寸。
+
 ## 历史与调试
 
 每台 Camera 有独立的颜色历史；统一 SSGI 中与 AO、DiffuseGI 共用每相机眼深历史。分辨率变化、帧间断、相机矩阵突变或深度不匹配时拒绝历史。空间阶段在 Trace 分辨率使用 5×5 几何权重滤波，再以四点几何引导上采样到全分辨率供时间累积。

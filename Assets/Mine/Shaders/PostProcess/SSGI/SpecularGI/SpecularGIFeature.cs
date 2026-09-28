@@ -148,8 +148,9 @@ public class SpecularGIFeature : ScriptableRendererFeature
             descriptor.msaaSamples = 1;
             descriptor.colorFormat = RenderTextureFormat.ARGBHalf;
             RenderTextureDescriptor traceDescriptor = descriptor;
-            traceDescriptor.width = Mathf.Max(descriptor.width >> downsample, 1);
-            traceDescriptor.height = Mathf.Max(descriptor.height >> downsample, 1);
+            int divisor = 1 << downsample;
+            traceDescriptor.width = Mathf.Max((descriptor.width + divisor - 1) / divisor, 1);
+            traceDescriptor.height = Mathf.Max((descriptor.height + divisor - 1) / divisor, 1);
             TextureHandle trace = UniversalRenderer.CreateRenderGraphTexture(
                 graph, traceDescriptor, "SpecularGI.Trace", false);
             traceOutput = trace;

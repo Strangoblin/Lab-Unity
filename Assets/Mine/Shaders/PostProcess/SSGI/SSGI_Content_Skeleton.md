@@ -121,7 +121,7 @@ DiffuseGIFeature（AfterRenderingSkybox，早于 URP 的 _CameraOpaqueTexture �
 - `DiffuseGIFunction.hlsl`：TBN + cosine-weighted 半球采样，静态像素随机旋转。
 - `ScreenSpaceTrace.hlsl`：世界空间步进、近平面/clip.w/UV 安全检查、首次深度穿越和二分精炼；几何结果不携带镜面材质权重。
 - 命中法线朝向验证、沿接收法线的起点偏移，以及最大距离/厚度约束。
-- 半分辨率（Low 档为宽高各 1/4）追踪与深度/法线双边滤波，几何引导上采样到全分辨率。
+- 分档低分辨率（Low 档为宽高各 1/8）追踪与深度/法线双边滤波，几何引导上采样到全分辨率。
 - 独立 Debug：Trace / Indirect / Confidence，保留 Off 合成模式。
 
 ### 估计量约定
@@ -146,8 +146,8 @@ Final.rgb = Scene.rgb + intensity × GI.rgb   // 统一入口：白色接收反�
 
 | 性能档 | 宽高缩放 | 射线/像素 | 步进/射线 |
 |---|---|---|---|
-| Low | 1/4 | 4 | 24 |
-| Medium | 1/2 | 6 | 48 |
+| Low | 1/8 | 4 | 24 |
+| Medium | 1/4 | 6 | 48 |
 | High | 1/2 | 8 | 64 |
 
 内部发布 `_GITraceTexture` / `_GITexture`，仅限本效果执行后的同相机同帧使用。Intensity=0 且 Debug=Off 时跳过整个 Feature，不可继续消费旧全局绑定。
@@ -188,13 +188,13 @@ AOFeature（AfterRenderingSkybox，早于 URP 的 _CameraOpaqueTexture 拷贝）
 
 - `AOFunction.hlsl`：两条遮蔽分支共用「引导读取 → 旋转 → 追踪 → 可见度」骨架，`AO_Trace` 是统一入口。
 - `ScreenSpaceTrace.hlsl`：复用 Phase 3 引入的几何层（深度采样、眼深/世界重建、投影），不引入第二套几何库。
-- 低分辨率追踪（Medium / High 为宽高各 1/2，Low 为 1/4）+ 5 点双边滤波 + 四点几何引导升采样；`depthSigma` 是滤波的几何深度阈值。
+- 低分辨率追踪（High 为宽高各 1/2，Medium 为 1/4，Low 为 1/8）+ 5 点双边滤波 + 四点几何引导升采样；`depthSigma` 是滤波的几何深度阈值。
 - 独立 Debug：AO / Depth / Normal；Off 为合成模式。
 - 档位与 SSAO 样本数 / HBAO 方向数 / 步进预算同源展开（`AOFeature.GetTier`）：
 
 | 性能档 | 宽高除数 | SSAO 样本数 = HBAO 方向数 | 步进/方向 |
 |---|---|---|---|
-| Low | 4 | 4 | 6 |
+| Low | 8 | 4 | 6 |
 | Medium | 4 | 6 | 8 |
 | High | 2 | 8 | 12 |
 

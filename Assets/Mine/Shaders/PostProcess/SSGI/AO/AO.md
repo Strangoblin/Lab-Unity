@@ -32,7 +32,7 @@ Feature 在 `AfterRenderingSkybox` 执行，要求 RenderGraph 开启。输入�
 | `AOFunction.hlsl` | 遮蔽估计、双边滤波、保边升采样与合成 |
 | `ScreenSpaceTrace.hlsl` | 复用：深度采样、眼深/世界重建与投影（几何层，无 BRDF 权重） |
 
-AO RT 使用线性 `R8_UNorm`（单通道可见度），非 MSAA，无 mip。低分辨率档位在宽高上各除 1/2 或 1/4。临时纹理由 RenderGraph 管理；合成读原场景色和全分辨率可见度、写独立目标，最后更新 `resources.cameraColor`。滤波后 `_AOTexture` 供 Resolve 使用；独立合成显式读取 Resolve 或时域纹理。材质在 Create/Dispose 中释放，参数保存到 PassData 并在执行阶段绑定。
+AO RT 使用线性 `R8_UNorm`（单通道可见度），非 MSAA，无 mip。低分辨率档位在宽高上各除 1/2、1/4 或 1/8。临时纹理由 RenderGraph 管理；合成读原场景色和全分辨率可见度、写独立目标，最后更新 `resources.cameraColor`。滤波后 `_AOTexture` 供 Resolve 使用；独立合成显式读取 Resolve 或时域纹理。材质在 Create/Dispose 中释放，参数保存到 PassData 并在执行阶段绑定。
 
 ## 算法
 
@@ -98,7 +98,7 @@ atten = 1 / (1 + d² × falloff)
 - 仰角相对**切线平面**测量（`up` 取自 `N`），不是原文的"视线向量 → 水平线"完整切线框架；等价效果是平面对相机时遮蔽为 0，掠射面允许累积。
 - `angleBias` 以弧度正弦形式进入，补偿低模几何的过度自遮蔽；原文还包含按方向的地平线权重与 30° 固定偏移。
 - **不做 16 层 de-interleaved 纹理**：方向与步进都在同一像素内完成，缓存局部性低于原文；`High` 档 8 方向 × 12 步是当前上限。
-- 步长按眼深折算到 AO 工作纹理像素（`0.5 × aoHeight × P[1][1] / eyeDepth`），并夹在 `[1, 64]` 像素内；正交投影用 `P[1][1]` 的线性解释。使用工作纹理高度可保证切换 1/2、1/4 分辨率时，世界空间 `radius` 的 UV 覆盖语义保持一致。
+- 步长按眼深折算到 AO 工作纹理像素（`0.5 × aoHeight × P[1][1] / eyeDepth`），并夹在 `[1, 64]` 像素内；正交投影用 `P[1][1]` 的线性解释。使用工作纹理高度可保证切换 1/2、1/4、1/8 分辨率时，世界空间 `radius` 的 UV 覆盖语义保持一致。
 
 ### 双边模糊与上采样
 
@@ -122,7 +122,7 @@ atten = 1 / (1 + d² × falloff)
 
 | 性能档 | 宽高除数 | SSAO 样本数 = HBAO 方向数 | 步进/方向 |
 |---|---|---|---|
-| Low | 4 | 4 | 6 |
+| Low | 8 | 4 | 6 |
 | Medium | 4 | 6 | 8 |
 | High | 2 | 8 | 12 |
 
