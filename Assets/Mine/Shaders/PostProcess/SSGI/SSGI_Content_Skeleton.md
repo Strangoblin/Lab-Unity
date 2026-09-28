@@ -235,7 +235,7 @@ Forward 后处理拿不到逐像素的"环境光 / 间接光"分量，所以合�
 
 三个模块先完成各自的空域滤波和全分辨率重建，再把结果交给 `SSGITemporalFilter`。统一 Feature 对同一相机只创建一对 RHalf 眼深历史；AO、DiffuseGI、SpecularGI 各有独立的颜色双缓冲和混合权重。AO 历史为 RHalf，两路 GI 为 ARGBHalf。公共 Shader 按运动向量读取前帧颜色，重建当前像素在前帧视图空间的眼深，与前帧深度比较后降低或拒绝历史权重。
 
-相机停帧、分辨率变化、矩阵突变、运动向量缺失以及模块停用后的双缓冲侧不匹配都会失效历史。AO 与 DiffuseGI 在有效时域输入下推进逐帧采样旋转；独立 Feature 可绑定同一 `SSGITemporal.shader` 使用该实现。SpecularGI 原来的时域代码已迁出，保留 Trace/Spatial 私有算法和历史权重 Debug。
+相机停帧、分辨率变化、矩阵突变、运动向量缺失以及模块停用后的双缓冲侧不匹配都会失效历史。AO 与 DiffuseGI 在有效时域输入下推进逐帧采样旋转；独立 Feature 可绑定同一 `SSGITemporal.shader` 使用该实现。SpecularGI 原来的时域代码已迁出，保留 Trace/Spatial 私有算法。
 
 ### 尚未实施
 

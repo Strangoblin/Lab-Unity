@@ -90,7 +90,6 @@ internal sealed class SSGITemporalFilter
         public Matrix4x4 previousViewMatrix;
         public float blend;
         public float historyValid;
-        public float storeWeight;
     }
 
     sealed class DepthData
@@ -105,7 +104,6 @@ internal sealed class SSGITemporalFilter
     static readonly int PreviousViewID = Shader.PropertyToID("_SSGIPreviousViewMatrix");
     static readonly int BlendID = Shader.PropertyToID("_SSGITemporalBlend");
     static readonly int ValidID = Shader.PropertyToID("_SSGIHistoryValid");
-    static readonly int StoreWeightID = Shader.PropertyToID("_SSGIStoreWeight");
 
     readonly Dictionary<int, CameraHistory> _histories = new();
     // RenderGraph records each signal separately; queued draws must not share mutable uniforms.
@@ -166,7 +164,7 @@ internal sealed class SSGITemporalFilter
     }
 
     public TextureHandle Resolve(RenderGraph graph, ContextContainer frameData,
-        TextureHandle current, Signal signal, float blend, bool debugHistoryWeight = false)
+        TextureHandle current, Signal signal, float blend)
     {
         if (_active == null || !current.IsValid())
             return current;
@@ -195,7 +193,6 @@ internal sealed class SSGITemporalFilter
             data.previousViewMatrix = _active.previousViewMatrix;
             data.blend = Mathf.Clamp(blend, 0f, 0.98f);
             data.historyValid = historyValid ? 1f : 0f;
-            data.storeWeight = signal == Signal.SpecularGI || debugHistoryWeight ? 1f : 0f;
 
             builder.UseTexture(current, AccessFlags.Read);
             builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
@@ -210,7 +207,6 @@ internal sealed class SSGITemporalFilter
                 pass.material.SetMatrix(PreviousViewID, pass.previousViewMatrix);
                 pass.material.SetFloat(BlendID, pass.blend);
                 pass.material.SetFloat(ValidID, pass.historyValid);
-                pass.material.SetFloat(StoreWeightID, pass.storeWeight);
                 context.cmd.SetGlobalTexture(HistoryColorID, pass.historyColor);
                 context.cmd.SetGlobalTexture(HistoryDepthID, pass.historyDepth);
                 context.cmd.SetGlobalTexture(MotionID, pass.motion);

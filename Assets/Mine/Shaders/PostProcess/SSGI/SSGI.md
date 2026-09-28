@@ -40,7 +40,7 @@ AO 固定乘到原场景色和新增 DiffuseGI。Forward 后处理无法拆出�
 
 ## Renderer 配置与调试
 
-`Assets/Settings/PC_Renderer.asset` 已启用统一 SSGI；性能档位可在 Renderer 面板中分别调整。SpecularGI 参数从原 Feature 复制，旧 SpecularGI Feature 关闭但保留。统一 Debug 提供 AO、DiffuseGI、SpecularGI 分量视图与 Diffuse History Weight 诊断视图；后者黑色表示历史未使用，灰度值为该像素实际历史权重。各子模块原有 Debug 字段只在独立 Feature 中使用。
+`Assets/Settings/PC_Renderer.asset` 已启用统一 SSGI；性能档位可在 Renderer 面板中分别调整。SpecularGI 参数从原 Feature 复制，旧 SpecularGI Feature 关闭但保留。统一 Debug 提供 AO、DiffuseGI、SpecularGI 分量视图。各子模块原有 Debug 字段只在独立 Feature 中使用。
 
 统一 Inspector 的「Technical · Modules」只保留各模块的 Shader、追踪几何与滤波参数；SpecularGI 的 Cubemap 与 Sky Max Mip 也在这里。三个模块的性能档位集中在 Performance，强度集中在 Intensity，历史权重集中在 Temporal。三路 Trace 工作尺寸统一为 Low 宽高各 1/8、Medium 各 1/4、High 各 1/2，非整除尺寸统一向上取整；各路的射线或步进预算仍独立。统一面板不再暴露 Artistic 组：AO/DiffuseGI 的距离衰减固定为 0，Scene AO 固定为 1，接收反照率固定为白色；全局 Specular Roughness 是缺少逐像素材质数据时的近似值，保留在 SpecularGI 技术设置中。每路 Intensity = 0 即跳过该路追踪和历史解析，无额外启用开关。Debug 是统一合成的分量视图。独立 AO、DiffuseGI、SpecularGI Feature 各自保留 Settings（技术参数）和 Controls（性能、强度、时缓、艺术与独立调试），供单模块对照。\n\n性能档位决定固定采样预算和工作分辨率；AO 世界半径只控制遮蔽覆盖，不改变循环次数。
 

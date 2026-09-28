@@ -17,7 +17,6 @@ Shader "PostProcess/SSGITemporal"
     CBUFFER_START(UnityPerMaterial)
         float _SSGIHistoryValid;
         float _SSGITemporalBlend;
-        float _SSGIStoreWeight;
         float4x4 _SSGIPreviousViewMatrix;
     CBUFFER_END
 

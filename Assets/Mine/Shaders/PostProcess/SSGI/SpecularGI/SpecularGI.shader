@@ -117,9 +117,7 @@ Shader "PostProcess/SpecularGI"
             return value;
         if (_DebugMode < 1.5)
             return float4(saturate(value.a).xxx, 1.0);
-        if (_DebugMode < 2.5)
-            return float4(saturate(1.0 - value.a).xxx, 1.0);
-        return float4(value.aaa, 1.0);
+        return float4(saturate(1.0 - value.a).xxx, 1.0);
     }
     ENDHLSL
 

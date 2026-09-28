@@ -15,7 +15,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
         public enum DebugMode
         {
             Off = 0, ScreenSource = 1, SkySource = 3,
-            Trace = 4, Spatial = 5, Temporal = 6, HistoryWeight = 7
+            Trace = 4, Spatial = 5, Temporal = 6
         }
 
         [Header("Resources")]
@@ -298,7 +298,6 @@ public class SpecularGIFeature : ScriptableRendererFeature
             {
                 Settings.DebugMode.ScreenSource => 1f,
                 Settings.DebugMode.SkySource => 2f,
-                Settings.DebugMode.HistoryWeight => 3f,
                 _ => 0f
             };
             material.SetFloat(Settings.DebugModeID, mode);

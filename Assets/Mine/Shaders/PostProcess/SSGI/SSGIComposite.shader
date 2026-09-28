@@ -50,14 +50,8 @@ Shader "PostProcess/SSGI/Composite"
         float3 reflection = 0.0;
         if (_SSGIModuleFlags.z > 0.5)
             reflection = max(SAMPLE_TEXTURE2D_X_LOD(_SSGISpecularTexture, sampler_LinearClamp, uv, 0).rgb, 0.0);
-        if (_SSGIDebugMode > 2.5 && _SSGIDebugMode < 3.5)
+        if (_SSGIDebugMode > 2.5)
             return float4(reflection, 1.0);
-        if (_SSGIDebugMode > 3.5)
-        {
-            float weight = _SSGIModuleFlags.y > 0.5
-                ? SAMPLE_TEXTURE2D_X_LOD(_SSGIDiffuseTexture, sampler_PointClamp, uv, 0).a : 0.0;
-            return float4(weight.xxx, 1.0);
-        }
 
         float aoFactor = 1.0 - saturate((1.0 - visibility) * _SSGIParams.x);
         float3 color = scene.rgb * aoFactor;
