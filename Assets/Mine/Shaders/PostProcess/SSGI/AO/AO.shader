@@ -70,6 +70,14 @@ Shader "PostProcess/AO"
         float4 scene = SAMPLE_TEXTURE2D_X_LOD(_BlitTexture, sampler_PointClamp, uv, 0);
         return float4(scene.rgb * (1.0 - saturate((1.0 - visibility) * _AOParams.w)), scene.a);
     }
+    // ════════════════════════════════════════════════════════════
+    //  Resolve — full-resolution visibility for the integrated compositor.
+    // ════════════════════════════════════════════════════════════
+    float4 Frag_Resolve(Varyings input) : SV_Target
+    {
+        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+        return AO_Resolve(input.texcoord).xxxx;
+    }
     ENDHLSL
 
     SubShader
@@ -114,6 +122,16 @@ Shader "PostProcess/AO"
             #pragma target 3.5
             #pragma vertex Vert
             #pragma fragment Frag_Composite
+            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+            ENDHLSL
+        }
+        Pass
+        {
+            Name "Resolve"
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex Vert
+            #pragma fragment Frag_Resolve
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
             ENDHLSL
         }

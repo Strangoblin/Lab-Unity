@@ -1,9 +1,7 @@
 # Screen Space 渲染解耦骨架
 
 > 2026-09-21：随 SSGI 家族迁入 `Assets/Mine/Shaders/PostProcess/SSGI/`。
-> 当前落地形态：**三个独立 Feature 各自持有一个 Control Layer**（`*Feature.cs` +
-> `RecordRenderGraph`），Compute Layer 是各自的 `.shader` + 私有 HLSL；跨模块共享的
-> 只有 Data Layer 的几何读取（`ScreenSpaceTrace.hlsl`）。SSR 系列（Raymarch / DDA /
+> 当前落地形态：统一 `SSGIFeature` 按 AO → DiffuseGI → SpecularGI → Composite 调度 RenderGraph；三个模块保留独立 Feature 供对照，计算层仍是各自的 Shader 与私有 HLSL。几何读取共享 `ScreenSpaceTrace.hlsl`。SSR 系列（Raymarch / DDA /
 > Hi-Z 三套）已退役，其几何求交能力并入 SpecularGI。
 
 ## 目标

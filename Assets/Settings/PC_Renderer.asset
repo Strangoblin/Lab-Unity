@@ -1,5 +1,63 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8666594091835673655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f34910ba34284720be7006cff69df99, type: 3}
+  m_Name: SSGI
+  m_EditorClassIdentifier: Assembly-CSharp::SSGIFeature
+  m_Active: 1
+  settings:
+    compositeShader: {fileID: 4800000, guid: 0c2cf0c88542b4f5daa3ac19dd7493ff, type: 3}
+    enableAO: 1
+    ao:
+      shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
+      mode: 1
+      radius: 1
+      bias: 0.02
+      angleBias: 10
+      depthSigma: 0.15
+      performance: 1
+      intensity: 1
+      falloff: 0
+      debug: 0
+    enableDiffuseGI: 1
+    diffuseGI:
+      shader: {fileID: 4800000, guid: 0f1271be0061c430aa91678b9a119c1b, type: 3}
+      maxDistance: 5
+      thickness: 0.15
+      normalBias: 0.03
+      depthSigma: 0.15
+      performance: 1
+      intensity: 1
+      distanceFalloff: 0
+      receiverAlbedo: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+      debug: 0
+    enableSpecularGI: 1
+    specularGI:
+      shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
+      skyCubemap: {fileID: 0}
+      maxDistance: 50
+      thickness: 0.05
+      normalBias: 0.03
+      quality: 1
+      roughness: 0.1
+      intensity: 1
+      planarStrength: 1
+      planarThreshold: 0.95
+      planarFadeStart: 15
+      planarFadeEnd: 50
+      skyMaxMip: 6
+      temporalBlend: 0.5
+      debug: 6
+    sceneAO: 1
+    debug: 0
 --- !u!114 &-6861971581733455524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80,7 +138,8 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: -6861971581733455524}
   - {fileID: 342700495237574708}
-  m_RendererFeatureMap: 5cb9f3e33361c5a03470fce24884c104
+  - {fileID: -8666594091835673655}
+  m_RendererFeatureMap: 5cb9f3e33361c5a03470fce24884c104c9b3a24f9712ba87
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}

@@ -163,7 +163,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
         }
     }
 
-    sealed class SpecularGIPass : ScriptableRenderPass
+    internal sealed class SpecularGIPass : ScriptableRenderPass
     {
         sealed class PassData
         {
@@ -183,6 +183,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
             public RTHandle historyDepthWriteHandle;
             public Settings.DebugMode debug;
             public bool hasMotion;
+            public bool integrated;
         }
 
         readonly Settings _settings;
@@ -205,11 +206,28 @@ public class SpecularGIFeature : ScriptableRendererFeature
             RenderGraph renderGraph,
             ContextContainer frameData)
         {
+            Record(renderGraph, frameData, TextureHandle.nullHandle, false);
+        }
+
+        public TextureHandle RecordIntegrated(
+            RenderGraph renderGraph,
+            ContextContainer frameData,
+            TextureHandle source)
+        {
+            return Record(renderGraph, frameData, source, true);
+        }
+
+        private TextureHandle Record(
+            RenderGraph renderGraph,
+            ContextContainer frameData,
+            TextureHandle inputSource,
+            bool integrated)
+        {
             var resourceData = frameData.Get<UniversalResourceData>();
             var cameraData = frameData.Get<UniversalCameraData>();
-            TextureHandle source = resourceData.activeColorTexture;
+            TextureHandle source = integrated ? inputSource : resourceData.activeColorTexture;
             if (!source.IsValid() || _material == null || cameraData.camera == null)
-                return;
+                return TextureHandle.nullHandle;
 
             int width = Mathf.Max(cameraData.cameraTargetDescriptor.width, 1);
             int height = Mathf.Max(cameraData.cameraTargetDescriptor.height, 1);
@@ -263,11 +281,13 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 colorDescriptor,
                 "_SpecularGI_Temporal",
                 false);
-            TextureHandle composite = UniversalRenderer.CreateRenderGraphTexture(
-                renderGraph,
-                colorDescriptor,
-                "_SpecularGI_Composite",
-                false);
+            TextureHandle composite = TextureHandle.nullHandle;
+            if (!integrated)
+                composite = UniversalRenderer.CreateRenderGraphTexture(
+                    renderGraph,
+                    colorDescriptor,
+                    "_SpecularGI_Composite",
+                    false);
 
             var depthDescriptor = colorDescriptor;
             depthDescriptor.colorFormat = RenderTextureFormat.RHalf;
@@ -311,13 +331,15 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 passData.historyDepthWriteHandle = historyDepthWrite;
                 passData.debug = _settings.debug;
                 passData.hasMotion = hasMotion;
+                passData.integrated = integrated;
 
-                builder.UseTexture(source, AccessFlags.ReadWrite);
+                builder.UseTexture(source, integrated ? AccessFlags.Read : AccessFlags.ReadWrite);
                 builder.UseTexture(trace, AccessFlags.ReadWrite);
                 builder.UseTexture(spatial, AccessFlags.ReadWrite);
                 builder.UseTexture(temporal, AccessFlags.ReadWrite);
                 builder.UseTexture(currentDepth, AccessFlags.ReadWrite);
-                builder.UseTexture(composite, AccessFlags.ReadWrite);
+                if (!integrated)
+                    builder.UseTexture(composite, AccessFlags.ReadWrite);
                 builder.UseTexture(historyColorReadTexture, AccessFlags.Read);
                 builder.UseTexture(historyDepthReadTexture, AccessFlags.Read);
                 builder.UseTexture(historyColorWriteTexture, AccessFlags.Write);
@@ -344,23 +366,27 @@ public class SpecularGIFeature : ScriptableRendererFeature
                     commandBuffer.CopyTexture(data.temporal, data.historyColorWriteHandle.nameID);
                     commandBuffer.CopyTexture(data.currentDepth, data.historyDepthWriteHandle.nameID);
 
-                    TextureHandle output = SelectDebugTexture(data);
-                    if (data.debug == Settings.DebugMode.Off)
+                    if (!data.integrated)
                     {
-                        commandBuffer.SetGlobalTexture(Settings.SpecularTextureID, data.temporal);
-                        Blitter.BlitCameraTexture(commandBuffer, data.source, data.composite, data.material, 4);
-                    }
-                    else
-                    {
-                        SetDebugMode(data.material, data.debug);
-                        Blitter.BlitCameraTexture(commandBuffer, output, data.composite, data.material, 5);
-                    }
+                        TextureHandle output = SelectDebugTexture(data);
+                        if (data.debug == Settings.DebugMode.Off)
+                        {
+                            commandBuffer.SetGlobalTexture(Settings.SpecularTextureID, data.temporal);
+                            Blitter.BlitCameraTexture(commandBuffer, data.source, data.composite, data.material, 4);
+                        }
+                        else
+                        {
+                            SetDebugMode(data.material, data.debug);
+                            Blitter.BlitCameraTexture(commandBuffer, output, data.composite, data.material, 5);
+                        }
 
-                    Blitter.BlitCameraTexture(commandBuffer, data.composite, data.source);
+                        Blitter.BlitCameraTexture(commandBuffer, data.composite, data.source);
+                    }
                 });
             }
 
             history.CompleteFrame();
+            return temporal;
         }
 
         public void Release()

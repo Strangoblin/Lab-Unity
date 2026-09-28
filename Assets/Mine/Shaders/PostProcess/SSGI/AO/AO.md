@@ -1,6 +1,6 @@
 # AO — 屏幕空间环境光遮蔽（SSAO / HBAO）
 
-基于 [SSGI 骨架 Phase 4](../../SSR/SSGI_ScreenSpace_Outline/SSGI_Content_Skeleton.md) 实现。入口为 `AOFeature.cs`，Shader 为 `PostProcess/AO`。与 SSR / DiffuseGI 各自独立配置，互不依赖；几何工具复用 DiffuseGI 引入的 `ScreenSpaceTrace.hlsl`。
+基于 [SSGI 骨架 Phase 4](../SSGI_Content_Skeleton.md) 实现。独立入口为 `AOFeature.cs`，Shader 为 `PostProcess/AO`；统一运行由 [SSGIFeature](../SSGI.md) 调度。几何工具复用家族共享的 `ScreenSpaceTrace.hlsl`。
 
 ## 使用
 

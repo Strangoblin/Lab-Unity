@@ -59,7 +59,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         }
     }
 
-    class DiffuseGIPass : ScriptableRenderPass
+    internal class DiffuseGIPass : ScriptableRenderPass
     {
         private readonly Material _material;
         private readonly Settings _settings;
@@ -100,11 +100,21 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         // ════════════════════════════════════════════════════════════
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
+            Record(renderGraph, frameData, TextureHandle.nullHandle, false);
+        }
+
+        public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData, TextureHandle source)
+        {
+            return Record(renderGraph, frameData, source, true);
+        }
+
+        private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData, TextureHandle inputSource, bool integrated)
+        {
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             UniversalCameraData camera = frameData.Get<UniversalCameraData>();
             if (resources.isActiveTargetBackBuffer || !resources.activeColorTexture.IsValid()
                 || !resources.cameraDepthTexture.IsValid() || !resources.cameraNormalsTexture.IsValid())
-                return;
+                return TextureHandle.nullHandle;
 
             Vector3Int tier = GetTier(_settings.performance);
             RenderTextureDescriptor fullDesc = camera.cameraTargetDescriptor;
@@ -115,10 +125,6 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             fullDesc.autoGenerateMips = false;
             fullDesc.enableRandomWrite = false;
 
-            var compositeDesc = renderGraph.GetTextureDesc(resources.activeColorTexture);
-            compositeDesc.name = "DiffuseGI.Composite";
-            compositeDesc.clearBuffer = false;
-            TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
             RenderTextureDescriptor giDesc = fullDesc;
             giDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R16G16B16A16_SFloat;
             TextureHandle resolved = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Resolved", false);
@@ -128,14 +134,22 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             TextureHandle blur = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Blur", false);
             TextureHandle filtered = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Filtered", false);
             Vector4 size = new Vector4(1f / giDesc.width, 1f / giDesc.height, giDesc.width, giDesc.height);
-            TextureHandle source = resources.activeColorTexture;
+            TextureHandle source = integrated ? inputSource : resources.activeColorTexture;
 
             AddPass(renderGraph, resources, "DiffuseGI.Trace", source, trace, 0, tier, size);
             AddPass(renderGraph, resources, "DiffuseGI.BlurHorizontal", trace, blur, 1, tier, size);
             AddPass(renderGraph, resources, "DiffuseGI.BlurVertical", blur, filtered, 2, tier, size);
             AddPass(renderGraph, resources, "DiffuseGI.Resolve", filtered, resolved, 3, tier, size);
+            if (integrated)
+                return resolved;
+
+            var compositeDesc = renderGraph.GetTextureDesc(resources.activeColorTexture);
+            compositeDesc.name = "DiffuseGI.Composite";
+            compositeDesc.clearBuffer = false;
+            TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
             AddPass(renderGraph, resources, "DiffuseGI.Composite", source, composite, 4, tier, size);
             resources.cameraColor = composite;
+            return TextureHandle.nullHandle;
         }
 
         // ════════════════════════════════════════════════════════════

@@ -1,6 +1,6 @@
 # DiffuseGI — 屏幕空间间接漫反射
 
-基于 [SSGI 骨架 Phase 3](../../SSR/SSGI_ScreenSpace_Outline/SSGI_Content_Skeleton.md) 实现。入口为 `DiffuseGIFeature.cs`，Shader 为 `PostProcess/DiffuseGI`，与已有 SSR Feature 独立配置。原有 SSR 的采样、光滑度权重和输出保持原行为。
+基于 [SSGI 骨架 Phase 3](../SSGI_Content_Skeleton.md) 实现。独立入口为 `DiffuseGIFeature.cs`，Shader 为 `PostProcess/DiffuseGI`；统一运行由 [SSGIFeature](../SSGI.md) 调度。
 
 ## 使用
 

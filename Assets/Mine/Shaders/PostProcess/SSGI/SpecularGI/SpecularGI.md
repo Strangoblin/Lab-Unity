@@ -4,6 +4,8 @@
 **类型:** FullScreenPass  
 **目标管线:** Unity 6 / URP 17 / RenderGraph
 
+统一运行由 [SSGIFeature](../SSGI.md) 在 `AfterRenderingSkybox` 调度；本文以下独立 Feature 管线仍可用于对照和回退。
+
 ## 功能概述
 
 SpecularGI 将传统 SSR 作为统一几何求交能力。每条镜面或 GGX 射线首先尝试屏幕空间命中，低置信度区域由零步进 SSPR 补充，剩余部分从显式 Cubemap 获取环境辐亮度。

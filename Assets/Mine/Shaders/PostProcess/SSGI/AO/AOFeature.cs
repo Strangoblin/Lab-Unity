@@ -58,7 +58,7 @@ public class AOFeature : ScriptableRendererFeature
         }
     }
 
-    class AOPass : ScriptableRenderPass
+    internal class AOPass : ScriptableRenderPass
     {
         private readonly Material _material;
         private readonly Settings _settings;
@@ -96,11 +96,21 @@ public class AOFeature : ScriptableRendererFeature
         // ════════════════════════════════════════════════════════════
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
+            Record(renderGraph, frameData, TextureHandle.nullHandle, false);
+        }
+
+        public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData, TextureHandle source)
+        {
+            return Record(renderGraph, frameData, source, true);
+        }
+
+        private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData, TextureHandle inputSource, bool integrated)
+        {
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             UniversalCameraData camera = frameData.Get<UniversalCameraData>();
             if (resources.isActiveTargetBackBuffer || !resources.activeColorTexture.IsValid()
                 || !resources.cameraDepthTexture.IsValid() || !resources.cameraNormalsTexture.IsValid())
-                return;
+                return TextureHandle.nullHandle;
 
             Vector3Int tier = GetTier(_settings.performance);
             RenderTextureDescriptor fullDesc = camera.cameraTargetDescriptor;
@@ -111,10 +121,6 @@ public class AOFeature : ScriptableRendererFeature
             fullDesc.autoGenerateMips = false;
             fullDesc.enableRandomWrite = false;
 
-            var compositeDesc = renderGraph.GetTextureDesc(resources.activeColorTexture);
-            compositeDesc.name = "AO.Composite";
-            compositeDesc.clearBuffer = false;
-            TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
             RenderTextureDescriptor aoDesc = fullDesc;
             aoDesc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8_UNorm;
             aoDesc.width = Mathf.Max(1, (fullDesc.width + tier.x - 1) / tier.x);
@@ -123,13 +129,27 @@ public class AOFeature : ScriptableRendererFeature
             TextureHandle blur = UniversalRenderer.CreateRenderGraphTexture(renderGraph, aoDesc, "AO.Blur", false);
             TextureHandle filtered = UniversalRenderer.CreateRenderGraphTexture(renderGraph, aoDesc, "AO.Filtered", false);
             Vector4 size = new Vector4(1f / aoDesc.width, 1f / aoDesc.height, aoDesc.width, aoDesc.height);
-            TextureHandle source = resources.activeColorTexture;
+            TextureHandle source = integrated ? inputSource : resources.activeColorTexture;
 
             AddPass(renderGraph, resources, "AO.Trace", source, occlusion, 0, tier, size);
             AddPass(renderGraph, resources, "AO.BlurHorizontal", occlusion, blur, 1, tier, size);
             AddPass(renderGraph, resources, "AO.BlurVertical", blur, filtered, 2, tier, size);
+            if (integrated)
+            {
+                aoDesc.width = fullDesc.width;
+                aoDesc.height = fullDesc.height;
+                TextureHandle resolved = UniversalRenderer.CreateRenderGraphTexture(renderGraph, aoDesc, "AO.Resolved", false);
+                AddPass(renderGraph, resources, "AO.Resolve", filtered, resolved, 4, tier, size);
+                return resolved;
+            }
+
+            var compositeDesc = renderGraph.GetTextureDesc(resources.activeColorTexture);
+            compositeDesc.name = "AO.Composite";
+            compositeDesc.clearBuffer = false;
+            TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
             AddPass(renderGraph, resources, "AO.Composite", source, composite, 3, tier, size);
             resources.cameraColor = composite;
+            return TextureHandle.nullHandle;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -160,7 +180,7 @@ public class AOFeature : ScriptableRendererFeature
                 builder.SetRenderAttachment(target, 0, AccessFlags.Write);
                 if (shaderPass == 2)
                     builder.SetGlobalTextureAfterPass(target, Settings.TextureID);
-                if (shaderPass == 3)
+                if (shaderPass == 3 || shaderPass == 4)
                     builder.UseGlobalTexture(Settings.TextureID, AccessFlags.Read);
                 builder.SetRenderFunc((PassData pass, RasterGraphContext context) =>
                 {

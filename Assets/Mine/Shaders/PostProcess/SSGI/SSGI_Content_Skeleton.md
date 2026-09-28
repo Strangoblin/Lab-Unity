@@ -1,7 +1,7 @@
 # SSGI 框架实施计划
 
 > 2026-09-21：本文档已随 SSGI 家族重组迁入 `Assets/Mine/Shaders/PostProcess/SSGI/`。
-> 家族现为**三个独立 Feature + 一份共享几何层**，不再依赖 `PostProcess/SSR/`。
+> 家族现由统一 `SSGIFeature` 调度 AO、DiffuseGI、SpecularGI，并保留三个独立 Feature 供对照；共享几何层为 `ScreenSpaceTrace.hlsl`。统一运行说明见 [SSGI.md](SSGI.md)。
 > 各模块的使用方式、参数与近似边界见各自技术文档：
 > [SpecularGI.md](SpecularGI/SpecularGI.md) / [DiffuseGI.md](DiffuseGI/DiffuseGI.md) / [AO.md](AO/AO.md)。
 
@@ -16,42 +16,27 @@
 | 3 | DiffuseGI 屏幕空间间接漫反射 | 已落地 |
 | 4 | SSAO / HBAO 环境光遮蔽 | 已落地 |
 | 5 | 时域 + 空域滤波系统 | 部分落地：SpecularGI 自持时域；DiffuseGI / AO 只有空域 |
-| 6 | 统一 Composite | **待实施**，见文末 |
+| 6 | 统一 Composite | 已落地：同一不透明输入、三路 TextureHandle、单次合成 |
 
-> **Renderer 注册现状（2026-09-21 工作区）**：`Assets/Settings/PC_Renderer.asset` 的
-> `m_RendererFeatures` 为 `DebugOutput` + `SpecularGIFeature`；旧 `SSRFeature` /
-> `SSPRFeature` / `StochasticSSRFeature` / 内置 SSAO 条目已移除，`AOFeature` /
-> `DiffuseGIFeature` / `PCSSFeature` 条目亦**不在列表内**。下文 Phase 3/4 验收记录中
-> 「已持久化进 `PC_Renderer.asset`、`m_Active=1`」描述的是**当时的会话状态**，
-> 要参与画面需重新挂载。
-
+> **Renderer 注册现状（2026-09-28）**：`PC_Renderer.asset` 已启用统一 SSGI Feature，旧 SpecularGI Feature 保留但关闭。AO、DiffuseGI、SpecularGI 均由统一 Feature 在同帧调度，参数和验收见 [SSGI.md](SSGI.md)。
 ---
 
 ## 总体架构
 
-```
-                 ┌──────────────────────────────────────────┐
-                 │  SSGI/ — 三个独立 Feature，各自成管线      │
-                 └────────────────────┬─────────────────────┘
-                                      │
-        ┌─────────────────┬───────────┴───────────┬──────────────────┐
-        │                 │                       │                  │
-┌───────▼───────┐ ┌───────▼───────┐     ┌─────────▼────────┐ ┌───────▼─────────┐
-│  SpecularGI   │ │   DiffuseGI   │     │       AO         │ │ ScreenSpaceTrace│
-│  镜面 / GGX   │ │   间接漫反射   │     │   SSAO / HBAO    │ │   共享几何层     │
-├───────────────┤ ├───────────────┤     ├──────────────────┤ ├─────────────────┤
-│ Sampling(GGX) │ │ 半球余弦采样   │     │ 半球核 / 水平线   │ │ SST_SampleDepth │
-│ Trace(SSR 几何)│ │ 双边滤波       │     │ 双边滤波         │ │ SST_IsSurface   │
-│ Planar(SPR)   │ │ Resolve       │     │ Resolve          │ │ SST_EyeDepth    │
-│ Sky(Cubemap)  │ │ Composite     │     │ Composite        │ │ SST_WorldPosition│
-│ Spatial       │ │               │     │                  │ │ SST_Project     │
-│ Temporal      │ │               │     │                  │ │ SST_Trace       │
-│ Composite     │ │               │     │                  │ │                 │
-└───────────────┘ └───────────────┘     └──────────────────┘ └─────────────────┘
+```text
+不透明场景色 + 深度 + 法线 + 运动向量
+  └─ SSGIFeature（AfterRenderingSkybox）
+      ├─ AO → 可见度
+      ├─ DiffuseGI → 间接漫反射
+      └─ SpecularGI → SSSR / SSPR / Cubemap → 时域辐亮度
+          ↓
+      SSGIComposite.shader → cameraColor（一次）
+          ↓
+      _CameraOpaqueTexture 拷贝与透明物体
 ```
 
-`ScreenSpaceTrace.hlsl` 是**家族私有共享库**：三个模块的 `.shader` 各自在其 CBUFFER
-声明之后 include 它，不自带 CBUFFER、不反向依赖任何子模块。
+`ScreenSpaceTrace.hlsl` 是家族私有共享几何库；三个算法的私有 HLSL 仍各自维护。
+旧独立 Feature 保留用于对照，不与统一 Feature 同时启用。
 
 ## 实施路线图
 
@@ -60,7 +45,7 @@ Phase 1 ──┐                                        Phase 5 ──┐
 SSPR       │   Phase 2       Phase 3    Phase 4     Filter    │  Phase 6
 (平面镜面)  │   StochasticSSR  DiffuseGI  SSAO+HBAO   系统      │  Composite
            │   (粗糙反射)     (漫反射)   (环境光)               │  (统一合成)
-  ─── 1天  │   ─── 2天       ─── 3天    ─── 2天     ─── 2天   │  ─── 待实施
+  ─── 1天  │   ─── 2天       ─── 3天    ─── 2天     ─── 2天   │  ─── 已落地
            │                                                  │
   └─ Phase 1+2 合并为 SpecularGI 分层回退链 ────────────────────┘
 ```
@@ -219,13 +204,13 @@ Final.rgb = Scene.rgb + intensity × receiverAlbedo × GI.rgb
 
 输入是相机方向的场景辐亮度近似，并非纯直接漫反射；当前 `receiverAlbedo` 使用统一颜色，尚无逐像素材质反照率/金属遮罩。合成是加法近似，会与场景已有烘焙/探针 GI 重叠。
 
-距离衰减作为美术项仅在 gather 乘一次，默认 0 关闭。Phase 6 的统一 Composite 仍为后续设计，不能再向本输出叠乘同一衰减。
+距离衰减作为美术项仅在 gather 乘一次，默认 0 关闭。统一 Composite 不再向本输出叠乘同一衰减。
 
 ### 接口与复用边界
 
 几何层由 `ScreenSpaceTrace.hlsl` 统一提供，DiffuseGI 不携带任何镜面专属权重（旧
 `RayMarchFunction.hlsl` 内的 `HitProcess` 含 `_Smoothness`，已随 SSR 删除）。
-三个 Feature 各自独立配置、互不依赖。
+三个算法仍各自配置参数；统一 Feature 调度它们并共享同一帧的输入纹理。
 
 | 性能档 | 宽高缩放 | 射线/像素 | 步进/射线 |
 |---|---|---|---|
@@ -265,12 +250,13 @@ AOFeature（AfterRenderingSkybox，早于 URP 的 _CameraOpaqueTexture 拷贝）
     本帧不透明场景色 + 天空盒 + 深度 + 法线
       → AO.shader / Trace（SSAO 半球核 或 HBAO 水平线积分）
       → BlurHorizontal → BlurVertical（眼深 + 法线双边）
-      → Composite（全分辨率，双线性上采样后乘场景色，更新 cameraColor）
+      → Resolve（全分辨率，深度/法线引导的固定四点升采样）
+      → 统一 Composite（与 DiffuseGI、SpecularGI 同帧合成，更新 cameraColor）
 ```
 
 - `AOFunction.hlsl`：两条遮蔽分支共用「引导读取 → 旋转 → 追踪 → 可见度」骨架，`AO_Trace` 是统一入口。
 - `ScreenSpaceTrace.hlsl`：复用 Phase 3 引入的几何层（深度采样、眼深/世界重建、投影），不引入第二套几何库。
-- 低分辨率追踪（Medium / High 为宽高各 1/2，Low 为 1/4）+ 5 点双边滤波 + 双线性上采样；`depthSigma` 是滤波的几何深度阈值。
+- 低分辨率追踪（Medium / High 为宽高各 1/2，Low 为 1/4）+ 5 点双边滤波 + 四点几何引导升采样；`depthSigma` 是滤波的几何深度阈值。
 - 独立 Debug：AO / Depth / Normal；Off 为合成模式。
 - 档位与 SSAO 样本数 / HBAO 方向数 / 步进预算同源展开（`AOFeature.GetTier`）：
 
@@ -300,16 +286,14 @@ Forward 后处理拿不到逐像素的"环境光 / 间接光"分量，所以合�
 
 ### 尚未实施
 
-- Phase 6 的统一 Composite：未实施。方案 A 已把 AO 乘进本 Feature 的场景色，后续统一 Composite **不能**再叠乘同一 AO 系数。
-- 与 DiffuseGI 的联动（`IndirectDiffuse × AO`）：未接线。全局纹理只在同相机同帧有效，且 AO Feature 未启用时槽位无绑定。
-- 时域抖动与累积（Phase 5）、几何引导上采样、HBAO 的 de-interleaved 分组、HiZ / Compute 迁移。
-- `falloff` 仍是预留参数（传入 `_AOParams.z` 未被消费）。
+- 时域抖动与累积（Phase 5）、HBAO 的 de-interleaved 分组、HiZ / Compute 迁移。
+- Forward 场景色仍无法分离直接光，整色 AO 仅是兼容近似；统一 Feature 的 `SceneAO` 可调节此项。
 - 未测：SSAO 与 HBAO 的目视质量对比、大半径下的屏幕边缘行为、运动稳定性、正交投影下的 `radius` 手感、档位的运行期 uniform 回读。
 
 ### 验收记录
 
 - C# 通过本机 Unity 6000.3.14f1 / URP 17.3 程序集的 Roslyn 编译；`ShaderUtil.GetShaderMessages("PostProcess/AO")` 0 条。
-- 2026-09-21 当时已持久化进 `Assets/Settings/PC_Renderer.asset`（`AOFeature`，`m_Active=1`，事件 `AfterRenderingSkybox`）。**当前工作区该项不在 Feature 列表中**，见文首「Renderer 注册现状」。
+- 2026-09-21 当时已持久化进 `Assets/Settings/PC_Renderer.asset`（`AOFeature`，`m_Active=1`，事件 `AfterRenderingSkybox`）。**当前工作区由统一 SSGI Feature 调度 AO**，见文首「Renderer 注册现状」。
 - 2026-09-21 离屏相机对照采集（642×522、关闭后处理）：可见度 HBAO 均值 0.983 / SSAO 0.984，天空行 100% 可见度 = 1.00，可见度 < 0.9 占 6.5% / 6.6%；`intensity 0.0001 → 1` 只变暗不变亮；逐像素 `lin(composite)/lin(base) == V` 中位误差 0.0000。数值表见 [`AO.md`](AO/AO.md) §验收。
 - 两条工具陷阱（跨帧回读 `_AOTexture` 必得全 0；Debug 视图会被后处理色彩分级改写）记在 [`AO.md`](AO/AO.md) §已知陷阱。
 
@@ -369,39 +353,11 @@ Forward 后处理拿不到逐像素的"环境光 / 间接光"分量，所以合�
 
 ---
 
-## Phase 6: 统一 Composite —— 待实施
+## Phase 6: 统一 Composite —— 已落地
 
-> 本轮只登记设计，不写代码。当前三个模块**各自**带 Composite Pass 写回 cameraColor。
+三个模块读取同一份不透明场景色，分别输出 AO 可见度、间接漫反射和镜面反射辐亮度。统一 Feature 直接传递 RenderGraph `TextureHandle`，只由 `SSGIComposite.shader` 写回相机颜色。具体公式、Forward 路径的整色 AO 近似、参数及运行验证见 [SSGI.md](SSGI.md)。
 
-```text
-FinalColor = DirectLighting
-           + IndirectDiffuse  * DiffuseBRDF  * AO  * distAtten
-           + IndirectSpecular * Fresnel       * AO  * roughness
-           + Ambient          * (1 - AO)
-```
-
-### 前置约束（落地前必须先解决）
-
-1. **AO 不能叠乘两次**。AO 现在的合成是「方案 A：整色相乘」，已经压暗过直接光照；
-   统一 Composite 若再乘一次 `AO`，间接光会被压两次。要么 AO 改为只输出可见度
-   供 Composite 消费（不再自己写 cameraColor），要么统一 Composite 里去掉 AO 项。
-   详见 [AO.md](AO/AO.md) §与既有 SSAO 的关系。
-2. **间接光分量拿不到**。Forward 后处理的 scene color 是已合成的整色，没有逐像素
-   「直接光 / 间接光」拆分。真正的 `DirectLighting + Indirect*` 形式需要 G-Buffer
-   （Deferred）或逐像素材质光照数据。
-3. **全局纹理只在同相机同帧有效**。`_GITexture` / `_AOTexture` / `_SpecularGITexture`
-   在帧末归还池；跨帧或跨相机读取只能得到内置 `UnityBlack`。Composite 必须与三个
-   Feature 同帧同相机。
-4. **SpecularGI 的入参不是「间接镜面辐亮度」而是最终混合色**。它的 Composite 做的是
-   Fresnel 的 `lerp(scene, reflection, w)`，不是加法。统一 Composite 要改成分量形式，
-   必须先把它拆回辐射量。
-
-### 分量来源
-
-- `IndirectDiffuse` 来自 DiffuseGI（`GI.rgb` 是 `E/π` 近似，不含 BRDF 的 `1/π` 与余弦）
-- `IndirectSpecular` 来自 SpecularGI（三级回退链的混合结果）
-- `AO` 优先级：HBAO > SSAO（按 Quality 设置选择）
-
+AO 在合成中对原场景色最多作用一次，并对新增 DiffuseGI 作用一次；SpecularGI 沿用 Fresnel `lerp`，不把反射当成直接加法。SpecularGI 原有每相机时域历史继续保留。
 ---
 
 ## 文件结构
@@ -409,6 +365,9 @@ FinalColor = DirectLighting
 ```
 Assets/Mine/Shaders/PostProcess/SSGI/
 ├── ScreenSpaceTrace.hlsl          ← 家族共享几何层（三个模块的 shader 各自 include）
+├── SSGIFeature.cs                 ← 三路 RenderGraph 调度与参数入口
+├── SSGIComposite.shader          ← 单次合成
+├── SSGI.md                        ← 统一运行说明
 ├── SpecularGI/                    ← 镜面 / GGX 分层回退链
 │   ├── SpecularGIFeature.cs
 │   ├── SpecularGI.shader
