@@ -3,6 +3,8 @@
 .mcp/state.json.tmp
 # 删除审计 — 删除不留产物, 这份日志是唯一痕迹 (运行时状态, 不入库)
 .mcp/deletes.jsonl
+# 移动审计 — 新位置有产物, 但「哪个变成了哪个」在文件系统里查不回来, 故也落盘
+.mcp/moves.jsonl
 
 # Codex / Unity 本地运行产物
 .codex/tmp/*

@@ -15,7 +15,7 @@
 | 链路 | 直连 `https://opencode.ai/zen/go/v1`（`wire_api = "responses"`，无代理）。**全部配置在全局 `~/.codex/config.toml`**；项目级 `.codex/config.toml` 已退役（2026-08-25 归档为 `config.toml.bak-20260825`——Codex 忽略项目级 provider 类 key） |
 | 审查模型 | `review_model` 必须显式指向本区域可用模型（默认 `deepseek-v4-flash`）——auto_review 审批走独立模型，不设则提权全部 403 |
 | 模型目录 | 全局 `~/.codex/model-catalogs/opencode-go.json` + config.toml `model_catalog_json`（VSCode 面板模型列表来源） |
-| 门禁边界 | Codex **无 MCP 工具链**，不持有 write_gated 通道——Codex 自行写 `Assets/Mine/` 前先自查 `python3 .mcp/validation/check_norm.py <file>`；需走完整门禁链的产出由持 MCP 通道的一侧（Claude）合入 |
+| 门禁边界 | Codex **无 MCP 工具链**，不持有 write_gated / move_gated 通道——Codex 自行写 `Assets/Mine/` 前先自查 `python3 .mcp/validation/check_norm.py <file>`；需走完整门禁链的产出由持 MCP 通道的一侧（Claude）合入 |
 
 ### 1.1 Claude 侧对应 skill 分工
 
@@ -45,7 +45,7 @@ Claude 与 Codex 是**对等并行**的两个开发引擎，**不是派发/从�
 
 - **知识源**：两侧都**直接读 `.agents/`**（入口：根 `AGENTS.md` → `.agents/README.md` → 角色 `AGENT.md` / `rules/` / `references/`）。不互为镜像，也不需要任一侧代为转述
 - **角色路由**：按任务选共享角色（`unity-developer` 开发 / `meta-developer` 体系维护），显式引用 `.agents/agents/<role>/AGENT.md`，并说明 Production / Research / Experiment 模式
-- **门禁边界**：`Assets/Mine/` 的 `write_gated` / `delete_gated` 通道**只有 Claude 侧的 MCP 工具持有**。Codex 自行写 `Assets/Mine/` 前先自查 `python3 .mcp/validation/check_norm.py <file>`；需走完整门禁链的产出交给 Claude 合入
+- **门禁边界**：`Assets/Mine/` 的 `write_gated` / `delete_gated` / `move_gated` 通道**只有 Claude 侧的 MCP 工具持有**。Codex 自行写 `Assets/Mine/` 前先自查 `python3 .mcp/validation/check_norm.py <file>`；需走完整门禁链的产出交给 Claude 合入
 - **并发安全**：同一 git 仓库内两个引擎**同时写文件**会互相冲突，应避免；只读并行无碍
 - **Codex 侧调用**：`codex exec -C <项目根> --sandbox workspace-write --skip-git-repo-check "<prompt>"`；沙箱红线 `--sandbox read-only`（只查）/ `workspace-write`（✅ 默认）/ `danger-full-access`（⛔ 永不使用）
 - **大任务（>2KB 指令）**：写成任务书文件让执行方读取，避免上下文截断
@@ -74,6 +74,6 @@ Claude 与 Codex 是**对等并行**的两个开发引擎，**不是派发/从�
 | 共享层 `.agents/` | 角色正文、rules、references、templates、scripts、skills、memory 的唯一编辑位置 |
 | Claude `.claude/` | Claude 平台适配：settings、hooks、rules 自动注入、agent/skill 发现兼容层 |
 | Codex `.codex/` | Codex 平台适配：config、hooks、tests、tmp、运行时角色 toml 与 agent 文档 |
-| MCP `.mcp/` | 执行门禁与规范验证（write_gated / delete_gated / check_norm） |
+| MCP `.mcp/` | 执行门禁与规范验证（write_gated / delete_gated / move_gated / check_norm） |
 
 Claude 与 Codex 对等执行开发任务（落地执行 + 自主全流程）；知识体系与门禁链由共享维护方（meta-developer）裁决，不默认任一侧的从属关系。

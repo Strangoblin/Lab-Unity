@@ -70,6 +70,7 @@ class SessionState:
     contexts: dict = field(default_factory=dict)
     writes: list[dict] = field(default_factory=list)   # 写入审计日志（注解随写记录）
     deletes: list[dict] = field(default_factory=list)  # 删除审计日志（write_gated 的对称面）
+    moves: list[dict] = field(default_factory=list)    # 移动审计日志（写删复合面，记 src→dst 对）
 
     @property
     def remaining(self) -> list[str]:
@@ -149,6 +150,7 @@ class SessionState:
         self.contexts.clear()
         self.writes.clear()
         self.deletes.clear()
+        self.moves.clear()
         _clear_state_file()
 
 

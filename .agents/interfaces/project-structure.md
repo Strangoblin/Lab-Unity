@@ -60,10 +60,10 @@
 ### `.mcp/`（执行门禁，26 tracked）
 
 - `server.py` 入口 + `gate_center.py`；`gates/`：g_entry / g_knowledge / g_file / g_mode / g_plan / g_script / g_web_search。
-- `validation/`：`knowledge_paths.py`（resolver）、`norms.py` + `check_norm.py`（写入内容规范）、`deletion.py`（删除不可恢复性）+ `delete_gated.py`（删除门禁 Bash 通道）、`project_paths.py`、`script_library.py`。
+- `validation/`：`knowledge_paths.py`（resolver）、`norms.py` + `check_norm.py`（写入内容规范）、`project_paths.py`（作用域 + 受管文件落点）、`deletion.py`（删除不可恢复性）+ `delete_gated.py`（删除门禁 Bash 通道）、`moving.py`（移动净效果）+ `move_gated.py`（移动门禁 Bash 通道）、`atomic_io.py`（原子写，写/移共用）、`script_library.py`。
 - `tests/`：`test_knowledge_paths.py` + `test_recipes.py`。
 - `state.json` — 门禁状态持久化（进程空闲重启不丢）；`.mcp.json` 注册每会话独立进程。
-- 链：`[g_entry, g_knowledge]` → write_gated 内容规范检查 / delete_gated 不可恢复性判定；Codex 侧对等走 `check_norm.py` CLI。
+- 链：`[g_entry, g_knowledge]` → write_gated 内容规范 + 落点检查 / delete_gated 不可恢复性判定 / move_gated 净效果判定；Codex 侧对等走 `check_norm.py` CLI。
 
 ## 维护规则（改结构必读）
 

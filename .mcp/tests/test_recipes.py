@@ -451,6 +451,309 @@ async def test_cli_delete_gated():
     print("  ✅ 用法 / 门禁同源 / 作用域 / dry-run / 删除 / 落盘审计 / 幂等 均正确")
 
 
+def test_moving_plan():
+    """moving.plan 预检 + 与 deletion 的**分歧点**（隔离临时 git 仓库）.
+
+    分歧点才是本模块存在的理由：同一份 tracked-dirty 输入，
+    deletion 拦（单独删它，内容只剩历史版本）、moving 放（内容只是换了位置）。
+    两条断言成对写，缺一条这个测试就退化成「移动能跑」。
+    """
+    print("\n── 移动后果验证: 预检 + 与 deletion 的分歧 (隔离临时仓库) ──")
+    import tempfile
+    from validation.moving import plan, find_guid_owners
+    from validation.deletion import evaluate
+
+    with tempfile.TemporaryDirectory() as repo:
+        def git(*args):
+            subprocess.run(("git", "-c", "user.email=t@t", "-c", "user.name=t", *args),
+                           cwd=repo, capture_output=True, text=True, check=True)
+
+        def put(rel, text):
+            full = os.path.join(repo, rel)
+            os.makedirs(os.path.dirname(full), exist_ok=True)
+            with open(full, "w", encoding="utf-8") as f:
+                f.write(text)
+
+        def blocked_ids(moves):
+            return [b["error"] for b in plan(repo, moves)["blocked"]]
+
+        git("init", "-q")
+        guid = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        put("Assets/A/x.shader", 'Shader "X" {}\n')
+        put("Assets/A/x.shader.meta", f"fileFormatVersion: 2\nguid: {guid}\n")
+        git("add", "-A")
+        git("commit", "-qm", "init")
+
+        # ── 分歧点：同一份输入，两边判定相反 ──
+        put("Assets/A/x.shader", 'Shader "X" {}\n// 未提交改动\n')   # → tracked-dirty
+        ev = evaluate(repo, [("Assets/A/x.shader", os.path.join(repo, "Assets/A/x.shader"))])
+        assert ev["blocked"] and ev["blocked"][0]["state"] == "tracked-dirty", \
+            f"deletion 应拦 tracked-dirty: {ev['blocked']}"
+        mv = plan(repo, [("Assets/A/x.shader", "Assets/B/x.shader")])
+        assert mv["blocked"] == [], f"moving 应放行同一份输入: {mv['blocked']}"
+        assert mv["pairs"][0]["guid"] == guid, f"应带出 GUID: {mv['pairs']}"
+        assert mv["pairs"][0]["meta_from"] == "Assets/A/x.shader.meta", \
+            f"应配对 .meta: {mv['pairs']}"
+
+        # ── 预检各条 ──
+        assert blocked_ids([("Assets/A/x.shader", "Assets/A/x.shader")]) == ["SAME_PATH"]
+        assert blocked_ids([("Assets/A/nope.shader", "Assets/B/n.shader")]) == ["MISSING_SOURCE"]
+        put("Assets/B/x.shader", 'Shader "B" {}\n')
+        assert blocked_ids([("Assets/A/x.shader", "Assets/B/x.shader")]) == ["TARGET_EXISTS"]
+        # 逐对报：重复的每一对都是一次独立的移动意图，各报一条（不是去重成一条）
+        assert blocked_ids([("Assets/A/x.shader", "Assets/B/1.shader"),
+                            ("Assets/A/x.shader", "Assets/B/2.shader")]) == \
+            ["DUPLICATE_SOURCE", "DUPLICATE_SOURCE"]
+        assert blocked_ids([("Assets/A/x.shader", "Assets/B/3.shader"),
+                            ("Assets/A/x.shader.meta", "Assets/B/3.shader")]) == \
+            ["DUPLICATE_TARGET", "DUPLICATE_TARGET"]
+        # 链式：一个的目标是另一个的源 → 顺序有歧义。链条成员各报一条，
+        # 且必须报 CHAINED_MOVE 而不是 MISSING_SOURCE（后者会把人引向错误方向）
+        assert blocked_ids([("Assets/A/x.shader", "Assets/B/y.shader"),
+                            ("Assets/B/y.shader", "Assets/B/z.shader")]) == \
+            ["CHAINED_MOVE", "CHAINED_MOVE"]
+
+        # ── .meta 目标已存在 ──
+        put("Assets/B/y.shader.meta", "fileFormatVersion: 2\nguid: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n")
+        assert blocked_ids([("Assets/A/x.shader", "Assets/B/y.shader")]) == ["META_TARGET_EXISTS"]
+
+        # ── GUID 已被别人声明 → 拦（同 GUID 两份 = Unity 报错）──
+        other = "Assets/C/other.shader.meta"
+        put(other, f"fileFormatVersion: 2\nguid: {guid}\n")
+        mv = plan(repo, [("Assets/A/x.shader", "Assets/B/z.shader")])
+        assert [b["error"] for b in mv["blocked"]] == ["GUID_TAKEN"], f"got {mv['blocked']}"
+        assert mv["blocked"][0]["owners"] == [other], f"应报出占用方: {mv['blocked'][0]}"
+
+        # find_guid_owners 只认「声明」该 GUID 的 .meta，且剔除自身
+        os.remove(os.path.join(repo, other))
+        assert find_guid_owners(repo, guid, exclude=["Assets/A/x.shader.meta"]) == [], \
+            "无占用时应为空"
+        assert find_guid_owners(repo, guid, exclude=[]) == ["Assets/A/x.shader.meta"], \
+            "不排除自身时应报出它"
+    print("  ✅ 预检各条 + .meta 配对 + GUID 占用；tracked-dirty 上 deletion 拦 / moving 放")
+
+
+async def test_move_gated():
+    """move_gated: 门禁 / 作用域 / reason / 形状 / 正文与 .meta 保真 / 审计落盘."""
+    print("\n── move_gated: 门禁 / 作用域 / 形状 / 保真 / 审计 ──")
+    src = os.path.join(TMP, "mv_src.shader")
+    src_meta = src + ".meta"
+    dst = os.path.join(TMP, "mv_dst.shader")
+    dst_meta = dst + ".meta"
+    body = 'Shader "Test/Mv"\n{\n    SubShader { Pass { HLSLPROGRAM\n    ENDHLSL } }\n}\n'
+    meta_body = "fileFormatVersion: 2\nguid: cccccccccccccccccccccccccccccccc\n"
+    for p in (src, src_meta, dst, dst_meta):
+        if os.path.isfile(p):
+            os.remove(p)
+    with open(src, "w", encoding="utf-8") as f:
+        f.write(body)
+    with open(src_meta, "w", encoding="utf-8") as f:
+        f.write(meta_body)
+
+    await call("gate_reset")
+    await call("gate_set_recipe", name="Quick")
+
+    # 未过门禁 → DENIED（与 write/delete 同一道闸）
+    r = await call("move_gated", moves=[{"from": "tmp/mv_src.shader", "to": "tmp/mv_dst.shader"}],
+                   reason="单元测试")
+    assert r["status"] == "DENIED" and r["error"] == "GATE_NOT_PASSED", f"got {r}"
+
+    await call("gate_pass", gate_id="g_entry", agent="unity-developer")
+    await call("gate_pass", gate_id="g_knowledge", loaded_files=HIGH_PRIO, status="COMPLETE")
+
+    # reason 必填
+    r = await call("move_gated", moves=[{"from": "tmp/mv_src.shader", "to": "tmp/mv_dst.shader"}],
+                   reason="  ")
+    assert r["status"] == "DENIED" and r["error"] == "MISSING_REASON", f"got {r}"
+
+    # 空清单
+    r = await call("move_gated", moves=[], reason="空")
+    assert r["status"] == "DENIED" and r["error"] == "EMPTY_MOVES", f"got {r}"
+
+    # 入参形状：缺键当场指出，不猜
+    r = await call("move_gated", moves=[{"from": "tmp/mv_src.shader"}], reason="缺 to")
+    assert r["status"] == "DENIED" and r["error"] == "BAD_MOVE_SHAPE", f"got {r}"
+    # 非对象由 MCP schema 层（list[dict] 契约）直接拒 —— 到不了函数体，
+    # 这是比 BAD_MOVE_SHAPE 更强的保证，钉住它免得日后签名放宽后悄悄失守
+    rejected = False
+    try:
+        await call("move_gated", moves=["tmp/mv_src.shader"], reason="不是对象")
+    except Exception:
+        rejected = True
+    assert rejected, 'moves 的元素类型应由 schema 层守住（[{"from","to"}]）'
+
+    # 作用域：源与目标都过同一个 validate_path
+    r = await call("move_gated", moves=[{"from": "/etc/hosts", "to": "tmp/x"}], reason="越界源")
+    assert r["status"] == "DENIED" and r["error"] == "PATH_NOT_ALLOWED", f"got {r}"
+    r = await call("move_gated", moves=[{"from": "tmp/mv_src.shader", "to": "/etc/x"}], reason="越界目标")
+    assert r["status"] == "DENIED" and r["error"] == "PATH_NOT_ALLOWED", f"got {r}"
+
+    # 正常移动：正文与 .meta 逐字保真，源连同 .meta 一并消失
+    audit = os.path.join(ROOT, "moves.jsonl")
+    before = os.path.getsize(audit) if os.path.isfile(audit) else 0
+    r = await call("move_gated", moves=[{"from": "tmp/mv_src.shader", "to": "tmp/mv_dst.shader"}],
+                   reason="单元测试移动")
+    assert r["status"] == "OK" and r["count"] == 1, f"got {r}"
+    assert not os.path.exists(src) and not os.path.exists(src_meta), "源与源 .meta 都应消失"
+    assert open(dst, encoding="utf-8").read() == body, "正文应逐字保真"
+    assert open(dst_meta, encoding="utf-8").read() == meta_body, ".meta 应逐字保真"
+
+    # 审计落盘：移动不留配对痕迹于文件系统，日志是唯一来源
+    assert os.path.getsize(audit) > before, "应追加移动审计"
+    last = json.loads(open(audit, encoding="utf-8").read().strip().splitlines()[-1])
+    assert last["kind"] == "move" and last["count"] == 1, f"审计应记移动: {last}"
+    assert last["moves"][0]["from"] == "tmp/mv_src.shader", f"审计应记 src→dst: {last}"
+    assert last["moves"][0]["to"] == "tmp/mv_dst.shader", f"审计应记 src→dst: {last}"
+
+    st = await call("gate_status")
+    assert st["moves"] and st["moves"][-1]["count"] == 1, f"gate_status 应含移动审计: {st}"
+
+    # 幂等方向：源已不在 → 预检拦（不是静默跳过，移动没有「重复执行」语义）
+    r = await call("move_gated", moves=[{"from": "tmp/mv_src.shader", "to": "tmp/mv_dst.shader"}],
+                   reason="重复")
+    assert r["status"] == "DENIED" and r["blocked"][0]["error"] == "MISSING_SOURCE", f"got {r}"
+
+    for p in (dst, dst_meta):
+        os.remove(p)
+    await call("gate_reset")
+    print("  ✅ 门禁 / 作用域 / reason / 形状 / 保真 / 落盘审计 / 重置 均正确")
+
+
+def test_placement_check():
+    """check_placement: 受管扩展名 / 落点 / 新旧强度 / category 注解一致性."""
+    print("\n── 文件落点: 受管扩展名 / 新文件 error、既有 warning ──")
+    from validation.project_paths import check_placement
+
+    def ids(r):
+        return ([v["id"] for v in r["errors"]], [v["id"] for v in r["warnings"]])
+
+    # 非受管扩展名一律放行 —— .meta 要能跟着资产走，导入资产不该被路径规则干预
+    for p in ("Assets/Mine/x.meta", "Assets/Mine/Data/c.asset",
+              "Assets/Mine/Checkers/a.png", "Assets/Mine/Special/SubGraph/s.shadersubgraph"):
+        assert ids(check_placement(p, is_new=True)) == ([], []), p
+
+    # 现存形态一律放行（规则是照现实写的，不是照理想）：包括根下直放、嵌套子目录
+    for p in ("Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl",
+              "Assets/Mine/Shaders/PostProcess/SSGI/SSGI_Content_Skeleton.md",
+              "Assets/Mine/Scripts/TestAuto.cs",
+              "Assets/Mine/Scripts/CurveGenerator/Editor/CurveBakeEditor.cs",
+              "Assets/Mine/Scripts/Picker/Picker.shader",
+              "Assets/Mine/Special/HLSL/BlurFunction.hlsl",
+              "Assets/Mine/Effects/Stars/Stars.shader"):
+        assert ids(check_placement(p, is_new=True)) == ([], []), p
+
+    # 扔在 Mine 根下 / 扔进非代码区：新文件 error，已有文件降为 warning
+    # （已有的落点是历史决定，硬拦会让人改不动文件，反而堵死修正入口）
+    assert ids(check_placement("Assets/Mine/foo.shader", is_new=True)) == (["placement-root"], [])
+    assert ids(check_placement("Assets/Mine/foo.shader", is_new=False)) == ([], ["placement-root"])
+    assert ids(check_placement("Assets/Mine/Data/x.cs", is_new=True)) == (["placement-root"], [])
+    assert ids(check_placement("Assets/Mine/notes.md", is_new=True)) == (["placement-root"], [])
+
+    # category 注解与路径不符 → warning（注解此前是自由文本，记录不校验）
+    r = check_placement("Assets/Mine/Shaders/Render/Water/Water.shader",
+                        is_new=True, category="PostProcess")
+    assert ids(r) == ([], ["placement-category"]), r
+    assert ids(check_placement("Assets/Mine/Shaders/PostProcess/SSGI/AO/AO.shader",
+                               is_new=True, category="PostProcess")) == ([], [])
+    print("  ✅ 受管扩展名 / 落点 / 新旧强度 / category 一致性 均正确")
+
+
+async def test_write_gated_placement_wired():
+    """落点校验是否真接进了 write_gated —— 规则写了不接=没有（本层休眠过一次）."""
+    print("\n── write_gated 落点接线 ──")
+    await call("gate_reset")
+    await call("gate_set_recipe", name="Quick")
+    await call("gate_pass", gate_id="g_entry", agent="unity-developer")
+    await call("gate_pass", gate_id="g_knowledge", loaded_files=HIGH_PRIO, status="COMPLETE")
+
+    # 新受管文件扔在 Assets/Mine 根下 → DENIED，且**不落盘**（被拒的写入代价是零）
+    probe = os.path.join(os.path.dirname(ROOT), "Assets", "Mine", "_placement_probe.shader")
+    r = await call("write_gated", path="Assets/Mine/_placement_probe.shader", content=GOOD_SHADER)
+    assert r["status"] == "DENIED" and r["error"] == "NORM_VIOLATION", f"got {r}"
+    assert [v["id"] for v in r["violations"]] == ["placement-root"], f"got {r['violations']}"
+    assert not os.path.exists(probe), "被拒的写入不应留下文件"
+
+    # 非受管扩展名同位置放行 —— .meta 是 Unity 生成的，不能拦
+    r = await call("write_gated", path="Assets/Mine/_placement_probe.meta",
+                   content="fileFormatVersion: 2\nguid: dddd\n")
+    assert r["status"] == "OK", f"非受管扩展名应放行: {r}"
+    os.remove(os.path.join(os.path.dirname(ROOT), "Assets", "Mine", "_placement_probe.meta"))
+
+    await call("gate_reset")
+    print("  ✅ 落点校验已接线；被拒写入零落盘；非受管扩展名不受影响")
+
+
+async def test_cli_move_gated():
+    """move_gated.py CLI: 与 MCP 同一道门禁、同一套判定、同一套执行、同一份落盘审计。
+
+    这条通道存在的理由和删除 CLI 一样：**MCP 工具表按会话冻结**（服务器跑新代码，
+    工具却调不到，需 /mcp 重连）。移动同理，故补对称通道。
+    """
+    print("\n── move_gated.py CLI (Bash 通道) ──")
+    cli = os.path.join(ROOT, "validation", "move_gated.py")
+    env = dict(os.environ, PYTHONPATH=ROOT)
+    audit = os.path.join(ROOT, "moves.jsonl")
+    src = os.path.join(TMP, "cli_mv.shader")
+    dst = os.path.join(TMP, "cli_mv_out.shader")
+
+    def run(*args):
+        return subprocess.run([sys.executable, cli, *args],
+                              capture_output=True, text=True, env=env)
+
+    # 用法: 无路径 / 无 reason / 路径奇数个 → exit 2
+    assert run("--reason", "x").returncode == 2, "无路径应 exit 2"
+    assert run("tmp/cli_mv.shader").returncode == 2, "无 reason 应 exit 2"
+    r = run("--reason", "奇数", "tmp/a", "tmp/b", "tmp/c")
+    assert r.returncode == 2 and "ODD_PATH_COUNT" in r.stdout, f"got {r.stdout}"
+
+    # 门禁未过（前序用例已 gate_reset）→ 与 MCP 同一道闸，同一份 state.json
+    r = run("--reason", "单元测试", "tmp/cli_mv.shader", "tmp/cli_mv_out.shader")
+    assert r.returncode == 1 and "NO_RECIPE" in r.stdout, f"got {r.stdout}"
+
+    await call("gate_set_recipe", name="Quick")
+    await call("gate_pass", gate_id="g_entry", agent="unity-developer")
+    await call("gate_pass", gate_id="g_knowledge", loaded_files=HIGH_PRIO, status="COMPLETE")
+
+    # 作用域（与 MCP 同一个 validate_path）：源与目标都要在作用域内
+    r = run("--reason", "越界源", "/etc/hosts", "tmp/x")
+    assert r.returncode == 1 and "PATH_NOT_ALLOWED" in r.stdout, f"got {r.stdout}"
+    r = run("--reason", "越界目标", "tmp/cli_mv.shader", "/etc/x")
+    assert r.returncode == 1 and "PATH_NOT_ALLOWED" in r.stdout, f"got {r.stdout}"
+
+    with open(src, "w", encoding="utf-8") as f:
+        f.write(GOOD_SHADER)
+    with open(src + ".meta", "w", encoding="utf-8") as f:
+        f.write("fileFormatVersion: 2\nguid: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n")
+
+    # --dry-run: 判定可移但不执行
+    r = run("--reason", "干跑", "--dry-run", "tmp/cli_mv.shader", "tmp/cli_mv_out.shader")
+    assert r.returncode == 0 and json.loads(r.stdout)["dry_run"] is True, f"got {r.stdout}"
+    assert os.path.isfile(src), "--dry-run 不应移动"
+
+    # 实移 + 落盘审计（正文与 .meta 都要跟过去）
+    before = os.path.getsize(audit) if os.path.isfile(audit) else 0
+    r = run("--reason", "CLI 单元测试移动", "tmp/cli_mv.shader", "tmp/cli_mv_out.shader")
+    assert r.returncode == 0 and json.loads(r.stdout)["count"] == 1, f"got {r.stdout}"
+    assert not os.path.exists(src) and not os.path.exists(src + ".meta"), "源与源 .meta 都应消失"
+    assert open(dst, encoding="utf-8").read() == GOOD_SHADER, "正文应保真"
+    assert os.path.isfile(dst + ".meta"), ".meta 应成对搬运"
+    assert os.path.getsize(audit) > before, "应追加审计"
+    last = json.loads(open(audit, encoding="utf-8").read().strip().splitlines()[-1])
+    assert last["channel"] == "cli" and last["kind"] == "move", f"审计应标 channel=cli: {last}"
+    assert last["reason"] == "CLI 单元测试移动", f"审计应含 reason: {last}"
+    assert last["argv"], "审计应记 argv 便于溯源"
+
+    # 幂等方向：源已不在 → 预检拦（移动没有「重复执行」语义，与删除不同）
+    r = run("--reason", "重复", "tmp/cli_mv.shader", "tmp/cli_mv_out.shader")
+    assert r.returncode == 1 and "MISSING_SOURCE" in r.stdout, f"got {r.stdout}"
+
+    for p in (dst, dst + ".meta"):
+        if os.path.isfile(p):
+            os.remove(p)
+    await call("gate_reset")
+    print("  ✅ 用法 / 门禁同源 / 作用域 / dry-run / 移动 / .meta 配对 / 落盘审计 均正确")
+
+
 async def main():
     print("=" * 50)
     print("  Gate Tests (consequence-verification v2)")
@@ -472,8 +775,13 @@ async def main():
     await test_atomic_write()
     await test_cli_check_norm()
     test_deletion_classify()
+    test_moving_plan()
+    test_placement_check()
+    await test_write_gated_placement_wired()
     await test_delete_gated()
     await test_cli_delete_gated()
+    await test_move_gated()
+    await test_cli_move_gated()
     await test_restart_recovery()   # 放最后: 子进程管理自己的 state.json, 不干扰进程内用例
 
     print("\n" + "=" * 50)

@@ -42,7 +42,7 @@ Codex 的正常读取入口仍是根 `AGENTS.md` → `.agents/README.md`；这�
 4. **证据驱动**：不凭"看起来对"下结论——编译看日志、运行看日志、错误诊断看堆栈。
 5. **可回退**：重大改动前必须备份，留回退路径。
 6. **知识优先**：写代码前先读 `.agents/agents/unity-developer/references/` 规范与模板，风格、命名、文件结构符合项目规范。
-7. **门禁边界**：你无 MCP write_gated 通道——`Assets/Mine/` 改动经 Claude review + 门禁链合入，不自行绕过。**合入前自查规范**：`python3 .mcp/validation/check_norm.py <file>`（exit 0 = 通过；与 Claude write_gated 同一检查）。
+7. **门禁边界**：你无 MCP write_gated / move_gated 通道——`Assets/Mine/` 改动经 Claude review + 门禁链合入，不自行绕过。**合入前自查规范**：`python3 .mcp/validation/check_norm.py <file>`（exit 0 = 通过；与 Claude write_gated 同一检查）。
 8. **共享源只读、正文不回抄**：共享内容以 `.agents/` 为唯一编辑位置，不在 `.codex/` 复制正文；新生成的 `.cs`、`.md`、`.json` 等先写入 `.codex/tmp/`，写入 `Assets/` 按任务范围执行。
 9. **体系边界**：编辑 `.agents/`、`.claude/`、`.mcp/` 或平台边界相关文件前，先读 `.agents/rules/meta-architecture.md`（链路保障：改一侧必须同步另一侧）；架构级改动与 meta-developer 对齐，不自行裁决平台边界。
 
@@ -56,5 +56,5 @@ Codex 的正常读取入口仍是根 `AGENTS.md` → `.agents/README.md`；这�
 
 - 对等模型：共享源 `.agents/` 单点维护，Claude 与 Codex 各自薄适配、独立会话执行开发。
 - **两侧都是完整的开发引擎**，可独立承接并落地任务；不互为派发/从属关系。
-- 分工差异只有一处：`Assets/Mine/` 的 MCP 门禁通道（write_gated / delete_gated）**只有 Claude 侧持有**——需走完整门禁链的产出交给 Claude 合入；Codex 自行写入前用 `check_norm.py` 自查。
+- 分工差异只有一处：`Assets/Mine/` 的 MCP 门禁通道（write_gated / delete_gated / move_gated）**只有 Claude 侧持有**——需走完整门禁链的产出交给 Claude 合入；Codex 自行写入前用 `check_norm.py` 自查。
 - 并行协作约定：`.codex/INTERFACE.md` §3；链路排障：`.codex/SKILL.md`。

@@ -5,6 +5,15 @@ from typing import Optional
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
+# ════════════════════════════════════════════════════════════════
+#  咨询层（退役）— 「这个文件该放哪」
+#
+#  CATEGORY_BASE / VALID_FILE_TYPES / resolve_target_dir 服务于已退役的 g_file 门禁，
+#  当前唯一调用方 gates/g_file.py 不在任何配方中（调用即 GATE_NOT_IN_RECIPE），
+#  故本层实际不可达。保留是为了不动物化 GATE_REGISTRY 的退役集合（测试钉住了它）。
+#  生效的放置校验在下方「执行层」。
+# ════════════════════════════════════════════════════════════════
+
 # ── 类别 → 基础目录 ──
 CATEGORY_BASE: dict[str, str] = {
     "PostProcess": "Assets/Mine/Shaders/PostProcess",
@@ -99,3 +108,78 @@ def validate_path(path: str) -> dict:
         "path": path,
         "hint": "路径必须在以下目录内: Assets/Mine/, .agents/agents/unity-developer/scripts/roslyn/, tmp/",
     }
+
+
+# ════════════════════════════════════════════════════════════════
+#  执行层 — 「这个文件放对地方了吗」（write_gated 调用）
+#
+#  与咨询层的分工：咨询层回答「该放哪」（从未生效），本层回答「放对了吗」。
+#  规则照着 Assets/Mine 的**现实布局**写，不是照着理想布局写。
+# ════════════════════════════════════════════════════════════════
+
+# 受管扩展名 —— 由 write_gated 落盘、因而需要管放置的文件类型。
+#
+# 白名单刻意**只收开发者自撰的代码与文档**。其余（.mat/.prefab/.png/.asset/
+# .shadergraph/.exr/.meta/…）由 Unity 导入或工具产出，不在此列：把导入类型也列进来，
+# 白名单会随 Unity 每加一种资产类型而失效，最终变成误拦 —— 那是限制功能使用。
+MANAGED_EXTS = {".shader", ".hlsl", ".cs", ".compute", ".md"}
+
+# 受管文件必须落在其一的顶层根。
+#
+# 为什么只到「顶层根」这一层：现实里 Shaders/<Cat>/<Effect>/ 之外，Scripts/<Module>/
+# 还带 Editor/ Shaders/ Noises/ Water/ 等嵌套子目录，Scripts/TestAuto.cs 更是直接躺在
+# 根下。任何按深度或「必须进效果子目录」的规则，第一次运行就会误拦既有文件。
+# 本层只拦「扔在根下或扔进非代码区」这一类真实错误。
+MANAGED_ROOTS = ("Effects", "Scripts", "Shaders", "Special")
+
+
+def check_placement(path: str, is_new: bool, category: str = "") -> dict:
+    """校验受管文件的落点。返回 {"errors": [...], "warnings": [...]}。
+
+    强度与 norms.py 的「新增行 diff」同源：
+      新文件   → 落点是一次全新的决定，错了就是 error
+      已有文件 → 只是就地编辑，落点是历史决定；此时硬拦会让人改不动文件，
+                 反而堵死修正的入口，故降为 warning
+
+    非受管扩展名直接放行 —— .meta 要能跟着资产走，导入资产不该被路径规则干预。
+    """
+    errors: list[dict] = []
+    warnings: list[dict] = []
+
+    ext = os.path.splitext(path)[1].lower()
+    if ext not in MANAGED_EXTS:
+        return {"errors": errors, "warnings": warnings}
+
+    rel = path.replace("\\", "/")
+    prefix = "Assets/Mine/"
+    bucket = errors if is_new else warnings
+
+    if not rel.startswith(prefix):
+        return {"errors": errors, "warnings": warnings}   # 非 Assets/Mine 作用域不归本层管
+
+    rest = rel[len(prefix):]
+    segments = rest.split("/")
+    if len(segments) < 2 or segments[0] not in MANAGED_ROOTS:
+        bucket.append({
+            "id": "placement-root",
+            "level": "error" if is_new else "warning",
+            "name": "受管文件落点",
+            "detail": f"{ext} 应落在 {'/'.join(MANAGED_ROOTS)} 之一的子目录下，"
+                      f"当前是 Assets/Mine/{rest}。",
+            "path": path,
+        })
+
+    # category 注解与路径前缀不一致 → 提示（注解此前是自由文本，记录不校验）
+    if category and category in CATEGORY_BASE:
+        base = CATEGORY_BASE[category]
+        if not rel.startswith(base + "/") and rel != base:
+            warnings.append({
+                "id": "placement-category",
+                "level": "warning",
+                "name": "category 注解与路径不符",
+                "detail": f"category='{category}' 对应 {base}/，"
+                          f"而路径是 {path}。",
+                "path": path,
+            })
+
+    return {"errors": errors, "warnings": warnings}
