@@ -12,7 +12,6 @@ public class SpecularGIFeature : ScriptableRendererFeature
     [Serializable]
     public class Settings
     {
-        public enum QualityLevel { Low, Medium, High }
         public enum DebugMode
         {
             Off = 0, ScreenSource = 1, SkySource = 3,
@@ -21,7 +20,6 @@ public class SpecularGIFeature : ScriptableRendererFeature
 
         [Header("Resources")]
         public Shader shader;
-        public Shader temporalShader;
         public Cubemap skyCubemap;
 
         [Header("Technical")]
@@ -29,17 +27,8 @@ public class SpecularGIFeature : ScriptableRendererFeature
         [Range(0.001f, 0.5f)] public float thickness = 0.05f;
         [Range(0f, 0.2f)] public float normalBias = 0.03f;
 
-        [Header("Performance")]
-        public QualityLevel quality = QualityLevel.Medium;
-
-        [Header("Artistic")]
-        [Range(0f, 1f)] public float roughness = 0.25f;
-        [Range(0f, 1f)] public float intensity = 1f;
+        [Header("Technical · Sky Sampling")]
         [Range(0f, 12f)] public float skyMaxMip = 6f;
-        [Range(0f, 0.98f)] public float temporalBlend = 0.95f;
-
-        [Header("Debug")]
-        public DebugMode debug = DebugMode.Off;
 
         internal static readonly int TraceParamsID = Shader.PropertyToID("_TraceParams");
         internal static readonly int RoughnessID = Shader.PropertyToID("_Roughness");
@@ -50,6 +39,19 @@ public class SpecularGIFeature : ScriptableRendererFeature
         internal static readonly int FrameIndexID = Shader.PropertyToID("_FrameIndex");
         internal static readonly int DebugModeID = Shader.PropertyToID("_DebugMode");
         internal static readonly int SpecularTextureID = Shader.PropertyToID("_SpecularGITexture");
+    }
+
+    [Serializable]
+    public sealed class Controls : SSGIStandaloneControls
+    {
+        [Header("Artistic")]
+        [Range(0f, 1f)] public float intensity = 1f;
+        [Range(0f, 1f)] public float roughness = 0.25f;
+
+        [Header("Debug")]
+        public Settings.DebugMode debug = Settings.DebugMode.Off;
+
+        public Controls() { temporalBlend = 0.95f; }
     }
 
     internal sealed class SpecularGIPass : ScriptableRenderPass
@@ -82,14 +84,16 @@ public class SpecularGIFeature : ScriptableRendererFeature
         }
 
         readonly Settings _settings;
+        readonly Controls _controls;
         readonly Material _material;
         readonly SSGITemporalFilter _temporal;
 
-        public SpecularGIPass(Shader shader, Settings settings)
+        public SpecularGIPass(Shader shader, Settings settings, Controls controls = null)
         {
             _settings = settings;
+            _controls = controls;
             _material = CoreUtils.CreateEngineMaterial(shader);
-            _temporal = new SSGITemporalFilter(settings.temporalShader);
+            _temporal = controls != null ? new SSGITemporalFilter(controls.temporalShader) : null;
             renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
             ConfigureInput(ScriptableRenderPassInput.Color
                 | ScriptableRenderPassInput.Depth
@@ -101,7 +105,8 @@ public class SpecularGIFeature : ScriptableRendererFeature
         {
             _temporal.BeginFrame(frameData);
             TextureHandle spatial = RecordSpatial(graph, frameData,
-                TextureHandle.nullHandle, _temporal.FrameIndex, out TextureHandle trace);
+                TextureHandle.nullHandle, _temporal.FrameIndex,
+                _controls.performance, _controls.roughness, out TextureHandle trace);
             if (!spatial.IsValid())
             {
                 _temporal.CompleteFrame(graph, frameData);
@@ -109,19 +114,22 @@ public class SpecularGIFeature : ScriptableRendererFeature
             }
 
             TextureHandle temporal = _temporal.Resolve(graph, frameData, spatial,
-                SSGITemporalFilter.Signal.SpecularGI, _settings.temporalBlend);
+                SSGITemporalFilter.Signal.SpecularGI, _controls.temporalBlend);
             _temporal.CompleteFrame(graph, frameData);
-            RecordComposite(graph, frameData, trace, spatial, temporal);
+            RecordComposite(graph, frameData, trace, spatial, temporal,
+                _controls.intensity, _controls.roughness, _controls.debug);
         }
 
         public TextureHandle RecordIntegrated(RenderGraph graph, ContextContainer frameData,
-            TextureHandle source, int frameIndex)
+            TextureHandle source, int frameIndex, SSGIQuality performance, float roughness)
         {
-            return RecordSpatial(graph, frameData, source, frameIndex, out _);
+            return RecordSpatial(graph, frameData, source, frameIndex,
+                performance, roughness, out _);
         }
 
         TextureHandle RecordSpatial(RenderGraph graph, ContextContainer frameData,
-            TextureHandle inputSource, int frameIndex, out TextureHandle traceOutput)
+            TextureHandle inputSource, int frameIndex, SSGIQuality performance,
+            float roughness, out TextureHandle traceOutput)
         {
             traceOutput = TextureHandle.nullHandle;
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
@@ -130,7 +138,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
             if (!source.IsValid() || _material == null || camera.camera == null)
                 return TextureHandle.nullHandle;
 
-            GetQuality(_settings.quality, out int downsample,
+            GetQuality(performance, out int downsample,
                 out int stepCount, out float spatialRadius);
             RenderTextureDescriptor descriptor = camera.cameraTargetDescriptor;
             descriptor.depthBufferBits = 0;
@@ -155,7 +163,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
                     Mathf.Max(_settings.maxDistance, 0.001f),
                     Mathf.Max(_settings.thickness, 0.0001f),
                     Mathf.Max(_settings.normalBias, 0f), stepCount);
-                data.roughness = Mathf.Clamp01(_settings.roughness);
+                data.roughness = Mathf.Clamp01(roughness);
                 data.skyMaxMip = Mathf.Max(_settings.skyMaxMip, 0f);
                 data.spatialRadius = spatialRadius;
                 data.frameIndex = frameIndex;
@@ -185,7 +193,8 @@ public class SpecularGIFeature : ScriptableRendererFeature
         }
 
         void RecordComposite(RenderGraph graph, ContextContainer frameData,
-            TextureHandle trace, TextureHandle spatial, TextureHandle temporal)
+            TextureHandle trace, TextureHandle spatial, TextureHandle temporal,
+            float intensity, float roughness, Settings.DebugMode debug)
         {
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             TextureHandle source = resources.activeColorTexture;
@@ -203,9 +212,9 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 data.spatial = spatial;
                 data.temporal = temporal;
                 data.target = target;
-                data.intensity = Mathf.Clamp01(_settings.intensity);
-                data.roughness = Mathf.Clamp01(_settings.roughness);
-                data.debug = _settings.debug;
+                data.intensity = Mathf.Clamp01(intensity);
+                data.roughness = Mathf.Clamp01(roughness);
+                data.debug = debug;
 
                 builder.UseTexture(source, AccessFlags.ReadWrite);
                 builder.UseTexture(trace, AccessFlags.Read);
@@ -247,21 +256,21 @@ public class SpecularGIFeature : ScriptableRendererFeature
 
         public void Release()
         {
-            _temporal.Release();
+            _temporal?.Release();
             CoreUtils.Destroy(_material);
         }
 
-        static void GetQuality(Settings.QualityLevel quality,
+        static void GetQuality(SSGIQuality quality,
             out int downsample, out int stepCount, out float spatialRadius)
         {
             switch (quality)
             {
-                case Settings.QualityLevel.Low:
+                case SSGIQuality.Low:
                     downsample = 3;
                     stepCount = 32;
                     spatialRadius = 2f;
                     break;
-                case Settings.QualityLevel.High:
+                case SSGIQuality.High:
                     downsample = 1;
                     stepCount = 96;
                     spatialRadius = 1f;
@@ -288,13 +297,14 @@ public class SpecularGIFeature : ScriptableRendererFeature
     }
 
     public Settings settings = new();
+    public Controls controls = new();
     SpecularGIPass _pass;
 
     public override void Create()
     {
         _pass?.Release();
         _pass = settings.shader != null
-            ? new SpecularGIPass(settings.shader, settings) : null;
+            ? new SpecularGIPass(settings.shader, settings, controls) : null;
     }
 
     protected override void Dispose(bool disposing)

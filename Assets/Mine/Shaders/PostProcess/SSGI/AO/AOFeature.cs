@@ -9,7 +9,6 @@ using UnityEngine.Rendering.RenderGraphModule;
 public class AOFeature : ScriptableRendererFeature
 {
     public enum Mode { SSAO, HBAO }
-    public enum Performance { Low, Medium, High }
     public enum DebugMode { Off, AO, Depth, Normal }
 
     [System.Serializable]
@@ -17,7 +16,6 @@ public class AOFeature : ScriptableRendererFeature
     {
         [Header("Technical · Resources")]
         public Shader shader;
-        public Shader temporalShader;
 
         [Header("Technical · Geometry")]
         public Mode mode = Mode.HBAO;
@@ -25,17 +23,6 @@ public class AOFeature : ScriptableRendererFeature
         [Range(0.001f, 0.5f)] public float bias = 0.02f;
         [Range(0f, 60f)] public float angleBias = 10f;
         [Range(0.01f, 2f)] public float depthSigma = 0.15f;
-
-        [Header("Performance")]
-        public Performance performance = Performance.Medium;
-        [Range(0f, 0.98f)] public float temporalBlend = 0.85f;
-
-        [Header("Artistic")]
-        [Range(0f, 4f)] public float intensity = 1f;
-        [Range(0f, 4f)] public float falloff = 0f;
-
-        [Header("Debug")]
-        public DebugMode debug = DebugMode.Off;
 
         internal static readonly int ParamsID = Shader.PropertyToID("_AOParams");
         internal static readonly int FilterParamsID = Shader.PropertyToID("_AOFilterParams");
@@ -48,15 +35,28 @@ public class AOFeature : ScriptableRendererFeature
         internal static readonly int TextureID = Shader.PropertyToID("_AOTexture");
     }
 
+    [System.Serializable]
+    public sealed class Controls : SSGIStandaloneControls
+    {
+        [Header("Artistic")]
+        [Range(0f, 4f)] public float intensity = 1f;
+        [Range(0f, 4f)] public float falloff;
+
+        [Header("Debug")]
+        public DebugMode debug = DebugMode.Off;
+
+        public Controls() { temporalBlend = 0.85f; }
+    }
+
     // ════════════════════════════════════════════════════════════
     //  性能档位 — 分辨率除数、方向/样本数与步进预算同源展开
     // ════════════════════════════════════════════════════════════
-    internal static Vector3Int GetTier(Performance performance)
+    internal static Vector3Int GetTier(SSGIQuality performance)
     {
         switch (performance)
         {
-            case Performance.Low: return new Vector3Int(4, 4, 6);
-            case Performance.High: return new Vector3Int(2, 8, 12);
+            case SSGIQuality.Low: return new Vector3Int(4, 4, 6);
+            case SSGIQuality.High: return new Vector3Int(2, 8, 12);
             default: return new Vector3Int(2, 6, 8);
         }
     }
@@ -65,6 +65,7 @@ public class AOFeature : ScriptableRendererFeature
     {
         private readonly Material _material;
         private readonly Settings _settings;
+        private readonly Controls _controls;
         private readonly SSGITemporalFilter _temporal;
 
         class PassData
@@ -83,11 +84,12 @@ public class AOFeature : ScriptableRendererFeature
             public TextureHandle signal;
         }
 
-        public AOPass(Material material, Settings settings)
+        public AOPass(Material material, Settings settings, Controls controls = null)
         {
             _material = material;
             _settings = settings;
-            _temporal = new SSGITemporalFilter(settings.temporalShader);
+            _controls = controls;
+            _temporal = controls != null ? new SSGITemporalFilter(controls.temporalShader) : null;
             // 事件选择与 DiffuseGI 同源：遮挡只需要"不透明 + 天空盒"的深度与法线；
             // 同事件下自定义 Feature 先于 URP 内置 Pass 执行，故 AfterRenderingSkybox 同时满足
             // "天空盒已绘制"与"早于 _CameraOpaqueTexture 颜色拷贝"（URP 17 RenderGraph：
@@ -104,16 +106,21 @@ public class AOFeature : ScriptableRendererFeature
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
             _temporal.BeginFrame(frameData);
-            Record(renderGraph, frameData, TextureHandle.nullHandle, false, _temporal.FrameIndex);
+            Record(renderGraph, frameData, TextureHandle.nullHandle, false, _temporal.FrameIndex,
+                _controls.performance, _controls.intensity, _controls.falloff, _controls.debug);
             _temporal.CompleteFrame(renderGraph, frameData);
         }
 
-        public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData, TextureHandle source, int frameIndex)
+        public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData,
+            TextureHandle source, int frameIndex, SSGIQuality performance, float falloff)
         {
-            return Record(renderGraph, frameData, source, true, frameIndex);
+            return Record(renderGraph, frameData, source, true, frameIndex,
+                performance, 1f, falloff, DebugMode.Off);
         }
 
-        private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData, TextureHandle inputSource, bool integrated, int frameIndex)
+        private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData,
+            TextureHandle inputSource, bool integrated, int frameIndex,
+            SSGIQuality performance, float intensity, float falloff, DebugMode debug)
         {
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             UniversalCameraData camera = frameData.Get<UniversalCameraData>();
@@ -121,7 +128,7 @@ public class AOFeature : ScriptableRendererFeature
                 || !resources.cameraDepthTexture.IsValid() || !resources.cameraNormalsTexture.IsValid())
                 return TextureHandle.nullHandle;
 
-            Vector3Int tier = GetTier(_settings.performance);
+            Vector3Int tier = GetTier(performance);
             RenderTextureDescriptor fullDesc = camera.cameraTargetDescriptor;
             fullDesc.depthBufferBits = 0;
             fullDesc.msaaSamples = 1;
@@ -140,27 +147,27 @@ public class AOFeature : ScriptableRendererFeature
             Vector4 size = new Vector4(1f / aoDesc.width, 1f / aoDesc.height, aoDesc.width, aoDesc.height);
             TextureHandle source = integrated ? inputSource : resources.activeColorTexture;
 
-            AddPass(renderGraph, resources, "AO.Trace", source, occlusion, 0, tier, size, frameIndex, TextureHandle.nullHandle);
-            AddPass(renderGraph, resources, "AO.BlurHorizontal", occlusion, blur, 1, tier, size, frameIndex, TextureHandle.nullHandle);
+            AddPass(renderGraph, resources, "AO.Trace", source, occlusion, 0, tier, size, frameIndex, TextureHandle.nullHandle, intensity, falloff, debug);
+            AddPass(renderGraph, resources, "AO.BlurHorizontal", occlusion, blur, 1, tier, size, frameIndex, TextureHandle.nullHandle, intensity, falloff, debug);
             AddPass(renderGraph, resources, "AO.BlurVertical", blur, filtered, 2,
-                tier, size, frameIndex, TextureHandle.nullHandle);
+                tier, size, frameIndex, TextureHandle.nullHandle, intensity, falloff, debug);
             aoDesc.width = fullDesc.width;
             aoDesc.height = fullDesc.height;
             TextureHandle resolved = UniversalRenderer.CreateRenderGraphTexture(
                 renderGraph, aoDesc, "AO.Resolved", false);
             AddPass(renderGraph, resources, "AO.Resolve", filtered, resolved, 4,
-                tier, size, frameIndex, TextureHandle.nullHandle);
+                tier, size, frameIndex, TextureHandle.nullHandle, intensity, falloff, debug);
             if (integrated)
                 return resolved;
 
             TextureHandle temporal = _temporal.Resolve(renderGraph, frameData,
-                resolved, SSGITemporalFilter.Signal.AO, _settings.temporalBlend);
+                resolved, SSGITemporalFilter.Signal.AO, _controls.temporalBlend);
             var compositeDesc = renderGraph.GetTextureDesc(resources.activeColorTexture);
             compositeDesc.name = "AO.Composite";
             compositeDesc.clearBuffer = false;
             TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
             AddPass(renderGraph, resources, "AO.Composite", source, composite, 3,
-                tier, size, frameIndex, temporal);
+                tier, size, frameIndex, temporal, intensity, falloff, debug);
             resources.cameraColor = composite;
             return TextureHandle.nullHandle;
         }
@@ -170,7 +177,7 @@ public class AOFeature : ScriptableRendererFeature
         // ════════════════════════════════════════════════════════════
         private void AddPass(RenderGraph graph, UniversalResourceData resources, string name,
             TextureHandle source, TextureHandle target, int shaderPass, Vector3Int tier, Vector4 size,
-            int frameIndex, TextureHandle signal)
+            int frameIndex, TextureHandle signal, float intensity, float falloff, DebugMode debug)
         {
             using (var builder = graph.AddRasterRenderPass<PassData>(name, out var data))
             {
@@ -178,15 +185,15 @@ public class AOFeature : ScriptableRendererFeature
                 data.source = source;
                 data.shaderPass = shaderPass;
                 data.parameters = new Vector4(Mathf.Clamp(_settings.radius, 0.1f, 5f),
-                    Mathf.Clamp(_settings.bias, 0.001f, 0.5f), Mathf.Clamp(_settings.falloff, 0f, 4f),
-                    Mathf.Clamp(_settings.intensity, 0f, 4f));
+                    Mathf.Clamp(_settings.bias, 0.001f, 0.5f), Mathf.Clamp(falloff, 0f, 4f),
+                    Mathf.Clamp(intensity, 0f, 4f));
                 data.filterParams = new Vector4(Mathf.Clamp(_settings.depthSigma, 0.01f, 2f), 32f,
                     Mathf.Sin(Mathf.Clamp(_settings.angleBias, 0f, 60f) * Mathf.Deg2Rad), 0f);
                 data.sourceSize = size;
                 data.mode = (int)_settings.mode;
                 data.sampleCount = tier.y;
                 data.stepCount = tier.z;
-                data.debugMode = (int)_settings.debug;
+                data.debugMode = (int)debug;
                 data.frameIndex = frameIndex;
                 data.signal = signal;
 
@@ -220,10 +227,11 @@ public class AOFeature : ScriptableRendererFeature
             }
         }
 
-        public void Release() => _temporal.Release();
+        public void Release() => _temporal?.Release();
     }
 
     public Settings settings = new Settings();
+    public Controls controls = new Controls();
     private Material _material;
     private AOPass _pass;
 
@@ -238,7 +246,7 @@ public class AOFeature : ScriptableRendererFeature
         _pass = null;
         if (settings.shader == null) return;
         _material = CoreUtils.CreateEngineMaterial(settings.shader);
-        _pass = new AOPass(_material, settings);
+        _pass = new AOPass(_material, settings, controls);
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -246,7 +254,7 @@ public class AOFeature : ScriptableRendererFeature
         CameraData camera = renderingData.cameraData;
         if (_pass == null || camera.renderType == CameraRenderType.Overlay
             || (camera.cameraType != CameraType.Game && camera.cameraType != CameraType.SceneView)) return;
-        if (settings.intensity <= 0f && settings.debug == DebugMode.Off) return;
+        if (controls.intensity <= 0f && controls.debug == DebugMode.Off) return;
         renderer.EnqueuePass(_pass);
     }
 

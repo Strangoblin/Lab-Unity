@@ -8,7 +8,6 @@ using UnityEngine.Rendering.RenderGraphModule;
 
 public class DiffuseGIFeature : ScriptableRendererFeature
 {
-    public enum Performance { Low, Medium, High }
     public enum DebugMode { Off, Trace, Indirect, Confidence }
 
     [System.Serializable]
@@ -16,25 +15,12 @@ public class DiffuseGIFeature : ScriptableRendererFeature
     {
         [Header("Technical · Resources")]
         public Shader shader;
-        public Shader temporalShader;
 
         [Header("Technical · Geometry")]
         [Range(0.1f, 50f)] public float maxDistance = 5f;
         [Range(0.001f, 1f)] public float thickness = 0.15f;
         [Range(0.001f, 0.5f)] public float normalBias = 0.03f;
         [Range(0.01f, 2f)] public float depthSigma = 0.15f;
-
-        [Header("Performance")]
-        public Performance performance = Performance.Medium;
-        [Range(0f, 0.98f)] public float temporalBlend = 0.9f;
-
-        [Header("Artistic")]
-        [Range(0f, 4f)] public float intensity = 1f;
-        [Range(0f, 4f)] public float distanceFalloff = 0f;
-        [ColorUsage(false, false)] public Color receiverAlbedo = new Color(0.8f, 0.8f, 0.8f, 1f);
-
-        [Header("Debug")]
-        public DebugMode debug = DebugMode.Off;
 
         internal static readonly int TraceParamsID = Shader.PropertyToID("_GITraceParams");
         internal static readonly int FilterParamsID = Shader.PropertyToID("_GIFilterParams");
@@ -49,15 +35,28 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         internal static readonly int TraceTextureID = Shader.PropertyToID("_GITraceTexture");
     }
 
+    [System.Serializable]
+    public sealed class Controls : SSGIStandaloneControls
+    {
+        [Header("Artistic")]
+        [Range(0f, 4f)] public float intensity = 1f;
+        [Range(0f, 4f)] public float distanceFalloff;
+        [ColorUsage(false, false)]
+        public Color receiverAlbedo = new(0.8f, 0.8f, 0.8f, 1f);
+
+        [Header("Debug")]
+        public DebugMode debug = DebugMode.Off;
+    }
+
     // ════════════════════════════════════════════════════════════
     //  性能档位 — 分辨率、射线和步进预算同源展开
     // ════════════════════════════════════════════════════════════
-    internal static Vector3Int GetTier(Performance performance)
+    internal static Vector3Int GetTier(SSGIQuality performance)
     {
         switch (performance)
         {
-            case Performance.Low: return new Vector3Int(4, 1, 24);
-            case Performance.High: return new Vector3Int(2, 4, 64);
+            case SSGIQuality.Low: return new Vector3Int(4, 1, 24);
+            case SSGIQuality.High: return new Vector3Int(2, 4, 64);
             default: return new Vector3Int(2, 2, 48);
         }
     }
@@ -66,6 +65,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
     {
         private readonly Material _material;
         private readonly Settings _settings;
+        private readonly Controls _controls;
         private readonly SSGITemporalFilter _temporal;
 
         class PassData
@@ -85,11 +85,12 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             public TextureHandle signal;
         }
 
-        public DiffuseGIPass(Material material, Settings settings)
+        public DiffuseGIPass(Material material, Settings settings, Controls controls = null)
         {
             _material = material;
             _settings = settings;
-            _temporal = new SSGITemporalFilter(settings.temporalShader);
+            _controls = controls;
+            _temporal = controls != null ? new SSGITemporalFilter(controls.temporalShader) : null;
             // 事件选择：采集输入只允许"不透明 + 天空盒"，且合成必须落在 URP 拷贝
             // _CameraOpaqueTexture（AfterRenderingSkybox 处的颜色拷贝）之前。
             // 同事件下自定义 Feature 先于 URP 内置 Pass 执行（URP 17 RenderGraph：
@@ -108,16 +109,23 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
             _temporal.BeginFrame(frameData);
-            Record(renderGraph, frameData, TextureHandle.nullHandle, false, _temporal.FrameIndex);
+            Record(renderGraph, frameData, TextureHandle.nullHandle, false, _temporal.FrameIndex,
+                _controls.performance, _controls.intensity, _controls.distanceFalloff,
+                _controls.receiverAlbedo, _controls.debug);
             _temporal.CompleteFrame(renderGraph, frameData);
         }
 
-        public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData, TextureHandle source, int frameIndex)
+        public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData,
+            TextureHandle source, int frameIndex, SSGIQuality performance,
+            float distanceFalloff, Color receiverAlbedo)
         {
-            return Record(renderGraph, frameData, source, true, frameIndex);
+            return Record(renderGraph, frameData, source, true, frameIndex, performance,
+                1f, distanceFalloff, receiverAlbedo, DebugMode.Off);
         }
 
-        private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData, TextureHandle inputSource, bool integrated, int frameIndex)
+        private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData,
+            TextureHandle inputSource, bool integrated, int frameIndex, SSGIQuality performance,
+            float intensity, float distanceFalloff, Color receiverAlbedo, DebugMode debug)
         {
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             UniversalCameraData camera = frameData.Get<UniversalCameraData>();
@@ -125,7 +133,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 || !resources.cameraDepthTexture.IsValid() || !resources.cameraNormalsTexture.IsValid())
                 return TextureHandle.nullHandle;
 
-            Vector3Int tier = GetTier(_settings.performance);
+            Vector3Int tier = GetTier(performance);
             RenderTextureDescriptor fullDesc = camera.cameraTargetDescriptor;
             fullDesc.depthBufferBits = 0;
             fullDesc.msaaSamples = 1;
@@ -145,21 +153,25 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             Vector4 size = new Vector4(1f / giDesc.width, 1f / giDesc.height, giDesc.width, giDesc.height);
             TextureHandle source = integrated ? inputSource : resources.activeColorTexture;
 
-            AddPass(renderGraph, resources, "DiffuseGI.Trace", source, trace, 0, tier, size, frameIndex, TextureHandle.nullHandle);
-            AddPass(renderGraph, resources, "DiffuseGI.BlurHorizontal", trace, blur, 1, tier, size, frameIndex, TextureHandle.nullHandle);
-            AddPass(renderGraph, resources, "DiffuseGI.BlurVertical", blur, filtered, 2, tier, size, frameIndex, TextureHandle.nullHandle);
-            AddPass(renderGraph, resources, "DiffuseGI.Resolve", filtered, resolved, 3, tier, size, frameIndex, TextureHandle.nullHandle);
+            AddPass(renderGraph, resources, "DiffuseGI.Trace", source, trace, 0, tier, size, frameIndex, TextureHandle.nullHandle,
+                intensity, distanceFalloff, receiverAlbedo, debug);
+            AddPass(renderGraph, resources, "DiffuseGI.BlurHorizontal", trace, blur, 1, tier, size, frameIndex, TextureHandle.nullHandle,
+                intensity, distanceFalloff, receiverAlbedo, debug);
+            AddPass(renderGraph, resources, "DiffuseGI.BlurVertical", blur, filtered, 2, tier, size, frameIndex, TextureHandle.nullHandle,
+                intensity, distanceFalloff, receiverAlbedo, debug);
+            AddPass(renderGraph, resources, "DiffuseGI.Resolve", filtered, resolved, 3, tier, size, frameIndex, TextureHandle.nullHandle,
+                intensity, distanceFalloff, receiverAlbedo, debug);
             if (integrated)
                 return resolved;
 
             TextureHandle temporal = _temporal.Resolve(renderGraph, frameData,
-                resolved, SSGITemporalFilter.Signal.DiffuseGI, _settings.temporalBlend);
+                resolved, SSGITemporalFilter.Signal.DiffuseGI, _controls.temporalBlend);
             var compositeDesc = renderGraph.GetTextureDesc(resources.activeColorTexture);
             compositeDesc.name = "DiffuseGI.Composite";
             compositeDesc.clearBuffer = false;
             TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
             AddPass(renderGraph, resources, "DiffuseGI.Composite", source, composite, 4,
-                tier, size, frameIndex, temporal);
+                tier, size, frameIndex, temporal, intensity, distanceFalloff, receiverAlbedo, debug);
             resources.cameraColor = composite;
             return TextureHandle.nullHandle;
         }
@@ -169,7 +181,8 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         // ════════════════════════════════════════════════════════════
         private void AddPass(RenderGraph graph, UniversalResourceData resources, string name,
             TextureHandle source, TextureHandle target, int shaderPass, Vector3Int tier, Vector4 size,
-            int frameIndex, TextureHandle signal)
+            int frameIndex, TextureHandle signal, float intensity, float distanceFalloff,
+            Color receiverAlbedo, DebugMode debug)
         {
             using (var builder = graph.AddRasterRenderPass<PassData>(name, out var data))
             {
@@ -178,15 +191,15 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 data.shaderPass = shaderPass;
                 data.traceParams = new Vector4(Mathf.Clamp(_settings.maxDistance, 0.1f, 50f),
                     Mathf.Clamp(_settings.thickness, 0.001f, 1f), Mathf.Clamp(_settings.normalBias, 0.001f, 0.5f),
-                    Mathf.Clamp(_settings.distanceFalloff, 0f, 4f));
+                    Mathf.Clamp(distanceFalloff, 0f, 4f));
                 data.filterParams = new Vector4(Mathf.Clamp(_settings.depthSigma, 0.01f, 2f), 32f, 0f, 0f);
                 data.sourceSize = size;
-                Color albedo = _settings.receiverAlbedo.linear;
+                Color albedo = receiverAlbedo.linear;
                 data.receiverAlbedo = new Color(Mathf.Clamp01(albedo.r), Mathf.Clamp01(albedo.g), Mathf.Clamp01(albedo.b), 1f);
-                data.intensity = Mathf.Clamp(_settings.intensity, 0f, 4f);
+                data.intensity = Mathf.Clamp(intensity, 0f, 4f);
                 data.rayCount = tier.y;
                 data.stepCount = tier.z;
-                data.debugMode = (int)_settings.debug;
+                data.debugMode = (int)debug;
                 data.frameIndex = frameIndex;
                 data.signal = signal;
 
@@ -222,10 +235,11 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             }
         }
 
-        public void Release() => _temporal.Release();
+        public void Release() => _temporal?.Release();
     }
 
     public Settings settings = new Settings();
+    public Controls controls = new Controls();
     private Material _material;
     private DiffuseGIPass _pass;
 
@@ -240,7 +254,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         _pass = null;
         if (settings.shader == null) return;
         _material = CoreUtils.CreateEngineMaterial(settings.shader);
-        _pass = new DiffuseGIPass(_material, settings);
+        _pass = new DiffuseGIPass(_material, settings, controls);
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -248,7 +262,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         CameraData camera = renderingData.cameraData;
         if (_pass == null || camera.renderType == CameraRenderType.Overlay
             || (camera.cameraType != CameraType.Game && camera.cameraType != CameraType.SceneView)) return;
-        if (settings.intensity <= 0f && settings.debug == DebugMode.Off) return;
+        if (controls.intensity <= 0f && controls.debug == DebugMode.Off) return;
         renderer.EnqueuePass(_pass);
     }
 

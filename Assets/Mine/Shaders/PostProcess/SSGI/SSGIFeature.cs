@@ -18,20 +18,22 @@ public class SSGIFeature : ScriptableRendererFeature
         public Shader compositeShader;
         public Shader temporalShader;
 
-        [Header("Modules")]
-        public bool enableAO = true;
+        [Header("Technical · Modules")]
         public AOFeature.Settings ao = new();
-        public bool enableDiffuseGI = true;
         public DiffuseGIFeature.Settings diffuseGI = new();
-        public bool enableSpecularGI = true;
         public SpecularGIFeature.Settings specularGI = new();
 
+        [Header("Performance")]
+        public SSGIPerformanceControls performance = new();
+
+        [Header("Intensity")]
+        public SSGIIntensityControls intensity = new();
+
         [Header("Temporal")]
-        [Range(0f, 0.98f)] public float aoTemporalBlend = 0.85f;
-        [Range(0f, 0.98f)] public float diffuseTemporalBlend = 0.9f;
+        public SSGITemporalControls temporal = new();
 
         [Header("Artistic")]
-        [Range(0f, 1f)] public float sceneAO = 1f;
+        public SSGIArtisticControls artistic = new();
 
         [Header("Debug")]
         public DebugMode debug = DebugMode.Off;
@@ -107,22 +109,26 @@ public class SSGIFeature : ScriptableRendererFeature
             TextureHandle scene = resources.activeColorTexture;
             _temporal.BeginFrame(frameData);
             int frameIndex = _temporal.FrameIndex;
-            TextureHandle ao = _settings.enableAO && _settings.ao.intensity > 0f && _aoPass != null
-                ? _aoPass.RecordIntegrated(graph, frameData, scene, frameIndex) : TextureHandle.nullHandle;
-            TextureHandle diffuse = _settings.enableDiffuseGI && _settings.diffuseGI.intensity > 0f && _diffusePass != null
-                ? _diffusePass.RecordIntegrated(graph, frameData, scene, frameIndex) : TextureHandle.nullHandle;
-            TextureHandle specular = _settings.enableSpecularGI && _settings.specularGI.intensity > 0f && _specularPass != null
-                ? _specularPass.RecordIntegrated(graph, frameData, scene, frameIndex) : TextureHandle.nullHandle;
+            TextureHandle ao = _settings.intensity.ao > 0f && _aoPass != null
+                ? _aoPass.RecordIntegrated(graph, frameData, scene, frameIndex,
+                    _settings.performance.ao, _settings.artistic.aoFalloff) : TextureHandle.nullHandle;
+            TextureHandle diffuse = _settings.intensity.diffuseGI > 0f && _diffusePass != null
+                ? _diffusePass.RecordIntegrated(graph, frameData, scene, frameIndex,
+                    _settings.performance.diffuseGI, _settings.artistic.diffuseDistanceFalloff,
+                    _settings.artistic.receiverAlbedo) : TextureHandle.nullHandle;
+            TextureHandle specular = _settings.intensity.specularGI > 0f && _specularPass != null
+                ? _specularPass.RecordIntegrated(graph, frameData, scene, frameIndex,
+                    _settings.performance.specularGI, _settings.artistic.specularRoughness) : TextureHandle.nullHandle;
 
             if (ao.IsValid())
                 ao = _temporal.Resolve(graph, frameData, ao,
-                    SSGITemporalFilter.Signal.AO, _settings.aoTemporalBlend);
+                    SSGITemporalFilter.Signal.AO, _settings.temporal.ao);
             if (diffuse.IsValid())
                 diffuse = _temporal.Resolve(graph, frameData, diffuse,
-                    SSGITemporalFilter.Signal.DiffuseGI, _settings.diffuseTemporalBlend);
+                    SSGITemporalFilter.Signal.DiffuseGI, _settings.temporal.diffuseGI);
             if (specular.IsValid())
                 specular = _temporal.Resolve(graph, frameData, specular,
-                    SSGITemporalFilter.Signal.SpecularGI, _settings.specularGI.temporalBlend);
+                    SSGITemporalFilter.Signal.SpecularGI, _settings.temporal.specularGI);
             _temporal.CompleteFrame(graph, frameData);
 
             if (!ao.IsValid() && !diffuse.IsValid() && !specular.IsValid())
@@ -141,15 +147,15 @@ public class SSGIFeature : ScriptableRendererFeature
                 data.diffuse = diffuse;
                 data.specular = specular;
                 data.parameters = new Vector4(
-                    Mathf.Clamp(_settings.ao.intensity, 0f, 4f),
-                    Mathf.Clamp(_settings.diffuseGI.intensity, 0f, 4f),
-                    Mathf.Clamp01(_settings.specularGI.intensity),
-                    Mathf.Clamp01(_settings.sceneAO));
-                Color albedo = _settings.diffuseGI.receiverAlbedo.linear;
+                    Mathf.Clamp(_settings.intensity.ao, 0f, 4f),
+                    Mathf.Clamp(_settings.intensity.diffuseGI, 0f, 4f),
+                    Mathf.Clamp01(_settings.intensity.specularGI),
+                    Mathf.Clamp01(_settings.artistic.sceneAO));
+                Color albedo = _settings.artistic.receiverAlbedo.linear;
                 data.albedo = new Vector4(Mathf.Clamp01(albedo.r), Mathf.Clamp01(albedo.g), Mathf.Clamp01(albedo.b), 1f);
                 data.flags = new Vector4(ao.IsValid() ? 1f : 0f, diffuse.IsValid() ? 1f : 0f,
                     specular.IsValid() ? 1f : 0f, 0f);
-                data.roughness = Mathf.Clamp01(_settings.specularGI.roughness);
+                data.roughness = Mathf.Clamp01(_settings.artistic.specularRoughness);
                 data.debug = (float)_settings.debug;
 
                 builder.UseTexture(scene, AccessFlags.Read);

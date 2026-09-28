@@ -106,6 +106,8 @@ atten = 1 / (1 + d² × falloff)
 
 ## 参数
 
+统一 SSGI 面板中，下表的 Technical 属于 AO Settings；Performance、Intensity、Temporal 与 Artistic 位于统一顶层。独立 AO Feature 则把非技术项放在 Controls 中。
+
 | 分组 | 参数 | 默认值 | 含义 |
 |---|---|---|---|
 | Technical | mode | HBAO | SSAO（半球核）或 HBAO（水平线积分） |

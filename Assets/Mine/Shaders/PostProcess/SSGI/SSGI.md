@@ -42,7 +42,7 @@ Color    = lerp(Color, SpecularGI, saturate(SpecularIntensity × Fresnel))
 
 `Assets/Settings/PC_Renderer.asset` 已启用统一 SSGI，AO 和 DiffuseGI 使用各自 Medium 档；SpecularGI 参数从原 Feature 复制，旧 SpecularGI Feature 关闭但保留。统一 Debug 提供 AO、DiffuseGI、SpecularGI 三种分量视图；各子模块原有 Debug 字段只在独立 Feature 中使用。
 
-模块开关影响是否录制对应计算 Pass。Quality 决定固定采样预算和工作分辨率；AO 世界半径只控制遮蔽覆盖，不改变循环次数。
+统一 Inspector 的「Technical · Modules」只保留各模块的 Shader、追踪几何与滤波参数；SpecularGI 的 Cubemap 与 Sky Max Mip 也在这里。三个模块的性能档位集中在 Performance，强度集中在 Intensity，历史权重集中在 Temporal，距离衰减、接收反照率、粗糙度与 Scene AO 集中在 Artistic。每路 Intensity = 0 即跳过该路追踪和历史解析，无额外启用开关。Debug 是统一合成的分量视图。独立 AO、DiffuseGI、SpecularGI Feature 各自保留 Settings（技术参数）和 Controls（性能、强度、时缓、艺术与独立调试），供单模块对照。\n\n性能档位决定固定采样预算和工作分辨率；AO 世界半径只控制遮蔽覆盖，不改变循环次数。
 
 ## 验证与限制
 

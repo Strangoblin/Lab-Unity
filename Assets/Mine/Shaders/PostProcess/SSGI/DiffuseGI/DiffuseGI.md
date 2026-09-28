@@ -56,6 +56,8 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 
 ## 参数
 
+统一 SSGI 面板中，下表的 Technical 属于 DiffuseGI Settings；Performance、Intensity、Temporal 与 Artistic 位于统一顶层。独立 DiffuseGI Feature 则把非技术项放在 Controls 中。
+
 | 分组 | 参数 | 默认值 | 含义 |
 |---|---|---|---|
 | Technical | maxDistance | 5 | 世界空间射线最大距离 |

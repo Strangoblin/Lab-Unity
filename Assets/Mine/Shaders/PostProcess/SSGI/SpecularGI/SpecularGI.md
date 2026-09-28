@@ -29,6 +29,8 @@ Trace 的 Alpha 保存 `screenConfidence`，供 Screen/Sky Source 调试；时�
 
 ## 参数
 
+统一 SSGI 面板中，Shader、Cubemap、追踪几何和 Sky Max Mip 属于 SpecularGI Settings；Performance、Intensity、Temporal 与 Roughness 位于统一顶层。独立 SpecularGI Feature 则把非技术项放在 Controls 中。
+
 | 分组 | 参数 | 默认值 | 说明 |
 |---|---|---:|---|
 | Resources | Shader | None | `PostProcess/SpecularGI` |
@@ -37,11 +39,11 @@ Trace 的 Alpha 保存 `screenConfidence`，供 Screen/Sky Source 调试；时�
 | Technical | Max Distance | 50 | SSR 世界空间最大距离 |
 | Technical | Thickness | 0.05 | 深度命中厚度 |
 | Technical | Normal Bias | 0.03 | 射线起点法线偏移 |
-| Performance | Quality | Medium | Trace 分辨率与步数档位 |
+| Performance | Performance | Medium | Trace 分辨率与步数档位 |
 | Artistic | Roughness | 0.25 | 0 附近退化为确定性镜面射线 |
 | Artistic | Intensity | 1 | 最终 Fresnel 合成强度 |
-| Artistic | Sky Max Mip | 6 | Cubemap 最大粗糙度 mip |
-| Artistic | Temporal Blend | 0.95 | 有效历史的最大权重 |
+| Technical | Sky Max Mip | 6 | Cubemap 最大粗糙度 mip |
+| Temporal | Temporal Blend | 0.95 | 有效历史的最大权重 |
 
 | 档位 | Trace 分辨率 | 步数 |
 |---|---:|---:|
