@@ -32,7 +32,7 @@ RenderPass - 输出全局纹理
 
 输出: - Result Texture
 
-可替换: - SpecularGI Trace（屏幕 / 平面 / Cubemap）- SSGI Diffuse - AO Search
+可替换: - SpecularGI Trace（屏幕 / Cubemap）- SSGI Diffuse - AO Search
 
 ## 4. Output Layer 输出层
 

@@ -1,4 +1,4 @@
-# SpecularGI — 分层屏幕空间镜面反射
+# SpecularGI — 屏幕空间镜面反射与环境回退
 
 **路径:** `Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/`  
 **类型:** FullScreenPass  
@@ -8,51 +8,40 @@
 
 ## 功能概述
 
-SpecularGI 将传统 SSR 作为统一几何求交能力。每条镜面或 GGX 射线首先尝试屏幕空间命中，低置信度区域由零步进 SSPR 补充，剩余部分从显式 Cubemap 获取环境辐亮度。
-
-该效果不使用 `SampleSH`。未配置 Cubemap 时，环境级保持黑色。
-
-## 渲染管线
+镜面或 GGX 射线先尝试 SSR 几何命中，再按屏幕命中的置信度与显式 Cubemap 混合。原 SSPR/SSPM 假平面候选已移除，不再进行平面投影或轴对齐法线判定。效果不使用 `SampleSH`；未配置 Cubemap 时，环境级为黑色。
 
 ```text
 镜面或 GGX 方向
   → SSR 几何首命中
-  → SSPR 远景候选
-  → Cubemap 环境回退
+  → Cubemap 补足未命中与低置信度区域
   → Spatial Resolve
-  → Temporal Resolve
+  → SSGITemporalFilter
   → Fresnel Composite
 ```
 
-三级辐亮度权重满足：
-
 ```text
 screenWeight = screenConfidence
-planarWeight = (1 - screenConfidence) × planarConfidence
-skyWeight    = (1 - screenConfidence) × (1 - planarConfidence)
+skyWeight    = 1 - screenConfidence
+radiance     = screenRadiance × screenWeight + skyRadiance × skyWeight
 ```
 
-三者之和为一，回退不会重复增加能量。Trace 输出的 Alpha 保存主导来源编码：屏幕反射为 1，SSPR 为 0.5，Cubemap 为 0。实际辐射仍使用连续三级权重；编码只服务 Debug；时域拒绝当前基于历史眼深度。
+Trace 的 Alpha 保存 `screenConfidence`，供 Screen/Sky Source 调试；时域输出的 Alpha 保存历史混合权重。未命中、边缘淡出或背面命中都会增加环境权重。Cubemap 缺失时这些区域变暗，需为需要环境反射的场景显式配置资源。
 
-## 参数说明
+## 参数
 
-### Resources
-
-| 参数 | 默认值 | 说明 |
-|---|---:|---|
-| Shader | None | `PostProcess/SpecularGI` |
-| Temporal Shader | None | 共享 `PostProcess/SSGITemporal`，独立 Feature 需绑定 |
-| Sky Cubemap | None | 镜面环境回退；按 Roughness 选择 mip |
-
-### Technical
-
-| 参数 | 默认值 | 说明 |
-|---|---:|---|
-| Max Distance | 50 | SSR 世界空间最大距离 |
-| Thickness | 0.05 | 深度命中厚度 |
-| Normal Bias | 0.03 | 射线起点法线偏移 |
-
-### Performance
+| 分组 | 参数 | 默认值 | 说明 |
+|---|---|---:|---|
+| Resources | Shader | None | `PostProcess/SpecularGI` |
+| Resources | Temporal Shader | None | 共享 `PostProcess/SSGITemporal`，独立 Feature 需绑定 |
+| Resources | Sky Cubemap | None | 环境回退；按 Roughness 选择 mip |
+| Technical | Max Distance | 50 | SSR 世界空间最大距离 |
+| Technical | Thickness | 0.05 | 深度命中厚度 |
+| Technical | Normal Bias | 0.03 | 射线起点法线偏移 |
+| Performance | Quality | Medium | Trace 分辨率与步数档位 |
+| Artistic | Roughness | 0.25 | 0 附近退化为确定性镜面射线 |
+| Artistic | Intensity | 1 | 最终 Fresnel 合成强度 |
+| Artistic | Sky Max Mip | 6 | Cubemap 最大粗糙度 mip |
+| Artistic | Temporal Blend | 0.95 | 有效历史的最大权重 |
 
 | 档位 | Trace 分辨率 | 步数 |
 |---|---:|---:|
@@ -60,30 +49,15 @@ skyWeight    = (1 - screenConfidence) × (1 - planarConfidence)
 | Medium | 1/4 | 64 |
 | High | 1/2 | 96 |
 
-### Artistic
+## 历史与调试
 
-| 参数 | 默认值 | 说明 |
-|---|---:|---|
-| Roughness | 0.25 | 0 附近退化为确定性镜面射线 |
-| Intensity | 1 | 最终 Fresnel 合成强度，0 关闭 |
-| Planar Strength | 1 | SSPR 候选强度，0 禁用 |
-| Planar Threshold | 0.95 | 轴对齐法线启发式阈值 |
-| Planar Fade Start/End | 15/50 | SSPR 远景淡入范围 |
-| Sky Max Mip | 6 | Cubemap 最大粗糙度 mip |
-| Temporal Blend | 0.95 | 有效历史的最大权重 |
+每台 Camera 有独立的颜色历史；统一 SSGI 中与 AO、DiffuseGI 共用每相机眼深历史。分辨率变化、帧间断、相机矩阵突变或深度不匹配时拒绝历史。空间阶段使用 5×5 几何权重重建。
 
-## 历史管理
-
-每台 Camera 拥有独立的颜色和线性眼深双缓冲。分辨率改变、帧间隔过大或相机矩阵突变时拒绝历史。时域阶段使用 Motion Vector 和前帧视图空间深度拒绝无效历史；随机射线来源变化不会直接清空历史。空间阶段使用 5×5 几何权重重建。
-
-## 调试
-
-Debug 提供 Screen Source、Planar Source、Sky Source、Trace、Spatial、Temporal 和 History Weight。前三项显示主导来源；History Weight 中白色表示历史正常累积，黑色表示历史被拒绝或当前像素没有表面。
+Debug 提供 Screen Source、Sky Source、Trace、Spatial、Temporal 和 History Weight。Screen/Sky Source 显示两路权重；History Weight 中白色表示历史正常累积，黑色表示历史被拒绝或当前像素没有表面。旧序列化枚举数值保持稳定，已移除的 Planar Source 数值 2 留空。
 
 ## 已知限制
 
-- 当前从 Feature 的全局 Roughness 生成射线，尚无逐像素材质粗糙度输入。
-- 当前 SSR 后端使用固定世界空间步进；DDA 与 HiZ 将作为同一几何接口的后续优化接入。
-- SSPR 的轴对齐法线判断是适用性启发式，并不证明几何严格共面；正交相机禁用 SSPR，并直接使用 SSR 或 Cubemap。
+- 使用 Feature 的全局 Roughness，尚无逐像素材质粗糙度输入。
+- SSR 后端为固定世界空间步进；DDA 与 HiZ 尚未接入。
 - Cubemap 由 Feature 显式指定，暂未直接读取 URP Reflection Probe Atlas。
-- 当前历史 RT 为普通二维纹理，尚未声明 XR 支持。
+- 历史 RT 为普通二维纹理，尚未验证 XR 与动态分辨率。

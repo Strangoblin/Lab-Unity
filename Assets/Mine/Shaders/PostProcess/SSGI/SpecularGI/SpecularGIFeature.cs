@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-//  SpecularGI Feature — SSSR trace with SSPR and cubemap fallbacks.
+//  SpecularGI Feature — SSSR trace with cubemap fallback.
 // ════════════════════════════════════════════════════════════════
 using System;
 using UnityEngine;
@@ -15,8 +15,8 @@ public class SpecularGIFeature : ScriptableRendererFeature
         public enum QualityLevel { Low, Medium, High }
         public enum DebugMode
         {
-            Off, ScreenSource, PlanarSource, SkySource,
-            Trace, Spatial, Temporal, HistoryWeight
+            Off = 0, ScreenSource = 1, SkySource = 3,
+            Trace = 4, Spatial = 5, Temporal = 6, HistoryWeight = 7
         }
 
         [Header("Resources")]
@@ -35,10 +35,6 @@ public class SpecularGIFeature : ScriptableRendererFeature
         [Header("Artistic")]
         [Range(0f, 1f)] public float roughness = 0.25f;
         [Range(0f, 1f)] public float intensity = 1f;
-        [Range(0f, 1f)] public float planarStrength = 1f;
-        [Range(0.8f, 1f)] public float planarThreshold = 0.95f;
-        [Range(0f, 200f)] public float planarFadeStart = 15f;
-        [Range(0f, 200f)] public float planarFadeEnd = 50f;
         [Range(0f, 12f)] public float skyMaxMip = 6f;
         [Range(0f, 0.98f)] public float temporalBlend = 0.95f;
 
@@ -46,7 +42,6 @@ public class SpecularGIFeature : ScriptableRendererFeature
         public DebugMode debug = DebugMode.Off;
 
         internal static readonly int TraceParamsID = Shader.PropertyToID("_TraceParams");
-        internal static readonly int PlanarParamsID = Shader.PropertyToID("_PlanarParams");
         internal static readonly int RoughnessID = Shader.PropertyToID("_Roughness");
         internal static readonly int IntensityID = Shader.PropertyToID("_Intensity");
         internal static readonly int SkyCubemapID = Shader.PropertyToID("_SkyCubemap");
@@ -54,8 +49,6 @@ public class SpecularGIFeature : ScriptableRendererFeature
         internal static readonly int SpatialRadiusID = Shader.PropertyToID("_SpatialRadius");
         internal static readonly int FrameIndexID = Shader.PropertyToID("_FrameIndex");
         internal static readonly int DebugModeID = Shader.PropertyToID("_DebugMode");
-        internal static readonly int CameraViewMatrixID = Shader.PropertyToID("_CameraViewMatrix");
-        internal static readonly int CameraProjectionMatrixID = Shader.PropertyToID("_CameraProjectionMatrix");
         internal static readonly int SpecularTextureID = Shader.PropertyToID("_SpecularGITexture");
     }
 
@@ -68,14 +61,11 @@ public class SpecularGIFeature : ScriptableRendererFeature
             public TextureHandle trace;
             public TextureHandle spatial;
             public Vector4 traceParams;
-            public Vector4 planarParams;
             public float roughness;
             public float skyMaxMip;
             public float spatialRadius;
             public float frameIndex;
             public Cubemap skyCubemap;
-            public Matrix4x4 viewMatrix;
-            public Matrix4x4 projectionMatrix;
         }
 
         sealed class CompositeData
@@ -165,19 +155,12 @@ public class SpecularGIFeature : ScriptableRendererFeature
                     Mathf.Max(_settings.maxDistance, 0.001f),
                     Mathf.Max(_settings.thickness, 0.0001f),
                     Mathf.Max(_settings.normalBias, 0f), stepCount);
-                data.planarParams = new Vector4(
-                    Mathf.Clamp(_settings.planarThreshold, 0.8f, 0.9999f),
-                    Mathf.Max(_settings.planarFadeStart, 0f),
-                    Mathf.Max(_settings.planarFadeEnd, _settings.planarFadeStart),
-                    Mathf.Clamp01(_settings.planarStrength));
                 data.roughness = Mathf.Clamp01(_settings.roughness);
                 data.skyMaxMip = Mathf.Max(_settings.skyMaxMip, 0f);
                 data.spatialRadius = spatialRadius;
                 data.frameIndex = frameIndex;
                 data.skyCubemap = _settings.skyCubemap;
-                data.viewMatrix = camera.GetViewMatrix();
-                data.projectionMatrix = GL.GetGPUProjectionMatrix(
-                    camera.GetProjectionMatrix(), true);
+
 
                 builder.UseTexture(source, AccessFlags.Read);
                 builder.UseTexture(trace, AccessFlags.ReadWrite);
@@ -188,13 +171,10 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 builder.SetRenderFunc((TraceData pass, UnsafeGraphContext context) =>
                 {
                     pass.material.SetVector(Settings.TraceParamsID, pass.traceParams);
-                    pass.material.SetVector(Settings.PlanarParamsID, pass.planarParams);
                     pass.material.SetFloat(Settings.RoughnessID, pass.roughness);
                     pass.material.SetFloat(Settings.SkyMaxMipID, pass.skyMaxMip);
                     pass.material.SetFloat(Settings.SpatialRadiusID, pass.spatialRadius);
                     pass.material.SetFloat(Settings.FrameIndexID, pass.frameIndex);
-                    pass.material.SetMatrix(Settings.CameraViewMatrixID, pass.viewMatrix);
-                    pass.material.SetMatrix(Settings.CameraProjectionMatrixID, pass.projectionMatrix);
                     pass.material.SetTexture(Settings.SkyCubemapID, pass.skyCubemap);
                     CommandBuffer commandBuffer = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
                     Blitter.BlitCameraTexture(commandBuffer, pass.source, pass.trace, pass.material, 0);
@@ -252,7 +232,6 @@ public class SpecularGIFeature : ScriptableRendererFeature
                         TextureHandle selected = pass.debug switch
                         {
                             Settings.DebugMode.ScreenSource => pass.trace,
-                            Settings.DebugMode.PlanarSource => pass.trace,
                             Settings.DebugMode.SkySource => pass.trace,
                             Settings.DebugMode.Trace => pass.trace,
                             Settings.DebugMode.Spatial => pass.spatial,
@@ -300,9 +279,8 @@ public class SpecularGIFeature : ScriptableRendererFeature
             float mode = debug switch
             {
                 Settings.DebugMode.ScreenSource => 1f,
-                Settings.DebugMode.PlanarSource => 2f,
-                Settings.DebugMode.SkySource => 3f,
-                Settings.DebugMode.HistoryWeight => 4f,
+                Settings.DebugMode.SkySource => 2f,
+                Settings.DebugMode.HistoryWeight => 3f,
                 _ => 0f
             };
             material.SetFloat(Settings.DebugModeID, mode);

@@ -1,14 +1,8 @@
 // ═══════════════════════════════════════════════════════════════
-//  SpecularGI Sampling — reflection rays, planar fallback and cubemap radiance.
+//  SpecularGI Sampling — reflection rays and cubemap radiance.
 // ═══════════════════════════════════════════════════════════════
 #ifndef SPECULAR_GI_SAMPLING_INCLUDED
 #define SPECULAR_GI_SAMPLING_INCLUDED
-
-struct SpecularPlanarResult
-{
-    float3 radiance;
-    float confidence;
-};
 
 float2 SpecularGI_Hash22(float2 value)
 {
@@ -61,41 +55,6 @@ float3 SpecularGI_CreateRayDirection(float2 uv, float3 normalWS, float3 viewDire
     float2 randomValue = SpecularGI_Hash22(uv * _ScreenParams.xy + _FrameIndex * float2(0.754877, 0.569840));
     float3 halfVectorWS = SpecularGI_SampleGGXVNDF(randomValue, _Roughness, normalWS, -viewDirectionWS);
     return normalize(reflect(viewDirectionWS, halfVectorWS));
-}
-
-SpecularPlanarResult SpecularGI_EvaluatePlanar(
-    float3 positionWS,
-    float3 normalWS,
-    float3 viewDirectionWS,
-    float viewDistance)
-{
-    SpecularPlanarResult result = (SpecularPlanarResult)0;
-    if (unity_OrthoParams.w > 0.5)
-        return result;
-
-    float planarity = max(max(abs(normalWS.x), abs(normalWS.y)), abs(normalWS.z));
-    float planarMask = smoothstep(min(_PlanarParams.x, 0.9999), 1.0, planarity);
-    float distanceMask = smoothstep(_PlanarParams.y, max(_PlanarParams.z, _PlanarParams.y + 0.0001), viewDistance);
-    if (planarMask * distanceMask <= 0.0001 || _PlanarParams.w <= 0.0)
-        return result;
-
-    float3 viewDirectionVS = mul((float3x3)_CameraViewMatrix, viewDirectionWS);
-    float3 normalVS = normalize(mul((float3x3)_CameraViewMatrix, normalWS));
-    float3 reflectedVS = reflect(viewDirectionVS, normalVS);
-    float4 clip = mul(_CameraProjectionMatrix, float4(reflectedVS, 0.0));
-    if (clip.w <= 0.00001)
-        return result;
-
-    float2 sampleUV = float2(clip.x, clip.y * _ProjectionParams.x) / clip.w * 0.5 + 0.5;
-    float2 edge = abs(sampleUV * 2.0 - 1.0);
-    float boundsConfidence = 1.0 - smoothstep(0.85, 1.0, max(edge.x, edge.y));
-    result.radiance = SAMPLE_TEXTURE2D_X_LOD(
-        _BlitTexture,
-        sampler_LinearClamp,
-        saturate(sampleUV),
-        0).rgb;
-    result.confidence = saturate(planarMask * distanceMask * boundsConfidence * _PlanarParams.w);
-    return result;
 }
 
 float3 SpecularGI_SampleSky(float3 directionWS)

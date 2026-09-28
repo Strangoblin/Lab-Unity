@@ -50,10 +50,6 @@ MonoBehaviour:
       quality: 1
       roughness: 0.1
       intensity: 1
-      planarStrength: 1
-      planarThreshold: 0.95
-      planarFadeStart: 15
-      planarFadeEnd: 50
       skyMaxMip: 6
       temporalBlend: 0.5
       debug: 6
@@ -194,10 +190,6 @@ MonoBehaviour:
     quality: 1
     roughness: 0.097
     intensity: 1
-    planarStrength: 1
-    planarThreshold: 0.95
-    planarFadeStart: 15
-    planarFadeEnd: 50
     skyMaxMip: 6
     temporalBlend: 0.5
     debug: 6

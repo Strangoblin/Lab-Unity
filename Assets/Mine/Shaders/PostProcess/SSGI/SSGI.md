@@ -10,7 +10,7 @@
 Opaque + Skybox
   ├─ AO: Trace → 双边滤波 → 全分辨率保边 Resolve ─┐
   ├─ DiffuseGI: Gather → 双边滤波 → 全分辨率 Resolve ├→ 共享时域重投影
-  └─ SpecularGI: SSR → SSPR → Cubemap → 空域 ───────┘
+  └─ SpecularGI: SSR → Cubemap → 空域 ───────┘
               ↓
         SSGI.Composite（写回 cameraColor 一次）
               ↓
@@ -27,7 +27,7 @@ AO 和 DiffuseGI 只在有运动向量、公共时域 Shader 可用时推进逐�
 
 ## 合成语义
 
-AO 输出可见度 `V`，DiffuseGI 输出尚未乘接收反照率和强度的间接辐亮度近似，SpecularGI 输出空间与时间滤波后的反射辐亮度。统一 Shader 按以下顺序合成：
+AO 输出可见度 `V`，DiffuseGI 输出尚未乘接收反照率和强度的间接辐亮度近似，SpecularGI 输出空间与时间滤波后的反射辐亮度；屏幕反射低置信度时直接回退到显式 Cubemap，不再计算假平面反射。统一 Shader 按以下顺序合成：
 
 ```text
 AOFactor = 1 - saturate((1 - V) × AOIntensity)

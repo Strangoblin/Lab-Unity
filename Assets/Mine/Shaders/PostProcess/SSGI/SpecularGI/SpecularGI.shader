@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  SpecularGI — SSSR primary trace with SSPR and cubemap fallbacks.
+//  SpecularGI — SSSR screen trace with cubemap fallback.
 // ═══════════════════════════════════════════════════════════════
 Shader "PostProcess/SpecularGI"
 {
@@ -20,15 +20,12 @@ Shader "PostProcess/SpecularGI"
 
     CBUFFER_START(UnityPerMaterial)
         float4 _TraceParams;
-        float4 _PlanarParams;
         float _Roughness;
         float _Intensity;
         float _SkyMaxMip;
         float _SpatialRadius;
         float _FrameIndex;
         float _DebugMode;
-        float4x4 _CameraViewMatrix;
-        float4x4 _CameraProjectionMatrix;
     CBUFFER_END
 
     #include "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl"
@@ -37,7 +34,7 @@ Shader "PostProcess/SpecularGI"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGIFilter.hlsl"
 
     // ════════════════════════════════════════════════════════════
-    //  Trace — screen hit first, planar projection second, cubemap last
+    //  Trace — screen hit first, cubemap on misses and low-confidence edges
     // ════════════════════════════════════════════════════════════
     half4 Frag_Trace(Varyings input) : SV_Target
     {
@@ -69,23 +66,9 @@ Shader "PostProcess/SpecularGI"
             : 0.0;
         float screenConfidence = screenResult.valid ? screenResult.confidence : 0.0;
 
-        float viewDistance = distance(positionWS, GetCameraPositionWS());
-        SpecularPlanarResult planarResult = SpecularGI_EvaluatePlanar(
-            positionWS,
-            normalWS,
-            viewDirectionWS,
-            viewDistance);
-        float planarWeight = (1.0 - screenConfidence) * planarResult.confidence;
-        float skyWeight = (1.0 - screenConfidence) * (1.0 - planarResult.confidence);
         float3 skyRadiance = SpecularGI_SampleSky(rayDirectionWS);
-
-        float3 radiance = screenRadiance * screenConfidence
-            + planarResult.radiance * planarWeight
-            + skyRadiance * skyWeight;
-        float sourceCode = screenConfidence >= max(planarWeight, skyWeight)
-            ? 1.0
-            : (planarWeight >= skyWeight ? 0.5 : 0.0);
-        return float4(radiance, sourceCode);
+        float3 radiance = lerp(skyRadiance, screenRadiance, screenConfidence);
+        return float4(radiance, screenConfidence);
     }
 
     // ════════════════════════════════════════════════════════════
@@ -128,11 +111,9 @@ Shader "PostProcess/SpecularGI"
         if (_DebugMode < 0.5)
             return value;
         if (_DebugMode < 1.5)
-            return float4(saturate((value.a - 0.5) * 2.0).xxx, 1.0);
+            return float4(saturate(value.a).xxx, 1.0);
         if (_DebugMode < 2.5)
-            return float4(saturate(1.0 - abs(value.a - 0.5) * 2.0).xxx, 1.0);
-        if (_DebugMode < 3.5)
-            return float4(saturate(1.0 - value.a * 2.0).xxx, 1.0);
+            return float4(saturate(1.0 - value.a).xxx, 1.0);
         return float4(value.aaa, 1.0);
     }
     ENDHLSL

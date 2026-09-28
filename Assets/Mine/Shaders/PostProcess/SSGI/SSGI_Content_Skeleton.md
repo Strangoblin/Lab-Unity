@@ -11,7 +11,7 @@
 
 | Phase | 内容 | 状态 |
 |---|---|---|
-| 1 | SSPR 平面镜面反射 | **已并入** SpecularGI 的平面回退级（不再独立成 Feature） |
+| 1 | SSPR 假平面镜面反射 | **已退役**：控制困难，SpecularGI 不再计算该候选 |
 | 2 | Stochastic SSR 粗糙表面反射 | **已并入** SpecularGI 的 GGX 采样级（不再独立成 Feature） |
 | 3 | DiffuseGI 屏幕空间间接漫反射 | 已落地 |
 | 4 | SSAO / HBAO 环境光遮蔽 | 已落地 |
@@ -28,7 +28,7 @@
   └─ SSGIFeature（AfterRenderingSkybox）
       ├─ AO → 可见度 ─────────────┐
       ├─ DiffuseGI → 间接漫反射 ───┼→ SSGITemporalFilter
-      └─ SpecularGI → SSSR / SSPR / Cubemap ┘
+      └─ SpecularGI → SSSR / Cubemap ┘
           ↓
       SSGIComposite.shader → cameraColor（一次）
           ↓
@@ -38,77 +38,9 @@
 `ScreenSpaceTrace.hlsl` 是家族私有共享几何库；`SSGITemporalFilter.cs`、`SSGITemporal.shader` 与 `SSGITemporal.hlsl` 是家族私有共享时域层。三个算法的采样与空域 HLSL 仍各自维护。
 旧独立 Feature 保留用于对照，不与统一 Feature 同时启用。
 
-## 实施路线图
+## 路线调整
 
-```
-Phase 1 ──┐                                        Phase 5 ──┐
-SSPR       │   Phase 2       Phase 3    Phase 4     Filter    │  Phase 6
-(平面镜面)  │   StochasticSSR  DiffuseGI  SSAO+HBAO   系统      │  Composite
-           │   (粗糙反射)     (漫反射)   (环境光)               │  (统一合成)
-  ─── 1天  │   ─── 2天       ─── 3天    ─── 2天     ─── 2天   │  ─── 已落地
-           │                                                  │
-  └─ Phase 1+2 合并为 SpecularGI 分层回退链 ────────────────────┘
-```
-
-Phase 1 与 Phase 2 不是被废弃，而是被**合并**：单一像素的一次采样先尝试屏幕空间
-几何命中，低置信度区域依次回退到平面投影与环境 Cubemap，三级权重之和为一。
-原两阶段的算法内容保留在下方作为设计依据。
-
----
-
-## Phase 1: SSPR — 屏幕空间平面镜面反射（零步进翻转版）
-
-> **已被取代**：不再作为独立 Feature 存在。平面投影现在是 SpecularGI 的中间回退级
-> （`SpecularGI_EvaluatePlanar`），触发阈值为轴的启发式 `Planar Threshold`，
-> 远景由 `Planar Fade Start/End` 淡入。原实现的 `SampleSH` 天空兜底已废弃——
-> SpecularGI 明确禁止 `SampleSH` 充当镜面天空，环境级只来自显式 Cubemap。
-
-### 算法原理
-
-利用"镜像相机"论据直接翻转 UV 采样：无步进、无深度比较。
-
-**核心数学：**
-```
-水平相机（无俯仰/翻滚）下，平面反射 = 镜像相机成像 = 原画面垂直反转：
-    uv' = (u, 1 - v)                    // 精确（任意内容距离，非近似）
-相机带俯仰/翻滚时，反转退化为视空间镜像同态变换：
-    Rv = reflect(Vv, Nv)                // 视空间镜像方向
-    uv' = project(Rv)                   // 方向投影回屏幕
-```
-
-**为什么镜像"方向"而非"位置"：**
-`P' = mirror(P)` 在单深度缓冲下退化 —— 平面像素的镜像点就是它自己
-（uv' = uv → 自采样），反射不可见。镜像视线方向绕开该退化点：
-反射方向只由平面法线决定，内容在无穷远假设下不需要任何深度信息。
-
-### 性能优势
-
-- **零步进、零深度比较** — 每像素 1 次场景采样 + 1 次矩阵运算
-- 复杂度 O(1)，对比旧步进版 O(n)
-- 适合移动端（<0.3ms @ 半分辨率）
-
-### 实施步骤
-
-1. `Frag_SSPR_Trace()` 重写（旧 SSPR.shader Pass 0，文件已删除）:
-   ```hlsl
-   // 1. 平面检测：法线 buffer 判定水平/竖直面 (planarity > 0.95)
-   // 2. 视空间镜像方向 Rv = reflect(Vv, Nv)
-   // 3. 方向投影回屏幕 uv'（clip.w ≤ 0 → 射向相机后方）
-   // 4. 采样 SampleSceneColor(uv')，alpha = 平面度 * smoothness * 远景淡入
-   ```
-2. 远景淡入：`alpha *= smoothstep(_FlipFade, _MaxDistance, viewDist)`
-3. 屏幕边缘过渡：`inBound` 在 0.9→1.0 平滑衰减
-4. C#：删除 March 设置，新增 `flipFade`（maxDistance 的倍数）
-
-### 已知问题与处理
-
-| 问题 | 方案 |
-|------|------|
-| 相机俯仰/翻滚时近处内容位移 | 内容无穷远（远景）时精确；近处由屏幕空间几何首命中负责 |
-| 屏幕外反射（uv' 越界 / w ≤ 0） | 交给下一级回退（Cubemap），不跳变 |
-| 竖平面（墙面镜） | 同态变换自动处理（水平翻转） |
-| 与几何步进结果重叠 | `Planar Fade Start/End` 区间分隔（近处几何、远处平面） |
-| 正交相机 | SpecularGI **禁用**平面级（轴对齐启发式在正交下不成立），直接用几何或 Cubemap |
+Phase 1 的 SSPR/SSPM 假平面候选已撤出运行管线。它基于视图方向投影、轴对齐法线阈值和远景淡入，无法稳定控制反射对应关系。现有 SpecularGI 只保留 Phase 2 的镜面/GGX 射线：先尝试 SSR 几何命中，剩余权重直接取显式 Cubemap。DiffuseGI、AO、公共时域与统一合成保持原架构。
 
 ---
 
@@ -144,7 +76,7 @@ Stage 1 — Ray March (1 SPP)         Stage 2 — Resolve (空间重用)
    float3 H = SampleGGX_VNDF(rand, roughness);
    float3 reflectDir = reflect(-viewDir, H);
    // 2. 屏幕空间几何首命中（复用 ScreenSpaceTrace.hlsl）
-   // 3. 输出颜色 + 来源编码（屏幕 1 / 平面 0.5 / Cubemap 0）
+   // 3. 输出屏幕命中置信度；剩余权重回退到 Cubemap
    ```
 3. 空间重建 `SpecularGI_SpatialResolve()`:
    ```hlsl
@@ -333,7 +265,7 @@ Assets/Mine/Shaders/PostProcess/SSGI/
 │   ├── SpecularGIFeature.cs
 │   ├── SpecularGI.shader
 │   ├── SpecularGISampling.hlsl    ← GGX VNDF 采样
-│   ├── SpecularGITrace.hlsl       ← 屏幕 / 平面 / Cubemap 三级
+│   ├── SpecularGITrace.hlsl       ← 屏幕几何命中
 │   ├── SpecularGIFilter.hlsl      ← 空间重建
 │   └── SpecularGI.md
 ├── DiffuseGI/                     ← 间接漫反射
@@ -362,7 +294,6 @@ Assets/Mine/Shaders/PostProcess/SSGI/
 |---------|---------|---------|---------|
 | SpecularGI（镜面） | `SST_Trace` 世界空间固定步长 | DDA / HiZ（待接入同一接口） | 当前后端；w 危险由 `SST_Project` 直接拒绝 |
 | SpecularGI（粗糙） | 同上，锥角随 roughness 增大 | March3D | roughness < 0.6 |
-| SpecularGI（平面回退） | 无步进（直接投影） | — | 轴对齐启发式通过且非正交相机 |
 | Diffuse GI | `SST_Trace`（世界空间首命中） | HiZ（待接入） | 独立几何结果，不携带镜面材质权重 |
 | SSAO | 半球核深度比较（`SST_SampleDepth`） | — | 半径小（1-2 世界单位）、视图无关 |
 | HBAO | 切线平面水平线积分（4-8 方向独立步进） | — | 方向感知遮蔽 |
@@ -372,7 +303,6 @@ Assets/Mine/Shaders/PostProcess/SSGI/
 ## 参考来源
 
 - **Stochastic SSR**: [SIGGRAPH 2015 Frostbite](http://advances.realtimerendering.com/s2015/Stochastic%20Screen-Space%20Reflections.pptx) | [Intel VNDF Sampling](https://community.intel.com/t5/Blogs/Tech-Innovation/Artificial-Intelligence-AI/VNDF-importance-sampling-for-an-isotropic-Smith-GGX-distribution/post/1599836)
-- **SSPR**: [GDC 2017 Ghost Recon Wildlands](https://zhuanlan.zhihu.com/p/651134124) | Blender EEVEE `effect_ssr_frag.glsl`
 - **Diffuse GI**: [Cache-Aware Hemisphere Sampling](https://patentimages.storage.googleapis.com/57/9b/d6/f5eb79099d2046/US20180040155A1.pdf)
 - **HBAO**: [NVIDIA SIGGRAPH 2008](http://developer.download.nvidia.com/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf) | [De-interleaved Texturing](https://github.com/study-game-engines/nvidia-ssao-demo)
 - **HiZ DDA**: [Morgan McGuire - Efficient GPU Screen-Space Ray Tracing](https://research.nvidia.com/publication/efficient-gpu-screen-space-ray-tracing)
