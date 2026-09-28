@@ -32,9 +32,6 @@ public class SSGIFeature : ScriptableRendererFeature
         [Header("Temporal")]
         public SSGITemporalControls temporal = new();
 
-        [Header("Spatial Filter")]
-        [Range(0f, 1f)] public float blurStrength = 1f;
-
         [Header("Debug")]
         public DebugMode debug = DebugMode.Off;
     }
@@ -112,11 +109,10 @@ public class SSGIFeature : ScriptableRendererFeature
                     _settings.performance.ao) : TextureHandle.nullHandle;
             TextureHandle diffuse = _settings.intensity.diffuseGI > 0f && _diffusePass != null
                 ? _diffusePass.RecordIntegrated(graph, frameData, scene, frameIndex,
-                    _settings.performance.diffuseGI, _settings.blurStrength) : TextureHandle.nullHandle;
+                    _settings.performance.diffuseGI) : TextureHandle.nullHandle;
             TextureHandle specular = _settings.intensity.specularGI > 0f && _specularPass != null
                 ? _specularPass.RecordIntegrated(graph, frameData, scene, frameIndex,
-                    _settings.performance.specularGI, _settings.specularGI.roughness,
-                    _settings.blurStrength) : TextureHandle.nullHandle;
+                    _settings.performance.specularGI, _settings.specularGI.roughness) : TextureHandle.nullHandle;
 
             if (ao.IsValid())
                 ao = _temporal.Resolve(graph, frameData, ao,

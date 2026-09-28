@@ -115,11 +115,7 @@ float4 DiffuseGI_Blur(float2 uv, float2 axis)
         sum += SAMPLE_TEXTURE2D_X_LOD(_BlitTexture, sampler_PointClamp, sampleUV, 0) * weight;
         totalWeight += weight;
     }
-    float4 blurred = sum / max(totalWeight, 0.000001);
-    if (_GIFilterParams.z >= 0.999)
-        return blurred;
-    float4 center = SAMPLE_TEXTURE2D_X_LOD(_BlitTexture, sampler_PointClamp, uv, 0);
-    return lerp(center, blurred, saturate(_GIFilterParams.z));
+    return sum / max(totalWeight, 0.000001);
 }
 
 // ════════════════════════════════════════════════════════════════
