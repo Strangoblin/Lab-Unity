@@ -62,21 +62,29 @@ Shader "PostProcess/Snowy"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  Frag_Snowy — 同一雪斑重复合成十次，保留输入透明度
+    //  SnowyComposite10 — 同一雪斑向白合成十次的闭式解，等价于十次 lerp
+    //  lerp(c, 1, p) 复合 n 次 = c·qⁿ + (1 - qⁿ)，q = 1 - p；n = 10 展开成乘法链
+    // ════════════════════════════════════════════════════════════
+    float SnowyComposite10(float particle)
+    {
+        float remain  = 1.0 - particle;
+        float remain2 = remain * remain;
+        float remain4 = remain2 * remain2;
+        float remain8 = remain4 * remain4;
+        return 1.0 - remain8 * remain2;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  Frag_Snowy — 单次雪斑采样经闭式十次合成，保留输入透明度
     // ════════════════════════════════════════════════════════════
     half4 Frag_Snowy(Varyings input) : SV_Target
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
         float2 uv = input.texcoord;
-        float4 scene = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
-        float3 color = scene.rgb;
+        float4 scene = SAMPLE_TEXTURE2D(_BlitTexture, sampler_LinearClamp, uv);
 
-        [unroll]
-        for (int i = 0; i < 10; i++)
-        {
-            float particle = SnowyParticle(uv);
-            color = lerp(color, 1, particle);
-        }
+        float particle = SnowyComposite10(SnowyParticle(uv));
+        float3 color = lerp(scene.rgb, 1, particle);
 
         return half4(color, scene.a);
     }

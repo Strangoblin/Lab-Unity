@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f34910ba34284720be7006cff69df99, type: 3}
   m_Name: SSGI
   m_EditorClassIdentifier: Assembly-CSharp::SSGIFeature
-  m_Active: 1
+  m_Active: 0
   settings:
     compositeShader: {fileID: 4800000, guid: 0c2cf0c88542b4f5daa3ac19dd7493ff, type: 3}
     temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
@@ -62,10 +62,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3dcbe7b74f544b58bb86d2e2f92a478, type: 3}
   m_Name: DebugOutput
   m_EditorClassIdentifier: Assembly-CSharp::Mine.RenderingDebug.DebugOutputFeature
-  m_Active: 0
+  m_Active: 1
   settings:
-    debugMaterial: {fileID: 2100000, guid: d0ec342ac28694d0da782da25c1d3c21, type: 2}
-    debugShader: {fileID: 4800000, guid: dea6b9a78142240deb2a05a75d2ef63c, type: 3}
+    debugMaterial: {fileID: 2100000, guid: a0e0f32d18734f31a515686a5f6ef445, type: 2}
+    debugShader: {fileID: 4800000, guid: 76c1fd2739c740b1a1491fed2298d28c, type: 3}
     additionalPassIndex: 1
     requireDepth: 0
     debug: 1

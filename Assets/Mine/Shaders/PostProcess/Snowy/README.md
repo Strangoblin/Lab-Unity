@@ -14,7 +14,7 @@ Shader：`PostProcess/Snowy`。所有效果逻辑保留在 Snowy.shader，面片
 
 TRS 将屏幕 UV 映射到局部等比空间，SnowTex.r 扰动局部 UV，再计算径向 SDF；Frost 控制雪斑范围与透明度，cycle 驱动淡出。当前版本不再使用前半周期半径生长或深度分层。
 
-当前循环十次调用相同的 SnowyParticle(uv)，未使用循环索引，所以是同一雪斑重复合成十次以增强覆盖，不是十个独立落点。此次收尾保留该视觉行为与公式。
+合成走闭式而非循环：`lerp(c, 1, p)` 复合 n 次等于 `c·qⁿ + (1 - qⁿ)`（q = 1 - p），n = 10 由 `SnowyComposite10` 展开为乘法链。十次仍作用于同一雪斑——`SnowyParticle` 没有索引参数，本来就不是十个独立落点——所以闭式与原循环逐像素等价，但少掉九次 `_SnowTex` 采样与九次逆 TRS。要真做出独立落点，得给 `SnowyParticle` 加索引参数，那是另一个效果。
 
 ## Pass 1：雪天气氛
 
