@@ -10,7 +10,14 @@ Unity 6 / URP 17. Field data is in world coordinates and has explicit physical u
 - Wind/WindField.compute: base wind, advected spatial disturbance and up to 16 local sources.
 - Wind/WindSource: additive velocity source with smooth radial falloff in XZ.
 - WindField.hlsl: shared material/Compute sampling, directly beside the manager.
-- WaveField.hlsl: shared FFT sampling, directly beside the manager (Wave integration phase).
+- WaveFieldBindings.cs: neutral per-kernel binding for an absent wave provider.
+- Editor/FieldContractProbe.compute: GPU sampling contract checks for wind and waves.
+- FieldManager.prefab: ready-to-use manager and wind producer.
+- WaveField.hlsl: shared FFT sampling, directly beside the manager.
+
+Instantiate FieldManager.prefab in a scene. Existing FFTWaveOrchestrator components register
+automatically as Wave providers; their original shader references and cascade settings remain.
+The prefab contains only the manager and wind. The current scene's FFT is an independent object.
 
 The registry accepts one active provider per FieldKind. A second producer for the same output
 is rejected and disabled rather than overwriting global textures. Providers may exist on
@@ -83,3 +90,38 @@ GPU Rain kernel with uniform base wind 4 m/s, gains 0.25/1.25, height range 20 m
 - Outside coverage at y=10 → 3 m/s.
 - At dragRate=1 and dt=1, velocity matches wind * (1-exp(-1)).
 - Disabling the provider clears validity and returns stationary zero-force particles.
+
+## Wave contract
+
+Include `Assets/Mine/Scripts/FieldManager/WaveField.hlsl` after the pipeline includes.
+
+- SampleWaveDisplacementWS(positionWS): world-space XYZ displacement in metres.
+- SampleWaveNormalWS(positionWS): unit world-space normal.
+- SampleWaveNormalBlendWS(positionWS): original unnormalized blend, for Water's material mixing.
+- SampleWaveFoam(positionWS): original 0.5/0.3/0.2 cascade weights.
+
+The FFT provider retains _WaveDisplacement0..2 / _WaveNormal0..2 / _WavePatchSize0..2.
+Textures repeat in XZ, unlike the finite wind rectangle. Normal textures encode [-1,1] to [0,1].
+Water displacement scale and normal intensity remain material response parameters.
+
+For Compute use `FieldManager.BindCompute(FieldKind.Wave, shader, kernel)`.
+With no Wave provider the function binds neutral textures and validity=0, and returns false.
+Wind and Wave are the implemented channels; future channels must define their own neutral bindings.
+The generic registry alone does not define an acceleration texture or acceleration solver.
+
+FFT's spectral wind controls remain independent from the instantaneous shared wind.
+This integration shares publication/scheduling and sampling contracts, without altering its spectrum model.
+Spectrum regeneration on Inspector changes is deferred until the next field update.
+FFT.compute and its temporary transform textures remain owned by the FFT provider.
+
+## Verification results
+
+- Real Plant GPU rendering: +X wind shifts the test canopy centroid by 6.39 pixels;
+  the disabled-wind control remains fixed.
+- Local source: 5 m/s source gives 4.969 m/s at its sampled center,
+  2.492 m/s at half radius, and 0 outside coverage (bilinear/half precision).
+- Quality change: 128² → 256² reallocates and republishes the new texture.
+- FFT shared GPU sampling matches direct original texture mixtures:
+  displacement error 5.96e-8, normal error 0; foam mixture agrees.
+- Disabled FFT: zero displacement/foam, up normal; no released RT remains bound to the probe.
+- Play Mode: wind and wave snapshot times agree; Water/Plant compile and runtime logs contain no errors.

@@ -39,14 +39,7 @@ Shader "Render/Water"
     #include "Assets/Mine/Special/HLSL/PBRFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/ENVFunction.hlsl"
 
-    // ── FFT Wave 全局纹理（由 FFTWaveOrchestrator 注入）──
-    TEXTURE2D(_WaveDisplacement0); SAMPLER(sampler_WaveDisplacement0);
-    TEXTURE2D(_WaveDisplacement1); SAMPLER(sampler_WaveDisplacement1);
-    TEXTURE2D(_WaveDisplacement2); SAMPLER(sampler_WaveDisplacement2);
-    TEXTURE2D(_WaveNormal0);       SAMPLER(sampler_WaveNormal0);
-    TEXTURE2D(_WaveNormal1);       SAMPLER(sampler_WaveNormal1);
-    TEXTURE2D(_WaveNormal2);       SAMPLER(sampler_WaveNormal2);
-    float _WavePatchSize0, _WavePatchSize1, _WavePatchSize2;
+    #include "Assets/Mine/Scripts/FieldManager/WaveField.hlsl"
 
     CBUFFER_START(UnityPerMaterial)
         float4 _baseColorA;

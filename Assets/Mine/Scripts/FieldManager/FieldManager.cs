@@ -88,15 +88,19 @@ namespace Mine.Fields
         {
             if (HasActiveManager && Application.isPlaying) Instance.UpdateFields();
             var provider = GetProvider(kind);
-            if (provider == null) return false;
+            if (provider == null)
+            {
+                if (kind == FieldKind.Wind) WindFieldProvider.BindNeutral(shader, kernel);
+                else if (kind == FieldKind.Wave) WaveFieldBindings.BindNeutral(shader, kernel);
+                return false;
+            }
             provider.BindCompute(shader, kernel);
             return true;
         }
 
         public static void BindWindCompute(ComputeShader shader, int kernel)
         {
-            if (!BindCompute(FieldKind.Wind, shader, kernel))
-                WindFieldProvider.BindNeutral(shader, kernel);
+            BindCompute(FieldKind.Wind, shader, kernel);
         }
     }
 }

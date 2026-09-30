@@ -1,0 +1,28 @@
+// ════════════════════════════════════════════════════════════
+//  FieldContractProbe — Editor GPU validation of the public sampling contracts
+// ════════════════════════════════════════════════════════════
+#pragma kernel ProbeWind
+#pragma kernel ProbeWave
+#include "Assets/Mine/Scripts/FieldManager/WindField.hlsl"
+#include "Assets/Mine/Scripts/FieldManager/WaveField.hlsl"
+
+StructuredBuffer<float4> _ProbePositions;
+RWStructuredBuffer<float4> _ProbeResults;
+int _ProbeCount;
+
+[numthreads(64, 1, 1)]
+void ProbeWind(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)_ProbeCount) return;
+    float3 position = _ProbePositions[id.x].xyz;
+    _ProbeResults[id.x] = float4(SampleWindVelocityWS(position), WindFieldHeightFactor(position.y));
+}
+
+[numthreads(64, 1, 1)]
+void ProbeWave(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)_ProbeCount) return;
+    float3 position = _ProbePositions[id.x].xyz;
+    _ProbeResults[id.x * 2] = float4(SampleWaveDisplacementWS(position), SampleWaveFoam(position));
+    _ProbeResults[id.x * 2 + 1] = float4(SampleWaveNormalWS(position), 0);
+}
