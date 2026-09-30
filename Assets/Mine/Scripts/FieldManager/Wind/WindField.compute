@@ -1,0 +1,37 @@
+// ════════════════════════════════════════════════════════════
+//  WindField — finite XZ velocity field, RGB in world-space m/s
+// ════════════════════════════════════════════════════════════
+#pragma kernel BuildWind
+
+RWTexture2D<float4> _WindOutput;
+int _Resolution;
+float4 _OriginSize;
+float3 _BaseVelocity;
+float _FieldTime;
+float _Turbulence;
+float _TurbulenceLength;
+float4 _SourcePositionRadius[16];
+float4 _SourceVelocity[16];
+int _SourceCount;
+
+// ════════════════════════════════════════════════════════════
+//  BuildWind — spatial gusts and local sources; height applied by consumers
+// ════════════════════════════════════════════════════════════
+[numthreads(8, 8, 1)]
+void BuildWind(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)_Resolution || id.y >= (uint)_Resolution) return;
+    float2 uv = (id.xy + 0.5) / _Resolution;
+    float2 position = _OriginSize.xy + uv * _OriginSize.zw;
+    float2 phase = (position - _BaseVelocity.xz * _FieldTime) / max(_TurbulenceLength, 0.01);
+    float2 disturbance = float2(sin(phase.y * 6.2831853), cos(phase.x * 6.2831853)) * _Turbulence;
+    float3 velocity = _BaseVelocity + float3(disturbance.x, 0, disturbance.y);
+    for (int i = 0; i < _SourceCount; i++)
+    {
+        float distanceToSource = length(position - _SourcePositionRadius[i].xy);
+        float weight = saturate(1.0 - distanceToSource / _SourcePositionRadius[i].z);
+        weight = weight * weight * (3.0 - 2.0 * weight);
+        velocity += _SourceVelocity[i].xyz * weight;
+    }
+    _WindOutput[id.xy] = float4(velocity, 0);
+}

@@ -13,14 +13,18 @@ Shader "Rain/RainInstance"
     struct RainParticle
     {
         float3 position;
+        float age;
         float3 velocity;
+        float lifetime;
     };
 
     StructuredBuffer<RainParticle> _RainBuffer;
 
-    float4 _RainColor;
-    float _RainLength;
-    float _RainWidth;
+    CBUFFER_START(UnityPerMaterial)
+        float4 _RainColor;
+        float _RainLength;
+        float _RainWidth;
+    CBUFFER_END
 
     struct Attributes
     {
@@ -35,11 +39,14 @@ Shader "Rain/RainInstance"
         float2 uv : TEXCOORD0;
     };
 
-    Varyings vert(Attributes input)
+    Varyings Vert(Attributes input)
     {
         Varyings output;
 
         RainParticle p = _RainBuffer[input.instanceID];
+
+        float phase = saturate(p.age / max(p.lifetime, 0.001));
+        float lifeScale = smoothstep(0.0, 1.0, 1.0 - abs(phase * 2.0 - 1.0));
 
         float3 velDir = normalize(p.velocity + float3(0.001, 0.001, 0.001));
         float speed = length(p.velocity);
@@ -48,22 +55,23 @@ Shader "Rain/RainInstance"
         float stretch = saturate(speed * 0.1) * _RainLength;
 
         // Build a right vector perpendicular to velocity
-        float3 right = normalize(cross(velDir, float3(0, 1, 0)));
-        if (length(right) < 0.001)
-            right = normalize(cross(velDir, float3(1, 0, 0)));
+        float3 right = cross(velDir, float3(0, 1, 0));
+        if (dot(right, right) < 0.000001)
+            right = cross(velDir, float3(1, 0, 0));
+        right = normalize(right);
 
         // Transform mesh-local position to world: X=width along right, Y=stretch along velocity
         float3 localPos = input.positionOS.xyz;
         float3 worldPos = p.position
-                        + localPos.x * _RainWidth * right
-                        + localPos.y * stretch * velDir;
+                        + localPos.x * _RainWidth * lifeScale * right
+                        + localPos.y * stretch * lifeScale * velDir;
 
         output.positionCS = TransformWorldToHClip(worldPos);
         output.uv = input.uv;
         return output;
     }
 
-    half4 frag(Varyings input) : SV_Target
+    half4 Frag(Varyings input) : SV_Target
     {
         return _RainColor;
     }
@@ -87,8 +95,8 @@ Shader "Rain/RainInstance"
             Cull Off
 
             HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
+            #pragma vertex Vert
+            #pragma fragment Frag
             ENDHLSL
         }
     }

@@ -13,6 +13,8 @@ Shader "Render/Plant"
         [Header(Billboard)]
         _BillboardSize ("Billboard Offset Radius", Range(0, 0.5)) = 0.16
         _Inflate ("Normal Inflation", Range(0, 0.5)) = 0
+        [Header(Shared Wind)]
+        _WindResponse ("Wind Response (seconds)", Range(0, 0.1)) = 0.03
         [Header(Lighting)]
         _Wrap ("Diffuse Wrap", Range(0, 1)) = 0.35
         _AmbientStrength ("Ambient Strength", Range(0, 2)) = 1
@@ -22,6 +24,7 @@ Shader "Render/Plant"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
+    #include "Assets/Mine/Scripts/FieldManager/WindField.hlsl"
 
     TEXTURE2D(_MainTex);
     SAMPLER(sampler_MainTex);
@@ -33,6 +36,7 @@ Shader "Render/Plant"
         float _ProceduralLeaf;
         float _BillboardSize;
         float _Inflate;
+        float _WindResponse;
         float _Wrap;
         float _AmbientStrength;
     CBUFFER_END
@@ -74,6 +78,20 @@ Shader "Render/Plant"
     // ════════════════════════════════════════════════════════════
     //  PlantPositionWS — 教程的 UV 相机偏移叠加原顶点，保留球壳形状
     // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════
+    //  PlantWindOffsetWS — lower canopy anchored, bounded by existing mesh displacement budget
+    // ════════════════════════════════════════════════════════════
+    float3 PlantWindOffsetWS(Attributes input)
+    {
+        float3 basePositionWS = TransformObjectToWorld(input.positionOS.xyz);
+        float weight = saturate((input.positionOS.y + 1.0) * 0.5);
+        float3 offset = SampleWindVelocityWS(basePositionWS) * max(_WindResponse, 0.0) * weight;
+        float remainingBudget = max(0.0, 1.0 - clamp(_BillboardSize, 0.0, 0.5) - clamp(_Inflate, 0.0, 0.5));
+        float maxOffset = min(0.25, remainingBudget);
+        offset *= min(1.0, maxOffset / max(length(offset), 0.0001));
+        return offset * PlantScale();
+    }
+
     float3 PlantPositionWS(Attributes input, float3 normalWS)
     {
         float2 corner = input.uv * 2.0 - 1.0;
@@ -82,7 +100,8 @@ Shader "Render/Plant"
         float scale = PlantScale();
         return TransformObjectToWorld(input.positionOS.xyz)
              + (cameraOffset * clamp(_BillboardSize, 0, 0.5)
-             + normalWS * clamp(_Inflate, 0, 0.5)) * scale;
+             + normalWS * clamp(_Inflate, 0, 0.5)) * scale
+             + PlantWindOffsetWS(input);
     }
 
     // ════════════════════════════════════════════════════════════
@@ -128,7 +147,8 @@ Shader "Render/Plant"
         UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
         output.normalWS = TransformObjectToWorldNormal(input.normalOS);
         output.positionWS = TransformObjectToWorld(input.positionOS.xyz)
-                          + output.normalWS * clamp(_Inflate, 0, 0.5) * PlantScale();
+                          + output.normalWS * clamp(_Inflate, 0, 0.5) * PlantScale()
+                          + PlantWindOffsetWS(input);
         #if defined(_CASTING_PUNCTUAL_LIGHT_SHADOW)
             float3 lightDirectionWS = normalize(_LightPosition - output.positionWS);
         #else
