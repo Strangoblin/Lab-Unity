@@ -12,7 +12,6 @@ Shader "Boid/BoidInstance"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Assets/Mine/Special/HLSL/NPRFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/AdditionalLightsFunction.hlsl"
-    #include "Assets/Mine/Special/HLSL/TBN.hlsl"
 
     struct InstanceBuffer
     {
@@ -26,8 +25,10 @@ Shader "Boid/BoidInstance"
     StructuredBuffer<InstanceBuffer> _InstanceBuffer;
     StructuredBuffer<uint> _ClipBuffer;
 
-    float4 _BoidColor;
-    float _Smoothness;
+    CBUFFER_START(UnityPerMaterial)
+        float4 _BoidColor;
+        float _Smoothness;
+    CBUFFER_END
     Texture2D _BoidTexture;
     SamplerState sampler_BoidTexture;
 
@@ -48,33 +49,55 @@ Shader "Boid/BoidInstance"
         float3 normal : TEXCOORD2;
     };
 
-    v2f vert (appdata v)
+    // ════════════════════════════════════════════════════════════
+    //  MotionBasis — Local +Y follows velocity with a right-handed basis
+    // ════════════════════════════════════════════════════════════
+    void MotionBasis(float3 velocity, out float3 right, out float3 forward, out float3 normal)
+    {
+        float speedSq = dot(velocity, velocity);
+        forward = speedSq > 1e-12 ? velocity * rsqrt(max(speedSq, 1e-12)) : float3(0, 1, 0);
+        float3 referenceUp = abs(forward.y) > 0.999 ? float3(0, 0, 1) : float3(0, 1, 0);
+        right = normalize(cross(referenceUp, forward));
+        normal = cross(right, forward);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  OrientToMotion — Expand local coordinates along world-space basis vectors
+    // ════════════════════════════════════════════════════════════
+    float3 OrientToMotion(float3 local, float3 right, float3 forward, float3 normal)
+    {
+        return local.x * right + local.y * forward + local.z * normal;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  Vert — Orient instance vertices and normals along motion
+    // ════════════════════════════════════════════════════════════
+    v2f Vert (appdata v)
     {
         v2f o;
 
         uint clipIndex = _ClipBuffer[v.instanceID];
         float4x4 mesh = _MeshBuffer[0];
-        InstanceBuffer instance = _InstanceBuffer[v.instanceID];
+        InstanceBuffer instance = _InstanceBuffer[clipIndex];
 
         float3 boidTransOS = mul(mesh, v.positionOS).xyz;
 
-        float3 N = normalize(instance.velocity);
-        float3 T;
-        float3 B;
-        TBN(N, T, B);
-
-        float3x3 TNB = float3x3(T, N, B);
-        float3 boidPosOS = mul(TNB, boidTransOS);
+        float3 right;
+        float3 forward;
+        float3 normal;
+        MotionBasis(instance.velocity, right, forward, normal);
+        float3 boidPosOS = OrientToMotion(boidTransOS, right, forward, normal);
         float3 boidPosWS = boidPosOS + instance.positionWS;
         
         o.positionWS = float4(boidPosWS, 1);
-        o.positionCS = TransformWorldToHClip(o.positionWS);
-        o.normal = v.normal;
+        o.positionCS = TransformWorldToHClip(o.positionWS.xyz);
+        float3 meshNormal = mul((float3x3)mesh, v.normal);
+        o.normal = normalize(OrientToMotion(meshNormal, right, forward, normal));
         o.uv = v.uv;
         return o;
     }
 
-    half4 frag (v2f i) : SV_Target
+    half4 Frag (v2f i) : SV_Target
     {
         half4 texColor = SAMPLE_TEXTURE2D(_BoidTexture, sampler_BoidTexture, i.uv);
         half4 baseColor = texColor * _BoidColor;
@@ -99,7 +122,7 @@ Shader "Boid/BoidInstance"
         return finalColor;
     }
 
-    float4 fragShadow (v2f i) : SV_Target
+    float4 FragShadow (v2f i) : SV_Target
     {
         return 0;
     }
@@ -112,14 +135,14 @@ Shader "Boid/BoidInstance"
 
         Pass
         {
-            Cull Front
+            Cull Off
             ZWrite On
             Blend One Zero
             ZTest LEqual
 
             HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
+            #pragma vertex Vert
+            #pragma fragment Frag
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             ENDHLSL
         }
@@ -135,8 +158,8 @@ Shader "Boid/BoidInstance"
             ColorMask 0
 
             HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment fragShadow
+            #pragma vertex Vert
+            #pragma fragment FragShadow
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             ENDHLSL
         }

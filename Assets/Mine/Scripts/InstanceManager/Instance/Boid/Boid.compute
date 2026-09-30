@@ -91,10 +91,12 @@ void CS_InstanceUpdate (uint3 id : SV_DispatchThreadID)
     float dist    = length(group.center - _PositionTarget);
     float mixFactor    = saturate((dist - distMin) / (distMax - distMin));
     float3 newPosition = lerp(newPositionWSA, newPositionWSB, mixFactor);
-    float3 velocity = (newPosition - positionWS) / _DeltaTime;
+    float3 nextPosition = lerp(positionWS, newPosition, _PosDelayFactor);
+    float3 velocity = (nextPosition - positionWS) / _DeltaTime;
 
-    instance.positionWS = lerp(positionWS, newPosition, _PosDelayFactor);
-    instance.velocity = velocity;
+    instance.positionWS = nextPosition;
+    if (dot(velocity, velocity) > 1e-12)
+        instance.velocity = velocity;
     instance.anime = theta;
     _InstanceBuffer[id.x] = instance;
 }
