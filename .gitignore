@@ -1,22 +1,39 @@
-# 门禁运行时状态 — 进程内存 + state.json 双份, 不入库
-.mcp/state.json
-.mcp/state.json.tmp
-# 删除审计 — 删除不留产物, 这份日志是唯一痕迹 (运行时状态, 不入库)
-.mcp/deletes.jsonl
-# 移动审计 — 新位置有产物, 但「哪个变成了哪个」在文件系统里查不回来, 故也落盘
-.mcp/moves.jsonl
+# 仓库白名单：Assets、agent 体系及根入口；其他根目录内容留在本机。
+/*
+!/Assets/
+!/.agents/
+!/.claude/
+!/.codex/
+!/.mcp/
+!/AGENTS.md
+!/.mcp.json
+!/.gitignore
+!/.gitattributes
 
-# Codex / Unity 本地运行产物
-.codex/tmp/*
-!.codex/tmp/README.md
-.codex/tests/*/output/
-.codex/tests/*/run.log
-/.unityctl/editor.log
-/.unityctl/editor-prev.log
-/.unityctl/bridge.json
-/Screenshots/
-/run.log
-/tmp/
-Assets/**/.backup_*/
-**/__pycache__/
+# macOS 文件系统杂项；共享 shell 脚本和 Metal 文档仍入库。
+.DS_Store
+._*
+.AppleDouble/
+.LSOverride
+__MACOSX/
+
+# 本机配置与认证信息。
+/.claude/settings.local.json
+/.codex/config.toml
+/.codex/auth.json
+/.codex/config.toml.bak-*
+/.mcp/.venv/
+
+# 门禁运行时状态与审计。
+/.mcp/state.json
+/.mcp/state.json.tmp
+/.mcp/deletes.jsonl
+/.mcp/moves.jsonl
+
+# Agent 临时产物；目录说明文档可以入库。
+/.codex/tmp/*
+!/.codex/tmp/README.md
+/.codex/tests/*/output/
+/.codex/tests/*/run.log
+__pycache__/
 *.pyc
