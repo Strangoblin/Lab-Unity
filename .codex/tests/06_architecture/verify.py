@@ -56,7 +56,7 @@ PHASE4_BASELINE = {
 }
 # Closure baseline: .claude/skills cutover (fdf9106) removed 32 tracked copies.
 PHASE7_BASELINE = {
-    "tracked_claude": 26,
+    "tracked_claude": 27,
     "agents_broken_markdown_links": 0,
     "skill_drift_files": 0,
     "mcp_hardcoded_claude_files": 0,
@@ -86,6 +86,21 @@ def tracked(prefix: str) -> list[str]:
         ["git", "ls-files", prefix], cwd=ROOT, check=True, capture_output=True, text=True
     )
     return [line for line in result.stdout.splitlines() if line]
+
+
+def tracked_symlink_target(path: str) -> str | None:
+    """Read a Git symlink target even when Windows checks it out as a pointer file."""
+    entry = subprocess.run(
+        ["git", "ls-files", "-s", "--", path], cwd=ROOT, check=True, capture_output=True, text=True
+    ).stdout.strip()
+    if not entry:
+        return None
+    mode, object_id, _stage_and_path = entry.split(maxsplit=2)
+    if mode != "120000":
+        return None
+    return subprocess.run(
+        ["git", "cat-file", "-p", object_id], cwd=ROOT, check=True, capture_output=True, text=True
+    ).stdout
 
 
 def readable_files() -> list[Path]:
@@ -244,13 +259,13 @@ def codex_shared_link_errors() -> list[str]:
     errors: list[str] = []
     for link, target in CODEX_SHARED_LINKS.items():
         path = ROOT / link
-        if not path.is_symlink():
+        actual = path.readlink().as_posix() if path.is_symlink() else tracked_symlink_target(link)
+        if actual is None:
             errors.append(f"Codex shared compatibility path is not a symlink: {link}")
             continue
-        actual = path.readlink().as_posix()
         if actual != target:
             errors.append(f"Codex shared link target mismatch: {link} -> {actual!r}, expected {target!r}")
-        if not path.exists():
+        if not (path.parent / actual).exists():
             errors.append(f"Codex shared link is broken: {link} -> {target}")
     return errors
 

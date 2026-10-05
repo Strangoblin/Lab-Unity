@@ -1,0 +1,4 @@
+interface:
+  display_name: "OpenCode Orchestrate"
+  short_description: "Delegate bounded tasks to the local OpenCode CLI"
+  default_prompt: "Use $opencode-orchestrate to delegate this bounded task and review the result."
