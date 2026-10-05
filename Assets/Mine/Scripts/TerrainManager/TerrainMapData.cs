@@ -33,22 +33,18 @@ namespace Mine.Terrain
         [SerializeField, Min(1)] private int _sitesAtReferenceSize;
         [SerializeField, Min(1f)] private float _minRadiusAtReferenceSize;
         [SerializeField, Min(1f)] private float _maxRadiusAtReferenceSize;
-        [SerializeField] private bool _connectRoad;
 
         public TerrainRegion Region => _region;
         public int SitesAtReferenceSize => _sitesAtReferenceSize;
         public float MinRadiusAtReferenceSize => _minRadiusAtReferenceSize;
         public float MaxRadiusAtReferenceSize => _maxRadiusAtReferenceSize;
-        public bool ConnectRoad => _connectRoad;
 
-        public TerrainFeatureRule(TerrainRegion region, int sites, float minRadius, float maxRadius,
-            bool connectRoad)
+        public TerrainFeatureRule(TerrainRegion region, int sites, float minRadius, float maxRadius)
         {
             _region = region;
             _sitesAtReferenceSize = sites;
             _minRadiusAtReferenceSize = minRadius;
             _maxRadiusAtReferenceSize = maxRadius;
-            _connectRoad = connectRoad;
         }
     }
 
@@ -63,7 +59,7 @@ namespace Mine.Terrain
         [SerializeField] private Vector2 _origin = Vector2.zero;
         [SerializeField] private int _seed = 42;
 
-        [Header("Region Warp (300-unit reference)")]
+        [Header("Final Data Warp (300-unit reference)")]
         [SerializeField, Range(3f, 9f), Tooltip("Broad noise cycles across the map's short side.")]
         private float _broadWarpCycles = 7f;
         [SerializeField, Range(0f, 20f), Tooltip("Broad displacement in world units on a 300-unit map.")]
@@ -74,23 +70,25 @@ namespace Mine.Terrain
         private float _detailWarpDistance = 5f;
 
         [Header("Features")]
-        [SerializeField, Min(1f)] private float _roadWidth = 5f;
-        [SerializeField, Range(0f, 0.25f)] private float _roadBend = 0.12f;
-        [SerializeField, Range(0f, 0.5f)] private float _loopRatio = 0.16f;
+        [SerializeField, HideInInspector, Range(1f, 60f), Tooltip("Expansion from each seed's center distance gap on a 300-unit map; larger values cover more of the cell.")]
+        private float _voronoiRegionWidth = 22f;
+        [SerializeField, HideInInspector, Range(0f, 8f), Tooltip("Smooths Voronoi region corners without changing nearest-site ownership; zero keeps the original distance gap.")]
+        private float _voronoiRegionSoftness = 3f;
+        [SerializeField, HideInInspector, Range(1f, 20f), Tooltip("Nearest/second-nearest seed distance-gap threshold for variable-width Voronoi roads.")]
+        private float _voronoiRoadWidth = 5f;
+        [SerializeField, HideInInspector, Range(0f, 8f), Tooltip("Smooths the distance field near Voronoi road junctions; zero restores the original distance gap.")]
+        private float _voronoiCornerSoftness = 3f;
         [SerializeField, Min(0f)] private float _depressionDepth = 1f;
         [SerializeField, Min(0)] private int _houseCount = 10;
         [SerializeField, Min(0)] private int _treeCount = 90;
-        [SerializeField, Min(0)] private int _grassCount = 160;
-        [SerializeField, Min(0)] private int _wheatCount = 140;
         [SerializeField] private TerrainFeatureRule[] _featureRules =
         {
-            new TerrainFeatureRule(TerrainRegion.Village, 3, 17f, 22f, true),
-            new TerrainFeatureRule(TerrainRegion.WheatField, 7, 22f, 32f, true),
-            new TerrainFeatureRule(TerrainRegion.Forest, 8, 23f, 32f, true),
-            new TerrainFeatureRule(TerrainRegion.Water, 4, 13f, 19f, false),
-            new TerrainFeatureRule(TerrainRegion.Meadow, 3, 15f, 23f, false),
-            new TerrainFeatureRule(TerrainRegion.Orchard, 3, 16f, 23f, true),
-            new TerrainFeatureRule(TerrainRegion.Grassland, 20, 26f, 35f, false)
+            new TerrainFeatureRule(TerrainRegion.Village, 3, 17f, 22f),
+            new TerrainFeatureRule(TerrainRegion.WheatField, 7, 22f, 32f),
+            new TerrainFeatureRule(TerrainRegion.Forest, 8, 23f, 32f),
+            new TerrainFeatureRule(TerrainRegion.Water, 4, 13f, 19f),
+            new TerrainFeatureRule(TerrainRegion.Meadow, 3, 15f, 23f),
+            new TerrainFeatureRule(TerrainRegion.Orchard, 3, 16f, 23f)
         };
 
         public int Width
@@ -131,22 +129,29 @@ namespace Mine.Terrain
             get => _detailWarpDistance;
             set => _detailWarpDistance = value;
         }
-        public float RoadWidth => _roadWidth;
-        public float RoadBend
+        public float VoronoiRegionWidth
         {
-            get => _roadBend;
-            set => _roadBend = value;
+            get => _voronoiRegionWidth;
+            set => _voronoiRegionWidth = value;
         }
-        public float LoopRatio
+        public float VoronoiRegionSoftness
         {
-            get => _loopRatio;
-            set => _loopRatio = value;
+            get => _voronoiRegionSoftness;
+            set => _voronoiRegionSoftness = value;
+        }
+        public float VoronoiRoadWidth
+        {
+            get => _voronoiRoadWidth;
+            set => _voronoiRoadWidth = value;
+        }
+        public float VoronoiCornerSoftness
+        {
+            get => _voronoiCornerSoftness;
+            set => _voronoiCornerSoftness = value;
         }
         public float DepressionDepth => _depressionDepth;
         public int HouseCount => _houseCount;
         public int TreeCount => _treeCount;
-        public int GrassCount => _grassCount;
-        public int WheatCount => _wheatCount;
         public TerrainFeatureRule[] FeatureRules
         {
             get => _featureRules;
@@ -162,10 +167,13 @@ namespace Mine.Terrain
                 !(_detailWarpCycles >= 8f && _detailWarpCycles <= 24f) ||
                 !(_detailWarpDistance >= 0f && _detailWarpDistance <= 6f))
                 throw new ArgumentException("Terrain region warp settings are invalid.");
-            if (_roadWidth < 1f || _roadBend < 0f || _roadBend > 0.25f ||
-                _loopRatio < 0f || _loopRatio > 0.5f || _depressionDepth < 0f)
-                throw new ArgumentException("Terrain road width or depression depth is invalid.");
-            if (_houseCount < 0 || _treeCount < 0 || _grassCount < 0 || _wheatCount < 0)
+            if (_voronoiRegionWidth < 1f || _voronoiRegionWidth > 60f ||
+                _voronoiRegionSoftness < 0f || _voronoiRegionSoftness > 8f ||
+                _voronoiRoadWidth < 1f || _voronoiRoadWidth > 20f ||
+                _voronoiCornerSoftness < 0f || _voronoiCornerSoftness > 8f ||
+                _depressionDepth < 0f)
+                throw new ArgumentException("Terrain SDF width or depression depth is invalid.");
+            if (_houseCount < 0 || _treeCount < 0)
                 throw new ArgumentException("Terrain content counts must not be negative.");
             if (_featureRules == null || _featureRules.Length == 0)
                 throw new ArgumentException("Terrain feature rules must not be empty.");
@@ -174,14 +182,13 @@ namespace Mine.Terrain
             {
                 TerrainFeatureRule rule = _featureRules[i];
                 if (rule == null || (int)rule.Region < 0 ||
-                    (int)rule.Region >= seen.Length || seen[(int)rule.Region] ||
+                    (int)rule.Region >= seen.Length || rule.Region == TerrainRegion.Grassland ||
+                    seen[(int)rule.Region] ||
                     rule.SitesAtReferenceSize < 1 || rule.MinRadiusAtReferenceSize <= 0f ||
                     rule.MaxRadiusAtReferenceSize < rule.MinRadiusAtReferenceSize)
                     throw new ArgumentException($"Invalid or duplicate terrain feature rule at index {i}.");
                 seen[(int)rule.Region] = true;
             }
-            if (!seen[(int)TerrainRegion.Grassland])
-                throw new ArgumentException("Grassland must participate in the terrain feature rules.");
             if (Mathf.Abs(_width / _cellSize - Mathf.Round(_width / _cellSize)) > 0.001f ||
                 Mathf.Abs(_height / _cellSize - Mathf.Round(_height / _cellSize)) > 0.001f)
                 throw new ArgumentException("Terrain width and height must be divisible by cell size.");
@@ -194,25 +201,13 @@ namespace Mine.Terrain
         public readonly TerrainRegion Region;
         public readonly Vector2 Center;
         public readonly float Radius;
-        public readonly bool ConnectRoad;
 
-        public TerrainSite(int id, TerrainRegion region, Vector2 center, float radius, bool connectRoad)
+        public TerrainSite(int id, TerrainRegion region, Vector2 center, float radius)
         {
             Id = id;
             Region = region;
             Center = center;
             Radius = radius;
-            ConnectRoad = connectRoad;
-        }
-    }
-
-    public sealed class TerrainRoute
-    {
-        public readonly Vector2[] Points;
-
-        public TerrainRoute(Vector2[] points)
-        {
-            Points = points;
         }
     }
 
@@ -222,16 +217,13 @@ namespace Mine.Terrain
         public readonly TerrainRegion Region;
         public readonly int CellCount;
         public readonly Vector2 Center;
-        public readonly int AnchorSiteId;
 
-        public TerrainRegionGroup(int id, TerrainRegion region, int cellCount,
-            Vector2 center, int anchorSiteId)
+        public TerrainRegionGroup(int id, TerrainRegion region, int cellCount, Vector2 center)
         {
             Id = id;
             Region = region;
             CellCount = cellCount;
             Center = center;
-            AnchorSiteId = anchorSiteId;
         }
     }
 
@@ -247,7 +239,6 @@ namespace Mine.Terrain
         private readonly float[] _roadCoverage;
         private readonly float[] _heights;
         private readonly List<TerrainSite> _sites = new List<TerrainSite>();
-        private readonly List<TerrainRoute> _routes = new List<TerrainRoute>();
         private readonly List<TerrainRegionGroup> _regionGroups = new List<TerrainRegionGroup>();
 
         public int WidthCells { get; }
@@ -256,7 +247,6 @@ namespace Mine.Terrain
         public Vector2 Origin { get; }
         public int Seed { get; }
         public IReadOnlyList<TerrainSite> Sites => _sites;
-        public IReadOnlyList<TerrainRoute> Routes => _routes;
         public IReadOnlyList<TerrainRegionGroup> RegionGroups => _regionGroups;
 
         internal TerrainMapData(TerrainGenerationSettings settings)
@@ -327,7 +317,6 @@ namespace Mine.Terrain
         }
 
         internal void AddSite(TerrainSite site) => _sites.Add(site);
-        internal void AddRoute(TerrainRoute route) => _routes.Add(route);
         internal void AddRegionGroup(TerrainRegionGroup group) => _regionGroups.Add(group);
 
         private int Index(int x, int z)

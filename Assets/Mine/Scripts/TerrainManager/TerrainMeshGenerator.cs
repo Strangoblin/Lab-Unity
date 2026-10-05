@@ -38,6 +38,8 @@ namespace Mine.Terrain
     /// </summary>
     public static class TerrainMeshGenerator
     {
+        private static readonly Color DirtRoadColor = new Color(0.70f, 0.55f, 0.28f);
+
         public static TerrainSurfaceResult Generate(TerrainMapData map, int chunkCells)
         {
             if (map == null)
@@ -88,8 +90,8 @@ namespace Mine.Terrain
                 {
                     int index = x + z * map.WidthCells;
                     Color ground = groundColors[index];
-                    Color road = RoadColor(map.GetRoadType(x, z), ground);
-                    pixels[index] = Color.Lerp(ground, road, map.GetRoadCoverage(x, z));
+                    pixels[index] = Color.Lerp(ground, DirtRoadColor,
+                        map.GetRoadCoverage(x, z));
                 }
             }
 
@@ -163,16 +165,6 @@ namespace Mine.Terrain
                 case TerrainRegion.Meadow: return new Color(0.52f, 0.69f, 0.31f);
                 case TerrainRegion.Orchard: return new Color(0.34f, 0.49f, 0.23f);
                 default: return new Color(0.37f, 0.59f, 0.28f);
-            }
-        }
-
-        private static Color RoadColor(TerrainRoadType type, Color ground)
-        {
-            switch (type)
-            {
-                case TerrainRoadType.Stone: return Color.Lerp(ground, Color.white, 0.30f);
-                case TerrainRoadType.Dirt: return Color.Lerp(ground, Color.white, 0.17f);
-                default: return ground;
             }
         }
 

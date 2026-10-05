@@ -13,9 +13,6 @@ namespace Mine.Terrain
         House,
         Windmill,
         Tree,
-        Grass,
-        Wheat,
-        Flower,
         OrchardTree
     }
 
@@ -54,7 +51,7 @@ namespace Mine.Terrain
     }
 
     /// <summary>
-    /// 输出纯数据放置结果；建筑和植物的实验占位均遵循道路及建筑占地约束。
+    /// 输出建筑与树木等完整个体的放置结果；密集地被由 TerrainPlantDistributor 负责。
     /// </summary>
     public static class TerrainStuffDistributor
     {
@@ -66,18 +63,15 @@ namespace Mine.Terrain
                 throw new ArgumentNullException(nameof(settings));
 
             TerrainStuffPlan plan = new TerrainStuffPlan();
-            List<TerrainStuffPlacement> buildings = new List<TerrainStuffPlacement>();
+            List<TerrainStuffPlacement> occupied = new List<TerrainStuffPlacement>();
             System.Random random = new System.Random(unchecked(map.Seed * 1319 ^ 0x512D));
 
-            PlaceMany(map, plan, buildings, random, TerrainStuffType.Windmill, TerrainRegion.WheatField, 1, 5f);
-            PlaceMany(map, plan, buildings, random, TerrainStuffType.House, TerrainRegion.Village, settings.HouseCount, 4f);
-            PlaceMany(map, plan, buildings, random, TerrainStuffType.Tree, TerrainRegion.Forest, settings.TreeCount, 1.5f);
-            PlaceMany(map, plan, buildings, random, TerrainStuffType.OrchardTree, TerrainRegion.Orchard,
-                Mathf.Max(15, settings.TreeCount / 2), 1.5f);
-            PlaceMany(map, plan, buildings, random, TerrainStuffType.Wheat, TerrainRegion.WheatField, settings.WheatCount, 0.45f);
-            PlaceMany(map, plan, buildings, random, TerrainStuffType.Flower, TerrainRegion.Meadow,
-                Mathf.Max(60, settings.GrassCount / 2), 0.4f);
-            PlaceMany(map, plan, buildings, random, TerrainStuffType.Grass, TerrainRegion.Grassland, settings.GrassCount, 0.45f);
+            PlaceMany(map, plan, occupied, random, TerrainStuffType.Windmill, TerrainRegion.WheatField, 1, 5f);
+            PlaceMany(map, plan, occupied, random, TerrainStuffType.House, TerrainRegion.Village, settings.HouseCount, 4f);
+            PlaceMany(map, plan, occupied, random, TerrainStuffType.Tree, TerrainRegion.Forest,
+                settings.TreeCount, 1.5f);
+            PlaceMany(map, plan, occupied, random, TerrainStuffType.OrchardTree, TerrainRegion.Orchard,
+                settings.TreeCount == 0 ? 0 : Mathf.Max(15, settings.TreeCount / 2), 1.5f);
             return plan;
         }
 
@@ -88,7 +82,7 @@ namespace Mine.Terrain
         private static void PlaceMany(
             TerrainMapData map,
             TerrainStuffPlan plan,
-            List<TerrainStuffPlacement> buildings,
+            List<TerrainStuffPlacement> occupied,
             System.Random random,
             TerrainStuffType type,
             TerrainRegion region,
@@ -107,11 +101,11 @@ namespace Mine.Terrain
 
                 Vector2 point = map.CellCenter(x, z);
                 bool blocked = false;
-                for (int i = 0; i < buildings.Count; i++)
+                for (int i = 0; i < occupied.Count; i++)
                 {
-                    TerrainStuffPlacement building = buildings[i];
-                    Vector2 buildingPoint = new Vector2(building.Position.x, building.Position.z);
-                    if (Vector2.Distance(point, buildingPoint) < radius + building.Radius + 1f)
+                    TerrainStuffPlacement other = occupied[i];
+                    Vector2 occupiedPoint = new Vector2(other.Position.x, other.Position.z);
+                    if (Vector2.Distance(point, occupiedPoint) < radius + other.Radius + 1f)
                     {
                         blocked = true;
                         break;
@@ -126,8 +120,7 @@ namespace Mine.Terrain
                     (float)random.NextDouble() * 360f,
                     radius);
                 plan.Add(placement);
-                if (type == TerrainStuffType.House || type == TerrainStuffType.Windmill)
-                    buildings.Add(placement);
+                occupied.Add(placement);
                 placed++;
             }
         }

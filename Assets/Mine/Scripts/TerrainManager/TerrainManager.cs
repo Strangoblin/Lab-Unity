@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════
-//  TerrainManager — 编排地图数据、地表和实验占位物的场景生命周期
+//  TerrainManager — 编排地图数据、地表、结构与植被的场景生命周期
 // ════════════════════════════════════════════════════════════
 
 using System;
@@ -15,6 +15,7 @@ namespace Mine.Terrain
     {
         [Header("Generation")]
         [SerializeField] private TerrainGenerationSettings _settings = new TerrainGenerationSettings();
+        [SerializeField] private TerrainPlantSettings _plantSettings = new TerrainPlantSettings();
         [SerializeField] private bool _generateOnStart = true;
         [SerializeField] private Shader _surfaceShader;
 
@@ -22,10 +23,13 @@ namespace Mine.Terrain
         private TerrainSurfaceResult _surface;
         private Material _surfaceMaterial;
         private Material _markerMaterial;
+        private TerrainPlantRenderer _plantRenderer;
 
         public TerrainMapData CurrentMap { get; private set; }
         public TerrainStuffPlan CurrentStuff { get; private set; }
+        public TerrainPlantPlan CurrentPlants { get; private set; }
         public int SurfaceChunkCount => _surface?.Chunks.Count ?? 0;
+        public int PlantBatchCount => _plantRenderer?.BatchCount ?? 0;
         public Transform GeneratedRoot => _generatedRoot != null ? _generatedRoot.transform : null;
 
         // ════════════════════════════════════════════════════════════
@@ -36,6 +40,12 @@ namespace Mine.Terrain
         {
             if (_generateOnStart)
                 Generate();
+        }
+
+        private void Update()
+        {
+            if (_generatedRoot != null && _plantRenderer != null)
+                _plantRenderer.Draw(gameObject.layer);
         }
 
         private void OnDisable()
@@ -61,13 +71,16 @@ namespace Mine.Terrain
             TerrainMapData map = null;
             TerrainSurfaceResult surface = null;
             TerrainStuffPlan stuff = null;
+            TerrainPlantPlan plants = null;
             GameObject root = null;
             Material surfaceMaterial = null;
             Material markerMaterial = null;
+            TerrainPlantRenderer plantRenderer = null;
             System.Diagnostics.Stopwatch timer = System.Diagnostics.Stopwatch.StartNew();
             long dataMilliseconds = 0;
             long meshMilliseconds = 0;
             long stuffMilliseconds = 0;
+            long plantMilliseconds = 0;
 
             try
             {
@@ -77,10 +90,15 @@ namespace Mine.Terrain
                 meshMilliseconds = timer.ElapsedMilliseconds - dataMilliseconds;
                 stuff = TerrainStuffDistributor.Distribute(map, _settings);
                 stuffMilliseconds = timer.ElapsedMilliseconds - dataMilliseconds - meshMilliseconds;
+                plants = TerrainPlantDistributor.Distribute(map, stuff,
+                    _plantSettings ?? new TerrainPlantSettings());
+                plantMilliseconds = timer.ElapsedMilliseconds - dataMilliseconds -
+                    meshMilliseconds - stuffMilliseconds;
 
                 surfaceMaterial = new Material(surfaceShader) { name = "Terrain_Experiment_Surface" };
                 surfaceMaterial.SetTexture("_ColorMap", surface.ColorMap);
                 markerMaterial = new Material(markerShader) { name = "Terrain_Experiment_Markers" };
+                plantRenderer = new TerrainPlantRenderer(map, plants, _settings.ChunkCells, markerMaterial);
                 root = new GameObject("Generated Terrain Experiment");
                 root.transform.SetParent(transform, false);
                 CreateSurfaceObjects(root.transform, surface, surfaceMaterial);
@@ -88,7 +106,7 @@ namespace Mine.Terrain
             }
             catch
             {
-                DisposeGenerated(root, surface, surfaceMaterial, markerMaterial);
+                DisposeGenerated(root, surface, surfaceMaterial, markerMaterial, plantRenderer);
                 throw;
             }
 
@@ -97,13 +115,17 @@ namespace Mine.Terrain
             _surface = surface;
             _surfaceMaterial = surfaceMaterial;
             _markerMaterial = markerMaterial;
+            _plantRenderer = plantRenderer;
             CurrentMap = map;
             CurrentStuff = stuff;
+            CurrentPlants = plants;
 
             Debug.Log($"Terrain experiment generated: {map.WidthCells}x{map.HeightCells} cells, " +
-                      $"{surface.Chunks.Count} chunks, {stuff.Placements.Count} markers; " +
+                      $"{surface.Chunks.Count} chunks, {stuff.Placements.Count} structures, " +
+                      $"{plants.Placements.Count} plants in {plantRenderer.BatchCount} batches; " +
                       $"data {dataMilliseconds} ms, mesh {meshMilliseconds} ms, " +
-                      $"distribution {stuffMilliseconds} ms, total {timer.ElapsedMilliseconds} ms.", this);
+                      $"structures {stuffMilliseconds} ms, plants {plantMilliseconds} ms, " +
+                      $"total {timer.ElapsedMilliseconds} ms.", this);
         }
 
         // ════════════════════════════════════════════════════════════
@@ -166,10 +188,8 @@ namespace Mine.Terrain
             switch (type)
             {
                 case TerrainStuffType.Windmill: return PrimitiveType.Cylinder;
-                case TerrainStuffType.Tree: return PrimitiveType.Capsule;
+                case TerrainStuffType.Tree:
                 case TerrainStuffType.OrchardTree: return PrimitiveType.Capsule;
-                case TerrainStuffType.Flower: return PrimitiveType.Sphere;
-                case TerrainStuffType.Wheat: return PrimitiveType.Cylinder;
                 default: return PrimitiveType.Cube;
             }
         }
@@ -182,9 +202,7 @@ namespace Mine.Terrain
                 case TerrainStuffType.Windmill: return new Vector3(4f, 8f, 4f);
                 case TerrainStuffType.Tree: return new Vector3(2.2f, 5f, 2.2f);
                 case TerrainStuffType.OrchardTree: return new Vector3(2.5f, 4f, 2.5f);
-                case TerrainStuffType.Flower: return new Vector3(0.65f, 0.65f, 0.65f);
-                case TerrainStuffType.Wheat: return new Vector3(0.35f, 1.1f, 0.35f);
-                default: return new Vector3(0.55f, 0.65f, 0.55f);
+                default: return Vector3.one;
             }
         }
 
@@ -196,9 +214,7 @@ namespace Mine.Terrain
                 case TerrainStuffType.Windmill: return new Color(0.95f, 0.91f, 0.76f);
                 case TerrainStuffType.Tree: return new Color(0.08f, 0.28f, 0.12f);
                 case TerrainStuffType.OrchardTree: return new Color(0.40f, 0.63f, 0.18f);
-                case TerrainStuffType.Flower: return new Color(0.94f, 0.34f, 0.62f);
-                case TerrainStuffType.Wheat: return new Color(0.92f, 0.75f, 0.31f);
-                default: return new Color(0.19f, 0.76f, 0.20f);
+                default: return Color.white;
             }
         }
 
@@ -208,20 +224,23 @@ namespace Mine.Terrain
 
         private void Release()
         {
-            DisposeGenerated(_generatedRoot, _surface, _surfaceMaterial, _markerMaterial);
+            DisposeGenerated(_generatedRoot, _surface, _surfaceMaterial, _markerMaterial, _plantRenderer);
             _generatedRoot = null;
             _surface = null;
             _surfaceMaterial = null;
             _markerMaterial = null;
+            _plantRenderer = null;
             CurrentMap = null;
             CurrentStuff = null;
+            CurrentPlants = null;
         }
 
         private static void DisposeGenerated(
             GameObject root,
             TerrainSurfaceResult surface,
             Material surfaceMaterial,
-            Material markerMaterial)
+            Material markerMaterial,
+            TerrainPlantRenderer plantRenderer)
         {
             if (root != null)
             {
@@ -234,6 +253,7 @@ namespace Mine.Terrain
                     DestroyGeneratedObject(surface.Chunks[i].Mesh);
                 DestroyGeneratedObject(surface.ColorMap);
             }
+            plantRenderer?.Dispose();
             DestroyGeneratedObject(surfaceMaterial);
             DestroyGeneratedObject(markerMaterial);
         }

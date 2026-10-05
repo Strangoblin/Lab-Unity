@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════
-//  TerrainDataGenerator — 生成连续沃洛诺伊区域、融合区域组及岸线下凹
+//  TerrainDataGenerator — 草地底层、特征 SDF、道路、整体扰动与派生数据
 // ════════════════════════════════════════════════════════════
 
 using System;
@@ -19,13 +19,21 @@ namespace Mine.Terrain
             settings.Validate();
 
             TerrainMapData map = new TerrainMapData(settings);
+            InitializeGrassland(map);
             CreateSites(map, settings);
-            FillRegions(map, settings);
+            FillFeatureRegions(map, settings);
+            TerrainRoutePlanner.GenerateRoads(map, settings);
+            TerrainDataNoise.Apply(map, settings);
             BuildRegionGroups(map);
             BuildWaterDepression(map, settings.DepressionDepth);
-            TerrainRoutePlanner.CreateRoutes(map, settings);
-            RasterizeRoads(map, settings);
             return map;
+        }
+
+        private static void InitializeGrassland(TerrainMapData map)
+        {
+            for (int z = 0; z < map.HeightCells; z++)
+                for (int x = 0; x < map.WidthCells; x++)
+                    map.SetRegion(x, z, TerrainRegion.Grassland, -1);
         }
 
         // ════════════════════════════════════════════════════════════
@@ -116,8 +124,7 @@ namespace Mine.Terrain
             if (!found)
                 throw new InvalidOperationException($"Cannot place {rule.Region} site {map.Sites.Count}; " +
                     "reduce the feature count or radius in the map recipe.");
-            map.AddSite(new TerrainSite(map.Sites.Count, rule.Region, bestPoint, radius,
-                rule.ConnectRoad));
+            map.AddSite(new TerrainSite(map.Sites.Count, rule.Region, bestPoint, radius));
         }
 
         private static Vector2 PreferredAnchor(TerrainRegion region)
@@ -135,72 +142,57 @@ namespace Mine.Terrain
         }
 
         // ════════════════════════════════════════════════════════════
-        //  区域 — 草地与其它地点共同竞争，双尺度坐标扭曲改变共享边界
+        //  区域 — 最近种子硬归属，平滑距离差阈值决定特征覆盖
         // ════════════════════════════════════════════════════════════
 
-        private static void FillRegions(TerrainMapData map, TerrainGenerationSettings settings)
+        private static void FillFeatureRegions(TerrainMapData map, TerrainGenerationSettings settings)
         {
-            float shortSide = Mathf.Min(settings.Width, settings.Height);
-            Vector2 frequencies = new Vector2(settings.BroadWarpCycles / shortSide,
-                settings.DetailWarpCycles / shortSide);
-            Vector2 amplitudes = new Vector2(settings.BroadWarpDistance,
-                settings.DetailWarpDistance) * (shortSide / 300f);
+            float[] centerGaps = new float[map.Sites.Count];
+            for (int i = 0; i < map.Sites.Count; i++)
+                centerGaps[i] = TerrainVoronoiSdf.DistanceGap(map,
+                    map.Sites[i].Center, i, out _, settings.VoronoiRegionSoftness);
+
             for (int z = 0; z < map.HeightCells; z++)
             {
                 for (int x = 0; x < map.WidthCells; x++)
                 {
                     Vector2 point = map.CellCenter(x, z);
-                    Vector2 warped = Vector2.Lerp(point,
-                        WarpPoint(point, settings.Seed, frequencies, amplitudes),
-                        SiteCoreWarpWeight(map, point));
-                    float bestDistance = float.PositiveInfinity;
-                    int bestSite = -1;
-
+                    float nearestDistance = float.PositiveInfinity;
+                    int nearestSite = -1;
                     for (int i = 0; i < map.Sites.Count; i++)
                     {
                         TerrainSite site = map.Sites[i];
-                        float distance = Vector2.Distance(warped, site.Center) / site.Radius;
-                        if (distance >= bestDistance)
-                            continue;
-                        bestDistance = distance;
-                        bestSite = i;
+                        float ownerDistance = Vector2.SqrMagnitude(point - site.Center);
+                        if (ownerDistance < nearestDistance)
+                        {
+                            nearestDistance = ownerDistance;
+                            nearestSite = i;
+                        }
                     }
-                    map.SetRegion(x, z, map.Sites[bestSite].Region, bestSite);
+
+                    TerrainRegion region = SampleVoronoiRegion(map, settings, point,
+                        nearestSite, centerGaps[nearestSite]);
+                    map.SetRegion(x, z, region, nearestSite);
                 }
             }
         }
 
-        private static Vector2 WarpPoint(Vector2 point, int seed,
-            Vector2 frequencies, Vector2 amplitudes)
+        private static TerrainRegion SampleVoronoiRegion(TerrainMapData map,
+            TerrainGenerationSettings settings, Vector2 point, int owner,
+            float centerGap)
         {
-            float broadX = Mathf.PerlinNoise(point.x * frequencies.x + seed * 0.017f,
-                point.y * frequencies.x + seed * 0.029f);
-            float broadY = Mathf.PerlinNoise(point.x * frequencies.x + seed * 0.043f + 31.7f,
-                point.y * frequencies.x + seed * 0.011f + 47.3f);
-            float detailX = Mathf.PerlinNoise(point.x * frequencies.y + seed * 0.067f + 71.9f,
-                point.y * frequencies.y + seed * 0.053f + 13.1f);
-            float detailY = Mathf.PerlinNoise(point.x * frequencies.y + seed * 0.037f + 19.3f,
-                point.y * frequencies.y + seed * 0.079f + 83.7f);
-            return point + new Vector2(broadX - 0.5f, broadY - 0.5f) * (amplitudes.x * 2f) +
-                new Vector2(detailX - 0.5f, detailY - 0.5f) * (amplitudes.y * 2f);
-        }
-
-        private static float SiteCoreWarpWeight(TerrainMapData map, Vector2 point)
-        {
-            float nearestDistanceSquared = float.PositiveInfinity;
-            for (int i = 0; i < map.Sites.Count; i++)
-            {
-                TerrainSite site = map.Sites[i];
-                float distanceSquared = (point - site.Center).sqrMagnitude /
-                    (site.Radius * site.Radius);
-                nearestDistanceSquared = Mathf.Min(nearestDistanceSquared, distanceSquared);
-            }
-            return Mathf.SmoothStep(0f, 1f,
-                Mathf.InverseLerp(0.12f * 0.12f, 0.4f * 0.4f, nearestDistanceSquared));
+            TerrainSite site = map.Sites[owner];
+            float gap = TerrainVoronoiSdf.DistanceGap(map, point, owner, out _,
+                settings.VoronoiRegionSoftness);
+            float width = settings.VoronoiRegionWidth *
+                Mathf.Min(settings.Width, settings.Height) / 300f;
+            float threshold = centerGap - width;
+            return gap > threshold
+                ? site.Region : TerrainRegion.Grassland;
         }
 
         // ════════════════════════════════════════════════════════════
-        //  融合区域 — 同类相邻格归为一组，并选择道路代表地点
+        //  融合区域 — 同类相邻格归为一组
         // ════════════════════════════════════════════════════════════
 
         private static void BuildRegionGroups(TerrainMapData map)
@@ -237,8 +229,7 @@ namespace Mine.Terrain
                 }
 
                 Vector2 center = new Vector2(sumX / tail, sumZ / tail);
-                int anchor = FindGroupAnchor(map, groupId, center);
-                map.AddRegionGroup(new TerrainRegionGroup(groupId, region, tail, center, anchor));
+                map.AddRegionGroup(new TerrainRegionGroup(groupId, region, tail, center));
             }
         }
 
@@ -250,30 +241,6 @@ namespace Mine.Terrain
                 return;
             map.SetRegionGroup(x, z, groupId);
             queue[tail++] = x + z * map.WidthCells;
-        }
-
-        private static int FindGroupAnchor(TerrainMapData map, int groupId, Vector2 center)
-        {
-            int bestSite = -1;
-            float bestDistance = float.PositiveInfinity;
-            for (int i = 0; i < map.Sites.Count; i++)
-            {
-                TerrainSite site = map.Sites[i];
-                if (!site.ConnectRoad)
-                    continue;
-                int x = Mathf.Clamp(Mathf.FloorToInt((site.Center.x - map.Origin.x) /
-                    map.CellSize), 0, map.WidthCells - 1);
-                int z = Mathf.Clamp(Mathf.FloorToInt((site.Center.y - map.Origin.y) /
-                    map.CellSize), 0, map.HeightCells - 1);
-                if (map.GetRegionGroupId(x, z) != groupId)
-                    continue;
-                float distance = Vector2.SqrMagnitude(site.Center - center);
-                if (distance >= bestDistance)
-                    continue;
-                bestDistance = distance;
-                bestSite = i;
-            }
-            return bestSite;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -339,65 +306,5 @@ namespace Mine.Terrain
             queue[tail++] = index;
         }
 
-        // ════════════════════════════════════════════════════════════
-        //  道路栅格化 — 连续折线覆盖与路面类型独立于区域
-        // ════════════════════════════════════════════════════════════
-
-        private static void RasterizeRoads(TerrainMapData map, TerrainGenerationSettings settings)
-        {
-            float halfWidth = settings.RoadWidth * 0.5f;
-            float feather = Mathf.Max(map.CellSize, 0.5f);
-            float reach = halfWidth + feather;
-            float[] coverage = new float[map.WidthCells * map.HeightCells];
-            for (int routeIndex = 0; routeIndex < map.Routes.Count; routeIndex++)
-            {
-                Vector2[] points = map.Routes[routeIndex].Points;
-                for (int i = 1; i < points.Length; i++)
-                {
-                    Vector2 start = points[i - 1];
-                    Vector2 end = points[i];
-                    int minX = Mathf.Max(0, Mathf.FloorToInt((Mathf.Min(start.x, end.x) - reach - map.Origin.x) / map.CellSize));
-                    int maxX = Mathf.Min(map.WidthCells - 1, Mathf.FloorToInt((Mathf.Max(start.x, end.x) + reach - map.Origin.x) / map.CellSize));
-                    int minZ = Mathf.Max(0, Mathf.FloorToInt((Mathf.Min(start.y, end.y) - reach - map.Origin.y) / map.CellSize));
-                    int maxZ = Mathf.Min(map.HeightCells - 1, Mathf.FloorToInt((Mathf.Max(start.y, end.y) + reach - map.Origin.y) / map.CellSize));
-                    for (int z = minZ; z <= maxZ; z++)
-                    {
-                        for (int x = minX; x <= maxX; x++)
-                        {
-                            Vector2 point = map.CellCenter(x, z);
-                            float distance = DistanceToSegment(point, start, end);
-                            float value = 1f - Mathf.SmoothStep(0f, 1f,
-                                Mathf.InverseLerp(halfWidth - feather, halfWidth + feather, distance));
-                            int index = x + z * map.WidthCells;
-                            coverage[index] = Mathf.Max(coverage[index], value);
-                        }
-                    }
-                }
-            }
-            for (int z = 0; z < map.HeightCells; z++)
-            {
-                for (int x = 0; x < map.WidthCells; x++)
-                {
-                    float value = coverage[x + z * map.WidthCells];
-                    if (map.GetRegion(x, z) == TerrainRegion.Water)
-                        value = 0f;
-                    TerrainRoadType type = map.GetRegion(x, z) == TerrainRegion.Village
-                        ? TerrainRoadType.Stone
-                        : TerrainRoadType.Dirt;
-                    map.SetRoad(x, z, value, value > 0f ? type : TerrainRoadType.None);
-                }
-            }
-        }
-
-        private static float DistanceToSegment(Vector2 point, Vector2 start, Vector2 end)
-        {
-            Vector2 segment = end - start;
-            float lengthSquared = segment.sqrMagnitude;
-            if (lengthSquared < 0.0001f)
-                return Vector2.Distance(point, start);
-
-            float t = Mathf.Clamp01(Vector2.Dot(point - start, segment) / lengthSquared);
-            return Vector2.Distance(point, start + segment * t);
-        }
     }
 }
