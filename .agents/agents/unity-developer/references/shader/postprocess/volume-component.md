@@ -12,18 +12,16 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 [System.Serializable]
-[VolumeComponentMenuForRenderPipeline(
-    "Post-processing/MyEffect",               // ← 菜单路径
-    typeof(UniversalRenderPipeline)           // ← 指定管线
-)]
+[VolumeComponentMenu("Post-processing/MyEffect")]   // ← 菜单路径
+[SupportedOnRenderPipeline(typeof(UniversalRenderPipelineAsset))]  // ← 指定管线
 public class MyEffect : VolumeComponent, IPostProcessComponent
 {
     // ── 参数 ──
     [Tooltip("Effect intensity.")]
     public ClampedFloatParameter intensity = new ClampedFloatParameter(0f, 0f, 1f);
 
-    [Tooltip("Blur radius in pixels.")]
-    public ClampedIntParameter radius = new ClampedIntParameter(4, 1, 16);
+    [Tooltip("Filter footprint in input pixels; does not change sample count.")]
+    public ClampedFloatParameter filterRadius = new ClampedFloatParameter(4f, 0.5f, 16f);
 
     [Tooltip("Tint color.")]
     public ColorParameter tint = new ColorParameter(Color.white, hdr: false, showAlpha: false, showEyeDropper: true);
@@ -61,7 +59,7 @@ void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
     if (m_Settings == null || !m_Settings.IsActive()) return;
 
     float intensity = m_Settings.intensity.value;
-    int radius = m_Settings.radius.value;
+    float filterRadius = m_Settings.filterRadius.value;
     Color tint = m_Settings.tint.value;
 }
 ```
@@ -92,7 +90,7 @@ public class SSLVolume : VolumeComponent, IPostProcessComponent
 
 要点：
 - 枚举参数需自定义 `VolumeParameter<SSLVolume.SSLType>`（如 `SSLTypeParameter`），Unity 不直接支持泛型枚举序列化
-- 菜单属性：Unity 6 用 `[VolumeComponentMenuForRenderPipeline("...", typeof(UniversalRenderPipeline))]`（见上文模板）；旧代码/旧项目用 `[VolumeComponentMenu("...")]`
+- 菜单属性：Unity 6 用 `[VolumeComponentMenu("...")]` + `[SupportedOnRenderPipeline(typeof(UniversalRenderPipelineAsset))]`（见上文模板，与 URP 17 内置 Bloom / SplitToning 一致）。`[VolumeComponentMenuForRenderPipeline]` 自 2023.1 起过时，Unity 6 下报 **CS0619 编译错误**，不要使用
 
 ### 2. Feature 中每帧读取 Volume
 
@@ -133,6 +131,6 @@ switch (vol.sslType.value)
 
 ## 关键注意事项
 
-- `[VolumeComponentMenuForRenderPipeline]` 是 Unity 6 的新属性，旧版用 `[VolumeComponentMenu]`
+- `[VolumeComponentMenu]` + `[SupportedOnRenderPipeline]` 是 Unity 6 的写法；`[VolumeComponentMenuForRenderPipeline]` 已在 2023.1 过时并在 Unity 6 报错（本条曾长期写反，2026-09-20 实测纠正）
 - 参数在 Volume Profile 中序列化，**修改脚本不会丢失配置**（但重命名类型会丢失）
 - `IsTileCompatible() = false` 表示不支持分块渲染（绝大多数后处理都返回 false）

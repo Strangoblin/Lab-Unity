@@ -15,6 +15,9 @@ Shared-lib facts from the live source: consumers `#include` with the full `Asset
 | 单效果私有数学 / 专属 SDF | 与其 shader 同目录 | [render/](../render/README.md) 的 effect-function.hlsl |
 | 跨效果横切(模糊/BRDF/光照/法线/采样包装) | 抽到 `Assets/Mine/Special/HLSL/` | 本族 function-lib.hlsl |
 
+Blur/SNN/Kuwahara 等空间滤波先使用 [后处理采样预算模板](../postprocess/spatial-filter-budget.hlsl)
+建立“质量档定成本、半径定范围”的调用契约；只有多个效果实际复用同一算法实现时，才将其提升为本族共享库。
+
 standard-shader.shader 的 HLSLINCLUDE 内已留 ⚠️ include 行指向 Special/HLSL —— 新共享库抽好后从那里链入。
 
 ## 依赖三档决策表(本家族核心规范)
@@ -48,4 +51,4 @@ standard-shader.shader 的 HLSLINCLUDE 内已留 ⚠️ include 行指向 Specia
 - C 档 5:BlurFunction(高斯+双边,自带 Declare*)/ ENVFunction(FGD LUT 路径)/ ParallaxFunction(自带 `_HeightMap` 声明)/ RimLightFunction / DeclareCustomTexture
 - 代表消费方:Water.shader(6 库)、PBRToon.shader(5)、GrassInstance.shader(4)、RimToon/RimToonScreen、SSL/DDOF/SSSM/SSR/Kuwahara、BoidInstance.shader、SSC/SSO
 
-> ⚠️ 本族模板可编译承诺 = 拷到 `Assets/Mine/Special/HLSL/` 改名即用(文件名 = guard = 语义域),调用方用全路径 include。
+> ⚠️ 本族用法 = 拷到 `Assets/Mine/Special/HLSL/` 改名即用(文件名 = guard = 语义域),调用方用全路径 include。`.hlsl` 本层不做真编译(需 Unity 导入),改动后跑 `python3 .mcp/validation/check_api_refs.py <本目录>` 核词法与过时 API。

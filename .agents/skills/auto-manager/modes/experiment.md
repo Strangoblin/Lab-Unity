@@ -51,10 +51,11 @@
 ```
 G0   → gate_set_recipe("Experiment") + gate_pass("g_entry", agent="<agent>")
 G1.5 → gate_pass("g_knowledge", loaded_files="<已读文件列表>", status="COMPLETE")
-G3   → write_gated(path, content, ...)   ← 内容规范检查（error 阻断 / warning 提示）
+G3   → write_gated(path, content, ...)   ← 内容规范 + 文件落点检查（error 阻断 / warning 提示）
 ```
 
-- 写入走 `write_gated`；未过配方门禁会 DENIED
+- 写入走 `write_gated`；未过配方门禁、内容违反结构规范、或落点不在已知顶层根下都会 DENIED
+- 移动/改名走 `move_gated`（不要拿 write+delete 拼）
 - Codex 对等：`python .mcp/validation/check_norm.py <file>`
 
 ---

@@ -1,9 +1,10 @@
-using System.Runtime.InteropServices;
 using UnityEngine;
+using System.Runtime.InteropServices;
+using Mine.Fields;
 
 /// <summary>
-/// Rain particle simulation — particles fall from a rotated emission plane that follows
-/// the GameObject's transform. Force fields editable as a variable-size list.
+/// Rain particle simulation — particles spawn throughout a rotated volume and
+/// grow then shrink over independently staggered lifetimes.
 /// </summary>
 public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
 {
@@ -14,12 +15,19 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
     public Vector3[] forceFields = new Vector3[]
     {
         new Vector3(0, -9.81f, 0),
-        new Vector3(2, 0, 0),
     };
 
+    [Header("Artistic · Shared wind")]
+    [SerializeField, Min(0f)] private float _windDrag = 1f;
+
     [Header("Area (transform local space)")]
-    [Tooltip("x=X radius, y=fall distance along -UP, z=Z radius")]
+    [Tooltip("x=X width, y=spawn depth along -UP, z=Z width")]
     public Vector3 spawnArea = new Vector3(30, 55, 30);
+
+    [Header("Lifecycle")]
+    [Min(0.01f)]
+    [Tooltip("Average lifetime in seconds; each particle varies by +/-25%.")]
+    public float lifetime = 2f;
 
     private const int MaxForceFields = 16;
 
@@ -27,14 +35,18 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
     private struct RainParticle
     {
         public Vector3 position;
+        public float age;
         public Vector3 velocity;
+        public float lifetime;
 
-        public static int Stride() => sizeof(float) * 6;
+        public static int Stride() => sizeof(float) * 8;
     }
 
     private ComputeBuffer rainBuffer;
     private int instanceCount;
     private int updateKernel;
+    private float simulationTime;
+    private readonly Vector4[] uploadedForceFields = new Vector4[MaxForceFields];
 
     private static readonly int RainBufferId       = Shader.PropertyToID("_RainBuffer");
     private static readonly int InstanceCountId    = Shader.PropertyToID("_InstanceCount");
@@ -47,6 +59,9 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
     private static readonly int SpawnForwardId     = Shader.PropertyToID("_SpawnForward");
     private static readonly int SpawnAreaId        = Shader.PropertyToID("_SpawnArea");
 
+    private static readonly int LifetimeId = Shader.PropertyToID("_Lifetime");
+    private static readonly int SimulationTimeId = Shader.PropertyToID("_SimulationTime");
+
     public ComputeBuffer VisibleCountBuffer => null;
 
     // ════════════════════════════════════════════════════════════
@@ -58,13 +73,16 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
         updateKernel  = rainShader.FindKernel("CS_RainUpdate");
 
         Transform t = transform;
+        simulationTime = 0f;
+        Vector3 initialForce = Vector3.zero;
+        int forceCount = forceFields == null ? 0 : Mathf.Min(forceFields.Length, MaxForceFields);
+        for (int i = 0; i < forceCount; i++) initialForce += forceFields[i];
 
         RainParticle[] particles = new RainParticle[count];
         for (int i = 0; i < count; i++)
         {
             float rx = (Random.value * 2f - 1f) * spawnArea.x * 0.5f;
             float rz = (Random.value * 2f - 1f) * spawnArea.z * 0.5f;
-            // Pre-distribute along the fall column for natural initial fill
             float ry = Random.Range(-spawnArea.y, 0f);
 
             particles[i].position = t.position
@@ -72,9 +90,10 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
                 + t.up      * ry
                 + t.forward * rz;
 
-            Vector3 initVel = Vector3.zero;
-            foreach (var f in forceFields) initVel += f;
-            particles[i].velocity = new Vector3(initVel.x, 0, initVel.z);
+            particles[i].lifetime = Mathf.Max(0.01f, lifetime) * Random.Range(0.75f, 1.25f);
+            particles[i].age = Random.value * particles[i].lifetime;
+            particles[i].velocity = new Vector3(initialForce.x, 0f, initialForce.z)
+                + initialForce * particles[i].age;
         }
 
         rainBuffer = new ComputeBuffer(count, RainParticle.Stride());
@@ -91,7 +110,11 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
     // ════════════════════════════════════════════════════════════
     public void Dispatch(float deltaTime)
     {
+        deltaTime = Mathf.Max(0f, deltaTime);
+        simulationTime += deltaTime;
         rainShader.SetFloat(DeltaTimeId, deltaTime);
+        rainShader.SetFloat(LifetimeId, Mathf.Max(0.01f, lifetime));
+        rainShader.SetFloat(SimulationTimeId, simulationTime);
 
         Transform t = transform;
         rainShader.SetVector(SpawnCenterId,  t.position);
@@ -101,6 +124,8 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
         rainShader.SetVector(SpawnAreaId,    spawnArea);
 
         UploadForceFields();
+        FieldManager.BindWindCompute(rainShader, updateKernel);
+        rainShader.SetFloat("_WindDrag", Mathf.Max(0f, _windDrag));
 
         int threadGroups = Mathf.CeilToInt((float)instanceCount / 64f);
         rainShader.Dispatch(updateKernel, threadGroups, 1, 1);
@@ -118,11 +143,10 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
 
     private void UploadForceFields()
     {
-        var fields = new Vector4[MaxForceFields];
-        int count = Mathf.Min(forceFields.Length, MaxForceFields);
+        int count = forceFields == null ? 0 : Mathf.Min(forceFields.Length, MaxForceFields);
         for (int i = 0; i < count; i++)
-            fields[i] = new Vector4(forceFields[i].x, forceFields[i].y, forceFields[i].z, 0);
-        rainShader.SetVectorArray(ForceFieldsId, fields);
+            uploadedForceFields[i] = new Vector4(forceFields[i].x, forceFields[i].y, forceFields[i].z, 0);
+        rainShader.SetVectorArray(ForceFieldsId, uploadedForceFields);
         rainShader.SetInt(ForceFieldCountId, count);
     }
 

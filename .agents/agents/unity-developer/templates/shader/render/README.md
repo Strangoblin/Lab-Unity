@@ -37,4 +37,4 @@ Unity 6 / URP 17 的默认能力、实例化与 XR 边界见 [网格材质能力
 | 库依赖合同 + guard 先例 | `Assets/Mine/Shaders/Render/VanGogh/TheStarryNightSDF.hlsl`(头部合同注释 1-12 行) |
 | 同构第二例(带 Shadertoy 映射 .md) | `Assets/Mine/Shaders/Render/HyperSpace/`、`HyperTube/` |
 
-> ⚠️ 模板可编译承诺 = 激活代码零内联 ⚠️,⚠️ 标记只出现在注释行与字符串占位;复杂对需「双文件同拷 + include 路径同步」两步,见模板头横幅。
+> ⚠️ 标记只出现在注释行与字符串占位,**不得进标识符**;复杂对需「双文件同拷 + include 路径同步」两步,见模板头横幅。改后跑 `python3 .mcp/validation/check_api_refs.py .agents/agents/unity-developer/templates` 核验。

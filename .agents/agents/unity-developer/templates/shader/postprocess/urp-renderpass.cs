@@ -4,7 +4,7 @@
 //  基于 Unity 官方 ScriptableRenderPass + RenderGraph API
 //  参考: com.unity.render-pipelines.universal/Runtime/Passes/
 //
-//  使用: 复制→改 ⚠️ → 在 Feature.AddRenderPasses() 注册
+//  使用: 复制 → 全局替换 YourEffect → 按 ⚠️ 处定制 → 在 Feature.AddRenderPasses() 注册
 // ═══════════════════════════════════════════════════════════════
 
 using UnityEngine;
@@ -12,9 +12,10 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
 
-public class ⚠️YourEffectPass : ScriptableRenderPass
+// ⚠️ 类名与下面的 k_PassName 都是占位符（YourEffect），拷贝后全局替换
+public class YourEffectPass : ScriptableRenderPass
 {
-    const string k_PassName = "⚠️YourEffect";
+    const string k_PassName = "YourEffect";
     Material m_Material;
 
     // ═══ PassData — RenderGraph 要求独立的 class ═══
@@ -25,7 +26,7 @@ public class ⚠️YourEffectPass : ScriptableRenderPass
         // ⚠️ public TextureHandle extraTex;
     }
 
-    public ⚠️YourEffectPass(Material material)
+    public YourEffectPass(Material material)
     {
         m_Material = material;
         renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
@@ -41,9 +42,8 @@ public class ⚠️YourEffectPass : ScriptableRenderPass
         UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
         TextureHandle cameraColor = resourceData.activeColorTexture;
 
-        // 2. 描述符（后处理不需要深度）
-        RenderTextureDescriptor desc = resourceData.activeColorTextureDescriptor;
-        desc.depthBufferBits = DepthBits.None;
+        // 2. 单 Pass 不需要描述符 —— 直接以 cameraColor 为附件即可。
+        //    （需要临时 RT 时才建描述符，见文末多 pass 模板）
 
         // 3. 添加 raster pass
         using (var builder = renderGraph.AddRasterRenderPass<PassData>(
@@ -67,11 +67,18 @@ public class ⚠️YourEffectPass : ScriptableRenderPass
     }
 
     // ═══ 多 pass 模板（需创建临时 RT）═══
-    // public override void RecordRenderGraph(...)
+    // public override void RecordRenderGraph(RenderGraph renderGraph,
+    //                                        ContextContainer frameData)
     // {
-    //     var cameraColor = ...;
-    //     TextureHandle tempRT = UniversalRenderer.CreateRenderGraphTexture(
-    //         renderGraph, desc, "⚠️Temp", false);
+    //     UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
+    //     TextureHandle cameraColor = resourceData.activeColorTexture;
+    //
+    //     // 临时 RT：从 cameraColor 取描述符，去掉深度后建图内纹理
+    //     TextureDesc desc = renderGraph.GetTextureDesc(cameraColor);
+    //     desc.name = "YourEffectTemp";
+    //     desc.clearBuffer = false;
+    //     desc.depthBufferBits = DepthBits.None;
+    //     TextureHandle tempRT = renderGraph.CreateTexture(desc);
     //
     //     // Pass 0: cameraColor → tempRT
     //     using (var builder = renderGraph.AddRasterRenderPass<PassData>(...))

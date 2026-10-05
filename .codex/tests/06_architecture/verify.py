@@ -55,8 +55,10 @@ PHASE4_BASELINE = {
     "mcp_hardcoded_claude_files": 0,
 }
 # Closure baseline: .claude/skills cutover (fdf9106) removed 32 tracked copies.
+# 2026-09-21: 删 codex-orchestrate 兼容软链（Codex 是对等并行引擎，不是派发目标）→ 26 → 25。
+# 2026-10-05: 合入本地 opencode-orchestrate 兼容软链 → 25 → 26。
 PHASE7_BASELINE = {
-    "tracked_claude": 27,
+    "tracked_claude": 26,
     "agents_broken_markdown_links": 0,
     "skill_drift_files": 0,
     "mcp_hardcoded_claude_files": 0,

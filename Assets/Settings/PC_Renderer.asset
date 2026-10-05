@@ -1,5 +1,55 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8666594091835673655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f34910ba34284720be7006cff69df99, type: 3}
+  m_Name: SSGI
+  m_EditorClassIdentifier: Assembly-CSharp::SSGIFeature
+  m_Active: 0
+  settings:
+    compositeShader: {fileID: 4800000, guid: 0c2cf0c88542b4f5daa3ac19dd7493ff, type: 3}
+    temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
+    ao:
+      shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
+      mode: 1
+      radius: 1
+      bias: 0.02
+      angleBias: 10
+      depthSigma: 0.15
+    diffuseGI:
+      shader: {fileID: 4800000, guid: 0f1271be0061c430aa91678b9a119c1b, type: 3}
+      maxDistance: 5
+      thickness: 0.15
+      normalBias: 0.03
+      depthSigma: 0.15
+    specularGI:
+      shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
+      skyCubemap: {fileID: 0}
+      maxDistance: 50
+      thickness: 0.05
+      normalBias: 0.03
+      roughness: 0.1
+      skyMaxMip: 6
+    performance:
+      ao: 1
+      diffuseGI: 1
+      specularGI: 1
+    intensity:
+      ao: 1
+      diffuseGI: 1
+      specularGI: 1
+    temporal:
+      ao: 0.85
+      diffuseGI: 0.9
+      specularGI: 0.5
+    debug: 0
 --- !u!114 &-6861971581733455524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14,8 +64,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Mine.RenderingDebug.DebugOutputFeature
   m_Active: 0
   settings:
-    debugMaterial: {fileID: 2100000, guid: d0ec342ac28694d0da782da25c1d3c21, type: 2}
-    debugShader: {fileID: 4800000, guid: dea6b9a78142240deb2a05a75d2ef63c, type: 3}
+    debugMaterial: {fileID: 2100000, guid: a0e0f32d18734f31a515686a5f6ef445, type: 2}
+    debugShader: {fileID: 4800000, guid: 76c1fd2739c740b1a1491fed2298d28c, type: 3}
     additionalPassIndex: 1
     requireDepth: 0
     debug: 1
@@ -78,12 +128,9 @@ MonoBehaviour:
     probeSamplingDebugTexture: {fileID: 2800000, guid: 24ec0e140fb444a44ab96ee80844e18e, type: 3}
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
-  - {fileID: 7833122117494664109}
-  - {fileID: 223963607245372406}
-  - {fileID: 7840093813185564073}
-  - {fileID: 6441417510976136481}
   - {fileID: -6861971581733455524}
-  m_RendererFeatureMap: ad6b866f10d7b46cf6bb79d4b6ad1b03a9cda9d4c89bcd6c21a5b61f198364595cb9f3e33361c5a0
+  - {fileID: -8666594091835673655}
+  m_RendererFeatureMap: 5cb9f3e33361c5a03470fce24884c104c9b3a24f9712ba87
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -112,26 +159,6 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
---- !u!114 &223963607245372406
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 897f571967d514698be308bd42ae0dc0, type: 3}
-  m_Name: SSPRFeature
-  m_EditorClassIdentifier: Assembly-CSharp::SSPRFeature
-  m_Active: 0
-  settings:
-    ssprShader: {fileID: 4800000, guid: fe86975ca462b417b8f88618b61baf91, type: 3}
-    traceDownsample: 1
-    maxDistance: 9.9
-    flipFade: 0.05
-    smoothness: 1
-    showReflection: 1
 --- !u!114 &2669520963029075480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -166,82 +193,3 @@ MonoBehaviour:
   m_MaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_CompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
---- !u!114 &6441417510976136481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59babb7daa8e46c42843fb05f3114ff5, type: 3}
-  m_Name: SSRFeature
-  m_EditorClassIdentifier: Assembly-CSharp::SSRFeature
-  m_Active: 0
-  settings:
-    ssrShader: {fileID: 4800000, guid: 7252a6ae0aadcc04ab92ed7c3b9ec861, type: 3}
-    stepSize: 0.5
-    maxDistance: 10
-    stepCount: 64
-    binCount: 6
-    mipCount: 4
-    thickness: 0.05
-    smoothness: 1
-    jitterScale: 0.5
-    blurScale: 0.5
-    SSRFeature: 1
-    ssrType: 1
---- !u!114 &7833122117494664109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f62c9c65cf3354c93be831c8bc075510, type: 3}
-  m_Name: ScreenSpaceAmbientOcclusion
-  m_EditorClassIdentifier: 
-  m_Active: 0
-  m_Settings:
-    AOMethod: 0
-    Downsample: 0
-    AfterOpaque: 0
-    Source: 1
-    NormalSamples: 1
-    Intensity: 0.4
-    DirectLightingStrength: 0.25
-    Radius: 0.3
-    Samples: 1
-    BlurQuality: 0
-    Falloff: 100
-    SampleCount: -1
---- !u!114 &7840093813185564073
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4eac0fd98d0a49c9b3043bdb907b435, type: 3}
-  m_Name: StochasticSSRFeature
-  m_EditorClassIdentifier: Assembly-CSharp::StochasticSSRFeature
-  m_Active: 0
-  settings:
-    stochasticSSRShader: {fileID: 4800000, guid: e1158dd2972fc4090bdfed6a6a495d02, type: 3}
-    traceDownsample: 1
-    stepSize: 0.5
-    maxDistance: 10
-    stepCount: 64
-    thickness: 0.05
-    resolveDownsample: 2
-    roughness: 0
-    resolveRadius: 2
-    resolveQuality: 2
-    skyFallback: 0.4
-    temporalBlend: 0.9
-    debug: 0

@@ -21,6 +21,9 @@ unityctl wait                # 阻塞等待 Unity 连接（最长 120s）
 unityctl wait --timeout 300  # 自定义超时
 ```
 
+> ⚠️ `editor stop`（别名 `close/kill`）终止的是 **Editor 进程本身**，不是退出播放模式——
+> 有未保存内容时不可逆。退出播放模式用 `play exit`。
+
 ### Compilation
 
 ```bash
@@ -34,6 +37,25 @@ unityctl play enter/exit     # 进入/退出 Play Mode
 unityctl play pause          # 切换暂停（Edit Mode 也可用——预置 play 时暂停）
 unityctl play step           # 前进一帧（仅 Play Mode）
 ```
+
+### Screenshots
+
+```bash
+unityctl screenshot window GameView <path>   # ✅ 取 Game View 窗口（Edit Mode 亦可）
+unityctl screenshot list-windows             # 列出可截的 Editor 窗口
+unityctl screenshot capture [path]           # ❌ 不可靠，改用 window，见下
+```
+
+**`capture` 不可靠，不要用**（2026-09-20 实机复现，5 次尝试）：
+
+- **落盘不可靠**：5 次只成功 1 次，且成功那次也在 `Warning: screenshot file not written after 5s` 之后才出现。
+- **报出的 Resolution 是垃圾值**：`2798x72` / `1288x1138`，而真正写出的文件是 **642×522** —— 报的尺寸与产物不是同一张图。
+- **丢弃传入目录**：传 `/tmp/x.png`，真实落点是 `<project>/Screenshots/x.png`（只保留 basename）。
+  而 stdout 的 `Screenshot captured: <path>` **回显的是你的输入、不是真实落点**。
+
+需要画面时用 `window GameView`：路径与尺寸都正确，且 Edit Mode 下即可用。
+
+> 项目约定：视觉结果由人工在 Game View 观察，截图仅用于确实需要留档的场景。
 
 ### Logs & Diagnostics
 
@@ -64,6 +86,20 @@ unityctl script eval -u UnityEngine.SceneManagement 'SceneManager.GetActiveScene
 # 执行 .cs 文件
 unityctl script execute /tmp/MyScript.cs
 unityctl script execute /tmp/SpawnObjects.cs -- Cube 5 'My Object'
+
+> ⚠️ `script execute <file>` **忽略 `-u`**，且只自动注入 `System.Text` 与 `UnityEngine`。
+> 需要 `System.Reflection` / `Resources` / `UnityEngine.Rendering.Universal` 等时必然编译失败。
+> 多程序集需求一律改用 `-u`：
+>
+> ```bash
+> unityctl script eval -t 300 \
+>   -u System -u System.Text -u System.IO -u System.Reflection -u System.Threading.Tasks \
+>   -u UnityEngine -u UnityEngine.Rendering -u UnityEngine.Rendering.Universal \
+>   "$(cat /tmp/MyScript.cs)"
+> ```
+>
+> 另：eval 环境是反射注入的独立程序集，**`internal` 成员不可达**（只能内联常量）；
+> 带 lambda / 局部函数的内插表达式与 `x.Sum(p => ...)` 会被拒绝。
 
 # 超时控制（默认 30s）
 unityctl script eval -t 600 -u UnityEditor 'return BuildPipeline.BuildPlayer(opts).summary.result.ToString();'
@@ -156,7 +192,8 @@ unityctl status
 
 ## 最佳实践
 
-90. **结构化优先**：能用 `snapshot`、`logs`、`script eval` 验证的优先结构化；画面质量由人工在 Editor 观测
-1. **快照优于评估**：用 `snapshot` 观察场景，`ui click` 交互，`eval --id` 定制操作
-2. **名称优先于 ID**：`--name` 比 `--id` 更稳定（instance ID 在 Play Mode 间会变）
-3. **总是用 Write 工具创建 .cs 文件**：不用 shell heredoc（在 C# 单引号处会断）
+1. **结构化优先**：能用 `snapshot`、`logs`、`script eval` 验证的优先结构化；画面质量由人工在 Editor 观测
+2. **快照优于评估**：用 `snapshot` 观察场景，`ui click` 交互，`eval --id` 定制操作
+3. **名称优先于 ID**：`--name` 比 `--id` 更稳定（instance ID 在 Play Mode 间会变）
+4. **总是用 Write 工具创建 .cs 文件**：不用 shell heredoc（在 C# 单引号处会断）
+5. **取像用 `screenshot window GameView`**：`capture` 不可靠（见 Screenshots 段）

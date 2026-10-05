@@ -58,10 +58,10 @@
 | **[G1]** | `Mode: <mode> \| Reason: <why>` | —（模式经 gate_set_recipe 声明；g_mode 门禁已退役） | 模式未确认 → 不执行后续 |
 | **[G1.5]** | `Knowledge Check — Loaded: <files> \| Status: COMPLETE` | `gate_pass("g_knowledge", loaded_files=..., status="COMPLETE")` | 高优先级未全读 / 声明不命中真实文件 → 阻断 P2 |
 | **[G2]** | `Decision: USE \| CREATE reusable \| CREATE tmp \| NONE` | —（脚本决策为流程提示，经 write_gated `script_decision` 注解记录） | 未输出 Decision → 不进入 P3 |
-| **[G3]** | `FileType: <ext> \| Category: <cat> \| TargetDir: <path>` | `write_gated(path, content, file_type=..., category=..., effect=...)` | 内容违反结构规范 → DENIED（NORM_VIOLATION） |
+| **[G3]** | `FileType: <ext> \| Category: <cat> \| TargetDir: <path>` | `write_gated(path, content, file_type=..., category=..., effect=...)` | 内容违反结构规范，**或 TargetDir 不在 `Effects`/`Scripts`/`Shaders`/`Special` 之下** → DENIED（NORM_VIOLATION） |
 
 > 每个 [Gx] 的输出是下一步的输入。跳过门禁 = 下一步无法执行。
-> unity-gate MCP server 已注册时同步调用右侧工具（Assets/Mine/ 写入被 settings deny 原生 Write/Edit 强制走 write_gated）。所有模式（含 Quick）链一致；write_gated 对内容执行结构规范检查（error 阻断 / warning 提示）。
+> unity-gate MCP server 已注册时同步调用右侧工具（Assets/Mine/ 写入被 settings deny 原生 Write/Edit 强制走 write_gated）。所有模式（含 Quick）链一致；write_gated 执行结构规范 + **文件落点**检查（error 阻断 / warning 提示）——落点是 G3 自己声明的 TargetDir，现在由工具校验而非只作记录。
 
 ---
 

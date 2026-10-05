@@ -157,3 +157,17 @@ Object Space 顶点
 - Water 专属数学和采样函数放在 `WaterFunction.hlsl`。
 - FFT 生成逻辑继续由 `FFT/FFT.compute` 与 `FFTWaveOrchestrator.cs` 维护。
 - 跨效果通用函数继续使用 `Assets/Mine/Special/HLSL/`，不复制进 Water 私有库。
+
+## 统一场接入
+
+`FFTWaveOrchestrator` 现在继承 `FieldProvider`，注册为 Wave 输出。
+有 FieldManager 时统一调度；没有 Manager 的旧场景仍由 Provider 自行更新。
+FFT 频谱、IFFT 和资源继续由原组件持有，既有 GUID、引用、级联参数与全局纹理名保留。
+
+公共采样库位于 `Assets/Mine/Scripts/FieldManager/WaveField.hlsl`，
+WaterFunction.hlsl 保留原材质位移倍率、法线强度和泡沫混合权重。
+停用 FFT 时全局纹理解绑，波浪采样回退为零位移、零泡沫和向上法线。
+编辑模式使用实时场时钟；播放模式使用 Time.time。
+公共风场不会自动覆盖 FFT 的频谱风速/风向参数。
+
+原始输出与公共 GPU 采样对照：位移误差 5.96e-8，法线误差 0，泡沫混合一致。

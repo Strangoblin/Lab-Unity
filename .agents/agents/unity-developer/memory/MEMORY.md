@@ -13,9 +13,23 @@
 
 ## 关键架构决策
 
+- **空间滤波的质量档与半径正交**：Blur、SNN、Kuwahara、双边滤波和屏幕空间 Resolve 中，Quality 固定样本数/分布/下采样率，Radius 只缩放固定 offset、改变感受野，禁止进入循环边界。默认档必须复现重构前预算与画面；统一规范和模板见 [spatial-filter-budget.md](../references/shader/postprocess/spatial-filter-budget.md)。
+
+- **SSGI 家族统一入口（2026-09-28 落地）**：`SSGIFeature` 同帧调度 AO/DiffuseGI/SpecularGI，三路共用 `SSGITemporalFilter` 公共时域（每路独立 Material，避免 Blend 串用）与 `SSGIComposite` 单次合成；合成语义 `Scene×AOFactor + DiffuseGI×Intensity×AOFactor → lerp(SpecularGI, Fresnel)`，AO 只乘一次。三路 Trace 尺寸统一 Low 1/8、Medium 1/4、High 1/2；统一面板不暴露 Artistic 组；`Intensity=0` 即跳过该路。三个独立 Feature 保留供对照，不与统一 Feature 同开。**收档清理**：两份设计骨架已删（`SSGI_Content_Skeleton.md` / `Screen_Render_Architecture_Skeleton.md`），`PC_Renderer.asset` 只剩 `[DebugOutput, SSGI]` 两个 Feature（旧 SpecularGIFeature 子资产已移除）。见 [2026-09-28-ssgi-integration-and-archive.md](2026-09-28-ssgi-integration-and-archive.md)。
+
+- SpecularGI 是分层回退链而非平级模式：镜面/GGX 采样 → SSR 几何首命中 → SSPR 远景候选 → Cubemap 环境回退 → 5×5 空间重建 → 时域累积。`SampleSH` 不作为镜面天空；Procedural Skybox 没有可直接提取的 Cubemap，必须显式绑定或另做捕获。单射线 SSSR 的稳定性依赖低分辨率 trace、足够空间样本和连续历史，不能按随机来源硬拒绝或对 1 spp 结果做紧邻域颜色钳制。见 [2026-09-21-speculargi-unified-fallback.md](2026-09-21-speculargi-unified-fallback.md)。
+
 - Shader 参数端点策略：统一在参数入口钳制合法范围，避免逐计算追加冗余保护；尚未统一实施时明确记录待办。见 [2026-09-18-parameter-range-policy.md](2026-09-18-parameter-range-policy.md)。
 
-- PCSS 阴影：PSSM 4-cascade split → tiled atlas → blocker search → penumbra → variable PCF
+- 效果参数分三层：**Technical**（几何/投影/深度偏移——为正确性而调，连续可调）、**Performance**（纯成本、不需要微调——**划档位**，枚举）、**Artistic**（一个参数对应一个观感维度，开关类参数一律「0 = 关闭」而非独立 bool + 强度）。第三层的判据是「成本占比 + 是否需要微调」两个正交问题，不是「属于技术还是美术」。实现细节内化为 shader 常量，不进任何一组。见 [2026-09-20-parameter-layering.md](2026-09-20-parameter-layering.md)。
+
+- **半接线参数**（跨效果通用缺陷形态）：参数在一侧接线、另一侧是硬编码字面量。默认值下两侧数值恰好一致，故长期不可见；参数一旦升格为档位即变必现。**诊断要 grep 数值字面量，不要 grep 参数名**。见 [2026-09-20-parameter-layering.md](2026-09-20-parameter-layering.md)。
+
+- **RenderPassEvent 与同事件内的先后**：`RenderPassEvent` 只分事件，**同事件内自定义 Feature 一定先于 URP 内置 Pass 执行**（插入点决定：`UniversalRendererRenderGraph.cs` 的 `RecordCustomRenderGraphPasses(renderGraph, event)` 调用在每个事件的内置 Pass 之前；自定义 Feature 之间按 `rendererFeatures` 数组顺序）。所以「同事件顺序不可控」的说法不成立，**要核对的是内置 Pass 与目标资源的先后**：例如想让结果进入 `_CameraOpaqueTexture`，必须选 `AfterRenderingSkybox`（早于 `m_CopyColorPass`）而不是 `BeforeRenderingTransparents`，否则透明物体折射到旧拷贝、把效果盖掉。**判读教训**：做「开/关」减法对照前先确认两侧的管线路径一致；把参数从 0 抬到 >0 往往同时把 Feature 从「整体跳过」切换为「启用」，测到的可能是 prepass / 中间色 RT 的路径差异，而不是效果本身。见 [2026-09-21-diffusegi-ssgi-phase3.md](2026-09-21-diffusegi-ssgi-phase3.md)。
+
+- **全局纹理（`SetGlobalTexture*`）的生命周期与回读**：RenderGraph 下发布的是托管纹理，帧末归还池，**跨帧回读只能读到内置 `UnityBlack`（4×4、`R8G8B8A8_SRGB`、全 0）**——这不是「效果没有输出」的证据。判定效果只能在同帧内（Debug 视图）或走离屏相机对照。另有两条同源陷阱：**Debug 直出的灰度会经过场景 Volume 后处理被改写**（色彩分级把上限压到 209/255；`Tonemapping.mode = None` 也不算关，必须整项关闭探针相机的 `renderPostProcessing`）；**`AssetDatabase.SaveAssets()` 会把整个会话内存态写回 `RendererData` 资产**，除新增条目外既有 Feature 的 `m_Active` 也可能被顺带改写，收尾必须 `git diff Assets/Settings/` 核对。见 [2026-09-21-ssgi-phase4-ao.md](2026-09-21-ssgi-phase4-ao.md)。
+
+- PCSS 阴影：PSSM split（级联数随性能档 2/3/4）→ tiled atlas → blocker search → penumbra → variable PCF。**阴影尚未接入光照合成**——只在特定物体 shader 里挂了 `CustomShadowCaster` 投射；`showShadowMap` 是调试直出。后续才用 PCSS 管线取代 Unity 阴影
 - POSS 逐物体软阴影：Shadow Atlas Tile Grid → Compute 屏幕空间解算 → PCF 软边缘，与 CSM 共存
 - 交互系统：Manager/Processor 分离架构，RT 管理下放，正交相机 CustomRenderer 深度比较输入
 - Shader 组织：`Assets/Mine/Shaders/` 按效果分层
@@ -28,6 +42,17 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-09-28-ssgi-integration-and-archive.md](2026-09-28-ssgi-integration-and-archive.md) | 2026-09-28 | **SSGI 统一整合与收档清理**：Codex 全天 13 提交完成统一入口（`SSGIFeature` 同帧三路 + 公共时域 + 单次合成），17:33 用量限额中断，收档清理由 Claude 接手——删两份设计骨架（4 文件 `delete_gated`）、移除 `PC_Renderer.asset` 旧 SpecularGIFeature 子资产（运行时探针 `features=2`）、修正 AO/DiffuseGI 文档引用。**可复用**：Codex 会话 jsonl 用户消息在 `response_item.role=user`（非 `user_message`）；中断点查 `thread_history_1.sqlite` 最后 failed turn；`m_RendererFeatureMap` 十六进制串是 List<long> 类型失配的死数据，手改 feature 列表无需维护；跨会话确认不被 auto 分类器承认，删除前需本会话点名确认；`unityctl script eval` 多语句须显式 `return` |
+| [2026-09-21-ssgi-consolidation.md](2026-09-21-ssgi-consolidation.md) | 2026-09-21 | **SSGI 家族收敛、SSR 系列退役**：`PostProcess/{SSR,SSPR,StochasticSSR}/` 连目录全删（28 文件走 `delete_gated`）；`ScreenSpaceTrace.hlsl` 迁入 `SSGI/` 根，三处 include 同步改指新路径，消除 SSGI → 待删目录的反向依赖；两份进度骨架迁入 `SSGI/`，新增 Phase 6「统一 Composite 待实施」。**三条可复用经验**：`AssetDatabase.GetDependencies` **不跟踪 HLSL include**（别用它验证 include）；`GetShaderMessages` 的沉默要用**负控探针**先校准（故意 include 不存在路径 → 应报 `Couldn't open include file`），再删旧文件重导入取 0 msg 才算证据；`Assets/Mine/` 下 **Bash 删除被 Edit deny 级联挡住**（`rmdir` 与 `rm -d` 均拒，同命令在 /tmp 通过），而 `delete_gated` 只删文件不删目录 → 空壳目录无合法通道。附「家族私有共享库」第三档归属裁定（规范缺口待 meta-developer 补）与 `.backup_v*` 逐字节可恢复性核对法 |
+| [2026-09-21-speculargi-unified-fallback.md](2026-09-21-speculargi-unified-fallback.md) | 2026-09-21 | **SpecularGI 统一反射链落地**：SSSR/GGX 使用 SSR 首命中，SSPR 与显式 Cubemap 依次回退；按 Camera 保存颜色/深度历史；闪烁根因是初版 1/2 分辨率+9 点、来源拒绝/硬钳制，以及空 Cubemap 下 hit/黑色 miss 高方差。最终改为 Medium 1/4、5×5 25 点、连续时域，并用 HistoryWeight 证实时域有效；用户确认效果正确。 |
+| [2026-09-21-opencode-era-ledger.md](2026-09-21-opencode-era-ledger.md) | 2026-09-21 | **任务台账（2026-08-10 → 09-21）**：时间基点 = 首个 `opencode-go` 会话 08-10 08:06；按主题聚合已完成任务并指向权威记录；标注 **7 项无 memory 记录的任务**（09-11 水面、09-14/09-15 光照库、09-16 光照文件弃用、08-26 Van Gogh 移植等）；在飞项与 09-21 清理动作。**新会话冷启动入口** |
+| [2026-09-21-diffusegi-ssgi-phase3.md](2026-09-21-diffusegi-ssgi-phase3.md) | 2026-09-21 | **DiffuseGI（SSGI Phase 3）落地、事件排序修复与验收**：Intensity=0 位精确、天空不参与 gather、正交可用、三档接线正确、滤波是保边弱平滑（≈4.47%）；**排序修复** = `BeforeRenderingTransparents` → `AfterRenderingSkybox`（让合成早于 `_CameraOpaqueTexture` 拷贝）；旧的「调试 RT 污染 / gather 命中透明几何」两条结论已撤回（截屏伪影）；残留水面变暗已定性为管线路径差异（197 px / −0.027，与 GI 和事件无关）。附离屏 RT 对照采集法与四条工具/API 陷阱 |
+| [2026-09-21-ssgi-phase4-ao.md](2026-09-21-ssgi-phase4-ao.md) | 2026-09-21 | **AO（SSGI Phase 4）落地与验收**：SSAO 半球核 / HBAO 水平线积分双模式、四 Pass（Trace/BlurH/BlurV/Composite）、可见度约定 `V`、档位 (除数,方向,步进) = Low(4,4,6)/Medium(2,6,8)/High(2,8,12)；持久化进 `PC_Renderer.asset`（第 8 个 Feature）；离屏对照读数：`intensity 0.0001→1` 只变暗不变亮、天空 100% 可见、无像素 < 0.5、合成公式中位误差 0.0000、两次采集逐字节一致；**三个新陷阱** = 跨帧回读全局纹理必得 `UnityBlack` 4×4 / 后处理色彩分级改写 Debug 灰度 / `SaveAssets` 回写整个会话态（曾把 DiffuseGI 的 `m_Active` 写成 0，已修回）。HBAO 为有意简化版，不得当 Bavoil 2008 等价实现引用 |
+| [2026-09-20-rt-readback-pitfalls.md](2026-09-20-rt-readback-pitfalls.md) | 2026-09-20 | **RT 回读与画面判读的四个陷阱**（一次误判复盘）：必须全图统计不能抽样；控制组通过 ≠ 结论成立；**「空」可能正是正确答案**（空与否是场景/档位状态的函数）；**目视判读的印象不是证据**（弱信号画面是歧义的，须先算期望→定阈值→再看图） |
+| [2026-09-20-unityctl-tool-pitfalls.md](2026-09-20-unityctl-tool-pitfalls.md) | 2026-09-20 | **unityctl 工具四坑**：`screenshot capture` **不可靠**（5 次仅 1 次落盘、报出的分辨率与产物对不上、丢弃传入目录）→ 取像改用 `screenshot window GameView`；`editor run/stop` 是进程生命周期、**`editor stop` 会直接关掉 Editor**；`script eval` 编译错误不回显真错，且 `-u` 加的是 using 而非程序集引用；**本机 Unity 是非 Hub 布局**（`/Applications/Unity/Unity-6000.3.14f1/Unity.app`），`editor run` 必须带 `--unity-path` |
+| [2026-09-20-parameter-layering.md](2026-09-20-parameter-layering.md) | 2026-09-20 | 参数分 Technical/Performance/Artistic 三层：判据是「成本占比 + 是否需要微调」；**半接线参数**（grep 数值字面量而非参数名）；位级等价的字面量参数化；档位表纯函数展开；开关类参数用「0=关闭」；softness 命名错位；blend=0 是 lerp 恒等故不必跳过 dispatch；uniform 绑定契约静态核对 |
+| [2026-09-20-temporal-accum-pcss.md](2026-09-20-temporal-accum-pcss.md) | 2026-09-20 | 时域累积抽离为 TemporalFunction.hlsl 共享库 + PCSS 接入；SetComputeVectorParam 与 uniform 宽度必须匹配；Kernel invalid 的真错只在 Editor.log |
+| [2026-09-20-snowy-wrapup.md](2026-09-20-snowy-wrapup.md) | 2026-09-20 | Snowy 双 Pass 原型收尾、材质旧参数清理、最终实现说明与旧贴图确认删除 |
 | [2026-09-18-parameter-range-policy.md](2026-09-18-parameter-range-policy.md) | 2026-09-18 | 参数 0/1 端点风险统一入口钳制，原型阶段避免逐点冗余保护；Snowy 纹理风效 |
 | [2026-09-17-pbrtoon-urp17.md](2026-09-17-pbrtoon-urp17.md) | 2026-09-17 | PBRToon 五 Pass 实例化/Stereo 与 URP 17 结构迁移，保留原材质算法 |
 | [2026-07-24-pcss-integration.md](2026-07-24-pcss-integration.md) | 2026-07-24 | PCSS 软阴影完整方案 |

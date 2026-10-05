@@ -16,18 +16,7 @@
 // ════════════════════════════════════════════════════════════
 float3 ComputeFFTWave(float3 positionWS)
 {
-    float3 disp = 0;
-
-    float2 uv0 = positionWS.xz / _WavePatchSize0;
-    disp += SAMPLE_TEXTURE2D_LOD(_WaveDisplacement0, sampler_WaveDisplacement0, uv0, 0).rgb;
-
-    float2 uv1 = positionWS.xz / _WavePatchSize1;
-    disp += SAMPLE_TEXTURE2D_LOD(_WaveDisplacement1, sampler_WaveDisplacement1, uv1, 0).rgb;
-
-    float2 uv2 = positionWS.xz / _WavePatchSize2;
-    disp += SAMPLE_TEXTURE2D_LOD(_WaveDisplacement2, sampler_WaveDisplacement2, uv2, 0).rgb;
-
-    return disp * _DisplacementScale;
+    return SampleWaveDisplacementWS(positionWS) * _DisplacementScale;
 }
 
 // ════════════════════════════════════════════════════════════
@@ -35,28 +24,8 @@ float3 ComputeFFTWave(float3 positionWS)
 // ════════════════════════════════════════════════════════════
 float3 ComputeFFTNormal(float3 positionWS, float3 defaultNormalWS)
 {
-    float3 n = 0;
-    float  w = 0;
-
-    float2 uv0 = positionWS.xz / _WavePatchSize0;
-    float3 n0 = SAMPLE_TEXTURE2D(_WaveNormal0, sampler_WaveNormal0, uv0).rgb * 2.0 - 1.0;
-    float  w0 = 0.6;
-    n += n0 * w0; w += w0;
-
-    float2 uv1 = positionWS.xz / _WavePatchSize1;
-    float3 n1 = SAMPLE_TEXTURE2D(_WaveNormal1, sampler_WaveNormal1, uv1).rgb * 2.0 - 1.0;
-    float  w1 = 0.3;
-    n += n1 * w1; w += w1;
-
-    float2 uv2 = positionWS.xz / _WavePatchSize2;
-    float3 n2 = SAMPLE_TEXTURE2D(_WaveNormal2, sampler_WaveNormal2, uv2).rgb * 2.0 - 1.0;
-    float  w2 = 0.1;
-    n += n2 * w2; w += w2;
-
-    n /= w;
-
-    float3 blended = lerp(defaultNormalWS, n, _NormalIntensity);
-    return normalize(blended);
+    float3 normal = SampleWaveNormalBlendWS(positionWS);
+    return normalize(lerp(defaultNormalWS, normal, _NormalIntensity));
 }
 
 // ════════════════════════════════════════════════════════════
@@ -64,16 +33,7 @@ float3 ComputeFFTNormal(float3 positionWS, float3 defaultNormalWS)
 // ════════════════════════════════════════════════════════════
 float3 ComputeFFTFoam(float3 positionWS)
 {
-    float2 uv0 = positionWS.xz / _WavePatchSize0;
-    float2 uv1 = positionWS.xz / _WavePatchSize1;
-    float2 uv2 = positionWS.xz / _WavePatchSize2;
-
-    float foam = 0;
-    float foam0 = SAMPLE_TEXTURE2D(_WaveDisplacement0, sampler_WaveDisplacement0, uv0).a;
-    float foam1 = SAMPLE_TEXTURE2D(_WaveDisplacement1, sampler_WaveDisplacement1, uv1).a;
-    float foam2 = SAMPLE_TEXTURE2D(_WaveDisplacement2, sampler_WaveDisplacement2, uv2).a;
-    foam = foam0 * 0.5 + foam1 * 0.3 + foam2 * 0.2;
-    return foam;
+    return SampleWaveFoam(positionWS);
 }
 
 // ════════════════════════════════════════════════════════════

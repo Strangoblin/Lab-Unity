@@ -2,8 +2,8 @@
 //  Unity 6 URP VolumeComponent 模板
 //
 //  使用方式：
-//    1. 复制此类，改名为 YourEffect
-//    2. 替换所有 ⚠️ 标记处
+//    1. 复制此类，全局替换 YourEffect
+//    2. 处理 ⚠️ 标记处
 //    3. 在 Volume Profile 中添加此 component 即可控制参数
 // ═══════════════════════════════════════════════════════════════
 
@@ -12,10 +12,8 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 [System.Serializable]
-[VolumeComponentMenuForRenderPipeline(
-    "Post-processing/YourEffect",             // ⚠️ 替换菜单路径
-    typeof(UniversalRenderPipeline)
-)]
+[VolumeComponentMenu("Post-processing/YourEffect")]   // ⚠️ 替换菜单路径
+[SupportedOnRenderPipeline(typeof(UniversalRenderPipelineAsset))]
 public class YourEffectTemplate : VolumeComponent, IPostProcessComponent
 {
     // ═══ 参数定义 ═══

@@ -1,34 +1,87 @@
 #pragma kernel CS_RainUpdate
+#include "Assets/Mine/Scripts/FieldManager/WindField.hlsl"
 
 struct RainParticle
 {
     float3 position;
+    float age;
     float3 velocity;
+    float lifetime;
 };
 
 RWStructuredBuffer<RainParticle> _RainBuffer;
 
 float _DeltaTime;
+float _WindDrag;
+float _Lifetime;
+float _SimulationTime;
 int   _InstanceCount;
 
-float3 _SpawnCenter;     // transform.position
-float3 _SpawnRight;      // transform.right
-float3 _SpawnUp;         // transform.up
-float3 _SpawnForward;    // transform.forward
-float3 _SpawnArea;       // x=Xradius, y=fallDistance, z=Zradius
+float3 _SpawnCenter;
+float3 _SpawnRight;
+float3 _SpawnUp;
+float3 _SpawnForward;
+float3 _SpawnArea;
 
 float4 _ForceFields[16];
 int _ForceFieldCount;
 
-// Simple GPU hash for pseudo-random values per particle
+// ════════════════════════════════════════════════════════════
+//  RainRand — Per-particle, per-cycle random values
+// ════════════════════════════════════════════════════════════
 float RainRand(uint seed, uint offset)
 {
     uint n = seed * 110045u + offset * 12345u;
     n = (n << 13) ^ n;
     n = n * (n * n * 15731u + 789221u) + 1376312589u;
-    return float(n & 0x7fffffffu) / float(0x7fffffffu);
+    return float(n & 0x7fffffffu) / 2147483648.0;
 }
 
+// ════════════════════════════════════════════════════════════
+//  AdvanceRain — exact constant-force and wind-drag step; safe for long frame times
+// ════════════════════════════════════════════════════════════
+void AdvanceRain(inout RainParticle p, float3 acceleration, float deltaTime)
+{
+    float drag = _WindFieldValid > 0.5 ? max(_WindDrag, 0.0) : 0.0;
+    if (drag > 0.0001)
+    {
+        float3 wind = SampleWindVelocityWS(p.position);
+        float3 terminalVelocity = wind + acceleration / drag;
+        float decay = exp(-drag * deltaTime);
+        p.position += terminalVelocity * deltaTime
+            + (p.velocity - terminalVelocity) * ((1.0 - decay) / drag);
+        p.velocity = terminalVelocity + (p.velocity - terminalVelocity) * decay;
+    }
+    else
+    {
+        p.position += p.velocity * deltaTime + 0.5 * acceleration * deltaTime * deltaTime;
+        p.velocity += acceleration * deltaTime;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+//  RespawnRain — Fill the volume and preserve elapsed cycle time
+// ════════════════════════════════════════════════════════════
+void RespawnRain(inout RainParticle p, uint seed, float3 totalForce)
+{
+    float elapsed = p.age - p.lifetime;
+    p.lifetime = max(_Lifetime, 0.01) * lerp(0.75, 1.25, RainRand(seed, 3));
+    p.age = fmod(max(elapsed, 0.0), p.lifetime);
+
+    float rx = (RainRand(seed, 0) - 0.5) * _SpawnArea.x;
+    float ry = -RainRand(seed, 2) * _SpawnArea.y;
+    float rz = (RainRand(seed, 1) - 0.5) * _SpawnArea.z;
+    p.position = _SpawnCenter + _SpawnRight * rx
+        + _SpawnUp * ry + _SpawnForward * rz;
+
+    float3 initialVelocity = totalForce * float3(1, 0, 1);
+    p.velocity = initialVelocity;
+    AdvanceRain(p, totalForce, p.age);
+}
+
+// ════════════════════════════════════════════════════════════
+//  CS_RainUpdate — Accelerated motion and independent lifetime recycling
+// ════════════════════════════════════════════════════════════
 [numthreads(64, 1, 1)]
 void CS_RainUpdate(uint3 id : SV_DispatchThreadID)
 {
@@ -36,33 +89,19 @@ void CS_RainUpdate(uint3 id : SV_DispatchThreadID)
     if (i >= (uint)_InstanceCount) return;
 
     RainParticle p = _RainBuffer[i];
-
-    // Sum all active force fields
     float3 totalForce = float3(0, 0, 0);
     for (int j = 0; j < _ForceFieldCount && j < 16; j++)
-    {
         totalForce += _ForceFields[j].xyz;
-    }
 
-    // Apply acceleration and update position
-    p.velocity += totalForce * _DeltaTime;
-    p.position += p.velocity * _DeltaTime;
-
-    // Reset when particle falls below the fall zone
-    float yLocal = dot(p.position - _SpawnCenter, _SpawnUp);
-    if (yLocal < -_SpawnArea.y)
+    p.age += _DeltaTime;
+    if (p.age >= p.lifetime)
     {
-        float rx = (RainRand(i, 0) * 2.0 - 1.0) * _SpawnArea.x * 0.5;
-        float rz = (RainRand(i, 1) * 2.0 - 1.0) * _SpawnArea.z * 0.5;
-        // Tiny jitter at the emission plane to stagger particle appearance
-        float ry = -RainRand(i, 2) * 0.1;
-
-        p.position = _SpawnCenter
-            + _SpawnRight   * rx
-            + _SpawnUp      * ry
-            + _SpawnForward * rz;
-
-        p.velocity = totalForce * float3(1, 0, 1);
+        uint seed = i ^ (uint(_SimulationTime * 1000.0) * 747796405u);
+        RespawnRain(p, seed, totalForce);
+    }
+    else
+    {
+        AdvanceRain(p, totalForce, _DeltaTime);
     }
 
     _RainBuffer[i] = p;

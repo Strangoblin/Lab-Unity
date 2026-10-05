@@ -36,7 +36,7 @@ Action: proceed | load agent first
 
 - Unity 功能、Shader、C#、Editor 验证 → `unity-developer`。
 - agent / skill / reference / rule / 路径体系维护 → `meta-developer`。
-- `Assets/Mine/` 写入必须经过 MCP `g_entry` + `g_knowledge` 与 `write_gated`；Codex 侧使用 `python3 .mcp/validation/check_norm.py <file>` 自查。
+- `Assets/Mine/` 写入必须经过 MCP `g_entry` + `g_knowledge` 与 `write_gated`；删除必须经过 `delete_gated`；**移动/改名必须经过 `move_gated`**（门禁按操作建模：写内容 / 消失 / 换位置，别拿两个拼一个）—— 删除与移动另有 Bash 通道 `python3 .mcp/validation/{delete,move}_gated.py --reason "<原因>" ...`，与 MCP 工具同一道门禁（改一侧须同步另一侧），供 **MCP 工具表按会话冻结**时使用。settings 的 `Edit(/Assets/Mine/**)` deny 会连带命中 Bash —— 实测 `rm`/`mv`/`cp` 被拦（含把文件**读出**到 `/tmp` 这种纯读），写入型 `sed`/`tee`/重定向被拦，只读的 `sed -n` 放行；故原生工具不可用。另：`delete_gated` 只删文件不删目录，空目录靠删掉目录 `.meta` 后 Unity 刷新回收。Codex 侧使用 `python3 .mcp/validation/check_norm.py <file>` 自查。
 - 删除、移动旧副本或架构切换前，必须保留回退点并列出精确清单；禁止 `git stash --all`。
 
 ## 运行验证
@@ -55,7 +55,7 @@ unityctl editor run
 |---|---|
 | Unity 开发、渲染、脚本和 Editor | `.agents/agents/unity-developer/AGENT.md` |
 | agent 体系、skills、rules、路径与适配层 | `.agents/agents/meta-developer/AGENT.md` |
-| Codex 派发与链路 | `.agents/skills/codex-orchestrate/SKILL.md`、`.agents/skills/codex-bridge/SKILL.md` |
+| Codex 链路与双边契约 | `.agents/skills/codex-opencode-go/SKILL.md`、`.agents/skills/codex-bridge/SKILL.md` |
 
 全局路由表仍由 `~/.claude/agents/default.md` 管理，不属于项目共享 SSOT。
 

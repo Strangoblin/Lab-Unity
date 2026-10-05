@@ -25,7 +25,7 @@ description: Claude ↔ Codex 双边桥接接口（Claude 侧）。Codex 直接�
 └─────────────────────────────┘          └─────────────────────────────┘
 ```
 
-> **Codex 侧角色**：`.codex/agents/unity-developer.toml` 与 `.codex/agents/meta-developer.toml` 是运行时薄适配；正文统一读取 `.agents/agents/<role>/AGENT.md`。由 codex-orchestrate 在 prompt 中显式指定共享角色与模式。
+> **Codex 侧角色**：`.codex/agents/unity-developer.toml` 与 `.codex/agents/meta-developer.toml` 是运行时薄适配；正文统一读取 `.agents/agents/<role>/AGENT.md`。角色与模式由任务发起方在 prompt 中显式指定（两侧均可发起，无派发关系）。
 
 ## 核心机制：Codex 如何读 `.agents`
 
@@ -49,15 +49,14 @@ Codex 任务开始时 ──▶ 读根入口 → 按清单读 `.agents/` 权威�
 3. 知识内容本身变更 → 不复制到平台层；客户端按共享源自然读取。
 4. 验证：根入口为普通文件，关键软链无断链；必要时运行 `codex exec -C <project-root> "Reply with exactly: BRIDGE-OK"`。
 
-## 与 codex-orchestrate 的分工
+## 与其他 skill 的分工
 
 | Skill | 职责 |
 |-------|------|
 | **codex-bridge**（本文件） | 双边契约 + 根入口同步（低频） |
-| **codex-orchestrate** | 派发编排（codex exec 模板、沙箱、验证流程） |
-| **codex-opencode-go** | 链路搭建与排障（config.toml / auth.json） |
+| **codex-opencode-go** | 链路搭建与排障（config.toml / auth.json / opencode CLI 接入与派活） |
 
-联动：**派发前确认入口清单最新**，再按 codex-orchestrate 派发——Codex 读根入口 → 读 `.agents/` 共享源 → 带最新项目规则工作。
+联动：**入口清单变更后跑本 skill 同步**——两侧都读根入口 → 读 `.agents/` 共享源 → 带最新项目规则工作。两侧是**对等并行**的开发引擎，不存在派发关系（见 `.codex/INTERFACE.md` §3/§6）。
 
 ## 验证命令
 

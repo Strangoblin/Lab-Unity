@@ -1,49 +1,125 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.RenderGraphModule;
 
 /// <summary>
-/// PCSS 软阴影渲染管线：4 级联 PSSM Atlas + Blocker Search + Penumbra 估算 + 变核 PCF + 双边模糊。
-/// 在 URP Renderer 的 Renderer Features 中添加，配合 CustomShadowCaster.shader 和 PCSS.shader 使用。
+/// PCSS 软阴影渲染管线：PSSM 级联 Atlas（级联数随性能档）+ Blocker Search + Penumbra 估算
+/// + 变核 PCF + 双边模糊 + 时域累积。
+/// 在 URP Renderer 的 Renderer Features 中添加，配合 PCSSTemplate.shader 使用。
 /// </summary>
+///
+/// <remarks>
+/// 时域累积（重投影/clamp/混合）由 Assets/Mine/Special/HLSL/TemporalFunction.hlsl 提供，
+/// 本脚本负责每相机历史 RT 的 ping-pong、上一帧 VP 矩阵与失效判定。
+/// 仅相机重投影（深度 + 上一帧 VP），不依赖 ScriptableRenderPassInput.Motion。
+///
+/// 参数分三层：
+/// - Technical：几何、投影与深度偏移，为正确性（漏光 / 痤疮 / 覆盖范围）而调
+/// - Performance：纯成本旋钮，不需要微调，划档位即可（一档同时决定 Atlas 分辨率、
+///   采样数、级联数与覆盖距离）
+/// - Artistic：每个参数对应一个观感维度
+/// 原时域钳制、深度/法线置信度、PCF 偏移乘数等实现细节已内化为 PCSSFunction.hlsl 的常量。
+///
+/// Atlas 分辨率必须同时下发给 shader（`_PCSS_AtlasParams`）：C# 侧用它分配 RT、烘焙
+/// 级联投影、设 viewport，shader 侧用它做全部 texel↔UV 换算。两边少一边，非默认档下
+/// 阴影就会整体错位——而默认档下数值恰好正确，所以这类「参数半接线」不会被察觉。
+/// </remarks>
 public class PCSSFeature : ScriptableRendererFeature
 {
     [System.Serializable]
     public class Settings
     {
-        [Header("Resources")]
+        // ════════════════════ 技术性 ════════════════════
+        // 调这些是为了正确性（漏光 / 痤疮 / 覆盖范围），不是为了观感，也不是为了帧率。
+
+        [Header("Technical · Resources")]
         public ComputeShader pcssComputeShader;
 
-        [Header("Shadow Map")]
-        [Range(256, 4096)] public int shadowMapResolution = 2048;
-
-        [Header("Cascades")]
-        [Range(1, 8)] public int cascadeCount = 4;
+        [Header("Technical · Bias & Split")]
+        [Tooltip("PSSM 混合因子：越接近 1 越按对数切分（近处 texel 更密），越接近 0 越均匀")]
         [Range(0f, 1f)] public float pssmLambda = 0.75f;
-        [Range(10f, 200f)] public float shadowDistance = 50f;
-
-        [Header("PCSS")]
-        public Quality quality = Quality.High;
-        [Range(0.1f, 5f)] public float lightSize = 1.0f;
-        [Range(0.1f, 2f)] public float softness = 1.0f;
-        public enum Quality { Low, Medium, High }
-
-        [Header("Shadow Bias")]
         [Range(0f, 2f)] public float depthBias  = 0.1f;
         [Range(0f, 2f)] public float normalBias = 0.0f;
 
-        [Header("Blur")]
-        public bool enableBlur = true;
-        [Range(0f, 5f)] public float blurScale = 1.0f;
+        // ════════════════════ 性能 ════════════════════
+        // 纯成本旋钮：对帧率影响大、不需要微调，划档位即可。
+        // 一档同时决定 Atlas 分辨率、采样数、级联数与阴影覆盖距离。
+        // cascadeCount 上限为 4（HLSL 的 _CascadeLightVP[4]），档位表天然满足。
+
+        [Header("Performance")]
+        [Tooltip("Low    1024 /  8 采样 / 2 级联 / 30m\n" +
+                 "Medium 2048 / 16 采样 / 3 级联 / 40m\n" +
+                 "High   2048 / 32 采样 / 4 级联 / 50m")]
+        public Performance performance = Performance.High;
+
+        public enum Performance { Low, Medium, High }
+
+        /// <summary>采样档。同时是 PCSS_LOW / PCSS_MEDIUM 关键词的依据（两者都未定义 = High）。</summary>
+        public enum Quality { Low, Medium, High }
+
+        /// <summary>
+        /// 性能档展开结果。2×2 Atlas 布局固定，故 tileRes = atlasRes / 2。
+        /// 两个 pass 各自展开同一个纯函数，因此不存在跨 pass 状态不同步的可能。
+        /// </summary>
+        public readonly struct PerformanceTier
+        {
+            public readonly int     atlasRes;
+            public readonly int     tileRes;
+            public readonly int     cascadeCount;
+            public readonly float   shadowDistance;
+            public readonly Quality samples;
+
+            public PerformanceTier(int atlasRes, int cascadeCount, float shadowDistance, Quality samples)
+            {
+                this.atlasRes       = atlasRes;
+                this.tileRes        = atlasRes / 2;
+                this.cascadeCount   = cascadeCount;
+                this.shadowDistance = shadowDistance;
+                this.samples        = samples;
+            }
+        }
+
+        // 档位表 —— High 即历史默认配置（2048 / 32 采样 / 4 级联 / 50m），故默认档画面不变。
+        static readonly PerformanceTier[] k_Tiers =
+        {
+            new PerformanceTier(1024, 2, 30f, Quality.Low),
+            new PerformanceTier(2048, 3, 40f, Quality.Medium),
+            new PerformanceTier(2048, 4, 50f, Quality.High),
+        };
+
+        public static PerformanceTier GetTier(Performance p) => k_Tiers[(int)p];
+
+        // ════════════════════ 美术性 ════════════════════
+        // 一个参数控制一个观感维度。
+
+        [Header("Artistic")]
+        [Tooltip("半影尺度：0 = 硬边，越大阴影越软")]
+        [Range(0f, 1f)] public float softness = 1.0f;
+
+        [Tooltip("双边保边模糊强度：0 = 关闭")]
+        [Range(0f, 5f)] public float blur = 1.0f;
+
+        [Tooltip("时域收敛：0 = 关闭（逐帧噪点），越高越稳但几何变化响应越慢")]
+        [Range(0f, 1f)] public float temporal = 0.9f;
 
         [Header("Debug")]
         public bool showShadowMap = true;
+        public TemporalDebug temporalDebug = TemporalDebug.Off;
+        public enum TemporalDebug { Off, Reprojection, Confidence, HistoryUV }
 
         internal static readonly int ShadowCacheTexID = Shader.PropertyToID("_PCSS_ShadowCacheTex");
         internal static readonly int LightDirectionID  = Shader.PropertyToID("_LightDirection");
         internal static readonly int DepthBiasID       = Shader.PropertyToID("_ShadowDepthBias");
         internal static readonly int NormalBiasID      = Shader.PropertyToID("_ShadowNormalBias");
+
+        // SetCompute{Float,Int,Matrix}Param 无 (shader, kernel, string, value) 重载，只能走 nameID
+        internal static readonly int FrameIndexID    = Shader.PropertyToID("_FrameIndex");
+        internal static readonly int PrevViewProjID  = Shader.PropertyToID("_PrevViewProj");
+        internal static readonly int TemporalBlendID = Shader.PropertyToID("_TemporalBlend");
+        internal static readonly int TemporalResetID = Shader.PropertyToID("_TemporalReset");
+        internal static readonly int TemporalDebugID = Shader.PropertyToID("_TemporalDebug");
     }
 
     // ════════════════════════════════════════════════════════════
@@ -208,12 +284,13 @@ public class PCSSFeature : ScriptableRendererFeature
             UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
             Camera cam = cameraData.camera;
 
-            int cascadeCount = m_S.cascadeCount;
-            int tileRes = m_S.shadowMapResolution / 2; // 2×2 atlas 布局
-            int atlasRes = tileRes * 2;
+            Settings.PerformanceTier tier = Settings.GetTier(m_S.performance);
+            int cascadeCount = tier.cascadeCount;
+            int tileRes      = tier.tileRes;
+            int atlasRes     = tier.atlasRes;
             EnsureRT(atlasRes, tileRes);
 
-            float shadowDist = m_S.shadowDistance;
+            float shadowDist = tier.shadowDistance;
 
             // ── PSSM split ──
             float[] splits = ComputePSSMSplits(cam.nearClipPlane, shadowDist, cascadeCount, m_S.pssmLambda);
@@ -367,28 +444,64 @@ public class PCSSFeature : ScriptableRendererFeature
     }
 
     // ════════════════════════════════════════════════════════════
-    //  PCSSPass — 屏幕空间阴影比较
+    //  PCSSPass — 屏幕空间阴影比较 + 时域累积
     // ════════════════════════════════════════════════════════════
     class PCSSPass : ScriptableRenderPass
     {
+        // 光源转向超过此角度时阴影整体变化，历史失效
+        const float k_LightResetAngle = 5f;
+        // 历史帧索引取模，避免 float 尾数长时间运行后相位冻结
+        const int   k_FrameIndexModulo = 1024;
+        // 未刷新超过此帧数的相机历史予以回收
+        const int   k_HistoryStaleFrames = 120;
+
         Settings m_S;
         ComputeShader m_CS;
-        int m_CSKernel, m_CSBlurHKernel, m_CSBlurVKernel;
+        int m_CSKernel, m_CSTemporalKernel, m_CSBlurHKernel, m_CSBlurVKernel;
         CustomShadowCasterPass m_Caster;
 
         RenderTexture m_SoftShadowRT;
         RTHandle      m_SoftShadowHandle;
         RenderTexture m_BlurTempRT;
         RTHandle      m_BlurTempHandle;
+        RenderTexture m_TemporalRT;
+        RTHandle      m_TemporalHandle;
         int           m_RTWidth, m_RTHeight;
+
+        // ── 每相机历史状态（GameView / SceneView 必须隔离，否则互相污染）──
+        class CameraHistory
+        {
+            public RenderTexture rtA, rtB;
+            public RTHandle      handleA, handleB;
+            public int width, height;
+            public int frameIndex;
+            public Matrix4x4 prevViewProj;
+            public bool hasPrevViewProj;
+            public Vector3 prevLightDir;
+            public bool hasPrevLightDir;
+            public bool reset;
+            public int lastUseFrame;
+
+            public RenderTexture readRT      => frameIndex % 2 == 0 ? rtA : rtB;
+            public RenderTexture writeRT     => frameIndex % 2 == 0 ? rtB : rtA;
+            public RTHandle      readHandle  => frameIndex % 2 == 0 ? handleA : handleB;
+            public RTHandle      writeHandle => frameIndex % 2 == 0 ? handleB : handleA;
+        }
+
+        readonly Dictionary<int, CameraHistory> m_Histories = new Dictionary<int, CameraHistory>();
+        int m_HistoryClock;
 
         class PassData
         {
             public ComputeShader cs;
-            public int csKernel, csBlurHKernel, csBlurVKernel;
-            public RenderTexture softShadowRT, blurTempRT;
-            public RenderTexture shadowCacheRT;
-            public TextureHandle source, softShadowTH, blurTempTH;
+            public int csKernel, csTemporalKernel, csBlurHKernel, csBlurVKernel;
+            public RenderTexture softShadowRT, blurTempRT, temporalRT, shadowCacheRT;
+            public RenderTexture historyReadRT, historyWriteRT;
+            public RenderTexture blurSourceRT;
+            public TextureHandle source, softShadowTH, temporalTH;
+            public TextureHandle historyReadTH, historyWriteTH;
+            public TextureHandle finalTH;
+            public bool useTemporal;
             public Matrix4x4[] cascadeVP;
             public Vector4 splits;
             public Vector4[] cascadeOffsets;
@@ -396,15 +509,18 @@ public class PCSSFeature : ScriptableRendererFeature
             public Vector4 cascadeHalfWidths;
             public Vector4 cascadeZDistances;
             public Settings.Quality quality;
-            public float lightSize, softness;
+            public float softness;
             public Vector4 lightDirection;
             public Vector4 screenSize;
+            public Vector4 atlasParams;
             public Vector4 frustumRay0, frustumRay1, frustumRay2, frustumRay3;
             public Vector4 zBufferParams;
             public Vector4 worldSpaceCameraPos;
-            public bool enableBlur;
-            public float blurScale;
+            public float blur;
             public bool showShadowMap;
+            public Matrix4x4 prevViewProj;
+            public float frameIndex, temporalBlend, temporalReset;
+            public int temporalDebug;
         }
 
         public PCSSPass(Settings s, ComputeShader cs, CustomShadowCasterPass caster)
@@ -412,13 +528,28 @@ public class PCSSFeature : ScriptableRendererFeature
             m_S = s; m_CS = cs; m_Caster = caster;
             if (m_CS != null)
             {
-                m_CSKernel       = m_CS.FindKernel("PCSS_Main");
-                m_CSBlurHKernel  = m_CS.FindKernel("PCSS_BlurH");
-                m_CSBlurVKernel  = m_CS.FindKernel("PCSS_BlurV");
+                m_CSKernel         = m_CS.FindKernel("PCSS_Main");
+                m_CSTemporalKernel = m_CS.FindKernel("PCSS_Temporal");
+                m_CSBlurHKernel    = m_CS.FindKernel("PCSS_BlurH");
+                m_CSBlurVKernel    = m_CS.FindKernel("PCSS_BlurV");
             }
             renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
             profilingSampler = new ProfilingSampler("PCSS Screen Shadow");
             ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        //  RT 生命周期 — 屏幕尺寸相关（跨相机共享，单帧内用完即弃）
+        // ════════════════════════════════════════════════════════════
+
+        static RenderTexture NewScreenRT(int w, int h)
+        {
+            var rt = new RenderTexture(w, h, 0, RenderTextureFormat.ARGBHalf);
+            rt.enableRandomWrite = true;
+            rt.filterMode = FilterMode.Point;
+            rt.wrapMode = TextureWrapMode.Clamp;
+            rt.Create();
+            return rt;
         }
 
         void EnsureRTs(int width, int height)
@@ -428,20 +559,74 @@ public class PCSSFeature : ScriptableRendererFeature
 
             m_SoftShadowRT?.Release(); m_SoftShadowHandle?.Release();
             m_BlurTempRT?.Release();   m_BlurTempHandle?.Release();
+            m_TemporalRT?.Release();   m_TemporalHandle?.Release();
 
-            m_SoftShadowRT = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf);
-            m_SoftShadowRT.enableRandomWrite = true;
-            m_SoftShadowRT.filterMode = FilterMode.Point;
-            m_SoftShadowRT.Create();
+            m_SoftShadowRT = NewScreenRT(width, height);
             m_SoftShadowHandle = RTHandles.Alloc(m_SoftShadowRT);
 
-            m_BlurTempRT = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf);
-            m_BlurTempRT.enableRandomWrite = true;
-            m_BlurTempRT.filterMode = FilterMode.Point;
-            m_BlurTempRT.Create();
+            m_BlurTempRT = NewScreenRT(width, height);
             m_BlurTempHandle = RTHandles.Alloc(m_BlurTempRT);
 
+            m_TemporalRT = NewScreenRT(width, height);
+            m_TemporalHandle = RTHandles.Alloc(m_TemporalRT);
+
             m_RTWidth = width; m_RTHeight = height;
+        }
+
+        // ════════════════════════════════════════════════════════════
+        //  每相机历史 RT — 尺寸随相机目标变化时重建并重置
+        // ════════════════════════════════════════════════════════════
+
+        static void ReleaseHistory(CameraHistory h)
+        {
+            h.handleA?.Release(); h.handleB?.Release();
+            h.rtA?.Release();     h.rtB?.Release();
+            h.handleA = null; h.handleB = null; h.rtA = null; h.rtB = null;
+        }
+
+        CameraHistory EnsureHistory(int cameraId, int width, int height)
+        {
+            if (!m_Histories.TryGetValue(cameraId, out var h))
+            {
+                h = new CameraHistory();
+                m_Histories[cameraId] = h;
+            }
+
+            if (h.handleA == null || h.width != width || h.height != height)
+            {
+                ReleaseHistory(h);
+                h.rtA = NewScreenRT(width, height);
+                h.rtB = NewScreenRT(width, height);
+                h.handleA = RTHandles.Alloc(h.rtA);
+                h.handleB = RTHandles.Alloc(h.rtB);
+                h.width = width; h.height = height;
+                h.frameIndex = 0;
+                h.hasPrevViewProj = false;
+                h.hasPrevLightDir = false;
+                h.reset = true;
+            }
+            return h;
+        }
+
+        /// 回收长期未刷新的相机历史（Scene View 重建等），避免 RT 泄漏
+        void PruneStaleHistories()
+        {
+            if (m_Histories.Count <= 1) return;
+
+            List<int> stale = null;
+            foreach (var kv in m_Histories)
+            {
+                if (m_HistoryClock - kv.Value.lastUseFrame <= k_HistoryStaleFrames) continue;
+                stale ??= new List<int>();
+                stale.Add(kv.Key);
+            }
+            if (stale == null) return;
+
+            foreach (int id in stale)
+            {
+                ReleaseHistory(m_Histories[id]);
+                m_Histories.Remove(id);
+            }
         }
 
         /// 用 ViewportToWorldPoint 预计算 4 条远平面角射线，避免 compute shader 传矩阵
@@ -459,13 +644,21 @@ public class PCSSFeature : ScriptableRendererFeature
         {
             m_SoftShadowHandle?.Release(); m_SoftShadowRT?.Release();
             m_BlurTempHandle?.Release();   m_BlurTempRT?.Release();
+            m_TemporalHandle?.Release();   m_TemporalRT?.Release();
             m_SoftShadowRT = null; m_SoftShadowHandle = null;
-            m_BlurTempRT = null; m_BlurTempHandle = null;
+            m_BlurTempRT = null;   m_BlurTempHandle = null;
+            m_TemporalRT = null;   m_TemporalHandle = null;
+
+            foreach (var kv in m_Histories) ReleaseHistory(kv.Value);
+            m_Histories.Clear();
         }
 
         public override void RecordRenderGraph(RenderGraph graph, ContextContainer frameData)
         {
             if (m_CS == null) return;
+
+            Light sun = RenderSettings.sun;
+            if (sun == null) return;
 
             UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
             UniversalCameraData   cameraData   = frameData.Get<UniversalCameraData>();
@@ -477,46 +670,97 @@ public class PCSSFeature : ScriptableRendererFeature
             int height = cameraData.cameraTargetDescriptor.height;
             EnsureRTs(width, height);
 
+            m_HistoryClock++;
+            CameraHistory hist = EnsureHistory(cameraData.camera.GetInstanceID(), width, height);
+            hist.lastUseFrame = m_HistoryClock;
+            PruneStaleHistories();
+
+            // ── 光源转动 → shadow map 整体变化，历史失效 ──
+            Vector3 lightDir = sun.transform.forward;
+            if (hist.hasPrevLightDir && Vector3.Angle(hist.prevLightDir, lightDir) > k_LightResetAngle)
+                hist.reset = true;
+            hist.prevLightDir = lightDir;
+            hist.hasPrevLightDir = true;
+
+            // 上一帧 VP（Unity/GL 约定，非线性化矩阵），与 FrustumRays 同源
+            Matrix4x4 curViewProj = cameraData.camera.projectionMatrix
+                                  * cameraData.camera.worldToCameraMatrix;
+
+            bool useTemporal = m_CSTemporalKernel >= 0;
+            bool useBlur     = m_S.blur > 0f;
+
             TextureHandle softShadowTH = graph.ImportTexture(m_SoftShadowHandle);
             TextureHandle blurTempTH   = graph.ImportTexture(m_BlurTempHandle);
+            TextureHandle temporalTH   = graph.ImportTexture(m_TemporalHandle);
             TextureHandle shadowTH     = graph.ImportTexture(m_Caster.shadowHandle);
+
+            TextureHandle historyReadTH  = graph.ImportTexture(hist.readHandle);
+            TextureHandle historyWriteTH = graph.ImportTexture(hist.writeHandle);
+
+            // 时域关闭时下行模糊直接吃当帧信号
+            TextureHandle blurSourceTH = useTemporal ? temporalTH : softShadowTH;
+            // 模糊关闭时最后一个写入的 RT 才是最终结果
+            TextureHandle finalTH = useBlur ? softShadowTH : blurSourceTH;
+
+            // 档位展开与 Caster pass 同源（同一个纯函数），不会不同步
+            Settings.PerformanceTier tier = Settings.GetTier(m_S.performance);
+            Vector4 atlasParams = new Vector4(tier.tileRes, 1f / tier.tileRes,
+                                              tier.atlasRes, 1f / tier.atlasRes);
 
             using (var builder = graph.AddUnsafePass<PassData>("PCSS", out var pd, profilingSampler))
             {
-                pd.cs              = m_CS;
-                pd.csKernel        = m_CSKernel;
-                pd.csBlurHKernel   = m_CSBlurHKernel;
-                pd.csBlurVKernel   = m_CSBlurVKernel;
-                pd.softShadowRT    = m_SoftShadowRT;
-                pd.blurTempRT      = m_BlurTempRT;
-                pd.shadowCacheRT   = m_Caster.shadowRT;
-                pd.source          = source;
-                pd.softShadowTH    = softShadowTH;
-                pd.blurTempTH      = blurTempTH;
-                pd.cascadeVP       = m_Caster.CascadeViewProj;
-                pd.splits          = m_Caster.CascadeSplits;
-                pd.cascadeOffsets  = m_Caster.CascadeOffsets;
-                pd.cascadeCount    = m_Caster.CascadeCount;
+                pd.cs               = m_CS;
+                pd.csKernel         = m_CSKernel;
+                pd.csTemporalKernel = m_CSTemporalKernel;
+                pd.csBlurHKernel    = m_CSBlurHKernel;
+                pd.csBlurVKernel    = m_CSBlurVKernel;
+                pd.softShadowRT     = m_SoftShadowRT;
+                pd.blurTempRT       = m_BlurTempRT;
+                pd.temporalRT       = m_TemporalRT;
+                pd.shadowCacheRT    = m_Caster.shadowRT;
+                pd.historyReadRT    = hist.readRT;
+                pd.historyWriteRT   = hist.writeRT;
+                pd.blurSourceRT     = useTemporal ? m_TemporalRT : m_SoftShadowRT;
+                pd.source           = source;
+                pd.softShadowTH     = softShadowTH;
+                pd.temporalTH       = temporalTH;
+                pd.historyReadTH    = historyReadTH;
+                pd.historyWriteTH   = historyWriteTH;
+                pd.finalTH          = finalTH;
+                pd.useTemporal      = useTemporal;
+                pd.cascadeVP        = m_Caster.CascadeViewProj;
+                pd.splits           = m_Caster.CascadeSplits;
+                pd.cascadeOffsets   = m_Caster.CascadeOffsets;
+                pd.cascadeCount     = m_Caster.CascadeCount;
                 pd.cascadeHalfWidths  = m_Caster.CascadeHalfWidths;
                 pd.cascadeZDistances  = m_Caster.CascadeZDistances;
-                pd.quality         = m_S.quality;
-                pd.lightSize       = m_S.lightSize;
-                pd.softness        = m_S.softness;
+                pd.quality          = tier.samples;
+                pd.softness         = m_S.softness;
                 pd.screenSize = new Vector4(width, height, 1f / width, 1f / height);
+                pd.atlasParams = atlasParams;
                 ComputeFrustumRays(cameraData.camera, out pd.frustumRay0, out pd.frustumRay1, out pd.frustumRay2, out pd.frustumRay3);
                 pd.zBufferParams = Shader.GetGlobalVector("_ZBufferParams");
                 Vector3 camPos = cameraData.camera.transform.position;
                 pd.worldSpaceCameraPos = new Vector4(camPos.x, camPos.y, camPos.z, 0);
-                Vector3 lightDir = -RenderSettings.sun.transform.forward;
-                pd.lightDirection = new Vector4(lightDir.x, lightDir.y, lightDir.z, 0);
-                pd.enableBlur   = m_S.enableBlur;
-                pd.blurScale    = m_S.blurScale;
+                Vector3 lightDirCS = -lightDir;
+                pd.lightDirection = new Vector4(lightDirCS.x, lightDirCS.y, lightDirCS.z, 0);
+                pd.blur          = m_S.blur;
                 pd.showShadowMap = m_S.showShadowMap;
 
-                builder.UseTexture(source,        AccessFlags.ReadWrite);
-                builder.UseTexture(softShadowTH,  AccessFlags.ReadWrite);
-                builder.UseTexture(blurTempTH,    AccessFlags.ReadWrite);
-                builder.UseTexture(shadowTH,      AccessFlags.Read);
+                pd.prevViewProj = hist.hasPrevViewProj ? hist.prevViewProj : curViewProj;
+
+                pd.frameIndex    = hist.frameIndex;
+                pd.temporalBlend = m_S.temporal;
+                pd.temporalReset = hist.reset ? 1f : 0f;
+                pd.temporalDebug = (int)m_S.temporalDebug;
+
+                builder.UseTexture(source,         AccessFlags.ReadWrite);
+                builder.UseTexture(softShadowTH,   AccessFlags.ReadWrite);
+                builder.UseTexture(blurTempTH,     AccessFlags.ReadWrite);
+                builder.UseTexture(temporalTH,     AccessFlags.ReadWrite);
+                builder.UseTexture(shadowTH,       AccessFlags.Read);
+                builder.UseTexture(historyReadTH,  AccessFlags.Read);
+                builder.UseTexture(historyWriteTH, AccessFlags.Write);
                 builder.AllowPassCulling(false);
 
                 builder.SetRenderFunc((PassData data, UnsafeGraphContext ctx) =>
@@ -529,6 +773,8 @@ public class PCSSFeature : ScriptableRendererFeature
                     cmd.SetComputeTextureParam(data.cs, kernel, "_PCSS_SoftShadow", data.softShadowRT);
                     cmd.SetComputeTextureParam(data.cs, kernel, "_PCSS_ShadowCacheTex", data.shadowCacheRT);
                     cmd.SetComputeVectorParam(data.cs, "_ScreenSize", data.screenSize);
+                    // Atlas 尺寸：shader 侧全部 texel↔UV 换算的唯一来源
+                    cmd.SetComputeVectorParam(data.cs, "_PCSS_AtlasParams", data.atlasParams);
                     cmd.SetComputeVectorParam(data.cs, "_FrustumRay0", data.frustumRay0);
                     cmd.SetComputeVectorParam(data.cs, "_FrustumRay1", data.frustumRay1);
                     cmd.SetComputeVectorParam(data.cs, "_FrustumRay2", data.frustumRay2);
@@ -547,23 +793,41 @@ public class PCSSFeature : ScriptableRendererFeature
                     if      (data.quality == Settings.Quality.Low)    data.cs.EnableKeyword("PCSS_LOW");
                     else if (data.quality == Settings.Quality.Medium) data.cs.EnableKeyword("PCSS_MEDIUM");
 
-                    cmd.SetComputeFloatParam(data.cs, "_PCSS_LightSize", data.lightSize);
                     cmd.SetComputeFloatParam(data.cs, "_PCSS_Softness", data.softness);
                     cmd.SetComputeVectorParam(data.cs, "_LightDirection", data.lightDirection);
+                    // _FrameIndex 是全局常量，PCSS_Main 与 PCSS_Temporal 共用
+                    cmd.SetComputeFloatParam(data.cs, Settings.FrameIndexID, data.frameIndex);
 
                     int tgX = (width + 7) / 8;
                     int tgY = (height + 7) / 8;
                     cmd.DispatchCompute(data.cs, kernel, tgX, tgY, 1);
 
-                    // ── 双边保边模糊（Compute Shader，仅 penumbra 像素）──
-                    if (data.enableBlur)
+                    // ── 时域累积：重投影 + clamp + 混合（仅 penumbra 像素）──
+                    // temporal = 0 时不跳过 dispatch——lerp 权重为 0 已等价于关闭，
+                    // 且历史仍需每帧写入，否则调高 temporal 的首帧拿到的是陈旧内容。
+                    if (data.useTemporal)
                     {
-                        cmd.SetComputeFloatParam(data.cs, "_BlurScale", data.blurScale);
+                        int tk = data.csTemporalKernel;
+                        cmd.SetComputeTextureParam(data.cs, tk, "_PCSS_CurrentTex", data.softShadowRT);
+                        cmd.SetComputeTextureParam(data.cs, tk, "_PCSS_HistoryInput", data.historyReadRT);
+                        cmd.SetComputeTextureParam(data.cs, tk, "_PCSS_TemporalOut", data.temporalRT);
+                        cmd.SetComputeTextureParam(data.cs, tk, "_PCSS_HistoryOutput", data.historyWriteRT);
+                        cmd.SetComputeMatrixParam(data.cs, Settings.PrevViewProjID, data.prevViewProj);
+                        cmd.SetComputeFloatParam(data.cs, Settings.TemporalBlendID, data.temporalBlend);
+                        cmd.SetComputeFloatParam(data.cs, Settings.TemporalResetID, data.temporalReset);
+                        cmd.SetComputeIntParam(data.cs, Settings.TemporalDebugID, data.temporalDebug);
+                        cmd.DispatchCompute(data.cs, tk, tgX, tgY, 1);
+                    }
+
+                    // ── 双边保边模糊（Compute Shader，仅 penumbra 像素）──
+                    if (data.blur > 0f)
+                    {
+                        cmd.SetComputeFloatParam(data.cs, "_BlurScale", data.blur);
                         cmd.SetComputeVectorParam(data.cs, "_ScreenSize", data.screenSize);
                         cmd.SetComputeVectorParam(data.cs, "_ZBufferParams", data.zBufferParams);
 
-                        // BlurH: 读 softShadowRT → 写 blurTempRT
-                        cmd.SetComputeTextureParam(data.cs, data.csBlurHKernel, "_PCSS_BlurInput", data.softShadowRT);
+                        // BlurH: 读 blurSourceRT → 写 blurTempRT
+                        cmd.SetComputeTextureParam(data.cs, data.csBlurHKernel, "_PCSS_BlurInput", data.blurSourceRT);
                         cmd.SetComputeTextureParam(data.cs, data.csBlurHKernel, "_PCSS_BlurOutput", data.blurTempRT);
                         cmd.DispatchCompute(data.cs, data.csBlurHKernel, tgX, tgY, 1);
 
@@ -575,9 +839,15 @@ public class PCSSFeature : ScriptableRendererFeature
 
                     // ── 叠加到屏幕 ──
                     if (data.showShadowMap)
-                        Blitter.BlitCameraTexture(cmd, data.softShadowTH, data.source);
+                        Blitter.BlitCameraTexture(cmd, data.finalTH, data.source);
                 });
             }
+
+            // ── 帧末推进相机历史状态（PassData 已按值快照，此处修改不影响本帧）──
+            hist.prevViewProj    = curViewProj;
+            hist.hasPrevViewProj = true;
+            hist.frameIndex      = (hist.frameIndex + 1) % k_FrameIndexModulo;
+            hist.reset           = false;
         }
     }
 

@@ -77,6 +77,10 @@ private Camera _cam;
 private float  _yawAngle;
 ```
 
+分组不只是排版。**效果参数的分组有固定语义** —— 按 Technical / Performance / Artistic /
+Debug 分层，其中 Performance 必须划档位而非逐个暴露。判据见
+[parameter-panel.md](parameter-panel.md)。
+
 **② 方法按功能区块组织**
 
 每个区块用 `// ════════════...══` 包裹块分隔，内含区块标题 + 一行概述：
