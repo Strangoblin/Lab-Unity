@@ -38,6 +38,9 @@ Shader "Render/PBRToon"
         _RimStrength ("Rim Strength", Range(0.0, 1.0)) = 0.5
         _FresnelColor ("Fresnel Color", Color) = (1.0, 1.0, 1.0, 1.0)
 
+        [Header(Mask Blur)]
+        _MaskBlurWeight ("Mask Blur Weight", Range(0.0, 1.0)) = 1.0
+
         [Header(Outline Parameters)]
         [Toggle(ENABLE_OUTLINE)]_EnableOutline ("Enable Outline", Float) = 1
         _OutlineColor ("Outline Color", Range(0.0, 1.0)) = 0.5
@@ -48,6 +51,7 @@ Shader "Render/PBRToon"
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
     #include "Assets/Mine/Special/HLSL/RimLightFunction.hlsl"
@@ -88,6 +92,7 @@ Shader "Render/PBRToon"
         float _RimStrength;
         float _OutlineColor;
         float _OutlineScale;
+        float _MaskBlurWeight;
         float4 _ShadowColor;
         float4 _FresnelColor;
         float4 _SSSLut_TexelSize;
@@ -288,6 +293,23 @@ Shader "Render/PBRToon"
         return outline;
     }
 
+    // ════════════════════════════════════════════════════════════
+    //  Frag_MaskBlur — 输出可见主体权重，深度纹理剔除被遮挡表面
+    // ════════════════════════════════════════════════════════════
+    half4 Frag_MaskBlur(PBRVaryings input) : SV_Target
+    {
+        UNITY_SETUP_INSTANCE_ID(input);
+        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+        float2 screenUV = GetNormalizedScreenSpaceUV(input.positionCS);
+        float sceneDepth = SampleSceneDepth(screenUV);
+        #if UNITY_REVERSED_Z
+            float visible = step(sceneDepth - 0.0000001, input.positionCS.z);
+        #else
+            float visible = step(input.positionCS.z, sceneDepth + 0.0000001);
+        #endif
+        return half4(saturate(_MaskBlurWeight) * visible, 0, 0, 1);
+    }
+
     half4 Frag_DepthOnly(PBRVaryings input) : SV_Target
     {
         UNITY_SETUP_INSTANCE_ID(input);
@@ -380,6 +402,26 @@ Shader "Render/PBRToon"
             #pragma fragment Frag_Outline
             #pragma multi_compile_fog
             #pragma shader_feature_local ENABLE_OUTLINE
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "MaskBlur"
+            Tags { "LightMode" = "MaskBlur" }
+
+            Cull Back
+            ZWrite Off
+            ZTest Always
+            ColorMask R
+            Blend One One
+            BlendOp Max
+
+            HLSLPROGRAM
+            #pragma target 3.0
+            #pragma multi_compile_instancing
+            #pragma vertex Vert
+            #pragma fragment Frag_MaskBlur
             ENDHLSL
         }
 

@@ -130,7 +130,8 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: -6861971581733455524}
   - {fileID: -8666594091835673655}
-  m_RendererFeatureMap: 5cb9f3e33361c5a03470fce24884c104c9b3a24f9712ba87
+  - {fileID: 1854382760940641301}
+  m_RendererFeatureMap: 5cb9f3e33361c5a0c9b3a24f9712ba87159c79cf4b17bc19
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -177,6 +178,28 @@ MonoBehaviour:
   m_OutlineMaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_OutlineCompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
+--- !u!114 &1854382760940641301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 576fa3a7d3660458caa985fd7105602a, type: 3}
+  m_Name: MaskBlur
+  m_EditorClassIdentifier: Assembly-CSharp::MaskBlurFeature
+  m_Active: 1
+  settings:
+    shader: {fileID: 4800000, guid: 49706e69a6fbf43d79cdd1e56a36ea4f, type: 3}
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    quality: 1
+    blurRadius: 0.5
+    intensity: 0.5
+    debug: 0
 --- !u!114 &4655793570601728598
 MonoBehaviour:
   m_ObjectHideFlags: 0

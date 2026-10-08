@@ -4,7 +4,7 @@ Shader 名称：`Render/PBRToon`。保留现有 Toon、SSS LUT、补光、各向
 
 ## 管线能力
 
-- 五个 Pass：Forward（UniversalForwardOnly）、Outline、ShadowCaster、DepthOnly、DepthNormals（DepthNormalsOnly）。
+- 六个 Pass：Forward（UniversalForwardOnly）、Outline、MaskBlur、ShadowCaster、DepthOnly、DepthNormals（DepthNormalsOnly）。
 - 全部 Pass 启用经典 GPU Instancing 变体，顶点变换前初始化实例 ID；片元恢复实例/眼睛索引。
 - Forward 的 renderinglayer 实例化选项与已有 Light Layers 光照逻辑配套。
 - 统一 UnityPerMaterial；Unity SRP Batcher 兼容检查返回 0。
@@ -22,6 +22,19 @@ Shader 名称：`Render/PBRToon`。保留现有 Toon、SSS LUT、补光、各向
 法线输出供标准 URP 消费；需要线性深度时应读取相机深度并按其约定重建。
 XR 宏已接入，但未做 XR 设备验证；DOTS/BRG、Lightmap/Meta、MotionVectors、Rendering Layers MRT 输出不在本轮范围。
 保留现有共享 HLSL 算法，未宣称这些依赖已经完成全部 XR/平台适配。
+
+## 遮罩柔光（2026-10-08）
+
+`MaskBlur` Pass 使用 `LightMode="MaskBlur"`，由独立的
+`Assets/Mine/Shaders/PostProcess/MaskBlur/MaskBlurFeature.cs` 收集。主体顶点变换与 Forward 共用，
+输出 `_MaskBlurWeight`（默认 1，0 为不参与柔光），不包含 Outline 外扩。
+片元使用同帧相机深度剔除被遮挡表面，不依赖共享 Stencil 编号；
+Max 混合保证被遮挡表面的零值不会覆盖可见表面的权重。
+
+在 Renderer Data 上添加 MaskBlurFeature 并指定 `PostProcess/MaskBlur` Shader。
+该功能在不透明物体和天空绘制后提取遮罩内场景颜色，执行 Gaussian 模糊并叠加柔光；
+参数与全局纹理接口见 `Assets/Mine/Shaders/PostProcess/MaskBlur/README.md`。
+PC_Renderer 已接入该 Feature。原来的 PBRToon 光照和描边算法保留。
 
 ## 验证（2026-09-17）
 
