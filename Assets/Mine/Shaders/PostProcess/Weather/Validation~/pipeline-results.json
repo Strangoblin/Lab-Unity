@@ -1,0 +1,2424 @@
+{
+  "status": "PASS real URP render requests and RGBAFloat output checks",
+  "renderer": "PC_Renderer",
+  "graphicsDevice": "Metal / Apple M2",
+  "caseCount": 96,
+  "renderRequestCount": 103,
+  "budgetVerifiedCaseCount": 0,
+  "maxAllOffNormalizedError": 0.0,
+  "maxAllOffError": 0.0,
+  "timeAtStart": 0.019999992102384567,
+  "timeAtEnd": 0.019999992102384567,
+  "snowOrthographicOnlyStability": true,
+  "featureSettingsRestored": true,
+  "renderScaleRestored": true,
+  "graphSessionStatus": "created temporary local debug session",
+  "expectedWeatherDiagnostics": [
+    "[Weather] 首版仅支持最终输出Base Camera；跳过非末端Camera Stack相机。"
+  ],
+  "graphBudgetNotes": [
+    "unavailable: Object reference not set to an instance of an object"
+  ],
+  "cases": [
+    {
+      "name": "matrix/Rain/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        192.0,
+        256.0,
+        0.0052083334885537624,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/1",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 1,
+      "debug": "Off",
+      "changedPixels": 55,
+      "maxError": 0.3389511704444885,
+      "normalizedMaxError": 0.25314584374427795,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/2",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 2,
+      "debug": "Off",
+      "changedPixels": 30477,
+      "maxError": 0.04071427509188652,
+      "normalizedMaxError": 0.04071426019072533,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/3",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 3,
+      "debug": "Off",
+      "changedPixels": 30512,
+      "maxError": 0.3385741412639618,
+      "normalizedMaxError": 0.252864271402359,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/4",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 4,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.24448731541633606,
+      "normalizedMaxError": 0.24448645114898682,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/5",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 5,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.3296544849872589,
+      "normalizedMaxError": 0.32965293526649475,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/6",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 6,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.2686735987663269,
+      "normalizedMaxError": 0.2686717212200165,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/7",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 7,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.3297959864139557,
+      "normalizedMaxError": 0.32979443669319153,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/8",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 8,
+      "debug": "Off",
+      "changedPixels": 10493,
+      "maxError": 0.10849350690841675,
+      "normalizedMaxError": 0.07048612087965012,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/9",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 9,
+      "debug": "Off",
+      "changedPixels": 10497,
+      "maxError": 0.33895236253738403,
+      "normalizedMaxError": 0.2531467378139496,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/10",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 10,
+      "debug": "Off",
+      "changedPixels": 35903,
+      "maxError": 0.11304175853729248,
+      "normalizedMaxError": 0.07048612087965012,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/11",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 11,
+      "debug": "Off",
+      "changedPixels": 35903,
+      "maxError": 0.33856719732284546,
+      "normalizedMaxError": 0.25285908579826355,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/12",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 12,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.24974533915519714,
+      "normalizedMaxError": 0.2497444599866867,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/13",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 13,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.3194156289100647,
+      "normalizedMaxError": 0.3194141387939453,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/14",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 14,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.2744513154029846,
+      "normalizedMaxError": 0.2744493782520294,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Rain/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.31956562399864197,
+      "normalizedMaxError": 0.3195641338825226,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/1",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 1,
+      "debug": "Off",
+      "changedPixels": 129,
+      "maxError": 0.25791797041893005,
+      "normalizedMaxError": 0.25791797041893005,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/2",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 2,
+      "debug": "Off",
+      "changedPixels": 28088,
+      "maxError": 0.16738159954547882,
+      "normalizedMaxError": 0.16738159954547882,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/3",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 3,
+      "debug": "Off",
+      "changedPixels": 28155,
+      "maxError": 0.25791797041893005,
+      "normalizedMaxError": 0.25791797041893005,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/4",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 4,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.48781469464302063,
+      "normalizedMaxError": 0.48781469464302063,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/5",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 5,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5329683423042297,
+      "normalizedMaxError": 0.5329683423042297,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/6",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 6,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.48781469464302063,
+      "normalizedMaxError": 0.48781469464302063,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/7",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 7,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5329683423042297,
+      "normalizedMaxError": 0.5329683423042297,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/8",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 8,
+      "debug": "Off",
+      "changedPixels": 11131,
+      "maxError": 0.12944525480270386,
+      "normalizedMaxError": 0.08581749349832535,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/9",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 9,
+      "debug": "Off",
+      "changedPixels": 11249,
+      "maxError": 0.2564409077167511,
+      "normalizedMaxError": 0.2564409077167511,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/10",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 10,
+      "debug": "Off",
+      "changedPixels": 34020,
+      "maxError": 0.23323053121566772,
+      "normalizedMaxError": 0.16557076573371887,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/11",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 11,
+      "debug": "Off",
+      "changedPixels": 34087,
+      "maxError": 0.2564409077167511,
+      "normalizedMaxError": 0.2564409077167511,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/12",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 12,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.49149948358535767,
+      "normalizedMaxError": 0.49149948358535767,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/13",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 13,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5359498262405396,
+      "normalizedMaxError": 0.5359498262405396,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/14",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 14,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.49149948358535767,
+      "normalizedMaxError": 0.49149948358535767,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Sand/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5359498262405396,
+      "normalizedMaxError": 0.5359498262405396,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/1",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 1,
+      "debug": "Off",
+      "changedPixels": 35,
+      "maxError": 0.4898476004600525,
+      "normalizedMaxError": 0.4878150522708893,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/2",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 2,
+      "debug": "Off",
+      "changedPixels": 10277,
+      "maxError": 0.29975050687789917,
+      "normalizedMaxError": 0.29975050687789917,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/3",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 3,
+      "debug": "Off",
+      "changedPixels": 10312,
+      "maxError": 0.4898476004600525,
+      "normalizedMaxError": 0.4878150522708893,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/4",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 4,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.29999828338623047,
+      "normalizedMaxError": 0.29999828338623047,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/5",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 5,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.550118625164032,
+      "normalizedMaxError": 0.5478359460830688,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/6",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 6,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5096914768218994,
+      "normalizedMaxError": 0.5096914768218994,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/7",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 7,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.550118625164032,
+      "normalizedMaxError": 0.5478359460830688,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/8",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 8,
+      "debug": "Off",
+      "changedPixels": 10493,
+      "maxError": 0.10849350690841675,
+      "normalizedMaxError": 0.07048612087965012,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/9",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 9,
+      "debug": "Off",
+      "changedPixels": 10511,
+      "maxError": 0.5151466131210327,
+      "normalizedMaxError": 0.5129933953285217,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/10",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 10,
+      "debug": "Off",
+      "changedPixels": 19158,
+      "maxError": 0.31473782658576965,
+      "normalizedMaxError": 0.3147377073764801,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/11",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 11,
+      "debug": "Off",
+      "changedPixels": 19176,
+      "maxError": 0.5151466131210327,
+      "normalizedMaxError": 0.5129933953285217,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/12",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 12,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.3150309920310974,
+      "normalizedMaxError": 0.3150118589401245,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/13",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 13,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5783562064170837,
+      "normalizedMaxError": 0.5759387612342834,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/14",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 14,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5351746082305908,
+      "normalizedMaxError": 0.5351734757423401,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "matrix/Snow/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5783562064170837,
+      "normalizedMaxError": 0.5759387612342834,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/0/Rain/0",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/0/Rain/15",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 65536,
+      "maxError": 0.6350414752960205,
+      "normalizedMaxError": 0.34657159447669983,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/0/Sand/0",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/0/Sand/15",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 65536,
+      "maxError": 0.5367211103439331,
+      "normalizedMaxError": 0.5367211103439331,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/0/Snow/0",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/0/Snow/15",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 65536,
+      "maxError": 0.592936098575592,
+      "normalizedMaxError": 0.5818438529968262,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/1/Rain/0",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/1/Rain/15",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 49152,
+      "maxError": 0.27433788776397705,
+      "normalizedMaxError": 0.2743377685546875,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/1/Sand/0",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/1/Sand/15",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 49152,
+      "maxError": 0.527479350566864,
+      "normalizedMaxError": 0.527479350566864,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/1/Snow/0",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/1/Snow/15",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 49152,
+      "maxError": 0.5352715253829956,
+      "normalizedMaxError": 0.5352715253829956,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/2/Rain/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/2/Rain/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.26860231161117554,
+      "normalizedMaxError": 0.26860231161117554,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/2/Sand/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/2/Sand/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.533542811870575,
+      "normalizedMaxError": 0.533542811870575,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/2/Snow/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/2/Snow/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.6763626933097839,
+      "normalizedMaxError": 0.6761103272438049,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/3/Rain/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/3/Rain/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.708539605140686,
+      "normalizedMaxError": 0.6685749888420105,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/3/Sand/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/3/Sand/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.7154254913330078,
+      "normalizedMaxError": 0.7096853852272034,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/3/Snow/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "geometry/3/Snow/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.716528058052063,
+      "normalizedMaxError": 0.6754907369613647,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "switch/72/Rain",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.31956562399864197,
+      "normalizedMaxError": 0.3195641338825226,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "switch/73/Sand",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5359498262405396,
+      "normalizedMaxError": 0.5359498262405396,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "switch/74/Snow",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5783562064170837,
+      "normalizedMaxError": 0.5759387612342834,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "switch/75/Rain",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.31956562399864197,
+      "normalizedMaxError": 0.3195641338825226,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Off",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Particles",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Particles",
+      "changedPixels": 12927,
+      "maxError": 0.8450980186462402,
+      "normalizedMaxError": 0.4580233693122864,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Refraction",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Refraction",
+      "changedPixels": 12927,
+      "maxError": 0.8450980186462402,
+      "normalizedMaxError": 0.4580233693122864,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Lens",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Lens",
+      "changedPixels": 12927,
+      "maxError": 0.8450980186462402,
+      "normalizedMaxError": 0.4580233693122864,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Fog",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Fog",
+      "changedPixels": 57600,
+      "maxError": 0.9644514918327332,
+      "normalizedMaxError": 0.9644514918327332,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Final",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Final",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Off",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Particles",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Particles",
+      "changedPixels": 12927,
+      "maxError": 0.8450980186462402,
+      "normalizedMaxError": 0.4580233693122864,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Refraction",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Refraction",
+      "changedPixels": 12927,
+      "maxError": 0.8450980186462402,
+      "normalizedMaxError": 0.4580233693122864,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Lens",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Lens",
+      "changedPixels": 12927,
+      "maxError": 0.8450980186462402,
+      "normalizedMaxError": 0.4580233693122864,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Fog",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Fog",
+      "changedPixels": 57600,
+      "maxError": 0.9854841828346252,
+      "normalizedMaxError": 0.9854841828346252,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Final",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Final",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Off",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Particles",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Particles",
+      "changedPixels": 12927,
+      "maxError": 0.8450980186462402,
+      "normalizedMaxError": 0.4580233693122864,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Refraction",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Refraction",
+      "changedPixels": 12927,
+      "maxError": 0.8450980186462402,
+      "normalizedMaxError": 0.4580233693122864,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Lens",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Lens",
+      "changedPixels": 12927,
+      "maxError": 0.8450980186462402,
+      "normalizedMaxError": 0.4580233693122864,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Fog",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Fog",
+      "changedPixels": 57600,
+      "maxError": 0.9999942779541016,
+      "normalizedMaxError": 0.9999942779541016,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Final",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Final",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "independent-second-base",
+      "width": 192,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 49152,
+      "maxError": 0.5366681814193726,
+      "normalizedMaxError": 0.5366681814193726,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        192.0,
+        256.0,
+        0.0052083334885537624,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    },
+    {
+      "name": "base-plus-overlay-safe-skip",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        192.0,
+        256.0,
+        0.0052083334885537624,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+    }
+  ]
+}
