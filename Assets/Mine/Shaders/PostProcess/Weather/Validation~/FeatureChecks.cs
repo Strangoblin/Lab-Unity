@@ -13,6 +13,7 @@ public class Script
         var unexpectedWeatherLogs = new System.Collections.Generic.List<string>();
         Mine.Weather.WeatherFeature feature = null;
         Mine.Weather.WeatherProfile profile = null;
+        UnityEngine.Shader legacySand = null;
         UnityEngine.Application.LogCallback capture = (condition, stackTrace, type) =>
         {
             if (!condition.StartsWith("[Weather]", System.StringComparison.Ordinal))
@@ -28,8 +29,10 @@ public class Script
         {
             UnityEngine.Shader shader = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Shader>(
                 "Assets/Mine/Shaders/PostProcess/Weather/Weather.shader");
-            UnityEngine.Shader legacySand = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Shader>(
-                "Assets/Mine/Shaders/PostProcess/Sandy/Sandy.shader");
+            string legacySource = System.IO.File.ReadAllText(System.IO.Path.Combine(UnityEngine.Application.dataPath,
+                "Mine/Shaders/PostProcess/Weather/Validation~/Legacy/Sandy/Sandy.shader"));
+            legacySand = UnityEditor.ShaderUtil.CreateShaderAsset(legacySource, true);
+            if (legacySand != null) legacySand.hideFlags = UnityEngine.HideFlags.HideAndDontSave;
             Require(shader != null && shader.isSupported, "Weather Shader must be imported and supported");
             Require(legacySand != null && legacySand.isSupported, "Legacy Sand Shader must be imported and supported");
 
@@ -80,6 +83,8 @@ public class Script
             }
             if (profile != null)
                 UnityEngine.Object.DestroyImmediate(profile);
+            if (legacySand != null)
+                UnityEngine.Object.DestroyImmediate(legacySand);
             UnityEngine.Application.logMessageReceived -= capture;
         }
     }

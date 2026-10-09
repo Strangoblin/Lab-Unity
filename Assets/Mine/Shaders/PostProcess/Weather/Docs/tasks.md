@@ -1,6 +1,6 @@
 # Weather 分阶段整合任务
 
-日期：2026-10-08。状态：已实施，正在完成真实管线验收。
+日期：2026-10-08。状态：实施与自动验证完成，旧入口已退役；人工视觉／GPU毫秒与设备扩展验证保留为后续。
 
 用户选择：单一天气预设＋内部模块分别调节／关闭。需求编号见 [requirements.md](requirements.md)，详细接口和兼容映射见 [design.md](design.md)。用户已授权实施。
 
@@ -17,7 +17,7 @@ flowchart LR
     E --> F[5 确认后归档]
 ```
 
-每个阶段是一个可独立验收与回退的工作单位；实施时以精确 pathspec 提交，不能把其它用户改动纳入检查点。模块与预设检查点：`7fcc8e4`。没有删除或移动旧天气资源。
+每个阶段是一个可独立验收与回退的工作单位；实施时以精确 pathspec 提交，不能把其它用户改动纳入检查点。模块与预设检查点：`7fcc8e4`。管线与集中目录检查点：`4d60584`。用户随后授权删除旧入口，三目录已移除，当前内容保全为Weather/Validation~/Legacy历史快照。
 
 ## 已完成的规划工作
 
@@ -28,7 +28,7 @@ flowchart LR
 - [x] E. 确认首版单预设范围，形成需求、架构与实施任务。
 - [x] F. 根据用户补充，将Rain blur移出Weather范围，调整目标基线、参数与验收。
 
-完成项仅是静态检查，不代表编译、运行、视觉或性能验收已通过。
+以下规划项已完成；实际编译、运行、数值与正常帧预算证据见 `../VALIDATION.md`。未完成的人工视觉与GPU毫秒测量继续保留。
 
 ## 0. 实施基线与门禁准备
 
@@ -117,14 +117,14 @@ flowchart LR
 
 ## 4. 实际管线验收
 
-- [ ] 4.1 完成导入、C#／Shader编译和运行日志检查，保存验证记录。
+- [x] 4.1 完成导入、C#／Shader编译和运行日志检查，保存验证记录。
   - 负向检查缺Profile／Shader／噪声、invalid Pass、不可采样BackBuffer：安全跳过且不登记非法依赖；检查缺Depth时只裁掉雾，诊断频率受控。
   - _Requirements: REQ-06, REQ-07; Dependencies: 3_
 - [ ] 4.2 同帧同输入对比三天气新旧输出，按预设阈值记录差异与人工画面判断。
   - Rain分开记录原版→去blur目标的有意变化，与目标→Weather的结构差异；核验水汽遮罩／染色、雾和调色仍独立可调。
   - 不以Shader消息空白、没有观测到错误或不一致帧截图单独宣布通过。
   - _Requirements: REQ-01, REQ-05, REQ-06, REQ-12; Dependencies: 4.1_
-- [ ] 4.3 验证16种模块开关组合及单参数端点。
+- [x] 4.3 验证16种模块开关组合及单参数端点。
   - 全关／单模块／全开；Randomness0/1、CycleRate0/1/2、模块强度0/1，无NaN／残留关键词。
   - Rain→Sand→Snow→Rain切换Profile，参数／纹理／local keyword无残留；补零基础宽度但噪声宽度非零的零噪声输入控制用例。
   - Debug强制诊断绘制单独计成本；全关闭零增量以Debug=Off为条件。
@@ -139,18 +139,18 @@ flowchart LR
   - 覆盖禁用／销毁／domain reload／Shader更换，不改资产、无材质泄漏。
   - _Requirements: REQ-07, REQ-11; Dependencies: 4.1_
 
-阶段出口：编译／运行／结构／兼容输出／性能证据分别齐全；仅静态通过不能关闭此阶段。回退点：阶段3检查点与旧运行入口。
+自动验收：13项Profile、29项Feature、100项兼容基线GPU；当前调参版82项GPU控制、96项真实管线、8项正常帧预算通过。4.2的人工视觉、4.4的硬件动态分辨率／XR与4.5的GPU毫秒未测，复选框不宣称全部完成。回退点：阶段3检查点与旧运行入口。
 
 ## 5. 文档与确认后归档
 
-- [ ] 5.1 写Weather正式README，记录参数、预设值、模块顺序、Alpha／深度限制及证据。
-  - 同步Sandy旧README的实际值与coverage未生效事实；不借文档修正顺便改变Shader。
+- [x] 5.1 写Weather正式README，记录参数、预设值、模块顺序、Alpha／深度限制及证据。
+  - 在Weather README记录Sandy实际值与coverage未生效事实；历史README快照原样保留。
   - _Requirements: REQ-01, REQ-04, REQ-06, REQ-10; Dependencies: 4_
-- [ ] 5.2 单列旧目录、Shader／Material／README／meta的精确保留／移动／删除清单。
+- [x] 5.2 单列旧目录、Shader／Material／README／meta的精确保留／移动／删除清单。
   - 再核GUID、AssetDatabase与HLSL文本引用；共享Noise2DRG及其外部引用不受清理影响。
-  - 取得人工确认后，才通过合法门禁执行移动／删除；本轮规划没有这类执行授权。
+  - 取得人工确认后，才通过合法门禁执行移动／删除；用户2026-10-09已明确授权在构建完成后移除三个旧入口。
   - _Requirements: REQ-03, REQ-10; Dependencies: 5.1_
-- [ ] 5.3 在用户确认的正式状态下收尾，记录项目memory与最终回退点。
+- [x] 5.3 保留正式验证记录与分阶段回退点；项目memory按用户结束会话时的生命周期再写。
   - 归档只记录实际完成及验证内容；可选视觉改进保留为后续任务。
   - _Requirements: REQ-10; Dependencies: 5.2_
 

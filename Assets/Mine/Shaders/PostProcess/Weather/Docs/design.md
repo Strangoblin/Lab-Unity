@@ -1,6 +1,6 @@
 # Weather 管线整合设计
 
-日期：2026-10-08。状态：已按用户授权实施。下方原始审计快照保留历史状态；最新入口为 PC Renderer 中的 WeatherFeature，默认 Sand。
+日期：2026-10-08。状态：已按用户授权实施。下方原始审计快照保留历史状态；最新入口为 PC Renderer 中的 WeatherFeature。当前Inspector为Rain／关闭，保留现有调参状态。
 
 用户已确认首版采用单一天气预设，内部模块独立调节和关闭。[需求](requirements.md)与[实施任务](tasks.md)共同约束本设计。路径均以仓库根目录为基准；行号对应当前工作副本。
 

@@ -101,7 +101,7 @@ Shader "PostProcess/Rainy"
         float down = RainyDepth(localUV - delta, textureOffset, alpha);
         float2 slope = float2(right - left, up - down) / 0.04;
         float2 rotatedSlope = TRS2D_RotateIsotropic(slope, angle);
-        return rotatedSlope / (1.0 + length(rotatedSlope)) * 0.015;
+        return rotatedSlope / (1.0 + length(rotatedSlope)) * 0.015 * center;
     }
 
     // ════════════════════════════════════════════════════════════
@@ -121,11 +121,11 @@ Shader "PostProcess/Rainy"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  RainyBlur — 固定五点核模拟湿镜头的小半径散射
+    //  RainyBlur — 固定五点十字核，半径随镜头水汽增加
     // ════════════════════════════════════════════════════════════
-    float3 RainyBlur(float2 uv)
+    float3 RainyBlur(float2 uv, float radius)
     {
-        float2 stepUV = _BlitTexture_TexelSize.xy * 2.0;
+        float2 stepUV = _BlitTexture_TexelSize.xy * radius;
         float3 color = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv).rgb * 0.4;
         color += SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv + float2(stepUV.x, 0)).rgb * 0.15;
         color += SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv - float2(stepUV.x, 0)).rgb * 0.15;
@@ -134,38 +134,42 @@ Shader "PostProcess/Rainy"
         return color;
     }
 
-    // ════════════════════════════════════════════════════════════
-    //  Frag_RainAtmosphere — 冷调色、深度高度雾、流动雨幕与屏幕水雾
-    // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════
+    //  Frag_RainAtmosphere — 单噪声水汽、近似高度雾与冷调色
+    // ════════════════════════════════════════════════════
     half4 Frag_RainAtmosphere(Varyings input) : SV_Target
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
         float2 uv = input.texcoord;
-        float4 scene    = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
-        float4 atmo1    = SAMPLE_TEXTURE2D_X(_RainTex, sampler_LinearRepeat, uv * 7);
-        float4 atmo2    = SAMPLE_TEXTURE2D_X(_RainTex, sampler_LinearRepeat, uv * 5);
-        float4 atmo3    = SAMPLE_TEXTURE2D_X(_RainTex, sampler_LinearRepeat, float2(uv.x * 0.5 - _Wind * _Time.y , uv.y));
-
-        float edge = min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y));
-        float mist = 1.0 - smoothstep(0.0, (0.1 + atmo1.x * atmo2.x) * _Foggy, edge);
-        scene.rgb = lerp(scene.rgb, RainyBlur(uv), _Foggy * (0.15 + 0.85 * mist));
-
+        float4 scene = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
+        float2 noise = SAMPLE_TEXTURE2D_X(_RainTex, sampler_LinearRepeat, uv * 2.0).rg;
+        float2 p = uv * 2.0 - 1.0;
+        float2 p2 = p * p;
+        float mist = smoothstep(0.25, 1.1, dot(p2, p2)) * lerp(0.75, 1.0, noise.r) * _Foggy;
         float rawDepth = SampleSceneDepth(uv);
-        float eyeDepth = LinearEyeDepth(rawDepth, _ZBufferParams);
-        float heightWeight = 0.0;
-        if (Linear01Depth(rawDepth, _ZBufferParams) < 0.9999)
-        {
-            float3 worldPos = ComputeWorldSpacePosition(uv, rawDepth, UNITY_MATRIX_I_VP);
-            float midpointHeight = (_WorldSpaceCameraPos.y + worldPos.y) * 0.5;
-            heightWeight = exp2(-max(midpointHeight, 0.0) * 0.12);
-        }
-        float atmos = (1.0 - exp2(-eyeDepth / (100 * (1 + atmo3.x - _Wind)))) * _Foggy * heightWeight;
-        scene = lerp(scene, 1, atmos);
+        #if !UNITY_REVERSED_Z
+            rawDepth = lerp(UNITY_NEAR_CLIP_VALUE, 1.0, rawDepth);
+        #endif
+        float3 worldPos = ComputeWorldSpacePosition(uv, rawDepth, UNITY_MATRIX_I_VP);
+        float3 ray = worldPos - _WorldSpaceCameraPos;
+        float3 forward = -UNITY_MATRIX_V[2].xyz;
+        ray = lerp(ray, forward * max(dot(ray, forward), 0.0), unity_OrthoParams.w);
+        float rayLength = max(length(ray), 0.0001);
+        float distance = min(rayLength, 250.0);
+        float height = worldPos.y - ray.y + ray.y * (distance / rayLength) * 0.5;
+        float density = exp2(-max(height, 0.0) * 0.08);
+        float fog = (1.0 - exp2(-distance * density * 0.018 * lerp(0.8, 1.2, noise.g)))
+            * _Foggy * 0.65;
 
-        float luminance = dot(scene.rgb, float3(0.2126, 0.7152, 0.0722));
-        float3 cold     = lerp(scene.rgb, luminance.xxx, 0.3) * float3(0.88, 0.96, 1.05);
-        float3 color    = lerp(scene.rgb, cold, _Coldness);
+        float3 fogColor = float3(0.65, 0.72, 0.78);
+        float3 color = scene.rgb;
+        if (mist > 0.0)
+            color = lerp(color, RainyBlur(uv, lerp(2.0, 5.0, mist)), mist * 0.8);
+        color = lerp(color, fogColor, 1.0 - (1.0 - fog) * (1.0 - mist * 0.12));
 
+        float luminance = dot(color, float3(0.2126, 0.7152, 0.0722));
+        float3 cold = lerp(color, luminance.xxx, 0.3) * float3(0.88, 0.96, 1.05);
+        color = lerp(color, cold, _Coldness);
         return half4(color, scene.a);
     }
     ENDHLSL

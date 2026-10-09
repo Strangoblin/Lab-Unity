@@ -56,6 +56,6 @@ Debug：Particles／Refraction 只运行粒子阶段，Lens／Fog 只运行氛�
 
 ## 保留范围
 
-旧 Rainy、Sandy、Snowy 目录与材质保留，作为对照和回退资源。Noise2DRG 的像素、GUID及色彩空间保持原样。Sand原coverage计算未接入输出，Weather保留这一行为；原Snow Alpha与Rain折射长宽比响应也保留。天气混合、过渡、性能档、Volume与世界空间天气不在首版范围。
+原 Rainy、Sandy、Snowy 可导入目录与材质已移除；历史对照快照保存在 `Validation~/Legacy/`，由验证脚本在内存中构造，不进入运行时资产。Noise2DRG 的像素、GUID及色彩空间保持原样。Sand原coverage计算未接入输出，Weather保留这一行为；原Snow Alpha与Rain折射长宽比响应也保留。天气混合、过渡、性能档、Volume与世界空间天气不在首版范围。
 
 验证记录见同目录 `VALIDATION.md`。

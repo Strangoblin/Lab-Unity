@@ -7,8 +7,8 @@
   "budgetVerifiedCaseCount": 0,
   "maxAllOffNormalizedError": 0.0,
   "maxAllOffError": 0.0,
-  "timeAtStart": 0.019999992102384567,
-  "timeAtEnd": 0.019999992102384567,
+  "timeAtStart": 30.23028564453125,
+  "timeAtEnd": 30.23028564453125,
   "snowOrthographicOnlyStability": true,
   "featureSettingsRestored": true,
   "renderScaleRestored": true,
@@ -17,7 +17,7 @@
     "[Weather] 首版仅支持最终输出Base Camera；跳过非末端Camera Stack相机。"
   ],
   "graphBudgetNotes": [
-    "unavailable: Object reference not set to an instance of an object"
+    "StandardRequest generated no graph debug data for the validation camera; URP disables generateDebugData while camera.isProcessingRenderRequest. Normal camera-frame budget capture remains pending."
   ],
   "cases": [
     {
@@ -31,19 +31,17 @@
       "changedPixels": 0,
       "maxError": 0.0,
       "normalizedMaxError": 0.0,
-      "declaredDepth": true,
-      "exclusiveKeywords": [
-        "WEATHER_SAND"
-      ],
+      "declaredDepth": false,
+      "exclusiveKeywords": [],
       "boundTargetSize": [
-        192.0,
-        256.0,
-        0.0052083334885537624,
-        0.00390625
+        1920.0,
+        1080.0,
+        0.0005208333022892475,
+        0.0009259259095415473
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/1",
@@ -53,9 +51,9 @@
       "renderScale": 1.0,
       "moduleMask": 1,
       "debug": "Off",
-      "changedPixels": 55,
-      "maxError": 0.3389511704444885,
-      "normalizedMaxError": 0.25314584374427795,
+      "changedPixels": 53,
+      "maxError": 0.04331190884113312,
+      "normalizedMaxError": 0.03742324933409691,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -68,7 +66,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/2",
@@ -79,8 +77,8 @@
       "moduleMask": 2,
       "debug": "Off",
       "changedPixels": 30477,
-      "maxError": 0.04071427509188652,
-      "normalizedMaxError": 0.04071426019072533,
+      "maxError": 0.04071420803666115,
+      "normalizedMaxError": 0.040714140981435776,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -93,7 +91,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/3",
@@ -103,9 +101,9 @@
       "renderScale": 1.0,
       "moduleMask": 3,
       "debug": "Off",
-      "changedPixels": 30512,
-      "maxError": 0.3385741412639618,
-      "normalizedMaxError": 0.252864271402359,
+      "changedPixels": 30515,
+      "maxError": 0.04331190884113312,
+      "normalizedMaxError": 0.040714140981435776,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -118,7 +116,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/4",
@@ -129,8 +127,8 @@
       "moduleMask": 4,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.24448731541633606,
-      "normalizedMaxError": 0.24448645114898682,
+      "maxError": 0.2444833666086197,
+      "normalizedMaxError": 0.24447941780090332,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -143,7 +141,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/5",
@@ -154,8 +152,8 @@
       "moduleMask": 5,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.3296544849872589,
-      "normalizedMaxError": 0.32965293526649475,
+      "maxError": 0.2444833666086197,
+      "normalizedMaxError": 0.24447941780090332,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -168,7 +166,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/6",
@@ -179,8 +177,8 @@
       "moduleMask": 6,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.2686735987663269,
-      "normalizedMaxError": 0.2686717212200165,
+      "maxError": 0.26866868138313293,
+      "normalizedMaxError": 0.2686629593372345,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -193,7 +191,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/7",
@@ -204,8 +202,8 @@
       "moduleMask": 7,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.3297959864139557,
-      "normalizedMaxError": 0.32979443669319153,
+      "maxError": 0.26866868138313293,
+      "normalizedMaxError": 0.2686629593372345,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -218,7 +216,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/8",
@@ -228,9 +226,9 @@
       "renderScale": 1.0,
       "moduleMask": 8,
       "debug": "Off",
-      "changedPixels": 10493,
-      "maxError": 0.10849350690841675,
-      "normalizedMaxError": 0.07048612087965012,
+      "changedPixels": 12788,
+      "maxError": 0.10874754190444946,
+      "normalizedMaxError": 0.065872922539711,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -243,7 +241,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/9",
@@ -253,9 +251,9 @@
       "renderScale": 1.0,
       "moduleMask": 9,
       "debug": "Off",
-      "changedPixels": 10497,
-      "maxError": 0.33895236253738403,
-      "normalizedMaxError": 0.2531467378139496,
+      "changedPixels": 12782,
+      "maxError": 0.10874754190444946,
+      "normalizedMaxError": 0.06766746193170547,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -268,7 +266,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/10",
@@ -278,9 +276,9 @@
       "renderScale": 1.0,
       "moduleMask": 10,
       "debug": "Off",
-      "changedPixels": 35903,
-      "maxError": 0.11304175853729248,
-      "normalizedMaxError": 0.07048612087965012,
+      "changedPixels": 36532,
+      "maxError": 0.11325377225875854,
+      "normalizedMaxError": 0.065872922539711,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -293,7 +291,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/11",
@@ -303,9 +301,9 @@
       "renderScale": 1.0,
       "moduleMask": 11,
       "debug": "Off",
-      "changedPixels": 35903,
-      "maxError": 0.33856719732284546,
-      "normalizedMaxError": 0.25285908579826355,
+      "changedPixels": 36529,
+      "maxError": 0.11325377225875854,
+      "normalizedMaxError": 0.06766746193170547,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -318,7 +316,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/12",
@@ -329,8 +327,8 @@
       "moduleMask": 12,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.24974533915519714,
-      "normalizedMaxError": 0.2497444599866867,
+      "maxError": 0.24973928928375244,
+      "normalizedMaxError": 0.2497352510690689,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -343,7 +341,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/13",
@@ -354,8 +352,8 @@
       "moduleMask": 13,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.3194156289100647,
-      "normalizedMaxError": 0.3194141387939453,
+      "maxError": 0.24973928928375244,
+      "normalizedMaxError": 0.2497352510690689,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -368,7 +366,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/14",
@@ -379,8 +377,8 @@
       "moduleMask": 14,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.2744513154029846,
-      "normalizedMaxError": 0.2744493782520294,
+      "maxError": 0.2744441628456116,
+      "normalizedMaxError": 0.2744383215904236,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -393,7 +391,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Rain/15",
@@ -404,8 +402,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.31956562399864197,
-      "normalizedMaxError": 0.3195641338825226,
+      "maxError": 0.2744441628456116,
+      "normalizedMaxError": 0.2744383215904236,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -418,7 +416,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/0",
@@ -443,7 +441,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/1",
@@ -453,9 +451,9 @@
       "renderScale": 1.0,
       "moduleMask": 1,
       "debug": "Off",
-      "changedPixels": 129,
-      "maxError": 0.25791797041893005,
-      "normalizedMaxError": 0.25791797041893005,
+      "changedPixels": 147,
+      "maxError": 0.2535703480243683,
+      "normalizedMaxError": 0.2535703480243683,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -468,7 +466,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/2",
@@ -478,7 +476,7 @@
       "renderScale": 1.0,
       "moduleMask": 2,
       "debug": "Off",
-      "changedPixels": 28088,
+      "changedPixels": 28092,
       "maxError": 0.16738159954547882,
       "normalizedMaxError": 0.16738159954547882,
       "declaredDepth": false,
@@ -493,7 +491,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/3",
@@ -503,9 +501,9 @@
       "renderScale": 1.0,
       "moduleMask": 3,
       "debug": "Off",
-      "changedPixels": 28155,
-      "maxError": 0.25791797041893005,
-      "normalizedMaxError": 0.25791797041893005,
+      "changedPixels": 28196,
+      "maxError": 0.2645309865474701,
+      "normalizedMaxError": 0.26433661580085754,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -518,7 +516,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/4",
@@ -543,7 +541,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/5",
@@ -554,8 +552,8 @@
       "moduleMask": 5,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5329683423042297,
-      "normalizedMaxError": 0.5329683423042297,
+      "maxError": 0.5516683459281921,
+      "normalizedMaxError": 0.5516683459281921,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -568,7 +566,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/6",
@@ -593,7 +591,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/7",
@@ -604,8 +602,8 @@
       "moduleMask": 7,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5329683423042297,
-      "normalizedMaxError": 0.5329683423042297,
+      "maxError": 0.5516683459281921,
+      "normalizedMaxError": 0.5516683459281921,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -618,7 +616,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/8",
@@ -628,9 +626,9 @@
       "renderScale": 1.0,
       "moduleMask": 8,
       "debug": "Off",
-      "changedPixels": 11131,
-      "maxError": 0.12944525480270386,
-      "normalizedMaxError": 0.08581749349832535,
+      "changedPixels": 14589,
+      "maxError": 0.131200909614563,
+      "normalizedMaxError": 0.0868205800652504,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -643,7 +641,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/9",
@@ -653,9 +651,9 @@
       "renderScale": 1.0,
       "moduleMask": 9,
       "debug": "Off",
-      "changedPixels": 11249,
-      "maxError": 0.2564409077167511,
-      "normalizedMaxError": 0.2564409077167511,
+      "changedPixels": 14703,
+      "maxError": 0.2521182596683502,
+      "normalizedMaxError": 0.2521182596683502,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -668,7 +666,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/10",
@@ -678,9 +676,9 @@
       "renderScale": 1.0,
       "moduleMask": 10,
       "debug": "Off",
-      "changedPixels": 34020,
-      "maxError": 0.23323053121566772,
-      "normalizedMaxError": 0.16557076573371887,
+      "changedPixels": 35526,
+      "maxError": 0.24158143997192383,
+      "normalizedMaxError": 0.16557078063488007,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -693,7 +691,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/11",
@@ -703,9 +701,9 @@
       "renderScale": 1.0,
       "moduleMask": 11,
       "debug": "Off",
-      "changedPixels": 34087,
-      "maxError": 0.2564409077167511,
-      "normalizedMaxError": 0.2564409077167511,
+      "changedPixels": 35611,
+      "maxError": 0.2626003324985504,
+      "normalizedMaxError": 0.2624073922634125,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -718,7 +716,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/12",
@@ -743,7 +741,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/13",
@@ -754,8 +752,8 @@
       "moduleMask": 13,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5359498262405396,
-      "normalizedMaxError": 0.5359498262405396,
+      "maxError": 0.5549378395080566,
+      "normalizedMaxError": 0.5549378395080566,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -768,7 +766,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/14",
@@ -793,7 +791,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Sand/15",
@@ -804,8 +802,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5359498262405396,
-      "normalizedMaxError": 0.5359498262405396,
+      "maxError": 0.5549378395080566,
+      "normalizedMaxError": 0.5549378395080566,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -818,7 +816,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/0",
@@ -843,7 +841,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/1",
@@ -853,9 +851,9 @@
       "renderScale": 1.0,
       "moduleMask": 1,
       "debug": "Off",
-      "changedPixels": 35,
-      "maxError": 0.4898476004600525,
-      "normalizedMaxError": 0.4878150522708893,
+      "changedPixels": 50,
+      "maxError": 0.4350775182247162,
+      "normalizedMaxError": 0.43041375279426575,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -868,7 +866,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/2",
@@ -893,7 +891,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/3",
@@ -903,9 +901,9 @@
       "renderScale": 1.0,
       "moduleMask": 3,
       "debug": "Off",
-      "changedPixels": 10312,
-      "maxError": 0.4898476004600525,
-      "normalizedMaxError": 0.4878150522708893,
+      "changedPixels": 10327,
+      "maxError": 0.4350775182247162,
+      "normalizedMaxError": 0.43041375279426575,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -918,7 +916,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/4",
@@ -929,8 +927,8 @@
       "moduleMask": 4,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.29999828338623047,
-      "normalizedMaxError": 0.29999828338623047,
+      "maxError": 0.2999989986419678,
+      "normalizedMaxError": 0.2999989986419678,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -943,7 +941,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/5",
@@ -954,8 +952,8 @@
       "moduleMask": 5,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.550118625164032,
-      "normalizedMaxError": 0.5478359460830688,
+      "maxError": 0.5764484405517578,
+      "normalizedMaxError": 0.5764484405517578,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -968,7 +966,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/6",
@@ -979,8 +977,8 @@
       "moduleMask": 6,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5096914768218994,
-      "normalizedMaxError": 0.5096914768218994,
+      "maxError": 0.5097056031227112,
+      "normalizedMaxError": 0.5097056031227112,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -993,7 +991,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/7",
@@ -1004,8 +1002,8 @@
       "moduleMask": 7,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.550118625164032,
-      "normalizedMaxError": 0.5478359460830688,
+      "maxError": 0.5764484405517578,
+      "normalizedMaxError": 0.5764484405517578,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1018,7 +1016,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/8",
@@ -1028,9 +1026,9 @@
       "renderScale": 1.0,
       "moduleMask": 8,
       "debug": "Off",
-      "changedPixels": 10493,
-      "maxError": 0.10849350690841675,
-      "normalizedMaxError": 0.07048612087965012,
+      "changedPixels": 12788,
+      "maxError": 0.10874754190444946,
+      "normalizedMaxError": 0.065872922539711,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1043,7 +1041,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/9",
@@ -1053,9 +1051,9 @@
       "renderScale": 1.0,
       "moduleMask": 9,
       "debug": "Off",
-      "changedPixels": 10511,
-      "maxError": 0.5151466131210327,
-      "normalizedMaxError": 0.5129933953285217,
+      "changedPixels": 12826,
+      "maxError": 0.4591919481754303,
+      "normalizedMaxError": 0.4542697072029114,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1068,7 +1066,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/10",
@@ -1078,9 +1076,9 @@
       "renderScale": 1.0,
       "moduleMask": 10,
       "debug": "Off",
-      "changedPixels": 19158,
-      "maxError": 0.31473782658576965,
-      "normalizedMaxError": 0.3147377073764801,
+      "changedPixels": 20988,
+      "maxError": 0.3147372305393219,
+      "normalizedMaxError": 0.3147367238998413,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1093,7 +1091,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/11",
@@ -1103,9 +1101,9 @@
       "renderScale": 1.0,
       "moduleMask": 11,
       "debug": "Off",
-      "changedPixels": 19176,
-      "maxError": 0.5151466131210327,
-      "normalizedMaxError": 0.5129933953285217,
+      "changedPixels": 21026,
+      "maxError": 0.4591919481754303,
+      "normalizedMaxError": 0.4542697072029114,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1118,7 +1116,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/12",
@@ -1129,8 +1127,8 @@
       "moduleMask": 12,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.3150309920310974,
-      "normalizedMaxError": 0.3150118589401245,
+      "maxError": 0.3150203824043274,
+      "normalizedMaxError": 0.31500154733657837,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1143,7 +1141,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/13",
@@ -1154,8 +1152,8 @@
       "moduleMask": 13,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5783562064170837,
-      "normalizedMaxError": 0.5759387612342834,
+      "maxError": 0.6052699685096741,
+      "normalizedMaxError": 0.605269193649292,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1168,7 +1166,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/14",
@@ -1179,8 +1177,8 @@
       "moduleMask": 14,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5351746082305908,
-      "normalizedMaxError": 0.5351734757423401,
+      "maxError": 0.5351862907409668,
+      "normalizedMaxError": 0.5351823568344116,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1193,7 +1191,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "matrix/Snow/15",
@@ -1204,8 +1202,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5783562064170837,
-      "normalizedMaxError": 0.5759387612342834,
+      "maxError": 0.6052699685096741,
+      "normalizedMaxError": 0.605269193649292,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1218,7 +1216,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/0/Rain/0",
@@ -1243,7 +1241,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/0/Rain/15",
@@ -1254,8 +1252,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 65536,
-      "maxError": 0.6350414752960205,
-      "normalizedMaxError": 0.34657159447669983,
+      "maxError": 0.2743983268737793,
+      "normalizedMaxError": 0.2743912935256958,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -1268,7 +1266,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/0/Sand/0",
@@ -1293,7 +1291,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/0/Sand/15",
@@ -1304,8 +1302,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 65536,
-      "maxError": 0.5367211103439331,
-      "normalizedMaxError": 0.5367211103439331,
+      "maxError": 0.5509761571884155,
+      "normalizedMaxError": 0.5509761571884155,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -1318,7 +1316,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/0/Snow/0",
@@ -1343,7 +1341,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/0/Snow/15",
@@ -1354,8 +1352,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 65536,
-      "maxError": 0.592936098575592,
-      "normalizedMaxError": 0.5818438529968262,
+      "maxError": 0.6035680174827576,
+      "normalizedMaxError": 0.6035672426223755,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1368,7 +1366,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/1/Rain/0",
@@ -1393,7 +1391,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/1/Rain/15",
@@ -1404,8 +1402,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 49152,
-      "maxError": 0.27433788776397705,
-      "normalizedMaxError": 0.2743377685546875,
+      "maxError": 0.27433720231056213,
+      "normalizedMaxError": 0.27433672547340393,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -1418,7 +1416,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/1/Sand/0",
@@ -1443,7 +1441,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/1/Sand/15",
@@ -1454,8 +1452,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 49152,
-      "maxError": 0.527479350566864,
-      "normalizedMaxError": 0.527479350566864,
+      "maxError": 0.5474643707275391,
+      "normalizedMaxError": 0.5474643707275391,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -1468,7 +1466,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/1/Snow/0",
@@ -1493,7 +1491,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/1/Snow/15",
@@ -1504,8 +1502,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 49152,
-      "maxError": 0.5352715253829956,
-      "normalizedMaxError": 0.5352715253829956,
+      "maxError": 0.6616603136062622,
+      "normalizedMaxError": 0.6616603136062622,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1518,7 +1516,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/2/Rain/0",
@@ -1543,7 +1541,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/2/Rain/15",
@@ -1568,7 +1566,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/2/Sand/0",
@@ -1593,7 +1591,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/2/Sand/15",
@@ -1604,8 +1602,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.533542811870575,
-      "normalizedMaxError": 0.533542811870575,
+      "maxError": 0.534075915813446,
+      "normalizedMaxError": 0.534075915813446,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -1618,7 +1616,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/2/Snow/0",
@@ -1643,7 +1641,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/2/Snow/15",
@@ -1654,8 +1652,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.6763626933097839,
-      "normalizedMaxError": 0.6761103272438049,
+      "maxError": 0.6105815172195435,
+      "normalizedMaxError": 0.6052708625793457,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1668,7 +1666,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/3/Rain/0",
@@ -1693,7 +1691,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/3/Rain/15",
@@ -1704,8 +1702,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.708539605140686,
-      "normalizedMaxError": 0.6685749888420105,
+      "maxError": 0.7635321021080017,
+      "normalizedMaxError": 0.7317826151847839,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -1718,7 +1716,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/3/Sand/0",
@@ -1743,7 +1741,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/3/Sand/15",
@@ -1754,8 +1752,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.7154254913330078,
-      "normalizedMaxError": 0.7096853852272034,
+      "maxError": 0.7757945656776428,
+      "normalizedMaxError": 0.7696589231491089,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -1768,7 +1766,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/3/Snow/0",
@@ -1793,7 +1791,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "geometry/3/Snow/15",
@@ -1804,8 +1802,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.716528058052063,
-      "normalizedMaxError": 0.6754907369613647,
+      "maxError": 0.7742691040039062,
+      "normalizedMaxError": 0.7369260191917419,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1818,7 +1816,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "switch/72/Rain",
@@ -1829,8 +1827,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.31956562399864197,
-      "normalizedMaxError": 0.3195641338825226,
+      "maxError": 0.2744441628456116,
+      "normalizedMaxError": 0.2744383215904236,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -1843,7 +1841,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "switch/73/Sand",
@@ -1854,8 +1852,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5359498262405396,
-      "normalizedMaxError": 0.5359498262405396,
+      "maxError": 0.5549378395080566,
+      "normalizedMaxError": 0.5549378395080566,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -1868,7 +1866,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "switch/74/Snow",
@@ -1879,8 +1877,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.5783562064170837,
-      "normalizedMaxError": 0.5759387612342834,
+      "maxError": 0.6052699685096741,
+      "normalizedMaxError": 0.605269193649292,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -1893,7 +1891,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "switch/75/Rain",
@@ -1904,8 +1902,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 57600,
-      "maxError": 0.31956562399864197,
-      "normalizedMaxError": 0.3195641338825226,
+      "maxError": 0.2744441628456116,
+      "normalizedMaxError": 0.2744383215904236,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -1918,7 +1916,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Rain/Off",
@@ -1943,7 +1941,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Rain/Particles",
@@ -1953,9 +1951,9 @@
       "renderScale": 1.0,
       "moduleMask": 0,
       "debug": "Particles",
-      "changedPixels": 12927,
-      "maxError": 0.8450980186462402,
-      "normalizedMaxError": 0.4580233693122864,
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -1968,7 +1966,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Rain/Refraction",
@@ -1978,9 +1976,9 @@
       "renderScale": 1.0,
       "moduleMask": 0,
       "debug": "Refraction",
-      "changedPixels": 12927,
-      "maxError": 0.8450980186462402,
-      "normalizedMaxError": 0.4580233693122864,
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -1993,7 +1991,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Rain/Lens",
@@ -2003,9 +2001,9 @@
       "renderScale": 1.0,
       "moduleMask": 0,
       "debug": "Lens",
-      "changedPixels": 12927,
-      "maxError": 0.8450980186462402,
-      "normalizedMaxError": 0.4580233693122864,
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_RAIN"
@@ -2018,7 +2016,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Rain/Fog",
@@ -2043,7 +2041,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Rain/Final",
@@ -2068,7 +2066,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Sand/Off",
@@ -2093,7 +2091,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Sand/Particles",
@@ -2103,9 +2101,9 @@
       "renderScale": 1.0,
       "moduleMask": 0,
       "debug": "Particles",
-      "changedPixels": 12927,
-      "maxError": 0.8450980186462402,
-      "normalizedMaxError": 0.4580233693122864,
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -2118,7 +2116,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Sand/Refraction",
@@ -2128,9 +2126,9 @@
       "renderScale": 1.0,
       "moduleMask": 0,
       "debug": "Refraction",
-      "changedPixels": 12927,
-      "maxError": 0.8450980186462402,
-      "normalizedMaxError": 0.4580233693122864,
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -2143,7 +2141,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Sand/Lens",
@@ -2153,9 +2151,9 @@
       "renderScale": 1.0,
       "moduleMask": 0,
       "debug": "Lens",
-      "changedPixels": 12927,
-      "maxError": 0.8450980186462402,
-      "normalizedMaxError": 0.4580233693122864,
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -2168,7 +2166,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Sand/Fog",
@@ -2193,7 +2191,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Sand/Final",
@@ -2218,7 +2216,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Snow/Off",
@@ -2243,7 +2241,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Snow/Particles",
@@ -2253,9 +2251,9 @@
       "renderScale": 1.0,
       "moduleMask": 0,
       "debug": "Particles",
-      "changedPixels": 12927,
-      "maxError": 0.8450980186462402,
-      "normalizedMaxError": 0.4580233693122864,
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -2268,7 +2266,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Snow/Refraction",
@@ -2278,9 +2276,9 @@
       "renderScale": 1.0,
       "moduleMask": 0,
       "debug": "Refraction",
-      "changedPixels": 12927,
-      "maxError": 0.8450980186462402,
-      "normalizedMaxError": 0.4580233693122864,
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -2293,7 +2291,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Snow/Lens",
@@ -2303,9 +2301,9 @@
       "renderScale": 1.0,
       "moduleMask": 0,
       "debug": "Lens",
-      "changedPixels": 12927,
-      "maxError": 0.8450980186462402,
-      "normalizedMaxError": 0.4580233693122864,
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
       "declaredDepth": false,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -2318,7 +2316,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Snow/Fog",
@@ -2329,8 +2327,8 @@
       "moduleMask": 0,
       "debug": "Fog",
       "changedPixels": 57600,
-      "maxError": 0.9999942779541016,
-      "normalizedMaxError": 0.9999942779541016,
+      "maxError": 0.9999966621398926,
+      "normalizedMaxError": 0.9999966621398926,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SNOW"
@@ -2343,7 +2341,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "zero-modules-debug/Snow/Final",
@@ -2368,7 +2366,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "independent-second-base",
@@ -2379,8 +2377,8 @@
       "moduleMask": 15,
       "debug": "Off",
       "changedPixels": 49152,
-      "maxError": 0.5366681814193726,
-      "normalizedMaxError": 0.5366681814193726,
+      "maxError": 0.5508556962013245,
+      "normalizedMaxError": 0.5508556962013245,
       "declaredDepth": true,
       "exclusiveKeywords": [
         "WEATHER_SAND"
@@ -2393,7 +2391,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     },
     {
       "name": "base-plus-overlay-safe-skip",
@@ -2418,7 +2416,7 @@
       ],
       "weatherPassCount": -1,
       "executedWeatherPasses": [],
-      "graphBudgetStatus": "unavailable: Object reference not set to an instance of an object"
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
     }
   ]
 }

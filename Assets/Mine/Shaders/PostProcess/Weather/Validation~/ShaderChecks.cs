@@ -53,7 +53,7 @@ public class Script
             if (bind == null)
                 throw new InvalidOperationException("WeatherFeature.WeatherPass.Bind was not found.");
 
-            string rainy = File.ReadAllText(Path.Combine(Application.dataPath, "Mine/Shaders/PostProcess/Rainy/Rainy.shader"));
+            string rainy = File.ReadAllText(Path.Combine(Application.dataPath, "Mine/Shaders/PostProcess/Weather/Validation~/Legacy/Rainy/Rainy.shader"));
             string blurBlock = @"(?m)^\s*if\s*\(mist\s*>\s*0\.0\)\s*\r?\n\s*color\s*=\s*lerp\(color,\s*RainyBlur\(uv,\s*lerp\(2\.0,\s*5\.0,\s*mist\)\),\s*mist\s*\*\s*0\.8\);\s*\r?\n";
             if (Regex.Matches(rainy, blurBlock).Count != 1)
                 throw new InvalidOperationException("The exact Rain blur-only reference edit could not be established.");
@@ -76,14 +76,27 @@ public class Script
             for (int k = 0; k < 3; ++k)
             {
                 var profile = AssetDatabase.LoadAssetAtPath<WeatherProfile>(WeatherRoot + "Presets/" + names[k] + ".asset");
-                var sourceMaterial = AssetDatabase.LoadAssetAtPath<Material>(
-                    "Assets/Mine/Shaders/PostProcess/" + oldNames[k] + "/Mine_PostProcess_" + oldNames[k] + ".mat");
-                if (profile == null || sourceMaterial == null)
-                    throw new InvalidOperationException("Missing actual profile or original material for " + names[k]);
+                string legacyPath = Path.Combine(Application.dataPath,
+                    "Mine/Shaders/PostProcess/Weather/Validation~/Legacy/" + oldNames[k] + "/");
+                string materialText = File.ReadAllText(legacyPath + "Mine_PostProcess_" + oldNames[k] + ".mat");
+                if (profile == null || !materialText.Contains("acde34ba16b7a4de1ad501e1068301d9"))
+                    throw new InvalidOperationException("Missing actual profile or archived shared-noise material for " + names[k]);
                 parameters[k] = profile.Resolve();
-                originals[k] = new Material(k == 0 ? rainReference : sourceMaterial.shader);
+                Shader reference = rainReference;
+                if (k != 0)
+                {
+                    reference = ShaderUtil.CreateShaderAsset(File.ReadAllText(legacyPath + oldNames[k] + ".shader"), true);
+                    if (reference == null || !reference.isSupported)
+                        throw new InvalidOperationException("Archived reference is unsupported: " + names[k]);
+                    reference.hideFlags = HideFlags.HideAndDontSave;
+                    owned.Add(reference);
+                }
+                originals[k] = new Material(reference);
                 owned.Add(originals[k]);
-                originals[k].CopyPropertiesFromMaterial(sourceMaterial);
+                originals[k].SetTexture(k == 0 ? "_RainTex" : k == 1 ? "_SandTex" : "_SnowTex", noise);
+                foreach (Match property in Regex.Matches(materialText, @"(?m)^\s*- (_\w+):\s*([-+0-9.eE]+)\s*$"))
+                    originals[k].SetFloat(property.Groups[1].Value, float.Parse(property.Groups[2].Value,
+                        System.Globalization.CultureInfo.InvariantCulture));
                 originals[k].hideFlags = HideFlags.HideAndDontSave;
                 current[k] = new Material(weatherShader) { hideFlags = HideFlags.HideAndDontSave };
                 owned.Add(current[k]);

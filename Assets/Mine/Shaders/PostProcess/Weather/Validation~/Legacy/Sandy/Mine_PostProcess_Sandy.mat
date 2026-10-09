@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Mine_PostProcess_Rainy
-  m_Shader: {fileID: 4800000, guid: 76c1fd2739c740b1a1491fed2298d28c, type: 3}
+  m_Name: Mine_PostProcess_Sandy
+  m_Shader: {fileID: 4800000, guid: 70405813d7cd74e7f9a09f0eabf75f89, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -23,15 +23,15 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _RainTex:
+    - _SandTex:
         m_Texture: {fileID: 2800000, guid: acde34ba16b7a4de1ad501e1068301d9, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Coldness: 1
-    - _Foggy: 1
+    - _Dusty: 1
     - _Randomness: 1
+    - _Warmth: 1
     - _Wind: 0.5
     m_Colors: []
   m_BuildTextureStacks: []

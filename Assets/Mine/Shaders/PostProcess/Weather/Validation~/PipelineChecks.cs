@@ -537,7 +537,7 @@ public class Script
                     var executions = (System.Collections.IEnumerable)type.GetMethod("GetExecutions").Invoke(null, new[] { graphName });
                     foreach (object execution in executions)
                     {
-                        object id = execution.GetType().GetField("id").GetValue(execution);
+                        object id = execution.GetType().GetProperty("id").GetValue(execution);
                         if (!id.Equals(cameraId)) continue;
                         object debugData = type.GetMethod("GetDebugData").Invoke(null, new[] { graphName, id });
                         var passes = (System.Collections.IEnumerable)debugData.GetType().GetField("passList").GetValue(debugData);
