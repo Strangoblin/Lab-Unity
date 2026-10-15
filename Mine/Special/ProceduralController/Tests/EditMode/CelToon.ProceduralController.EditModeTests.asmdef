@@ -1,0 +1,28 @@
+{
+  "name": "CelToon.ProceduralController.EditModeTests",
+  "rootNamespace": "CelToon.ProceduralController.EditModeTests",
+  "references": [
+    "CelToon.PathGenerator.Contracts",
+    "CelToon.ProceduralController.Contracts",
+    "CelToon.ProceduralController.Fixtures",
+    "CelToon.ProceduralController.Execution"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

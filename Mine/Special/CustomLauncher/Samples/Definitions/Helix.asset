@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: Helix
+  m_EditorClassIdentifier: 
+  PartId: trajectory.Helix
+  DisplayName: "\u87BA\u65CB"
+  Description: "\u6CBF\u98DE\u884C\u8F74\u7ED5\u884C\uFF0C\u534A\u5F84 0.45 m\u3002"
+  Category: 2
+  EnergyPerProjectile: 0.6
+  Operations:
+  - Operation: 3
+    A: 0.45
+    B: 14
+    Delay: 0
+    Count: 1

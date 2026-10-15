@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: LateSplit
+  m_EditorClassIdentifier: 
+  PartId: trigger.LateSplit
+  DisplayName: "\u5EF6\u8FDF\u6563\u82B1"
+  Description: "0.7 s \u540E\u751F\u6210\u516B\u9897\u5BBD\u89D2\u788E\u7247\u3002"
+  Category: 5
+  EnergyPerProjectile: 1.2
+  Operations:
+  - Operation: 19
+    A: 150
+    B: 0.5
+    Delay: 0.7
+    Count: 8

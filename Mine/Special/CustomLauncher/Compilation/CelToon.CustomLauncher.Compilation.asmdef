@@ -1,0 +1,27 @@
+{
+    "name":  "CelToon.CustomLauncher.Compilation",
+    "rootNamespace":  "CelToon.CustomLauncher.Compilation",
+    "references":  [
+                       "CelToon.CustomLauncher.Contracts",
+                       "CelToon.CustomLauncher.Definitions"
+                   ],
+    "includePlatforms":  [
+
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  false,
+    "precompiledReferences":  [
+
+                              ],
+    "autoReferenced":  true,
+    "defineConstraints":  [
+
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false
+}

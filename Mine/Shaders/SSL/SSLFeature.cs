@@ -85,7 +85,8 @@ public class SSLFeature : ScriptableRendererFeature
             desc.depthBufferBits = 0;
             desc.colorFormat = RenderTextureFormat.ARGBHalf;
 
-            cmd.GetTemporaryRT(sslBlurRT1.id, desc.width, desc.height);
+            cmd.GetTemporaryRT(sslBlurRT1.id, desc.width >>1, desc.height >>1);
+            cmd.GetTemporaryRT(sslBlurRT2.id, desc.width >>1, desc.height >>1);
             cmd.GetTemporaryRT(tempMainRT.id, desc.width, desc.height, 0, FilterMode.Trilinear, RenderTextureFormat.Default);
 
             cmd.Blit(renderer.cameraColorTargetHandle.nameID, tempMainRT.id);
@@ -94,16 +95,16 @@ public class SSLFeature : ScriptableRendererFeature
             // downsampling blur
             for (int i = 0; i < settings.blurLevels; i++)
             {
-                int downsampledWidth = Mathf.Max(1, desc.width >> i + 1);
-                int downsampledHeight = Mathf.Max(1, desc.height >> i + 1);
+                int downsampledWidth = Mathf.Max(1, desc.width >> i);
+                int downsampledHeight = Mathf.Max(1, desc.height >> i);
                 for (int j = 0; j < settings.blurIterations; j++)
                 {
-                    cmd.GetTemporaryRT(sslBlurRT2.id, downsampledWidth, downsampledHeight, 0, FilterMode.Trilinear, RenderTextureFormat.Default);
                     cmd.Blit(sslBlurRT1.Identifier(), sslBlurRT2.Identifier(), sslMaterial, 1);
                     cmd.ReleaseTemporaryRT(sslBlurRT1.id);
-                    cmd.GetTemporaryRT(sslBlurRT1.id, downsampledWidth, downsampledHeight, 0, FilterMode.Trilinear, RenderTextureFormat.Default);
+                    cmd.GetTemporaryRT(sslBlurRT1.id, downsampledWidth, downsampledHeight);
                     cmd.Blit(sslBlurRT2.Identifier(), sslBlurRT1.Identifier(), sslMaterial, 2);
                     cmd.ReleaseTemporaryRT(sslBlurRT2.id);
+                    cmd.GetTemporaryRT(sslBlurRT2.id, downsampledWidth, downsampledHeight);
                 }
             }
             
@@ -114,17 +115,17 @@ public class SSLFeature : ScriptableRendererFeature
                 int upsampledHeight = Mathf.Max(1, desc.height >> i);
                 for (int j = 0; j < settings.blurIterations; j++)
                 {
-                    cmd.GetTemporaryRT(sslBlurRT2.id, upsampledWidth, upsampledHeight, 0, FilterMode.Trilinear, RenderTextureFormat.Default);
                     cmd.Blit(sslBlurRT1.Identifier(), sslBlurRT2.Identifier(), sslMaterial, 1);
                     cmd.ReleaseTemporaryRT(sslBlurRT1.id);
-                    cmd.GetTemporaryRT(sslBlurRT1.id, upsampledWidth, upsampledHeight, 0, FilterMode.Trilinear, RenderTextureFormat.Default);
+                    cmd.GetTemporaryRT(sslBlurRT1.id, upsampledWidth, upsampledHeight);
                     cmd.Blit(sslBlurRT2.Identifier(), sslBlurRT1.Identifier(), sslMaterial, 2);
                     cmd.ReleaseTemporaryRT(sslBlurRT2.id);
+                    cmd.GetTemporaryRT(sslBlurRT2.id, upsampledWidth, upsampledHeight);
                 }
             }
 
             // Texture Output
-            cmd.SetGlobalTexture("_SSLTex", sslBlurRT1.id);
+            cmd.SetGlobalTexture("_SSLResultTex", sslBlurRT1.id);
 
             cmd.Blit(tempMainRT.id, renderer.cameraColorTargetHandle.nameID, sslMaterial, 3);
 

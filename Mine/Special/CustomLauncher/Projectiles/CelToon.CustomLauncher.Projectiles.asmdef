@@ -1,0 +1,26 @@
+{
+    "name":  "CelToon.CustomLauncher.Projectiles",
+    "rootNamespace":  "CelToon.CustomLauncher.Projectiles",
+    "references":  [
+                       "CelToon.CustomLauncher.Contracts"
+                   ],
+    "includePlatforms":  [
+
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  false,
+    "precompiledReferences":  [
+
+                              ],
+    "autoReferenced":  true,
+    "defineConstraints":  [
+
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false
+}

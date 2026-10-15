@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: ExpirySplit
+  m_EditorClassIdentifier: 
+  PartId: trigger.ExpirySplit
+  DisplayName: "\u7EC8\u5BFF\u5206\u88C2"
+  Description: "\u5BFF\u547D\u8017\u5C3D\u65F6\u751F\u6210\u4E94\u9897\u788E\u7247\uFF1B\u63D0\u524D\u78B0\u649E\u7EC8\u6B62\u4E0D\u89E6\u53D1\u3002"
+  Category: 5
+  EnergyPerProjectile: 0.6
+  Operations:
+  - Operation: 21
+    A: 100
+    B: 0.6
+    Delay: 0
+    Count: 5

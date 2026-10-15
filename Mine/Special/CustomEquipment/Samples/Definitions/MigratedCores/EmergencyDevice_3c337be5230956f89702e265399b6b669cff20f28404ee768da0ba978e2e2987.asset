@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: EmergencyDevice_3c337be5230956f89702e265399b6b669cff20f28404ee768da0ba978e2e2987
+  m_EditorClassIdentifier: 
+  PartId: equipment.compat.emergencydevice.3c337be5230956f89702e265399b6b669cff20f28404ee768da0ba978e2e2987
+  DisplayName: "\u517C\u5BB9\xB7\u5E94\u6025\u88C5\u7F6E"
+  Description: "\u539F\u88C5\u914D\u5F52\u5E76\uFF1A\u518D\u751F\u88C5\u7F6E + \u6551\u63F4\u6838\u5FC3
+    + \u51C0\u5316\u6A21\u5757\u3002\u6548\u679C\u53C2\u6570\u4FDD\u7559\uFF1B\u66FF\u6362\u672C\u6838\u5FC3\u4F1A\u66FF\u6362\u6574\u7EC4\u52A0\u6210\u3002"
+  Kind: 11
+  Operations:
+  - Operation: 12
+    A: 8
+    B: 0
+  - Operation: 13
+    A: 2
+    B: 0
+  - Operation: 18
+    A: 0.35
+    B: 20
+  - Operation: 22
+    A: 5
+    B: 0

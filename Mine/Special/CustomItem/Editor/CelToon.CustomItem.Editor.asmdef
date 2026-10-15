@@ -1,0 +1,11 @@
+{
+  "name": "CelToon.CustomItem.Editor",
+  "rootNamespace": "CelToon.CustomItem.Editor",
+  "references": [
+    "CelToon.CustomItem.Contracts", "CelToon.CustomItem.Adapters",
+    "CelToon.CustomLauncher.Contracts", "CelToon.CustomEquipment.Contracts"
+  ],
+  "includePlatforms": ["Editor"], "excludePlatforms": [], "allowUnsafeCode": false,
+  "overrideReferences": false, "precompiledReferences": [], "autoReferenced": true,
+  "defineConstraints": [], "versionDefines": [], "noEngineReferences": false
+}

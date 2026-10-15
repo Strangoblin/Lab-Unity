@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: DefenseCore_f5617c82eb11e265a2dfee1d9f5cefbe39bef41feeb3626ae451bc802483c003
+  m_EditorClassIdentifier: 
+  PartId: equipment.compat.defensecore.f5617c82eb11e265a2dfee1d9f5cefbe39bef41feeb3626ae451bc802483c003
+  DisplayName: "\u517C\u5BB9\xB7\u9632\u5FA1\u6838\u5FC3"
+  Description: "\u539F\u88C5\u914D\u5F52\u5E76\uFF1A\u5DE8\u4EBA\u6838\u5FC3 + \u5821\u5792\u88C5\u7532
+    + \u5168\u57DF\u9632\u62A4\u3002\u6548\u679C\u53C2\u6570\u4FDD\u7559\uFF1B\u66FF\u6362\u672C\u6838\u5FC3\u4F1A\u66FF\u6362\u6574\u7EC4\u52A0\u6210\u3002"
+  Kind: 8
+  Operations:
+  - Operation: 0
+    A: 100
+    B: 0
+  - Operation: 2
+    A: 18
+    B: 0
+  - Operation: 3
+    A: 0.9
+    B: 0
+  - Operation: 7
+    A: 0.35
+    B: 0
+  - Operation: 8
+    A: 0.35
+    B: 0
+  - Operation: 9
+    A: 0.35
+    B: 0
+  - Operation: 10
+    A: 0.35
+    B: 0
+  - Operation: 11
+    A: 0.35
+    B: 0

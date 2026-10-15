@@ -118,7 +118,7 @@ Shader "Custom/RimToon"
         float  shadow = mainLightShadowAtten;
 
         float3 Ambient  = SampleSH(normalWS);
-        float  Diffuse  = smoothstep(0.4, 0.6, (DiffuseLambert(normalWS, mainLightDirWS) * 0.5 + 0.5));
+        float  Diffuse  = smoothstep(0.45, 0.55, (DiffuseLambert(normalWS, mainLightDirWS) * 0.5 + 0.5));
         float  Specular = SpecularBlinnPhong(normalWS, mainLightDirWS, viewDirWS, _Smoothness);
         float  Fresnel  = RimFresnel(normalWS, viewDirWS, _Smoothness);
 

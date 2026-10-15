@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: MobilityDrive_0b0841e8ade91df3d59bdfc7b143117116160482b7d2ad1cdba108a94da135e2
+  m_EditorClassIdentifier: 
+  PartId: equipment.compat.mobilitydrive.0b0841e8ade91df3d59bdfc7b143117116160482b7d2ad1cdba108a94da135e2
+  DisplayName: "\u517C\u5BB9\xB7\u673A\u52A8\u9A71\u52A8"
+  Description: "\u539F\u88C5\u914D\u5F52\u5E76\uFF1A\u7A33\u5B9A\u6B65\u9774 + \u63A2\u7D22\u5957\u4EF6\u3002\u6548\u679C\u53C2\u6570\u4FDD\u7559\uFF1B\u66FF\u6362\u672C\u6838\u5FC3\u4F1A\u66FF\u6362\u6574\u7EC4\u52A0\u6210\u3002"
+  Kind: 10
+  Operations:
+  - Operation: 14
+    A: 1.2
+    B: 0
+  - Operation: 16
+    A: 0.4
+    B: 0
+  - Operation: 19
+    A: 40
+    B: 0
+  - Operation: 20
+    A: 8
+    B: 0
+  - Operation: 21
+    A: 0.75
+    B: 0

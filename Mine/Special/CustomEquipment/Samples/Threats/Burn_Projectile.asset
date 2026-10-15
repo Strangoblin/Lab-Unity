@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 508c56d3bd514cd191eefc6bfa707fef, type: 3}
+  m_Name: Burn_Projectile
+  m_EditorClassIdentifier: 
+  PartId: storage.projectile.Burn
+  DisplayName: "\u71C3\u70E7\u5F39"
+  Description: "\u76F4\u63A5\u4F24\u5BB3 10 + \u71C3\u70E7 8/s\uFF0C\u6301\u7EED
+    4 \u79D2\u3002"
+  Damage: 10
+  Speed: 12
+  Radius: 0.12
+  Lifetime: 5
+  EnergyPerProjectile: 0
+  Color: {r: 1, g: 0.3, b: 0.05, a: 1}

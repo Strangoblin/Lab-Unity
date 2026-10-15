@@ -1,0 +1,38 @@
+{
+  "name": "CelToon.CombatRange.Tests.PlayMode",
+  "rootNamespace": "CelToon.CombatRange.Tests.PlayMode",
+  "references": [
+    "CelToon.CustomEquipment.Contracts",
+    "CelToon.CustomEquipment.Definitions",
+    "CelToon.CustomEquipment.Compilation",
+    "CelToon.CustomEquipment.Runtime",
+    "CelToon.CustomEquipment.Samples",
+    "CelToon.CustomLauncher.Contracts",
+    "CelToon.CustomLauncher.Definitions",
+    "CelToon.CustomLauncher.Compilation",
+    "CelToon.CustomLauncher.Runtime",
+    "CelToon.CustomLauncher.Projectiles",
+    "CelToon.CustomLauncher.Samples",
+    "CelToon.CustomItem.Contracts",
+    "CelToon.CustomItem.Runtime",
+    "CelToon.CustomItem.Adapters",
+    "CelToon.CustomItem.Samples",
+    "CelToon.CombatRange.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

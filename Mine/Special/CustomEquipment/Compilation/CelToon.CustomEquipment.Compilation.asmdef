@@ -1,0 +1,17 @@
+{
+  "name": "CelToon.CustomEquipment.Compilation",
+  "rootNamespace": "CelToon.CustomEquipment.Compilation",
+  "references": [
+    "CelToon.CustomEquipment.Contracts",
+    "CelToon.CustomEquipment.Definitions"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

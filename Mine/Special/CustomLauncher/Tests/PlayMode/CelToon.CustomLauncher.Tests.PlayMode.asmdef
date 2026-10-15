@@ -1,0 +1,34 @@
+{
+    "name":  "CelToon.CustomLauncher.Tests.PlayMode",
+    "rootNamespace":  "CelToon.CustomLauncher.Tests.PlayMode",
+    "references":  [
+                       "CelToon.CustomLauncher.Contracts",
+                       "CelToon.CustomLauncher.Definitions",
+                       "CelToon.CustomLauncher.Compilation",
+                       "CelToon.CustomLauncher.Runtime",
+                       "CelToon.CustomLauncher.Projectiles",
+                       "CelToon.CustomLauncher.Samples"
+                   ],
+    "includePlatforms":  [
+
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  true,
+    "precompiledReferences":  [
+                                  "nunit.framework.dll"
+                              ],
+    "autoReferenced":  false,
+    "defineConstraints":  [
+                              "UNITY_INCLUDE_TESTS"
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false,
+    "optionalUnityReferences":  [
+                                    "TestAssemblies"
+                                ]
+}

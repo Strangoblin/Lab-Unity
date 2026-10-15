@@ -1,0 +1,16 @@
+{
+  "name": "CelToon.ProceduralController.Environment",
+  "rootNamespace": "CelToon.ProceduralController.Environment",
+  "references": [
+    "CelToon.ProceduralController.Contracts"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

@@ -1,0 +1,22 @@
+{
+  "name": "CelToon.CustomItem.Samples",
+  "rootNamespace": "CelToon.CustomItem.Samples",
+  "references": [
+    "CelToon.CustomItem.Contracts",
+    "CelToon.CustomItem.Runtime",
+    "CelToon.CustomItem.Adapters",
+    "CelToon.CustomLauncher.Definitions",
+    "CelToon.CustomLauncher.Runtime",
+    "CelToon.CustomEquipment.Definitions",
+    "CelToon.CustomEquipment.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

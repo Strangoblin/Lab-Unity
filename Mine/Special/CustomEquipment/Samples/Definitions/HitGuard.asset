@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: HitGuard
+  m_EditorClassIdentifier: 
+  PartId: equipment.hitguard
+  DisplayName: "\u53D7\u51FB\u4FDD\u62A4"
+  Description: "\u6709\u6548\u76F4\u63A5\u547D\u4E2D\u540E\u83B7\u5F97 0.25 \u79D2\u76F4\u63A5\u4F24\u5BB3\u4FDD\u62A4\uFF1B\u6301\u7EED\u4F24\u5BB3\u7167\u5E38\u7ED3\u7B97\u3002"
+  Kind: 6
+  Operations:
+  - Operation: 17
+    A: 0.25
+    B: 0

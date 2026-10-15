@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Resource_StableStamina
+  m_EditorClassIdentifier: 
+  PartId: equipment.resource.stablestamina
+  DisplayName: "\u7A33\u5B9A\u4F53\u529B\u6838\u5FC3"
+  Description: "\u4E3B\u5C5E\u6027\uFF1A\u4F53\u529B +30\u3002\u526F\u8BCD\u6761\uFF1A\u51FB\u9000\u6297\u6027
+    80%\u3001\u51CF\u901F/\u7729\u6655\u6297\u6027 40%\u3002"
+  Kind: 18
+  PrimaryOperations:
+  - Operation: 19
+    A: 30
+    B: 0
+  Affixes:
+  - Operation: 16
+    A: 0.8
+    B: 0
+  - Operation: 9
+    A: 0.4
+    B: 0
+  - Operation: 10
+    A: 0.4
+    B: 0
+  Operations: []

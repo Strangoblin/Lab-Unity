@@ -1,0 +1,19 @@
+{
+  "name": "CelToon.ProceduralController.FixtureEditor",
+  "rootNamespace": "CelToon.ProceduralController.FixtureEditor",
+  "references": [
+    "CelToon.ProceduralController.Fixtures",
+    "CelToon.ProceduralController.Contracts"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

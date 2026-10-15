@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Resource_EfficientEnergy
+  m_EditorClassIdentifier: 
+  PartId: equipment.resource.efficientenergy
+  DisplayName: "\u8282\u80FD\u80FD\u91CF\u6838\u5FC3"
+  Description: "\u4E3B\u5C5E\u6027\uFF1A\u80FD\u91CF +30\u3002\u526F\u8BCD\u6761\uFF1A\u80FD\u91CF\u6D88\u8017
+    \xD70.65\u3001\u6BCF 5 \u79D2\u51C0\u5316\u6301\u7EED\u72B6\u6001\u3002"
+  Kind: 19
+  PrimaryOperations:
+  - Operation: 23
+    A: 30
+    B: 0
+  Affixes:
+  - Operation: 25
+    A: 0.65
+    B: 0
+  - Operation: 22
+    A: 5
+    B: 0
+  Operations: []

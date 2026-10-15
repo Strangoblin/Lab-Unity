@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: HeavyPower
+  m_EditorClassIdentifier: 
+  PartId: modifier.HeavyPower
+  DisplayName: "\u91CD\u88C5\u5F3A\u5316"
+  Description: "\u4F24\u5BB3 \xD72\u3001\u534A\u5F84 \xD71.5\uFF0C\u901F\u5EA6 \xD70.7\u3002"
+  Category: 6
+  EnergyPerProjectile: 1.2
+  Operations:
+  - Operation: 22
+    A: 2
+    B: 1
+    Delay: 0
+    Count: 1
+  - Operation: 24
+    A: 1.5
+    B: 1
+    Delay: 0
+    Count: 1
+  - Operation: 23
+    A: 0.7
+    B: 1
+    Delay: 0
+    Count: 1

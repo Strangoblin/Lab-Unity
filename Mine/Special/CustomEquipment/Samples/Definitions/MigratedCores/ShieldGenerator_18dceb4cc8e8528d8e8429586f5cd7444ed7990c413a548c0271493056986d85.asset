@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: ShieldGenerator_18dceb4cc8e8528d8e8429586f5cd7444ed7990c413a548c0271493056986d85
+  m_EditorClassIdentifier: 
+  PartId: equipment.compat.shieldgenerator.18dceb4cc8e8528d8e8429586f5cd7444ed7990c413a548c0271493056986d85
+  DisplayName: "\u517C\u5BB9\xB7\u62A4\u76FE\u53D1\u751F\u5668"
+  Description: "\u539F\u88C5\u914D\u5F52\u5E76\uFF1A\u62A4\u76FE\u7535\u6C60\u3002\u6548\u679C\u53C2\u6570\u4FDD\u7559\uFF1B\u66FF\u6362\u672C\u6838\u5FC3\u4F1A\u66FF\u6362\u6574\u7EC4\u52A0\u6210\u3002"
+  Kind: 9
+  Operations:
+  - Operation: 4
+    A: 50
+    B: 0
+  - Operation: 5
+    A: 8
+    B: 0

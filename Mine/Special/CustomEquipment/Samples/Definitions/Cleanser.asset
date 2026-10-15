@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Cleanser
+  m_EditorClassIdentifier: 
+  PartId: equipment.cleanser
+  DisplayName: "\u51C0\u5316\u6A21\u5757"
+  Description: "\u6BCF 5 \u79D2\u6E05\u9664\u5F53\u524D\u6301\u7EED\u72B6\u6001\uFF1B\u6362\u88C5\u4E0D\u91CD\u7F6E\u51C0\u5316\u65F6\u949F\u3002"
+  Kind: 7
+  Operations:
+  - Operation: 22
+    A: 5
+    B: 0

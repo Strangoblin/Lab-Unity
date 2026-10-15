@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 508c56d3bd514cd191eefc6bfa707fef, type: 3}
+  m_Name: ToxicOrb
+  m_EditorClassIdentifier: 
+  PartId: projectile.ToxicOrb
+  DisplayName: "\u6BD2\u6DB2\u7403"
+  Description: "\u7EFF\u8272\u957F\u5BFF\u547D\u7403\u4F53\uFF0C\u9002\u5408\u5EF6\u8FDF\u5206\u88C2\u3002"
+  Damage: 10
+  Speed: 24
+  Radius: 0.13
+  Lifetime: 6
+  EnergyPerProjectile: 1.2
+  Color: {r: 0, g: 1, b: 0, a: 1}

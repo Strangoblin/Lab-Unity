@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1851eb18a3e9429a9f5fa4688465f3b4, type: 3}
+  m_Name: FirePoison_Recipe
+  m_EditorClassIdentifier: 
+  RecipeId: storage.threat.FirePoison
+  DisplayName: "\u706B\u6BD2\u590D\u5408\u5F39"
+  Description: "\u76F4\u63A5\u4F24\u5BB3 12\uFF0C\u71C3\u70E7 6/s \xD74 \u79D2 +
+    \u4E2D\u6BD2 4/s \xD76 \u79D2\u3002"
+  Cooldown: 0.35
+  BaseEnergyCost: 0
+  MaxProjectilesPerShot: 128
+  MaxGeneratedPerShot: 1024
+  Parts:
+  - {fileID: 11400000, guid: c52b75339e1fcd04ab32f3a31933e812, type: 2}
+  - {fileID: 11400000, guid: 5b47372246a672b409b5a14dc3857e88, type: 2}

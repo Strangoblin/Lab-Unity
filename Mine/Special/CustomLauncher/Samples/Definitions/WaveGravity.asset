@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: WaveGravity
+  m_EditorClassIdentifier: 
+  PartId: trajectory.WaveGravity
+  DisplayName: "\u6CE2\u6D6A\u629B\u7269\u7EBF"
+  Description: "\u540C\u65F6\u65BD\u52A0\u91CD\u529B\u548C\u6A2A\u5411\u6CE2\u6D6A\u3002"
+  Category: 2
+  EnergyPerProjectile: 0.9
+  Operations:
+  - Operation: 0
+    A: 6
+    B: 1
+    Delay: 0
+    Count: 1
+  - Operation: 2
+    A: 0.5
+    B: 10
+    Delay: 0
+    Count: 1

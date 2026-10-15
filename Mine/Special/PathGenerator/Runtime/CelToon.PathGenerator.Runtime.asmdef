@@ -1,0 +1,16 @@
+{
+  "name": "CelToon.PathGenerator.Runtime",
+  "rootNamespace": "CelToon.PathGenerator.Runtime",
+  "references": [
+    "CelToon.PathGenerator.Contracts"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

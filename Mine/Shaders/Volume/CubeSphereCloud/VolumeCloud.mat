@@ -49,7 +49,7 @@ Material:
     - _NoiseStrength: 1.5
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Softness: 0.223
+    - _Softness: 0.5
     m_Colors:
     - _Base_Color_A: {r: 0.24158953, g: 0.31319702, b: 0.4198113, a: 0}
     - _Base_Color_B: {r: 1, g: 1, b: 1, a: 0}

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: DoubleExplosion
+  m_EditorClassIdentifier: 
+  PartId: impact.DoubleExplosion
+  DisplayName: "\u53CC\u91CD\u7206\u70B8"
+  Description: "\u4E00\u6B21\u547D\u4E2D\u6267\u884C\u4E24\u6B21\u7206\u70B8\uFF1A\u8FD1\u8DDD\u5F3A\u7206\u4E0E\u8FDC\u8DDD\u5F31\u7206\u3002"
+  Category: 4
+  EnergyPerProjectile: 2
+  Operations:
+  - Operation: 13
+    A: 2
+    B: 1
+    Delay: 0
+    Count: 1
+  - Operation: 13
+    A: 4
+    B: 0.4
+    Delay: 0
+    Count: 1

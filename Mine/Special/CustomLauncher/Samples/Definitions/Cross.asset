@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f92b8165a9de44e696ec4bb36cfecbce, type: 3}
+  m_Name: Cross
+  m_EditorClassIdentifier: 
+  PartId: distribution.Cross
+  DisplayName: "\u5341\u5B57\u5206\u5E03"
+  Description: "\u4E2D\u5FC3\u53CA\u6C34\u5E73\u3001\u5782\u76F4\u56DB\u65B9\u5411\uFF0C\u5171
+    5 \u53D1\u3002"
+  Mode: 5
+  Count: 5
+  SpreadDegrees: 24

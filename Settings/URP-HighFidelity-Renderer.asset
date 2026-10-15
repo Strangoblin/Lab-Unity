@@ -17,47 +17,15 @@ MonoBehaviour:
     ssrShader: {fileID: 4800000, guid: 7252a6ae0aadcc04ab92ed7c3b9ec861, type: 3}
     stepSize: 1
     maxDistance: 50
-    stepCount: 128
+    stepCount: 64
     binaryCount: 4
-    mipCount: 4
+    mipCount: 7
     thickness: 0.15
     smoothness: 0.5
-    jitterScale: 1
-    blurScale: 0
-    SSRFeature: 0
-    ssrType: 1
---- !u!114 &-6005319116208775424
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44f6d307490e7be45bade008fd49f400, type: 3}
-  m_Name: SSCFeature
-  m_EditorClassIdentifier: 
-  m_Active: 1
-  settings:
-    sscShader: {fileID: 4800000, guid: 3784ad67eb3b5304b9245dd051049729, type: 3}
-    rayCount: 1
-    baseColorA: {r: 1, g: 1, b: 1, a: 1}
-    baseColorB: {r: 0.1509434, g: 0.49722528, b: 1, a: 1}
-    mainTex2D: {fileID: 2800000, guid: 181a09cc1b636c0438e1cc6074f1fdf6, type: 3}
-    scale: 3
-    speed: 1
-    height: 48.9
-    middle: 0.3
-    rotation: 0
-    thickness: 0.8
-    threshold: 0.2
-    size: {x: 100, y: 10, z: 100}
-    jitter: 1
-    downsample: 2
-    phaseG: 0
-    ambientIntensity: 2
-    SSCFeature: 0
+    jitterScale: 0.05
+    blurScale: 1
+    SSRFeature: 1
+    ssrType: 2
 --- !u!114 &-2590062678036469317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,7 +62,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f62c9c65cf3354c93be831c8bc075510, type: 3}
   m_Name: SSAO
   m_EditorClassIdentifier: 
-  m_Active: 0
+  m_Active: 1
   m_Settings:
     AOMethod: 1
     Downsample: 0
@@ -165,8 +133,7 @@ MonoBehaviour:
   - {fileID: 6543334011327472316}
   - {fileID: 2329654776754853481}
   - {fileID: 2648896051675373876}
-  - {fileID: -6005319116208775424}
-  m_RendererFeatureMap: adc0de57c6d2eee5885cda6754ef5213d5084591f61ecc9abba9a391b73f0edcd5533e7b24d86f59477c715bedf5d25c61c2c112076e1c1dbce2e77f9d97ce5a69d6c329ad98542034a10bafecc4c224005f83d314d2a8ac
+  m_RendererFeatureMap: adc0de57c6d2eee5885cda6754ef5213d5084591f61ecc9abba9a391b73f0edcd5533e7b24d86f59477c715bedf5d25c61c2c112076e1c1dbce2e77f9d97ce5a69d6c329ad98542034a10bafecc4c224
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -280,7 +247,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d613f08f173d4dd895bb07b3230baa9, type: 3}
   m_Name: FullScreenPassRendererFeature
   m_EditorClassIdentifier: 
-  m_Active: 0
+  m_Active: 1
   injectionPoint: 600
   fetchColorBuffer: 1
   requirements: 0
@@ -303,25 +270,21 @@ MonoBehaviour:
   m_Active: 0
   settings:
     ssoShader: {fileID: 4800000, guid: a2f57ac10d03f674caf4d7c2be4fbac5, type: 3}
-    ssoType: 1
+    colorParams:
+      intensity: 0
+      thickness: 1
+      threshold: {x: 0, y: 1}
     depthParams:
       intensity: 1
-      thickness: 2
-      threshold: {x: 0, y: 0.25}
+      thickness: 1
+      threshold: {x: 0, y: 1}
     normalParams:
       intensity: 1
-      thickness: 2
+      thickness: 1
       threshold: {x: 0, y: 1}
-    shadowParams:
-      shadowType: 2
-      Intensity: 1
-      Sharpness: 0.2
-      Thickness: 0.1
-      Density: 0.2
-    jitter: 0.2
-    downsample: 0
-    OutlineColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.2}
-    SSOFeature: 0
+    ssoType: 0
+    jitter: 0
+    SSOFeature: 1
 --- !u!114 &6444607242988573653
 MonoBehaviour:
   m_ObjectHideFlags: 0

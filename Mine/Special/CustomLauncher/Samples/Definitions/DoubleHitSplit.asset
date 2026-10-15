@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: DoubleHitSplit
+  m_EditorClassIdentifier: 
+  PartId: trigger.DoubleHitSplit
+  DisplayName: "\u547D\u4E2D\u53CC\u5206\u88C2"
+  Description: "\u4E00\u6B21\u63A5\u89E6\u6267\u884C\u4E24\u7EC4\u5206\u88C2\uFF0C\u6BCF\u7EC4\u4E09\u9897\uFF0C\u89D2\u5EA6\u4E0D\u540C\u3002"
+  Category: 5
+  EnergyPerProjectile: 1.5
+  Operations:
+  - Operation: 20
+    A: 25
+    B: 1
+    Delay: 0
+    Count: 3
+  - Operation: 20
+    A: 70
+    B: 0.6
+    Delay: 0
+    Count: 3

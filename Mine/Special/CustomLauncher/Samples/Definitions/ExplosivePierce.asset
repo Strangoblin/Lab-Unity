@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: ExplosivePierce
+  m_EditorClassIdentifier: 
+  PartId: impact.ExplosivePierce
+  DisplayName: "\u7A7F\u900F\u7206\u7834"
+  Description: "\u7A7F\u900F\u4E24\u6B21\uFF0C\u6BCF\u6B21\u63A5\u89E6\u4EA7\u751F\u8303\u56F4\u7206\u70B8\u3002"
+  Category: 4
+  EnergyPerProjectile: 2
+  Operations:
+  - Operation: 15
+    A: 1
+    B: 1
+    Delay: 0
+    Count: 2
+  - Operation: 13
+    A: 2.5
+    B: 0.5
+    Delay: 0
+    Count: 1

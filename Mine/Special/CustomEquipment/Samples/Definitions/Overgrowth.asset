@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Overgrowth
+  m_EditorClassIdentifier: 
+  PartId: equipment.overgrowth
+  DisplayName: "\u8D85\u751F\u957F\u6838\u5FC3"
+  Description: "\u751F\u547D\u4E0A\u9650 \xD72\uFF1B\u63D0\u5347\u4E0A\u9650\u4E0D\u81EA\u52A8\u6CBB\u7597\u3002"
+  Kind: 0
+  Operations:
+  - Operation: 1
+    A: 2
+    B: 0

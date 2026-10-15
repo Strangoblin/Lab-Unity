@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: ShockStun
+  m_EditorClassIdentifier: 
+  PartId: damage.ShockStun
+  DisplayName: "\u9707\u51FB"
+  Description: "\u8FFD\u52A0\u4F24\u5BB3\u5E76\u77ED\u6682\u7729\u6655\u3002"
+  Category: 3
+  EnergyPerProjectile: 1.4
+  Operations:
+  - Operation: 12
+    A: 0.35
+    B: 1
+    Delay: 0
+    Count: 1
+  - Operation: 10
+    A: 1
+    B: 0.8
+    Delay: 0
+    Count: 1

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: Pierce
+  m_EditorClassIdentifier: 
+  PartId: impact.Pierce
+  DisplayName: "\u7A7F\u900F\u4E09\u6B21"
+  Description: "\u7A7F\u8FC7 3 \u4E2A\u78B0\u649E\u4F53\uFF0C\u540C\u4E00\u78B0\u649E\u4F53\u4E0D\u91CD\u590D\u7ED3\u7B97\u3002"
+  Category: 4
+  EnergyPerProjectile: 0.9
+  Operations:
+  - Operation: 15
+    A: 1
+    B: 1
+    Delay: 0
+    Count: 3

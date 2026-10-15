@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: AllWeather
+  m_EditorClassIdentifier: 
+  PartId: equipment.allweather
+  DisplayName: "\u5168\u57DF\u9632\u62A4"
+  Description: "\u71C3\u70E7\u3001\u4E2D\u6BD2\u3001\u51CF\u901F\u3001\u7729\u6655\u3001\u6613\u4F24\u6297\u6027\u5404
+    35%\u3002"
+  Kind: 3
+  Operations:
+  - Operation: 7
+    A: 0.35
+    B: 0
+  - Operation: 8
+    A: 0.35
+    B: 0
+  - Operation: 9
+    A: 0.35
+    B: 0
+  - Operation: 10
+    A: 0.35
+    B: 0
+  - Operation: 11
+    A: 0.35
+    B: 0

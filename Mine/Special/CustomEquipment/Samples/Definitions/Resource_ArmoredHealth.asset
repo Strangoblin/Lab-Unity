@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Resource_ArmoredHealth
+  m_EditorClassIdentifier: 
+  PartId: equipment.resource.armoredhealth
+  DisplayName: "\u91CD\u7532\u751F\u547D\u6838\u5FC3"
+  Description: "\u4E3B\u5C5E\u6027\uFF1A\u751F\u547D +50\u3002\u526F\u8BCD\u6761\uFF1A\u62A4\u7532
+    16\u3001\u4F24\u5BB3 \xD70.9\u3001\u53D7\u51FB\u4FDD\u62A4 0.3 \u79D2\u3002"
+  Kind: 16
+  PrimaryOperations:
+  - Operation: 0
+    A: 50
+    B: 0
+  Affixes:
+  - Operation: 2
+    A: 16
+    B: 0
+  - Operation: 3
+    A: 0.9
+    B: 0
+  - Operation: 17
+    A: 0.3
+    B: 0
+  Operations: []

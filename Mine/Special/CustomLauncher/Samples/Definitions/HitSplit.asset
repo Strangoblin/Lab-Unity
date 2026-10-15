@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: HitSplit
+  m_EditorClassIdentifier: 
+  PartId: trigger.HitSplit
+  DisplayName: "\u547D\u4E2D\u5206\u88C2"
+  Description: "\u7B2C\u4E00\u6B21\u63A5\u89E6\u65F6\u751F\u6210 5 \u9897\u788E\u7247\u3002"
+  Category: 5
+  EnergyPerProjectile: 0.9
+  Operations:
+  - Operation: 20
+    A: 60
+    B: 0.8
+    Delay: 0
+    Count: 5

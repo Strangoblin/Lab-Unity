@@ -1,0 +1,31 @@
+{
+    "name":  "CelToon.CustomLauncher.Editor",
+    "rootNamespace":  "CelToon.CustomLauncher.Editor",
+    "references":  [
+                       "CelToon.CustomLauncher.Contracts",
+                       "CelToon.CustomLauncher.Definitions",
+                       "CelToon.CustomLauncher.Compilation",
+                       "CelToon.CustomLauncher.Runtime",
+                       "CelToon.CustomLauncher.Projectiles",
+                       "CelToon.CustomLauncher.Samples"
+                   ],
+    "includePlatforms":  [
+                             "Editor"
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  false,
+    "precompiledReferences":  [
+
+                              ],
+    "autoReferenced":  true,
+    "defineConstraints":  [
+
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false
+}

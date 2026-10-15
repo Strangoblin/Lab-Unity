@@ -62,7 +62,7 @@ Shader "Custom/RimToonStylizedBillboard"
     half4 Frag(Varyings input) : SV_Target
     {
         float3 positionOS = input.positionOS;
-        float  alphaA   = saturate( - SDF_Sphere(positionOS, _OutlineScaleA) * _OutlineScaleB );
+        float  alphaA   = saturate( - SphereSDF(positionOS, _OutlineScaleA) * _OutlineScaleB );
 
         float2 screenUV = input.screenUV;
         float2 noiseUV = screenUV * _NoiseScale + _Time.y * _NoiseSpeed;

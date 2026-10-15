@@ -35,19 +35,19 @@ Shader "Hidden/CelToon/SSL"
     float  _JitterScale;
 
     TEXTURE2D_X(_MainTex);
-    TEXTURE2D_X(_SSLTex);
+    TEXTURE2D_X(_SSLResultTex);
 
     // Reconstruct world position from depth
-    float3 ReconstructWorldPos(float2 uv)
+    float3 ReconstructWorldPos(float2 uv, float3 CameraPos, float MaxDistance)
     {
         float rawDepth = SampleSceneDepth(uv);
         return ComputeWorldSpacePosition(uv, rawDepth, UNITY_MATRIX_I_VP);
     }
 
     // Sample shadow map at given world position
-    float SampleShadow(float3 positionWS)
+    float SampleShadow(float3 positionCS)
     {
-        float4 shadowCoord = TransformWorldToShadowCoord(positionWS);
+        float4 shadowCoord = TransformWorldToShadowCoord(positionCS);
         return SAMPLE_TEXTURE2D_SHADOW(
             _MainLightShadowmapTexture, 
             sampler_MainLightShadowmapTexture, 
@@ -126,7 +126,7 @@ Shader "Hidden/CelToon/SSL"
         Light mainLight = GetMainLight();
         float3 lightDirWS  = mainLight.direction;
         float3 cameraPosWS = GetCameraPositionWS();
-        float3 positionWS  = ReconstructWorldPos(uv);
+        float3 positionWS  = ReconstructWorldPos(uv, cameraPosWS, _MaxDistance);
 
         float density = SSL(
             cameraPosWS,
@@ -164,7 +164,7 @@ Shader "Hidden/CelToon/SSL"
     half4 Frag_Mix(Varyings i) : SV_Target
     {
         half4 mainColor = SAMPLE_TEXTURE2D_X(_MainTex, sampler_LinearClamp, i.uv);
-        half4 lightColor = SAMPLE_TEXTURE2D_X(_SSLTex, sampler_LinearClamp, i.uv);
+        half4 lightColor = SAMPLE_TEXTURE2D_X(_SSLResultTex, sampler_LinearClamp, i.uv);
         return mainColor + lightColor;
     }
     ENDHLSL

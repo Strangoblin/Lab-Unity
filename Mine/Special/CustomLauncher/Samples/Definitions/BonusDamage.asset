@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: BonusDamage
+  m_EditorClassIdentifier: 
+  PartId: damage.BonusDamage
+  DisplayName: "\u989D\u5916\u6253\u51FB"
+  Description: "\u547D\u4E2D\u540E\u8FFD\u52A0\u4E00\u6B21 50% \u57FA\u7840\u4F24\u5BB3\u3002"
+  Category: 3
+  EnergyPerProjectile: 0.7
+  Operations:
+  - Operation: 12
+    A: 0.5
+    B: 1
+    Delay: 0
+    Count: 1

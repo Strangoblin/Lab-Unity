@@ -1,0 +1,35 @@
+{
+    "name":  "CelToon.CustomLauncher.Tests.EditMode",
+    "rootNamespace":  "CelToon.CustomLauncher.Tests.EditMode",
+    "references":  [
+                       "CelToon.CustomLauncher.Contracts",
+                       "CelToon.CustomLauncher.Definitions",
+                       "CelToon.CustomLauncher.Compilation",
+                       "CelToon.CustomLauncher.Runtime",
+                       "CelToon.CustomLauncher.Projectiles",
+                       "CelToon.CustomLauncher.Samples",
+                       "CelToon.CustomLauncher.Editor"
+                   ],
+    "includePlatforms":  [
+                             "Editor"
+                         ],
+    "excludePlatforms":  [
+
+                         ],
+    "allowUnsafeCode":  false,
+    "overrideReferences":  true,
+    "precompiledReferences":  [
+                                  "nunit.framework.dll"
+                              ],
+    "autoReferenced":  false,
+    "defineConstraints":  [
+                              "UNITY_INCLUDE_TESTS"
+                          ],
+    "versionDefines":  [
+
+                       ],
+    "noEngineReferences":  false,
+    "optionalUnityReferences":  [
+                                    "TestAssemblies"
+                                ]
+}

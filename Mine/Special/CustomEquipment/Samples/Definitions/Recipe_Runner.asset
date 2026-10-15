@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f2d5e32498f43c1bbd15238ad4a278a, type: 3}
+  m_Name: Recipe_Runner
+  m_EditorClassIdentifier: 
+  RecipeId: equipment.recipe.runner
+  DisplayName: "\u75BE\u884C\u8005"
+  Description: "\u89C2\u5BDF\u79FB\u52A8\u3001\u51B2\u523A\u4F53\u529B\u3001\u51CF\u901F\u6297\u6027\u4E0E\u51FB\u9000\u3002\n\u56DB\u6838\u5FC3\u517C\u5BB9\u914D\u65B9\uFF1A\u4FDD\u7559\u539F\u88C5\u914D\u53C2\u6570\uFF1B\u66FF\u6362\u6216\u6E05\u7A7A\u6838\u5FC3\u4F1A\u66FF\u6362\u6574\u7EC4\u52A0\u6210\u3002\n\u8D44\u6E90\u6838\u5FC3\u517C\u5BB9\u914D\u65B9\uFF1A\u65E7\u6548\u679C\u5F52\u5165\u4E3B\u5C5E\u6027/\u56FA\u5B9A\u526F\u8BCD\u6761\uFF1B\u66FF\u6362\u6838\u5FC3\u4F1A\u66FF\u6362\u6574\u7EC4\u52A0\u6210\u3002"
+  BaseStats:
+    MaxHealth: 100
+    Armor: 0
+    DamageScale: 1
+    MaxShield: 0
+    ShieldRegen: 0
+    ShieldDelay: 3
+    BurnResistance: 0
+    PoisonResistance: 0
+    SlowResistance: 0
+    StunResistance: 0
+    MarkResistance: 0
+    HealthRegen: 0
+    RecoveryDelay: 4
+    MoveSpeed: 3
+    SprintMultiplier: 1.7
+    ImpulseResistance: 0
+    HitInvulnerability: 0
+    EmergencyHealFraction: 0
+    EmergencyCooldown: 0
+    MaxStamina: 100
+    StaminaRegen: 15
+    SprintCost: 22
+    CleanseInterval: 0
+    MaxEnergy: 100
+    EnergyRegen: 10
+    EnergyCostScale: 1
+  ResourceSchemaVersion: 1
+  Parts:
+  - {fileID: 11400000, guid: 7994cf9159194aa4abe3fd2ca297255c, type: 2}
+  - {fileID: 11400000, guid: b3f18dcf12763bf4890eade3250f81fb, type: 2}
+  - {fileID: 11400000, guid: edcf859b9733d534aa39204431deb670, type: 2}

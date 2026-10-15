@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: TwinShield
+  m_EditorClassIdentifier: 
+  PartId: equipment.twinshield
+  DisplayName: "\u53CC\u7535\u82AF\u62A4\u76FE"
+  Description: "\u5185\u90E8\u4E24\u4E2A +35 \u7535\u82AF\uFF0C\u603B\u4E0A\u9650
+    +70\uFF0C\u56DE\u590D 12/s\u3002"
+  Kind: 2
+  Operations:
+  - Operation: 4
+    A: 35
+    B: 0
+  - Operation: 4
+    A: 35
+    B: 0
+  - Operation: 5
+    A: 12
+    B: 0

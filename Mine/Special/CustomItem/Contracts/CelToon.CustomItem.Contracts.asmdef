@@ -1,0 +1,7 @@
+{
+  "name": "CelToon.CustomItem.Contracts",
+  "rootNamespace": "CelToon.CustomItem.Contracts",
+  "references": [],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

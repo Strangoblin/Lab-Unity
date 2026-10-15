@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: Drag
+  m_EditorClassIdentifier: 
+  PartId: trajectory.Drag
+  DisplayName: "\u963B\u529B"
+  Description: "\u901F\u5EA6\u6307\u6570\u8870\u51CF\uFF0C\u53EF\u4E0E\u5B9A\u65F6\u5206\u88C2\u7EC4\u5408\u3002"
+  Category: 2
+  EnergyPerProjectile: 0.2
+  Operations:
+  - Operation: 5
+    A: 0.7
+    B: 1
+    Delay: 0
+    Count: 1

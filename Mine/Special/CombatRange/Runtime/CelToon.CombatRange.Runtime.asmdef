@@ -1,0 +1,30 @@
+{
+  "name": "CelToon.CombatRange.Runtime",
+  "rootNamespace": "CelToon.CombatRange.Runtime",
+  "references": [
+    "CelToon.CustomEquipment.Contracts",
+    "CelToon.CustomEquipment.Definitions",
+    "CelToon.CustomEquipment.Compilation",
+    "CelToon.CustomEquipment.Runtime",
+    "CelToon.CustomEquipment.Samples",
+    "CelToon.CustomLauncher.Contracts",
+    "CelToon.CustomLauncher.Definitions",
+    "CelToon.CustomLauncher.Compilation",
+    "CelToon.CustomLauncher.Runtime",
+    "CelToon.CustomLauncher.Projectiles",
+    "CelToon.CustomLauncher.Samples",
+    "CelToon.CustomItem.Contracts",
+    "CelToon.CustomItem.Runtime",
+    "CelToon.CustomItem.Adapters",
+    "CelToon.CustomItem.Samples"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

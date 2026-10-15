@@ -2,12 +2,12 @@
 #ifndef SDF_HLSL_INCLUDED
 #define SDF_HLSL_INCLUDED
 
-float SDF_Sphere(float3 position, float radius)
+float SphereSDF(float3 position, float radius)
 {
     return length(position) - radius;
 }
 
-float SDF_Box(float3 position, float3 bounds)
+float BoxSDF(float3 position, float3 bounds)
 {
     float3 d = abs(position) - bounds;
     return length(max(d,0.0)) + min(max(d.x,max(d.y,d.z)),0.0);

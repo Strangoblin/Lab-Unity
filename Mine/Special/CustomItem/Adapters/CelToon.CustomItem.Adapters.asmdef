@@ -1,0 +1,12 @@
+{
+  "name": "CelToon.CustomItem.Adapters",
+  "rootNamespace": "CelToon.CustomItem.Adapters",
+  "references": [
+    "CelToon.CustomItem.Contracts", "CelToon.CustomItem.Runtime",
+    "CelToon.CustomLauncher.Contracts", "CelToon.CustomLauncher.Definitions", "CelToon.CustomLauncher.Compilation", "CelToon.CustomLauncher.Runtime",
+    "CelToon.CustomEquipment.Contracts", "CelToon.CustomEquipment.Definitions", "CelToon.CustomEquipment.Compilation", "CelToon.CustomEquipment.Runtime"
+  ],
+  "includePlatforms": [], "excludePlatforms": [], "allowUnsafeCode": false,
+  "overrideReferences": false, "precompiledReferences": [], "autoReferenced": true,
+  "defineConstraints": [], "versionDefines": [], "noEngineReferences": false
+}

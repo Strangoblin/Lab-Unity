@@ -17,7 +17,7 @@ public class SSRFeature : ScriptableRendererFeature
 
         [Range(0.001f, 0.5f)] public float thickness = 0.05f;
         [Range(0f, 1f)] public float smoothness = 1f;
-        [Range(0f, 1f)] public float jitterScale = 0.5f;
+        [Range(0f, 0.1f)] public float jitterScale = 0.01f;
         [Range(0f, 5f)] public float blurScale = 0.5f;
 
 

@@ -212,11 +212,11 @@ Shader "Hidden/CelToon/SSR"
         float rawDepth = SampleSceneDepth(uv);
         
         float3 positionWS = ComputeWorldSpacePosition(uv, rawDepth, UNITY_MATRIX_I_VP);
-        float3 viewDir   = normalize(positionWS - GetCameraPositionWS());
+        float3 viewDir   = normalize(_WorldSpaceCameraPos - positionWS);
         float3 normalWS  = SampleSceneNormals(uv);
-        float3 reflectDir = reflect(viewDir, normalWS);
+        float3 reflectDir = reflect(-viewDir, normalWS);
 
-        float ndotv = saturate(dot(normalWS, -viewDir));
+        float ndotv = saturate(dot(normalWS, viewDir));
         if(ndotv <= 0.0)
             return color;
         // Initial setup complete
@@ -236,15 +236,18 @@ Shader "Hidden/CelToon/SSR"
         float3 startV   = startVS * startK;
         float3 endV     = endVS * endK;
         // Step calculation
-        float  dk   = (endK - startK) / _StepCount * _StepSize;
-        float2 ds   = (endS - startS) / _StepCount * _StepSize;
-        float3 dv   = (endV - startV) / _StepCount * _StepSize;
-
-        // Jitter setup
+        float  dk   = (endK - startK) / _StepCount;
+        float2 ds   = (endS - startS) / _StepCount;
+        float3 dv   = (endV - startV) / _StepCount;
+        // Step adjustment with jitter
         float jitter = frac(sin(dot(uv ,float2(12.9898,78.233))) * 43758.5453);
-        float  K = startK + jitter * _JitterScale * dk;
-        float2 S = startS + jitter * _JitterScale * ds;
-        float3 V = startV + jitter * _JitterScale * dv;
+        dk = dk * _StepSize + jitter * _JitterScale * dk;
+        ds = ds * _StepSize + jitter * _JitterScale * ds;
+        dv = dv * _StepSize + jitter * _JitterScale * dv;
+
+        float  K = startK;
+        float2 S = startS;
+        float3 V = startV;
 
         #if defined(SSR_HIZ2D)
             color = HiZProcess(color, reflectDir, dk, ds, dv, K, S, V);
@@ -262,7 +265,7 @@ Shader "Hidden/CelToon/SSR"
         float rawDepth = SampleSceneDepth(uv);
 
         float3 positionWS = ComputeWorldSpacePosition(uv, rawDepth, UNITY_MATRIX_I_VP);
-        float3 viewDir   = normalize(positionWS - GetCameraPositionWS());
+        float3 viewDir   = normalize(positionWS - _WorldSpaceCameraPos);
         float3 normalWS  = SampleSceneNormals(uv);
         float3 reflectDir = reflect(viewDir, normalWS);
 
@@ -275,10 +278,10 @@ Shader "Hidden/CelToon/SSR"
         float3 endWS    = positionWS + reflectDir * _MaxDistance;
 
         float3 dw = (endWS - startWS) / _StepCount;
-        dw = dw * _StepSize;
-
         float jitter = frac(sin(dot(uv ,float2(12.9898,78.233))) * 43758.5453);
-        float3 W = startWS + jitter * _JitterScale * dw;
+        dw = dw * _StepSize + jitter * _JitterScale * dw;
+
+        float3 W = startWS;
         [loop]
         for (int i = 0; i < _StepCount; i++)
         {

@@ -1,0 +1,19 @@
+{
+  "name": "CelToon.ProceduralController.Runtime",
+  "rootNamespace": "CelToon.ProceduralController.Runtime",
+  "references": [
+    "CelToon.PathGenerator.Contracts",
+    "CelToon.ProceduralController.Contracts",
+    "CelToon.ProceduralController.Execution",
+    "CelToon.ProceduralController.Environment"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

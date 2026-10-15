@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Core_VitalShell
+  m_EditorClassIdentifier: 
+  PartId: equipment.core.vitalshell
+  DisplayName: "\u751F\u547D\u9632\u5FA1\u6838\u5FC3"
+  Description: "\u751F\u547D\u4E0A\u9650 \xD72\uFF1B\u4FDD\u7559\u57FA\u7840\u62A4\u7532\u4E0E\u6297\u6027\uFF0C\u6362\u88C5\u4E0D\u6CBB\u7597\u3002"
+  Kind: 8
+  Operations:
+  - Operation: 1
+    A: 2
+    B: 0

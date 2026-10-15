@@ -217,7 +217,7 @@ MonoBehaviour:
     m_Value: 1
   sslScale:
     m_OverrideState: 1
-    m_Value: 0.85
+    m_Value: 0.9
   jitterScale:
     m_OverrideState: 0
     m_Value: 0.5

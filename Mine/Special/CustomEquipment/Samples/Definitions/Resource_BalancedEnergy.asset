@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Resource_BalancedEnergy
+  m_EditorClassIdentifier: 
+  PartId: equipment.resource.balancedenergy
+  DisplayName: "\u5747\u8861\u80FD\u91CF\u6838\u5FC3"
+  Description: "\u4E3B\u5C5E\u6027\uFF1A\u80FD\u91CF +40\u3002\u526F\u8BCD\u6761\uFF1A\u80FD\u91CF\u56DE\u590D
+    +4/s\u3002"
+  Kind: 19
+  PrimaryOperations:
+  - Operation: 23
+    A: 40
+    B: 0
+  Affixes:
+  - Operation: 24
+    A: 4
+    B: 0
+  Operations: []

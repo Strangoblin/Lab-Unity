@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: MarkGuard
+  m_EditorClassIdentifier: 
+  PartId: equipment.markguard
+  DisplayName: "\u6807\u8BB0\u5C4F\u969C"
+  Description: "\u6613\u4F24\u989D\u5916\u500D\u7387\u51CF\u514D 80%\u3002"
+  Kind: 3
+  Operations:
+  - Operation: 11
+    A: 0.8
+    B: 0

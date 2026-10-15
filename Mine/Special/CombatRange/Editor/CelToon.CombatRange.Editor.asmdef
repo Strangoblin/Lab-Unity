@@ -1,0 +1,36 @@
+{
+  "name": "CelToon.CombatRange.Editor",
+  "rootNamespace": "CelToon.CombatRange.Editor",
+  "references": [
+    "CelToon.CustomEquipment.Contracts",
+    "CelToon.CustomEquipment.Definitions",
+    "CelToon.CustomEquipment.Compilation",
+    "CelToon.CustomEquipment.Runtime",
+    "CelToon.CustomEquipment.Samples",
+    "CelToon.CustomLauncher.Contracts",
+    "CelToon.CustomLauncher.Definitions",
+    "CelToon.CustomLauncher.Compilation",
+    "CelToon.CustomLauncher.Runtime",
+    "CelToon.CustomLauncher.Projectiles",
+    "CelToon.CustomLauncher.Samples",
+    "CelToon.CustomItem.Contracts",
+    "CelToon.CustomItem.Runtime",
+    "CelToon.CustomItem.Adapters",
+    "CelToon.CustomItem.Samples",
+    "CelToon.CombatRange.Runtime",
+    "CelToon.CustomLauncher.Editor",
+    "CelToon.CustomEquipment.Editor",
+    "CelToon.CustomItem.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

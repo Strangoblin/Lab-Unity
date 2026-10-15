@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: SprintDrive
+  m_EditorClassIdentifier: 
+  PartId: equipment.sprintdrive
+  DisplayName: "\u51B2\u523A\u589E\u5E45"
+  Description: "\u51B2\u523A\u500D\u7387 \xD71.5\uFF0C\u6B65\u884C\u901F\u5EA6\u4E0D\u53D8\u3002"
+  Kind: 5
+  Operations:
+  - Operation: 15
+    A: 1.5
+    B: 0

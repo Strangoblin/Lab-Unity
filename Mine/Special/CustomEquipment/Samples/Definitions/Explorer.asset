@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Explorer
+  m_EditorClassIdentifier: 
+  PartId: equipment.explorer
+  DisplayName: "\u63A2\u7D22\u5957\u4EF6"
+  Description: "\u4F53\u529B +40\u3001\u56DE\u590D +8/s\u3001\u51B2\u523A\u6D88\u8017
+    \xD70.75\u3002"
+  Kind: 7
+  Operations:
+  - Operation: 19
+    A: 40
+    B: 0
+  - Operation: 20
+    A: 8
+    B: 0
+  - Operation: 21
+    A: 0.75
+    B: 0

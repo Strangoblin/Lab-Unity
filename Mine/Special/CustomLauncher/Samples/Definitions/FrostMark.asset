@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: FrostMark
+  m_EditorClassIdentifier: 
+  PartId: damage.FrostMark
+  DisplayName: "\u5BD2\u971C\u6613\u4F24"
+  Description: "\u51CF\u901F\u5E76\u6807\u8BB0\uFF0C\u540E\u7EED\u653B\u51FB\u589E\u4F24\u3002"
+  Category: 3
+  EnergyPerProjectile: 1.5
+  Operations:
+  - Operation: 9
+    A: 0.4
+    B: 4
+    Delay: 0
+    Count: 1
+  - Operation: 11
+    A: 1.4
+    B: 4
+    Delay: 0
+    Count: 1

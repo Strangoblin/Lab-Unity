@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c3d43180602450ca46762650ea72f3c, type: 3}
+  m_Name: Chain
+  m_EditorClassIdentifier: 
+  PartId: impact.Chain
+  DisplayName: "\u8FDE\u9501\u95EA\u7535"
+  Description: "\u4ECE\u547D\u4E2D\u70B9\u94FE\u5411 6 m \u5185\u6700\u591A 3 \u4E2A\u5176\u4ED6\u76EE\u6807\uFF0C\u5404\u53D7
+    60% \u4F24\u5BB3\u3002"
+  Category: 4
+  EnergyPerProjectile: 1.3
+  Operations:
+  - Operation: 16
+    A: 6
+    B: 0.6
+    Delay: 0
+    Count: 3

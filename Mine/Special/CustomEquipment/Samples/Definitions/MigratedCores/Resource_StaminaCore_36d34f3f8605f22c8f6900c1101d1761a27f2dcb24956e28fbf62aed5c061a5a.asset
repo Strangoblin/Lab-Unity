@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Resource_StaminaCore_36d34f3f8605f22c8f6900c1101d1761a27f2dcb24956e28fbf62aed5c061a5a
+  m_EditorClassIdentifier: 
+  PartId: equipment.compat.staminacore.36d34f3f8605f22c8f6900c1101d1761a27f2dcb24956e28fbf62aed5c061a5a
+  DisplayName: "\u517C\u5BB9\xB7\u4F53\u529B\u6838\u5FC3"
+  Description: "\u539F\u88C5\u914D\u5F52\u5E76\uFF1A\u517C\u5BB9\xB7\u673A\u52A8\u9A71\u52A8\u3002\u6548\u679C\u53C2\u6570\u4FDD\u7559\uFF1B\u66FF\u6362\u672C\u6838\u5FC3\u4F1A\u66FF\u6362\u6574\u7EC4\u52A0\u6210\u3002"
+  Kind: 18
+  PrimaryOperations:
+  - Operation: 19
+    A: 0
+    B: 0
+  Affixes:
+  - Operation: 14
+    A: 1.2
+    B: 0
+  - Operation: 16
+    A: 0.4
+    B: 0
+  - Operation: 20
+    A: 15
+    B: 0
+  Operations: []

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca8d0e2db9674991b98eb5463dc80afb, type: 3}
+  m_Name: Resource_ResistantHealth
+  m_EditorClassIdentifier: 
+  PartId: equipment.resource.resistanthealth
+  DisplayName: "\u9694\u79BB\u751F\u547D\u6838\u5FC3"
+  Description: "\u4E3B\u5C5E\u6027\uFF1A\u751F\u547D +20\u3002\u526F\u8BCD\u6761\uFF1A\u62A4\u7532
+    4\u3001\u71C3\u70E7/\u4E2D\u6BD2\u6297\u6027 65%\u3001\u51CF\u901F/\u7729\u6655
+    40%\u3001\u6613\u4F24 50%\u3002"
+  Kind: 16
+  PrimaryOperations:
+  - Operation: 0
+    A: 20
+    B: 0
+  Affixes:
+  - Operation: 2
+    A: 4
+    B: 0
+  - Operation: 7
+    A: 0.65
+    B: 0
+  - Operation: 8
+    A: 0.65
+    B: 0
+  - Operation: 9
+    A: 0.4
+    B: 0
+  - Operation: 10
+    A: 0.4
+    B: 0
+  - Operation: 11
+    A: 0.5
+    B: 0
+  Operations: []

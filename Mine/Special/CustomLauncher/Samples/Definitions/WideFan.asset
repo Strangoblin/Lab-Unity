@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f92b8165a9de44e696ec4bb36cfecbce, type: 3}
+  m_Name: WideFan
+  m_EditorClassIdentifier: 
+  PartId: distribution.WideFan
+  DisplayName: "\u5BBD\u5E45\u6563\u5C04"
+  Description: "9 \u53D1\uFF0C70\xB0 \u6247\u5F62\u8986\u76D6\u3002"
+  Mode: 1
+  Count: 9
+  SpreadDegrees: 70

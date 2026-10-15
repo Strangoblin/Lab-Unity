@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1851eb18a3e9429a9f5fa4688465f3b4, type: 3}
+  m_Name: Recipe_Electric
+  m_EditorClassIdentifier: 
+  RecipeId: recipe.Electric
+  DisplayName: "\u8FDE\u9501\u51B0\u7535"
+  Description: "\u8FFD\u8E2A + \u8FDE\u9501 + \u51CF\u901F\u3002"
+  Cooldown: 0.3
+  BaseEnergyCost: 1
+  MaxProjectilesPerShot: 128
+  MaxGeneratedPerShot: 1024
+  Parts:
+  - {fileID: 11400000, guid: c6ba13435ff972540aa5b23865daf5d4, type: 2}
+  - {fileID: 11400000, guid: 467c11a735fecc342975a8fceb6d1342, type: 2}
+  - {fileID: 11400000, guid: abf8f583c6fe06942ad8b14a64c8f13b, type: 2}
+  - {fileID: 11400000, guid: d86f7c7c8e1c0d047923929501638572, type: 2}

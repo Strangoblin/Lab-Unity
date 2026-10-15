@@ -1,0 +1,26 @@
+# ============================================================================
+# CelToon 项目级 Codex 配置 —— 官方 OpenAI 配置
+# ----------------------------------------------------------------------------
+# 目标：本项目一律走官方账号/官方端点，与“外层 opencode / 第三方 provider”
+# 无关。本项目文件刻意不写任何私有/账号信息，可安全提交 git。
+#
+# 说明（官方 config reference）：
+#   model_provider / model_providers / openai_base_url / profile / profiles /
+#   notify / otel 等“机器级(provider/auth)”键写在【项目级】.codex/config.toml
+#   会被 codex 静默忽略，必须放 ~/.codex/config.toml。因此本项目不写它们，
+#   provider 恒为官方默认 openai，认证走官方账号登录(extension 登录或 codex login)。
+#
+#   项目级只能承载：model / sandbox_mode / approval_policy / tools /
+#   permissions / mcp_servers 等。下面两个值同时也就是官方默认值，显式写出
+#   仅为声明意图、方便后人理解。首行须为顶层键（本文件无 [table]，符合规范）。
+# ============================================================================
+
+# 官方默认沙箱：可读写当前工作区，其余受限，网络受控。
+sandbox_mode    = "workspace-write"   # read-only | workspace-write | danger-full-access
+
+# 交互默认：执行命令前请求用户确认（CI/脚本请另用 codex exec --config approval_policy="never"）。
+approval_policy = "on-request"        # untrusted | on-request | never | { granular = { ... } }
+
+# 模型：不写死，使用官方账号在 openai provider 下的默认模型。
+# 如需固定，可在此加一行（示例，需与你的官方账号可用模型一致）：
+# model = "gpt-5-codex"
