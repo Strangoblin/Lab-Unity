@@ -38,23 +38,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44f6d307490e7be45bade008fd49f400, type: 3}
   m_Name: SSCFeature
   m_EditorClassIdentifier: 
-  m_Active: 0
+  m_Active: 1
   settings:
     sscShader: {fileID: 4800000, guid: 3784ad67eb3b5304b9245dd051049729, type: 3}
-    noiseTex: 0
     rayCount: 1
     baseColorA: {r: 1, g: 1, b: 1, a: 1}
-    baseColorB: {r: 0, g: 0, b: 0, a: 1}
-    mainTex2D: {fileID: 2800000, guid: dbb5c78343e5af145981980b4c7dac7f, type: 2}
-    mainTex3D: {fileID: 11700000, guid: 19b5f5e5e7060d748afb1dfc476c4032, type: 2}
-    scale: 22.5
+    baseColorB: {r: 0.1509434, g: 0.49722528, b: 1, a: 1}
+    mainTex2D: {fileID: 2800000, guid: 181a09cc1b636c0438e1cc6074f1fdf6, type: 3}
+    scale: 3
     speed: 1
-    height: 12
+    height: 48.9
+    middle: 0.3
     rotation: 0
-    thickness: 0.5
-    size: {x: 10, y: 2, z: 10}
+    thickness: 0.8
+    threshold: 0.2
+    size: {x: 100, y: 10, z: 100}
     jitter: 1
     downsample: 2
+    phaseG: 0
+    ambientIntensity: 2
     SSCFeature: 0
 --- !u!114 &-2590062678036469317
 MonoBehaviour:

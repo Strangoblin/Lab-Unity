@@ -132,7 +132,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _OutlineColor: 0.5
-    - _OutlineScale: 0
+    - _OutlineScale: 0.15
     - _Parallax: 0.02
     - _QueueOffset: 0
     - _ReceiveShadows: 1

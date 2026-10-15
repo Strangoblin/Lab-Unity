@@ -19,13 +19,15 @@ float SpecularBlinnPhong(float3 normalWS, float3 lightDirWS, float3 viewDirWS, f
     return pow(NdotH, smoothness * 64) * smoothness;
 }
 
-float SpecularBlinnPhongPBR(float NdotH, float alpha)
+float SpecularBlinnPhongPBR(float NdotH, float roughness)
 {
+    float alpha = roughness * roughness;
     return (1 / alpha) * pow(NdotH, max((2 / alpha - 2), 1e-5));
 }
 
-float SpecularKajiyaKayPBR(float BdotH, float alpha)
+float SpecularKajiyaKayPBR(float BdotH, float roughness)
 {
+    float alpha = roughness * roughness;
     return (1 / alpha) * pow(BdotH, max((2 / alpha - 2), 1e-5));
 }
 

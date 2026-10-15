@@ -8,14 +8,6 @@ public class SSCFeature : ScriptableRendererFeature
     public class Settings
     {
         public Shader sscShader;
-        public enum NoiseTex
-        {
-            TEX2DR,
-            TEX2DRG,
-            TEX3DXYZ
-        }
-        public NoiseTex noiseTex = NoiseTex.TEX2DR;
-
         public enum RayCount
         {
             COUNT64,
@@ -27,26 +19,36 @@ public class SSCFeature : ScriptableRendererFeature
         public Color baseColorA = Color.white;
         public Color baseColorB = Color.black;
         public Texture2D mainTex2D;
-        public Texture3D mainTex3D;
 
         [Range(0f, 100.0f)] public float scale = 1.0f;
         [Range(0f, 100.0f)] public float speed = 1.0f;
         [Range(0f, 100.0f)] public float height = 100.0f;
+        [Range(0f, 1.000f)] public float middle = 0.5f;
         [Range(0f, 360.0f)] public float rotation = 0.0f;
         [Range(0f, 1.000f)] public float thickness = 0.5f;
-        public Vector3 size = new Vector3(100, 100, 10);
+        [Range(0f, 1.000f)] public float threshold = 0.2f;
+        public Vector3 size = new Vector3(100, 50, 100);
 
         [Range(0f, 1f)] public float jitter = 1.0f;
         [Range(0 , 4 )] public int downsample = 0;
+        [Range(-1f, 1f)] public float phaseG = 0.8f;
+        [Range(0f, 2f)] public float ambientIntensity = 1.0f;
         public bool SSCFeature = true;
 
         internal static readonly int BaseColorAID = Shader.PropertyToID("_BaseColorA");
         internal static readonly int BaseColorBID = Shader.PropertyToID("_BaseColorB");
         internal static readonly int MainTex2DID = Shader.PropertyToID("_MainTex2D");
-        internal static readonly int MainTex3DID = Shader.PropertyToID("_MainTex3D");
-        internal static readonly int ParamAID = Shader.PropertyToID("_CloudParamA");
-        internal static readonly int ParamBID = Shader.PropertyToID("_CloudParamB");
+        internal static readonly int CloudSizeID = Shader.PropertyToID("_CloudSize");
+        internal static readonly int CloudScaleID = Shader.PropertyToID("_CloudScale");
+        internal static readonly int CloudSpeedID = Shader.PropertyToID("_CloudSpeed");
+        internal static readonly int CloudRotationID = Shader.PropertyToID("_CloudRotation");
+        internal static readonly int CloudHeightID = Shader.PropertyToID("_CloudHeight");
+        internal static readonly int CloudMiddleID = Shader.PropertyToID("_CloudMiddle");
+        internal static readonly int CloudThicknessID = Shader.PropertyToID("_CloudThickness");
+        internal static readonly int CloudThresholdID = Shader.PropertyToID("_CloudThreshold");
         internal static readonly int JitterID = Shader.PropertyToID("_Jitter");
+        internal static readonly int PhaseGID = Shader.PropertyToID("_PhaseG");
+        internal static readonly int AmbientIntensityID = Shader.PropertyToID("_AmbientIntensity");
     }
 
     class SSCRenderPass : ScriptableRenderPass
@@ -86,31 +88,22 @@ public class SSCFeature : ScriptableRendererFeature
             sscMaterial.SetColor(Settings.BaseColorAID, settings.baseColorA);
             sscMaterial.SetColor(Settings.BaseColorBID, settings.baseColorB);
             sscMaterial.SetTexture(Settings.MainTex2DID, settings.mainTex2D);
-            sscMaterial.SetTexture(Settings.MainTex3DID, settings.mainTex3D);
-            sscMaterial.SetVector(Settings.ParamAID, new Vector4(settings.scale, settings.speed, settings.rotation, settings.height));
-            sscMaterial.SetVector(Settings.ParamBID, new Vector4(settings.size.x, settings.size.y, settings.size.z, settings.thickness));
+            sscMaterial.SetVector(Settings.CloudSizeID, settings.size);
+            sscMaterial.SetFloat(Settings.CloudScaleID, settings.scale);
+            sscMaterial.SetFloat(Settings.CloudSpeedID, settings.speed);
+            sscMaterial.SetFloat(Settings.CloudRotationID, settings.rotation);
+            sscMaterial.SetFloat(Settings.CloudHeightID, settings.height);
+            sscMaterial.SetFloat(Settings.CloudMiddleID, settings.middle);
+            sscMaterial.SetFloat(Settings.CloudThicknessID, settings.thickness);
+            sscMaterial.SetFloat(Settings.CloudThresholdID, settings.threshold);
             sscMaterial.SetFloat(Settings.JitterID, settings.jitter);
+            sscMaterial.SetFloat(Settings.PhaseGID, settings.phaseG);
+            sscMaterial.SetFloat(Settings.AmbientIntensityID, settings.ambientIntensity);
 
-            sscMaterial.DisableKeyword("SSC_NOISE_TEX2DR");
-            sscMaterial.DisableKeyword("SSC_NOISE_TEX2DRG");
-            sscMaterial.DisableKeyword("SSC_NOISE_TEX3DXYZ");
             sscMaterial.DisableKeyword("SSC_RAY_COUNT_64");
             sscMaterial.DisableKeyword("SSC_RAY_COUNT_128");
             sscMaterial.DisableKeyword("SSC_RAY_COUNT_256");
             
-            if (settings.noiseTex == Settings.NoiseTex.TEX2DR)
-            {
-                sscMaterial.EnableKeyword("SSC_NOISE_TEX2DR");
-            }
-            else if (settings.noiseTex == Settings.NoiseTex.TEX2DRG)
-            {
-                sscMaterial.EnableKeyword("SSC_NOISE_TEX2DRG");
-            }
-            else if (settings.noiseTex == Settings.NoiseTex.TEX3DXYZ)
-            {
-                sscMaterial.EnableKeyword("SSC_NOISE_TEX3DXYZ");
-            }
-
             if (settings.rayCount == Settings.RayCount.COUNT64)
             {
                 sscMaterial.EnableKeyword("SSC_RAY_COUNT_64");

@@ -48,15 +48,17 @@ Material:
     - _EnableOutline: 1
     - _Metallic: 0
     - _OutlineColor: 0.3
-    - _OutlineScale: 0.5
-    - _RimRange: 0.5
+    - _OutlineScale: 0.15
+    - _RimColor: 0.5
+    - _RimRange: 1
+    - _RimScale: 0.5
     - _RimStrength: 0.5
     - _Roughness: 1
     - _ToonRemap: 0.42
     - _ToonRimRange: 0.2
     - _ToonRoughness: 0.75
-    - _ToonSharpness: 0.5
-    - _ToonSmoothness: 0.1
+    - _ToonSharpness: 1
+    - _ToonSmoothness: 0.173
     - _ToonStep: 1.9
     m_Colors:
     - _BaseColor: {r: 0.8784314, g: 0.42164707, b: 0.42164707, a: 1}

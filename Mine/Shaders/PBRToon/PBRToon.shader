@@ -11,9 +11,9 @@ Shader "Custom/PBRToon"
         _Metallic ("Metallic", Range(0.0, 1.0)) = 0.0
         _Anisotropy ("Anisotropy", Range(-1.0, 1.0)) = 0.0
         _ToonSharpness ("Toon Sharpness", Range(0.0, 1.0)) = 1.0
-        _ToonSmoothness ("Toon Smoothness", Range(0.0, 1.0)) = 1.0
-        _RimRange ("Rim Range", Range(0.0, 1.0)) = 0.5
-        _RimStrength ("Rim Strength", Range(0.0, 1.0)) = 0.5
+        _ToonShadowBias ("Toon Shadow Bias", Range(-1.0, 1.0)) = 0.0
+        _RimColor ("Rim Color", Range(0.0, 1.0)) = 0.5
+        _RimScale ("Rim Range", Range(0.0, 1.0)) = 0.5
         _OutlineColor ("Outline Color", Range(0.0, 1.0)) = 0.5
         _OutlineScale ("Outline Scale", Range(0.0, 1.0)) = 0.2
         _FresnelColor ("Fresnel Color", Color) = (1.0, 1.0, 1.0, 1.0)
@@ -28,6 +28,7 @@ Shader "Custom/PBRToon"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
     #include "Assets/Mine/Special/HLSL/RimLightFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/OutlineFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/ShadowFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/ENVFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/PBRFunction.hlsl"
@@ -48,9 +49,9 @@ Shader "Custom/PBRToon"
         float _Anisotropy;
         float _ToonRemap;
         float _ToonSharpness;
-        float _ToonSmoothness;
-        float _RimRange;
-        float _RimStrength;
+        float _ToonShadowBias;
+        float _RimScale;
+        float _RimColor;
         float _OutlineColor;
         float _OutlineScale;
         float4 _ShadowColor;
@@ -62,6 +63,7 @@ Shader "Custom/PBRToon"
         float4 positionOS   : POSITION;
         float3 normalOS     : NORMAL;
         float4 tangentOS    : TANGENT;
+        float3 colorOS      : COLOR;
         float2 UV           : TEXCOORD0;
     };
 
@@ -105,9 +107,14 @@ Shader "Custom/PBRToon"
     PBRVaryings Vert_Outline(PBRAttributes input)
     {
         PBRVaryings output;
-        output.normalWS = TransformObjectToWorldNormal(input.normalOS);
-        output.positionWS = TransformObjectToWorld(input.positionOS.xyz) + output.normalWS * _OutlineScale * 0.01;
-        output.positionCS = TransformWorldToHClip(output.positionWS);
+        output.normalWS = TransformObjectToWorldNormal(input.colorOS * 2 - 1);
+
+        float3 posWS = TransformObjectToWorld(input.positionOS.xyz);
+        float4 posCS = TransformWorldToHClip(posWS);
+        posCS = ComputeOutlineCS(posWS, posCS, output.normalWS, _OutlineScale * 0.01);
+
+        output.positionWS = posWS;
+        output.positionCS = posCS;
 
         float3 tangentWS = TransformObjectToWorldDir(input.tangentOS.xyz);
         float tangentSign = input.tangentOS.w * unity_WorldTransformParams.w;
@@ -154,11 +161,17 @@ Shader "Custom/PBRToon"
         #if defined(ENABLE_CELTOON)
         shadowNdotL = lerp(dot(normalWS, lightDirWS) * 0.5 + 0.5, NdotL, _ToonSharpness);
         shadowRemap = _ToonSharpness / (1 + _ToonSharpness);
-        shadowNdotL = shadowNdotL * (1 - shadowRemap) + shadowRemap;
-        shadowNdotL = smoothstep(0.5 - _ToonSmoothness * 0.5, 0.5 + _ToonSmoothness * 0.5, shadowNdotL);
-        shadowMain  = mainLitShadowAtten * NdotL * (1 - shadowRemap) + shadowRemap;
+        shadowNdotL = smoothstep(0.5 - (1 - _ToonSharpness) * 0.5, 0.5 + (1 - _ToonSharpness) * 0.5, shadowNdotL);
+
+        float3 positionWSBiased = input.positionWS + lightDirWS * _ToonShadowBias;
+        float4 positionCSBiased = TransformWorldToHClip(positionWSBiased);
+        float depthBasic = LinearEyeDepth(input.positionCS.z / input.positionCS.w, _ZBufferParams);
+        float depthBiased = LinearEyeDepth(positionCSBiased.z / positionCSBiased.w, _ZBufferParams);
+        float depthDiff = depthBiased - depthBasic;
+        return depthDiff > 1e-5 ? half4(1, 1, 1, 1) : half4(0, 0, 0, 1);
         #endif
         float  shadowArea  = shadowMain * shadowNdotL * shadowAO * shadowAdd * (1 - shadowRemap) + shadowRemap;
+        // return shadowArea;
         float3 radiance1 = mainLitColor * mainLitDistanceAtten * shadowArea;
         float3 radiance2 = mainLitColor * mainLitDistanceAtten * mainLitShadowAtten * NdotL;
         float3 F0 = lerp(0.04, baseColor.rgb, _Metallic);
@@ -169,10 +182,10 @@ Shader "Custom/PBRToon"
         float3 Ambient  = BRDF_Env(baseColor.rgb, NdotV, normalWS, viewDirWS, roughness, _Metallic, unity_SpecCube0, samplerunity_SpecCube0);
 
         float2 screenUV    = GetNormalizedScreenSpaceUV(input.positionCS);
-        float  rimLight    = RimLightDepth(normalWS, screenUV, _RimRange * 10);
+        float  rimLight    = RimLightDepth(normalWS, screenUV, _RimScale * 0.01);
         float  rimFresnel  = pow(1.0 - NdotV, 4);
         float  rimVertical = normalWS.y * 0.5 + 0.5;
-        float3 rim         = rimLight * rimFresnel * rimVertical * radiance2 * baseColor.rgb * _RimStrength * 10;
+        float3 rim         = rimLight * rimFresnel * rimVertical * radiance2 * baseColor.rgb * _RimColor * 10;
 
         float  fresnelArea = pow(1.0 - NdotV, 1);
         float3 fresnel     = lerp(1.0, _FresnelColor.rgb, fresnelArea);
@@ -241,6 +254,13 @@ Shader "Custom/PBRToon"
             ZWrite On
             ZTest LEqual
             Blend One Zero
+
+            Stencil
+            {
+                Ref 1
+                Comp NotEqual
+                Pass Keep
+            }
 
             HLSLPROGRAM
             #pragma vertex Vert_Outline

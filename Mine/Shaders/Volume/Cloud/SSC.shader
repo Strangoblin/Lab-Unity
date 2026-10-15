@@ -5,9 +5,16 @@ Shader "Custom/SSC"
         _BaseColorA ("Base Color", Color) = (1,1,1,1)
         _BaseColorB ("Base Color", Color) = (0,0,0,1)
         _MainTex2D ("Main Texture", 2D) = "white" {}
-        _MainTex3D ("Main Texture", 3D) = "white" {}
-        _CloudParamA ("Cloud Param A", Vector) = (1,1,1,100)
-        _CloudParamB ("Cloud Param B", Vector) = (1,1,1,0.5)
+        _CloudScale ("Cloud Scale", Float) = 1
+        _CloudSpeed ("Cloud Speed", Float) = 1
+        _CloudRotation ("Cloud Rotation", Float) = 0
+        _CloudHeight ("Cloud Height", Float) = 100
+        _CloudMiddle ("Cloud Middle", Range(0,1)) = 0.5
+        _CloudSize ("Cloud Size", Vector) = (100, 50, 100)
+        _CloudThickness ("Cloud Thickness", Float) = 0.5
+        _CloudThreshold ("Cloud Threshold", Range(0,1)) = 0.2
+        _PhaseG ("Phase G", Range(-1, 1)) = 0.8
+        _AmbientIntensity ("Ambient Intensity", Range(0, 2)) = 1.0
         _Jitter ("Jitter", Float) = 0.5
         _Count ("Count", Int) = 64
     }
@@ -20,16 +27,22 @@ Shader "Custom/SSC"
 
     TEXTURE2D_X(_MainTex2D);
     SAMPLER(sampler_MainTex2D);
-    TEXTURE3D(_MainTex3D);
-    SAMPLER(sampler_MainTex3D);
     TEXTURE2D_X(_SSCTex);
     TEXTURE2D_X(_MainTex);
 
     CBUFFER_START(UnityPerMaterial)
         float4 _BaseColorA;
         float4 _BaseColorB;
-        float4 _CloudParamA;
-        float4 _CloudParamB;
+        float3 _CloudSize;
+        float _CloudScale;
+        float _CloudSpeed;
+        float _CloudRotation;
+        float _CloudHeight;
+        float _CloudMiddle;
+        float _CloudThickness;
+        float _CloudThreshold;
+        float _PhaseG;
+        float _AmbientIntensity;
         float _Jitter;
         int _Count;
     CBUFFER_END
@@ -54,37 +67,29 @@ Shader "Custom/SSC"
 
     float Noise(float3 positionWS)
     {
-        float noise = 0.0;
-        #if defined(SSC_NOISE_TEX2DR)
-            float2 uv = positionWS.xz / 256.0;
-            noise = _MainTex2D.SampleLevel(sampler_MainTex2D, uv, 0).r;
-        #elif defined(SSC_NOISE_TEX2DRG)
-            float3 pi = floor(positionWS);
-            float3 pf = frac(positionWS);
-            float3 uvw = pf * pf * (3.0 - 2.0 * pf);
-            float2 uv  = (pi.xz + float2(37.0, 17.0) * pi.y) / 256.0;
-            float2 rg = _MainTex2D.SampleLevel(sampler_MainTex2D, uv, 0).rg;
-            noise = lerp(rg.x, rg.y, uvw.y / 10);
-        #elif defined(SSC_NOISE_TEX3DXYZ)
-            float3 uvw = positionWS / 256.0;
-            noise = _MainTex3D.SampleLevel(sampler_MainTex3D, uvw, 0).r;
-        #else
-            noise = 0.0;
-        #endif
-        return noise;
+        float2 uv = positionWS.xz / 256.0;
+        return _MainTex2D.SampleLevel(sampler_MainTex2D, uv, 0).r;
     }
 
-    float DensityLOD(float3 positionWS, float3 transform, int lod)
+    // ════════════════════════════════════════════════════════════
+    //  Henyey-Greenstein 相函数 — 云体各向异性散射
+    // ════════════════════════════════════════════════════════════
+    float HG(float cosTheta, float g)
     {
-        float scale = transform.x;
-        float speed = transform.y;
-        float rotation = transform.z * 180 / 3.14;
+        float g2 = g * g;
+        return (1.0 - g2) / pow(1.0 + g2 - 2.0 * g * cosTheta, 1.5);
+    }
+
+    float DensityLOD(float3 positionWS, float cloudScale, float cloudSpeed, float cloudRotation, int lod)
+    {
+        float rotation = cloudRotation * 3.14159 / 180.0;
         float3 direction = float3(cos(rotation), 0, sin(rotation));
 
-        float3 pos = (positionWS + speed * _Time.y * direction) * scale;
+        float3 pos = positionWS * cloudScale;
+        float3 offset = cloudSpeed * _Time.y * direction * cloudScale;
         float mid = 0.0;
         float amp = 0.5;
-        float low = Noise(pos);
+        float low = Noise(pos + offset);
         float high = 0.0;
 
         static const float mul[4] = {2.02, 2.23, 2.41, 2.62};
@@ -93,35 +98,45 @@ Shader "Custom/SSC"
         for (int i = 0; i < lod; i++)
         {
             pos *= mul[i];
-            mid += amp * Noise(pos);
+            offset *= mul[i];
+
+            // Higher-frequency layers move faster to create motion between cloud details.
+            float layerSpeed = 1.0 + 0.15 * (i + 1);
+            mid += amp * Noise(pos + offset * layerSpeed);
             amp *= 0.5;
             high = mid;
         }
 
-        float density = lerp(0, high, low);
-        return low;
+        float density = low * 0.5 + high * 0.5;
+        return density;
     }
 
-    float DensityH(float3 positionWS, float3 paramUD)
+    float DensityH(float3 positionWS, float cloudTop, float cloudBottom, float cloudThickness, float cloudMiddle)
     {
-        float top = paramUD.x;
-        float bottom = paramUD.y;
-        float thiciness = paramUD.z;
-        float height = saturate((positionWS.y - bottom) / (top - bottom));
-        float middle = 0.5;
+        float height = saturate((positionWS.y - cloudBottom) / (cloudTop - cloudBottom));
 
-        float density = 1 - abs(height - middle) * 2;
-        return pow(density, (1.0 - thiciness + 1e-5));
+        float middle = saturate(cloudMiddle);
+        float leftRange = max(0.00001, middle);
+        float rightRange = max(0.00001, 1.0 - middle);
+
+        float density = (height <= middle)
+            ? (height / leftRange)
+            : ((1.0 - height) / rightRange);
+
+        density = saturate(density);
+        float power = max(0.00001, 1.0 - cloudThickness);
+        density = pow(density, power);
+        return density;
     }
 
-    float CalculateDensity(float3 positionWS, float3 cloudTrans, float3 paramUD, int lod)
+    float CalculateDensity(float3 positionWS, float cloudScale, float cloudSpeed, float cloudRotation, float cloudTop, float cloudBottom, float cloudThickness, float cloudMiddle, float cloudThreshold, int lod)
     {
-        float density = DensityLOD(positionWS, cloudTrans, lod) * DensityH(positionWS, paramUD);
-        if (density < 0.2)
+        float density = DensityLOD(positionWS, cloudScale, cloudSpeed, cloudRotation, lod) * DensityH(positionWS, cloudTop, cloudBottom, cloudThickness, cloudMiddle);
+        if (density < cloudThreshold)
         {
             density = 0.0;
         }
-        return density;
+        return saturate(density);
     }
 
     #define RAYMARCH(COUNT, LOD) \
@@ -135,13 +150,24 @@ Shader "Custom/SSC"
              \
             step = min(step, (tFar - tCurrent)); \
             float3 localPosWS = cameraPosWS + rayDirWS * tCurrent; \
-            float3 lightPosWS = localPosWS + lightDirWS * step; \
-            float localDensity = CalculateDensity(localPosWS, cloudTrans, paramUD, LOD); \
-            float lightDensity = CalculateDensity(lightPosWS, cloudTrans, paramUD, LOD); \
-            float3 deltaDensity = saturate(localDensity - lightDensity); \
-             \
-            Diffuse += step * deltaDensity * (1 - Diffuse); \
-            Density += step * localDensity * (1 - Density); \
+            float localDensity = CalculateDensity(localPosWS, cloudScale, cloudSpeed, cloudRotation, cloudTop, cloudBottom, cloudThickness, cloudMiddle, cloudThreshold, LOD); \
+            float3 lightPosWS = localPosWS + lightDirWS * step * 20; \
+            float lightDensity = CalculateDensity(lightPosWS, cloudScale, cloudSpeed, cloudRotation, cloudTop, cloudBottom, cloudThickness, cloudMiddle, cloudThreshold, LOD); \
+            \
+            float stepAlpha = localDensity * (1.0 - Density); \
+            float stepShadow = 1 - lightDensity; \
+            \
+            float heightT = saturate((localPosWS.y - cloudBottom) / (cloudTop - cloudBottom)); \
+            float3 ambient = lerp(unity_AmbientGround, unity_AmbientSky, heightT) * _AmbientIntensity; \
+            float3 albedo = lerp(_BaseColorB.rgb, _BaseColorA.rgb, stepShadow); \
+            float3 light = lightColor * stepShadow * phase; \
+            float3 S = light + ambient; \
+            \
+            float3 deltaDiffuse = S * albedo * stepAlpha; \
+            float  deltaDensity = stepAlpha; \
+            Diffuse += deltaDiffuse; \
+            Density += deltaDensity; \
+                 \
             tCurrent += step; \
         } \
 
@@ -159,12 +185,25 @@ Shader "Custom/SSC"
         float3 positionWS = ReconstructWorldPos(uv);
         float3 cameraPosWS = GetCameraPositionWS();
 
-        float  cloudHeight = _CloudParamA.w;
-        float3 cloudSize = _CloudParamB.xyz;
+        float cloudScale = _CloudScale;
+        float cloudSpeed = _CloudSpeed;
+        float cloudRotation = _CloudRotation;
+        float cloudHeight = _CloudHeight;
+        float cloudMiddle = _CloudMiddle;
+        float cloudThickness = _CloudThickness;
+        float cloudThreshold = _CloudThreshold;
+        float3 cloudSize = _CloudSize;
         float3 cloudPosWS = float3(0, cloudHeight, 0);
 
         float3 rayLenWS = positionWS - cameraPosWS;
         float3 rayDirWS = normalize(rayLenWS);
+
+        Light mainLight = GetMainLight();
+        float3 lightColor = mainLight.color;
+        float3 lightDirWS = mainLight.direction;
+
+        float rdotl = dot(rayDirWS, lightDirWS);
+        float phase = HG(rdotl, _PhaseG);
         float3 invDirWS = 1.0 / rayDirWS;
 
         float3 tMin = (cloudPosWS - cloudSize * 0.5 - cameraPosWS) * invDirWS;
@@ -202,16 +241,10 @@ Shader "Custom/SSC"
         float step = (tFar - tNear) / Count;
         float tCurrent = max(tNear, 0.0) + jitter * step * _Jitter;
 
-        Light mainLight = GetMainLight();
-        float3 lightDirWS = mainLight.direction;
-
-        float3 cloudTrans = _CloudParamA.xyz;
-        float  cloudThick = _CloudParamB.w;
         float  cloudTop    = cloudPosWS.y + cloudSize.y * 0.5;
         float  cloudBottom = cloudPosWS.y - cloudSize.y * 0.5;
-        float3 paramUD = float3(cloudTop, cloudBottom, cloudThick);
 
-        float Diffuse = 0.0;
+        float3 Diffuse = 0.0;
         float Density = 0.0;
 
         int CountLOD = Count / 4;
@@ -220,11 +253,11 @@ Shader "Custom/SSC"
         RAYMARCH(CountLOD, 2);
         RAYMARCH(CountLOD, 1);
         
-        // Diffuse /= Count;
-        // Density /= Count;
-
-        float4 baseColor = lerp(_BaseColorB, _BaseColorA, Density);
-        float4 Color = float4(baseColor.rgb, Density);
+        // ════════════════════════════════════════════════════════════
+        //  合成输出 — 散射光照已包含 ambient + direct * phase
+        // ════════════════════════════════════════════════════════════
+        float3 baseColor = Diffuse;
+        float4 Color = float4(baseColor, Density);
         return Color;
     }
     #undef RAYMARCH
@@ -248,7 +281,6 @@ Shader "Custom/SSC"
             Name "SSC"
 
             HLSLPROGRAM
-            #pragma multi_compile _ SSC_NOISE_TEX2DR SSC_NOISE_TEX2DRG SSC_NOISE_TEX3DXYZ
             #pragma multi_compile _ SSC_RAY_COUNT_64 SSC_RAY_COUNT_128 SSC_RAY_COUNT_256
             #pragma vertex Vert
             #pragma fragment Frag_SSC

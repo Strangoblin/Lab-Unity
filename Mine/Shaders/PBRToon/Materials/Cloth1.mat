@@ -26,7 +26,6 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - ENABLE_CELTOON
-  - ENABLE_OUTLINE
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -123,7 +122,7 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnableCelToon: 1
-    - _EnableOutline: 1
+    - _EnableOutline: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.4472136
@@ -132,11 +131,13 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _OutlineColor: 0.5
-    - _OutlineScale: 0.1
+    - _OutlineScale: 0.15
     - _Parallax: 0.02
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _RimColor: 0.5
     - _RimRange: 0.2
+    - _RimScale: 0.5
     - _RimStrength: 1
     - _Roughness: 1
     - _Smoothness: 0.4472136
@@ -148,7 +149,8 @@ Material:
     - _ToonRemap: 0.42
     - _ToonRimRange: 0.5
     - _ToonRoughness: 0.5
-    - _ToonSharpness: 0.7
+    - _ToonShadowBias: 0.004
+    - _ToonSharpness: 0.5
     - _ToonSmoothness: 0.1
     - _ToonStep: 2
     - _UVSec: 0
