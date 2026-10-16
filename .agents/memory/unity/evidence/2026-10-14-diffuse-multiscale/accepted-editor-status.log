@@ -1,0 +1,18 @@
+Project Status:
+  Path: /Users/xiaokangji/Unity/Lab
+  ID: proj-497d615e
+
+Unity Editor: [+] Running
+
+Bridge: [+] Running
+  PID: 14985
+  Port: 53755
+
+Connection: [+] Unity connected to bridge
+
+Play Mode: [-] stopped
+
+Loaded Scenes:
+  SampleScene (active)  [Assets/Scenes/SampleScene.unity]
+
+Versions: 0.10.1 (all match)

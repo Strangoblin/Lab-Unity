@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "legacy_action_paths_checked": 319,
+  "pending_documents_checked": 4,
+  "archive_installations_checked": 113,
+  "errors": [],
+  "scope": "Read-only SHA-256/path/collision check. No approval or mutation."
+}

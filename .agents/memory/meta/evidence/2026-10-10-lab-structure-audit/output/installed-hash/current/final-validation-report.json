@@ -1,0 +1,263 @@
+{
+  "scope": "Current canonical Hash algorithms and caller contracts, with historical whole-file preservation checked only where its frozen snapshot still applies. Intentional sequence changes are not old-output equality claims.",
+  "baselines": {
+    "path_base": "validation script directory",
+    "files": [
+      {
+        "path": "fixtures/before.json",
+        "sha256": "32c209892b3f9a27e2fa048c4c183fda17e671d651b2419caeb2f62bb3b411d5"
+      },
+      {
+        "path": "fixtures/final-stage-before.json",
+        "sha256": "02af0bb9dd12dcc617f7b86f35911e0b5e7accd081df2cfe0c123d1e7e7e11b1"
+      }
+    ]
+  },
+  "compiler_versions": {
+    "clang": "Apple clang version 17.0.0 (clang-1700.0.13.5)",
+    "glslang": "Glslang Version: 11:16.3.0"
+  },
+  "source_preservation": {
+    "files": [
+      "Assets/Mine/Special/HLSL/BlurFunction.hlsl",
+      "Assets/Mine/Shaders/PostProcess/Weather/WeatherCommon.hlsl",
+      "Assets/Mine/Shaders/PostProcess/Weather/Weather.shader",
+      "Assets/Mine/Shaders/PostProcess/SSSM/SSSM.shader",
+      "Assets/Mine/Shaders/PostProcess/SSC/SSC.shader",
+      "Assets/Mine/Shaders/PostProcess/PCSS/PCSSFunction.hlsl",
+      "Assets/Mine/Shaders/Render/Fur/FinInstanced.shader",
+      "Assets/Mine/Shaders/PostProcess/MaskBlur/MaskBlur.shader",
+      "Assets/Mine/Special/HLSL/HashFunction.hlsl",
+      "Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl",
+      "Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl",
+      "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGI.shader",
+      "Assets/Mine/Shaders/Render/VanGogh/TheStarryNightSDF.hlsl",
+      "Assets/Mine/Shaders/Render/VanGogh/TheStarryNight.shader"
+    ],
+    "allowed_function_replacements": {
+      "Assets/Mine/Special/HLSL/HashFunction.hlsl": [],
+      "Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl": [
+        "Hash2D"
+      ],
+      "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl": [
+        "SpecularGI_Hash22"
+      ],
+      "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader": [
+        "hash21"
+      ],
+      "Assets/Mine/Shaders/Render/VanGogh/TheStarryNightSDF.hlsl": [
+        "Hash",
+        "Hash2"
+      ]
+    },
+    "allowed_added_function": "Hash_FracGrid22",
+    "historical_baseline_drift": [
+      {
+        "file": "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader",
+        "historical_source_sha256": "54f4960a02d45f8754adb19c6b851d056d999a0bb0de90ead1544b56ea43141a",
+        "current_source_sha256": "2dd99e4cf57aba862b3bee6f01372b42cb0a4e34e8513039d053948e8c1f3b97",
+        "reason": "Reviewed later source edits; historical whole-file preservation no longer applies. Current Hash-bearing statements, when present, remain exact after listed mappings.",
+        "current_contract": "Complete Frag_RBR2D tokens match the frozen baseline after hash21 -> Hash_Sine21: UV + frac(time), signed remap, dTuv amplitude, 24 samples and all radial math remain unchanged."
+      },
+      {
+        "file": "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+        "historical_source_sha256": "53b66f5f943320227cfc843786b69b136291973738c0c9f6f03c1eaffbef0f72",
+        "current_source_sha256": "439b64ba7012518da858f4a9fb224224a0abc05432e3b2c2be98086e1587d283",
+        "reason": "Reviewed later source edits; historical whole-file preservation no longer applies. Current Hash-bearing statements, when present, remain exact after listed mappings."
+      },
+      {
+        "file": "Assets/Mine/Shaders/PostProcess/Kuwahara/Kuwahara.shader",
+        "historical_source_sha256": "5ee873b39d70855c7b8b7777006da595e7273d458104bf0d8bd85ef811f5d512",
+        "current_source_sha256": "4a328a94969007330c26a3f3944b9c15070e2a55dc782a38cdfdb0647decaaf7",
+        "reason": "Reviewed later source edits; historical whole-file preservation no longer applies. Current Hash-bearing statements, when present, remain exact after listed mappings."
+      },
+      {
+        "file": "Assets/Mine/Shaders/PostProcess/DDOF/DDOF.shader",
+        "historical_source_sha256": "d0a65641750221dec3eefc086a39cd71f029b531b6c82063ef44cd47ceb55d7a",
+        "current_source_sha256": "579270ba018f49e5df4c1bd4b278c2961e69ac2ad7d148e48faa777e30f0951c",
+        "reason": "Reviewed later source edits; historical whole-file preservation no longer applies. Current Hash-bearing statements, when present, remain exact after listed mappings."
+      }
+    ]
+  },
+  "current_hash_statement_contracts": [
+    {
+      "file": "Assets/Mine/Special/HLSL/BlurFunction.hlsl",
+      "hash_statement_count": 3,
+      "sha256": "56f767d72824361883420f9986ca780aa87ea4807a18436d463434bcfbd6bee5"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/Weather/WeatherCommon.hlsl",
+      "hash_statement_count": 2,
+      "sha256": "5aae003853b0e8ff4aaa0a16401948ec78489f6d3da3cba5626dab9b164534d4"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSSM/SSSM.shader",
+      "hash_statement_count": 1,
+      "sha256": "49a8d27fd2f06dad8fcd8394f34b64f87f17789f64c267ea687376b329d61097"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSC/SSC.shader",
+      "hash_statement_count": 1,
+      "sha256": "b0a8f2f088c0e96af250221497e217580b4c3d873f13fe0f972d8dc5c425ba01"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader",
+      "hash_statement_count": 2,
+      "sha256": "7401f0e2c349f572ecc7fcaa6b1fb325efea0338fb1ff39c67939f357451f36e"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/PCSS/PCSSFunction.hlsl",
+      "hash_statement_count": 2,
+      "sha256": "e2968b0d668c6c944ae0ba237bbec7ffabf93a2fbeece1fbfb342659c3f9a878"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+      "hash_statement_count": 4,
+      "sha256": "03afd548775c0a7027acdcc15399cfb35e84203cd115360a5301deb598d76145"
+    },
+    {
+      "file": "Assets/Mine/Shaders/Render/Fur/FinInstanced.shader",
+      "hash_statement_count": 6,
+      "sha256": "2988a5064f8a806248758e26cfecfd67dddd6af9f56651eb04b3d84136ca7583"
+    },
+    {
+      "file": "Assets/Mine/Special/HLSL/HashFunction.hlsl",
+      "hash_statement_count": 4,
+      "sha256": "560658edf323d096df98ea9a36bd644aea4164c0ca737ad4bc49b14aea776490"
+    },
+    {
+      "file": "Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl",
+      "hash_statement_count": 4,
+      "sha256": "048e46131a02f2e44ced913c0e40d917ee32b363a0fca5f97577df684496fb21"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl",
+      "hash_statement_count": 3,
+      "sha256": "29e2d909a1a2a99750fc4cdb00fb5ab8d4b1b1e58e57c69b2b0789da2e6918b3"
+    },
+    {
+      "file": "Assets/Mine/Shaders/Render/VanGogh/TheStarryNightSDF.hlsl",
+      "hash_statement_count": 6,
+      "sha256": "3d9b14e4a6317b7e4e4c1a1e7ace1dd41974bf2dcbff4b2d0cc163958e14c4c9"
+    },
+    {
+      "file": "Assets/Mine/Shaders/Render/VanGogh/TheStarryNight.shader",
+      "hash_statement_count": 1,
+      "sha256": "2a0f51c9292a87072ce960874a680ed7e071d8dc79f60cbcee4412a47bbe3250"
+    }
+  ],
+  "historical_unused_hash_statement_removals": [
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+      "function": "Frag_SSO",
+      "statement": "float jitter = Hash21(uv).x;",
+      "reason": "Only occurrence of local jitter in the historical entry function was its declaration; current entry contains none. Remaining active Hash callers are checked exactly."
+    }
+  ],
+  "current_complete_hash_consumer_functions": [
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader",
+      "function": "SSL"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+      "function": "Hash21"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+      "function": "OffsetUV"
+    },
+    {
+      "file": "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+      "function": "ShadowLine"
+    }
+  ],
+  "actual_shader_entry_include_order": [
+    "Assets/Mine/Shaders/PostProcess/DDOF/DDOF.shader",
+    "Assets/Mine/Shaders/PostProcess/Kuwahara/Kuwahara.shader",
+    "Assets/Mine/Shaders/PostProcess/MaskBlur/MaskBlur.shader",
+    "Assets/Mine/Shaders/PostProcess/PCSS/PCSS.compute",
+    "Assets/Mine/Shaders/PostProcess/SSC/SSC.shader",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGI.shader",
+    "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader",
+    "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+    "Assets/Mine/Shaders/PostProcess/SSSM/SSSM.shader",
+    "Assets/Mine/Shaders/PostProcess/Weather/Weather.shader",
+    "Assets/Mine/Shaders/Render/Fur/FinInstanced.shader",
+    "Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+    "Assets/Mine/Shaders/Render/VanGogh/TheStarryNight.shader"
+  ],
+  "include_audit_hidden_entry_exclusions": [
+    "Assets/Mine/Shaders/PostProcess/SSC/.backup_v1_pre_unity6/SSC.shader",
+    "Assets/Mine/Shaders/PostProcess/Weather/Validation~/Legacy/Rainy/Rainy.shader",
+    "Assets/Mine/Shaders/PostProcess/Weather/Validation~/Legacy/Sandy/Sandy.shader",
+    "Assets/Mine/Shaders/PostProcess/Weather/Validation~/Legacy/Snowy/Snowy.shader"
+  ],
+  "native_hlsl_spirv": [
+    {
+      "SHADER_TARGET": 20,
+      "float_fragment": "compiled + SPIR-V validated, all four float APIs called",
+      "uint_compute": "expected compile rejection; uint Hash API hidden"
+    },
+    {
+      "SHADER_TARGET": 35,
+      "float_fragment": "compiled + SPIR-V validated, all four float APIs called",
+      "uint_compute": "compiled + SPIR-V validated"
+    },
+    {
+      "SHADER_TARGET": 50,
+      "float_fragment": "compiled + SPIR-V validated, all four float APIs called",
+      "uint_compute": "compiled + SPIR-V validated"
+    }
+  ],
+  "cpu": {
+    "float2_keys": 3017,
+    "representative_input_categories": {
+      "normalized_uv": 289,
+      "sso_uv_neighbor": 867,
+      "fur_uv_seed": 243,
+      "raindrop_cells_columns": 774,
+      "specgi_pixel_frame": 20,
+      "vangogh_row_column_ring_sector": 60,
+      "ssl_uv_time_phase": 243
+    },
+    "weather_indices": 138,
+    "uint32_tuples": 2320,
+    "result": "CPU comparisons=63212 bit_mismatches=0 range_checks=54161 observed_intentional_changes=12018/12068",
+    "preserved_sequences": [
+      "A/PCSS/SSSM/SSC/SSL primary",
+      "Frac22/Fur scalar/vector/SSO signed",
+      "Weather index + 1",
+      "Blur uint32 high24",
+      "SpecGI",
+      "VanGogh scalar"
+    ],
+    "intentional_sequences": [
+      "RainDrop",
+      "SSL radial",
+      "VanGogh 2D"
+    ],
+    "canonical_reference": "actual pre-consolidation SpecularGI_Hash22 body from final-stage-before.json"
+  },
+  "fault_controls": [
+    {
+      "algorithm": "Sine21",
+      "generated_copy_change": "12.9898 -> 13.9898",
+      "bit_mismatches": 14735
+    },
+    {
+      "algorithm": "FracGrid22",
+      "generated_copy_change": "0.1030 -> 0.1130",
+      "bit_mismatches": 22492
+    }
+  ],
+  "status": "PASS",
+  "evidence_limits": [
+    "No Unity Editor, Metal compiler, GPU execution or image comparison.",
+    "SHADER_TARGET 20/35/50 checks macro exposure and native HLSL syntax, not Unity shader-model hardware capability.",
+    "CPU same-host float equality cannot establish GPU cross-platform determinism. Range checks cover sampled fixed/domain keys, not a proof of distribution quality.",
+    "Sequence-change counts document sampled differences; no claim of old random output preservation for authorized changed functions.",
+    "Representatives cover input categories with fixed plausible values; actual material ranges and runtime frame/camera values can vary."
+  ]
+}

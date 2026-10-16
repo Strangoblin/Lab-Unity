@@ -1,0 +1,29 @@
+{
+  "scope": "Observed after real GPU and URP runs; current ShaderUtil diagnostics, not the full historical Console",
+  "shaders": [
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/MaskBlur/MaskBlur.shader",
+      "supported": true,
+      "passes": 4,
+      "messages": 0
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBR.shader",
+      "supported": true,
+      "passes": 3,
+      "messages": 0
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRMask.shader",
+      "supported": true,
+      "passes": 1,
+      "messages": 0
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "supported": true,
+      "passes": 6,
+      "messages": 0
+    }
+  ]
+}

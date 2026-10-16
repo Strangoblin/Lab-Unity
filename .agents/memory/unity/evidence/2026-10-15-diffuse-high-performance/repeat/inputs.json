@@ -1,0 +1,45 @@
+{
+  "contract": "isolated-diffuse-high-half-versus-third-v1",
+  "entryPoint": "HighBudgetComparison",
+  "quality": "High",
+  "temporalBlend": 0.5,
+  "variants": {
+    "HalfHigh": [
+      2,
+      8,
+      64
+    ],
+    "ThirdHigh": [
+      3,
+      8,
+      64
+    ]
+  },
+  "tokenChanges": {
+    "renamedIdentifiers": 1,
+    "highDivisorReplacements": 1
+  },
+  "sourceSha256": {
+    "Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGI.shader": "cf0ed486ecc22b26478a79d110ed80f5c1a099af5e89c6f80da2728af180922c",
+    "Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGIFeature.cs": "59f7ed8e2dfc917b1f4b6dbb687de5e55f8e55615ddd47348a23226b4cf64fef",
+    "Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGIFunction.hlsl": "a593ab79606eb8ae913bce4dfca2ad38069f81837dfb4cf08655e22344639acf",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SSGIControls.cs": "aa44a71d1ac966fd6a7010103217a9d891dc9dd4fd0728030f6f0b950d403d43",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SSGIFeature.cs": "f177cbd2c2108a86d4e5156b24937675e41c12e6e5fa07717f35191ccb635250",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SSGISpatialFilter.hlsl": "b3f53e25cfd51310001261689be51873eff6d31eccb86d77b9ddd4b27e33426c",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SSGITemporal.hlsl": "3f1c41be9adfa80834ec9d723b074c6c0f21a54ee3468e091a47803378bf2982",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SSGITemporal.shader": "63170b0af5659bdd0eb6dbe812fce2311f5772f658a2d1289a1b01555c4a4201",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SSGITemporalFilter.cs": "3fd0f991a54b76f05fab25e118d15fafa3e28c0690c7e62f5b29fb059aae636d",
+    "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl": "4528bd4e7ef52008ab9c97e5fe75186ccde72330eb706e0ae189853d1276b4a2",
+    "Assets/Mine/Shaders/PostProcess/SSGI/Validation~/CameraChecks.cs": "d9142ddd14e9657e244b6288cdc303542bb442b571dc135f66bc59e8208eff03",
+    "Assets/Mine/Shaders/PostProcess/SSGI/Validation~/HighBudgetChecks.cs": "a9dae8a99918c9202a813563a479a888b48120db00f2c3df1221849beae4b303",
+    "Assets/Mine/Special/HLSL/HashFunction.hlsl": "739036f3ab9f651953141adff9a6ed91ba154ed5d7eb08abfa90d0cbabd9e0e3",
+    "Assets/Mine/Special/HLSL/RayStepFunction.hlsl": "e0d471aeb3cad99949f1a2d32fadb040843086e3c4af75be9f3d60dc5b0f0d7c",
+    "Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl": "a8fa01e9ee1dc1232a889eb3135d4db5d52b07fe4e1eb89b829f9a7bf2a58556",
+    "Packages/manifest.json": "337c3af97bbac0b5e25c46ce13476a7bcc472b1e600f482d46e7c4edb8d993fa",
+    "Packages/packages-lock.json": "0ffd4152bc277cf9bd2a40f6419a721dc0fc8a9b7e8422f0700e4f593bbd419c"
+  },
+  "generatedSha256": {
+    "HalfHighDiffuseGIFeature.cs": "5d2234dd5e1ab1fcd9b40162f93c051f65bf495b81c51ded91f641893d94ed5a",
+    "HighBudgetComparison.cs": "8f6c3f9a4d3b0a054a262668f72522bd8d918bef5d755df59111712a3a0d8f52"
+  }
+}

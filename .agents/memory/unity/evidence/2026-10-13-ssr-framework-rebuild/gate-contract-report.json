@@ -1,0 +1,146 @@
+{
+  "status": "PASS",
+  "project_root": "/Users/xiaokangji/Unity/Lab",
+  "interpreter": "/Users/xiaokangji/Unity/Lab/.mcp/.venv/bin/python",
+  "task_directory": "/Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1",
+  "run_id": "mcp-isolated-3e5de42f6e1d",
+  "results": [
+    {
+      "suite": "test_recipes.py",
+      "exit_code": 0,
+      "test_function_definitions": 30,
+      "log": "/Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1/evidence/mcp-isolated-3e5de42f6e1d/test_recipes.log"
+    },
+    {
+      "suite": "test_knowledge_paths.py",
+      "exit_code": 0,
+      "test_function_definitions": 5,
+      "log": "/Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1/evidence/mcp-isolated-3e5de42f6e1d/test_knowledge_paths.log"
+    },
+    {
+      "suite": "test_directory_deletion.py",
+      "exit_code": 0,
+      "test_function_definitions": 23,
+      "log": "/Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1/evidence/mcp-isolated-3e5de42f6e1d/test_directory_deletion.log"
+    }
+  ],
+  "real_before": {
+    ".mcp/state.json": {
+      "exists": true,
+      "sha256": "357ce8ec0d046b6adb00d4af7706c97f6c3ea0518e7e315de2a1dbc031fdc196"
+    },
+    ".mcp/deletes.jsonl": {
+      "exists": true,
+      "sha256": "a5f2aea7f708af8c19dd5ace4ed88b897a574288395329535632430e7dc67ff6"
+    },
+    ".mcp/moves.jsonl": {
+      "exists": true,
+      "sha256": "02e8e562126060b2e4f1eb194f7c73fdf335a83a26413b1bb2cd1455d3cb0b1e"
+    },
+    ".mcp/friction.jsonl": {
+      "exists": true,
+      "sha256": "aa93b886d54d917110819c69edf2d2403bd4c5db6415d5e0f9bdcadd212bf47f"
+    }
+  },
+  "boundary": "Copied project inputs, independent Git root and TMPDIR; no production gate reset.",
+  "fixture": "/Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1/fixtures/mcp-isolated-qu_h0v2r",
+  "copied": [
+    ".mcp/gate_center.py",
+    ".mcp/policy.json",
+    ".mcp/pyproject.toml",
+    ".mcp/server.py",
+    ".mcp/telemetry.py",
+    ".mcp/gates/__init__.py",
+    ".mcp/gates/g_entry.py",
+    ".mcp/gates/g_knowledge.py",
+    ".mcp/tests/run_isolated.py",
+    ".mcp/tests/test_directory_deletion.py",
+    ".mcp/tests/test_isolated_runner.py",
+    ".mcp/tests/test_knowledge_paths.py",
+    ".mcp/tests/test_recipes.py",
+    ".mcp/validation/__init__.py",
+    ".mcp/validation/atomic_io.py",
+    ".mcp/validation/check_norm.py",
+    ".mcp/validation/delete_gated.py",
+    ".mcp/validation/deletion.py",
+    ".mcp/validation/friction_report.py",
+    ".mcp/validation/gate_cli.py",
+    ".mcp/validation/judgement.py",
+    ".mcp/validation/knowledge_paths.py",
+    ".mcp/validation/move_gated.py",
+    ".mcp/validation/moving.py",
+    ".mcp/validation/norms.py",
+    ".mcp/validation/policy.py",
+    ".mcp/validation/project_paths.py",
+    ".mcp/validation/script_library.py",
+    ".mcp/validation/write_gated.py",
+    ".agents/rules/README.md",
+    ".agents/rules/compute-shader.md",
+    ".agents/rules/csharp-renderpass.md",
+    ".agents/rules/meta-architecture.md",
+    ".agents/rules/shader-development.md",
+    ".agents/agents/unity-developer/references/README.md",
+    ".agents/agents/unity-developer/references/mcp-gate-usage.md",
+    ".agents/agents/unity-developer/references/csharp-dev/README.md",
+    ".agents/agents/unity-developer/references/csharp-dev/script-structure.md",
+    ".agents/agents/unity-developer/references/platform/metal-notes.md",
+    ".agents/agents/unity-developer/references/shader/README.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/README.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/blit-fullscreen.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/blitter-api.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/compute-shader.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/feature-script-structure.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/fullscreen-structure.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/postprocess-differences.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/spatial-filter-budget.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/volume-component.md",
+    ".agents/agents/unity-developer/references/standard/README.md",
+    ".agents/agents/unity-developer/references/standard/compute/README.md",
+    ".agents/agents/unity-developer/references/standard/compute/compute-shader-api.md",
+    ".agents/agents/unity-developer/references/standard/rendering/README.md",
+    ".agents/agents/unity-developer/references/standard/rendering/camera-capture.md",
+    ".agents/agents/unity-developer/references/standard/rendering/render-graph.md",
+    ".agents/agents/unity-developer/references/standard/rendering/rthandle-api.md",
+    ".agents/agents/unity-developer/references/standard/script/README.md",
+    ".agents/agents/unity-developer/references/standard/script/parameter-panel.md",
+    ".agents/agents/unity-developer/references/standard/script/script-structure.md",
+    ".agents/agents/unity-developer/references/standard/shader/README.md",
+    ".agents/agents/unity-developer/references/standard/shader/hlsl-includes.md",
+    ".agents/agents/unity-developer/references/standard/shader/shader-structure.md",
+    ".agents/agents/unity-developer/references/unity6-api/README.md",
+    ".agents/agents/unity-developer/references/urp-shader-lib/README.md",
+    ".agents/agents/unity-developer/references/urp-shader-lib/shader-structure.md",
+    ".agents/agents/unity-developer/scripts/roslyn/camera-offscreen-capture.cs",
+    ".agents/agents/unity-developer/scripts/roslyn/pipeline-check.cs",
+    ".agents/agents/unity-developer/scripts/roslyn/scan-temp-objects.cs",
+    ".agents/agents/unity-developer/scripts/roslyn/scene-organize.cs",
+    ".agents/agents/unity-developer/scripts/roslyn/scene-query.cs",
+    "AGENTS.md",
+    ".agents/README.md",
+    ".codex/AGENTS.md",
+    ".codex/INTERFACE.md",
+    "Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader"
+  ],
+  "preflight_log": "/Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1/evidence/mcp-isolated-3e5de42f6e1d/preflight.log",
+  "real_after": {
+    ".mcp/state.json": {
+      "exists": true,
+      "sha256": "357ce8ec0d046b6adb00d4af7706c97f6c3ea0518e7e315de2a1dbc031fdc196"
+    },
+    ".mcp/deletes.jsonl": {
+      "exists": true,
+      "sha256": "a5f2aea7f708af8c19dd5ace4ed88b897a574288395329535632430e7dc67ff6"
+    },
+    ".mcp/moves.jsonl": {
+      "exists": true,
+      "sha256": "02e8e562126060b2e4f1eb194f7c73fdf335a83a26413b1bb2cd1455d3cb0b1e"
+    },
+    ".mcp/friction.jsonl": {
+      "exists": true,
+      "sha256": "aa93b886d54d917110819c69edf2d2403bd4c5db6415d5e0f9bdcadd212bf47f"
+    }
+  },
+  "real_gate_state_and_audit_unchanged": true,
+  "fixture_retained": false,
+  "fixture_cleaned": true
+}

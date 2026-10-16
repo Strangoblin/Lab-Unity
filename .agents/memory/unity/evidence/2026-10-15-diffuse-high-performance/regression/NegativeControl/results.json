@@ -1,0 +1,1 @@
+{"passed":false,"negativeControlDetected":true,"device":"Metal","assertions":37,"cases":[],"metrics":[{"name":"depth-layout-189x101-ortho-False","activeWidth":189,"activeHeight":101,"physicalWidth":189,"physicalHeight":101}],"error":"DDA world distance: expected 2.5, actual 2.999897"}

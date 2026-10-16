@@ -1,0 +1,85 @@
+{
+  "status": "PASS",
+  "source": ".codex/tests/run_all.sh",
+  "source_sha256": "060127b0a939de961d4778336b4b100a2dbf3c7825a17897fb8e9f4ad22afc79",
+  "fixture_location": "tmp/sessions/2026-10-10-lab-structure-audit/fixtures/<unique-runner-verification>",
+  "fixture_cleaned": true,
+  "checks": [
+    {
+      "check": "success-propagation",
+      "suite": "success",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "\n════════════ success ════════════\n✅ success PASS\n\n════════════ 结果: 1 PASS / 0 FAIL ════════════\n",
+      "stderr": ""
+    },
+    {
+      "check": "failure-propagation",
+      "suite": "failure",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout": "\n════════════ failure ════════════\n❌ failure FAIL (see failure/run.log)\n\n════════════ 结果: 0 PASS / 1 FAIL ════════════\n",
+      "stderr": ""
+    },
+    {
+      "check": "unknown-suite-failure",
+      "suite": "unknown",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout": "❌ 未知测试: unknown\n",
+      "stderr": ""
+    },
+    {
+      "check": "concurrent-1-success",
+      "suite": "success",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "\n════════════ success ════════════\n✅ success PASS\n\n════════════ 结果: 1 PASS / 0 FAIL ════════════\n",
+      "stderr": ""
+    },
+    {
+      "check": "concurrent-1-failure",
+      "suite": "failure",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout": "\n════════════ failure ════════════\n❌ failure FAIL (see failure/run.log)\n\n════════════ 结果: 0 PASS / 1 FAIL ════════════\n",
+      "stderr": ""
+    },
+    {
+      "check": "concurrent-2-success",
+      "suite": "success",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "\n════════════ success ════════════\n✅ success PASS\n\n════════════ 结果: 1 PASS / 0 FAIL ════════════\n",
+      "stderr": ""
+    },
+    {
+      "check": "concurrent-2-failure",
+      "suite": "failure",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout": "\n════════════ failure ════════════\n❌ failure FAIL (see failure/run.log)\n\n════════════ 结果: 0 PASS / 1 FAIL ════════════\n",
+      "stderr": ""
+    },
+    {
+      "check": "concurrent-3-success",
+      "suite": "success",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "\n════════════ success ════════════\n✅ success PASS\n\n════════════ 结果: 1 PASS / 0 FAIL ════════════\n",
+      "stderr": ""
+    },
+    {
+      "check": "concurrent-3-failure",
+      "suite": "failure",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout": "\n════════════ failure ════════════\n❌ failure FAIL (see failure/run.log)\n\n════════════ 结果: 0 PASS / 1 FAIL ════════════\n",
+      "stderr": ""
+    },
+    {
+      "check": "owned-temp-cleanup",
+      "remaining_count": 0
+    }
+  ]
+}

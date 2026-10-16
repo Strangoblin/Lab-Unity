@@ -1,0 +1,415 @@
+{
+  "status": "completed; explicitly approved by user in this session; source hashes rechecked before atomic alias cutover",
+  "files": [
+    {
+      "source": ".agents/agents/meta-developer/scripts/README.md",
+      "target": ".agents/skills/agent-maintenance/scripts/README.md",
+      "sha256": "7681948ff7fba3a7b5692643d04318cb4b6f795e9b9de6f3a866c0d5dfc8b0b5",
+      "git_status": "?? .agents/agents/meta-developer/scripts/README.md",
+      "canonical_sha256": "62e45e2f0ece4c6c955795ae24448e9ad41b5ef63a6ed267531e8a3901093969",
+      "alias": "../../../skills/agent-maintenance/scripts/README.md"
+    },
+    {
+      "source": ".agents/agents/meta-developer/scripts/check_api_refs.py",
+      "target": ".agents/skills/agent-maintenance/scripts/check_api_refs.py",
+      "sha256": "a8e2c64a39b6f21b74d392dfffe87793ffa0b21f45c15081141f77c3c806f2e3",
+      "git_status": "?? .agents/agents/meta-developer/scripts/check_api_refs.py",
+      "canonical_sha256": "5e9ede2f4a0a0fec5f0cecddc59c7fca3ed6a72a81d4b20eaa33c15367f40ed3",
+      "alias": "../../../skills/agent-maintenance/scripts/check_api_refs.py"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/README.md",
+      "target": ".agents/skills/auto-manager/templates/README.md",
+      "sha256": "6a9dfa4acd93082afd87dd24a903a9955e63df08ef1c96b3e66374080043900b",
+      "git_status": "clean",
+      "canonical_sha256": "40a5266c9f486ebd628d657fcd23c093ac92e9abed9957c34b620e859ea5c431",
+      "alias": "../../../skills/auto-manager/templates/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/README.md",
+      "target": ".agents/skills/auto-manager/templates/script/README.md",
+      "sha256": "8b12ad4261984078e565e0f038484df26ff41f07ed2a785fe8e3cff2c2a80c23",
+      "git_status": "clean",
+      "canonical_sha256": "8b12ad4261984078e565e0f038484df26ff41f07ed2a785fe8e3cff2c2a80c23",
+      "alias": "../../../../skills/auto-manager/templates/script/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/baker/README.md",
+      "target": ".agents/skills/auto-manager/templates/script/baker/README.md",
+      "sha256": "c68c7d7d0fd4b1f0adbcb9ec4895f7f25a10d6ee587509ad8e4e3817357cb555",
+      "git_status": "clean",
+      "canonical_sha256": "b12a1a981366497add4077b275cee6aa8740fae1739956a503073cfa2a280a84",
+      "alias": "../../../../../skills/auto-manager/templates/script/baker/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/baker/baker-service.cs",
+      "target": ".agents/skills/auto-manager/templates/script/baker/baker-service.cs",
+      "sha256": "436603cad8ee22da7924ee0e7e0eac4591d5aa4dbaf4d9a058248939814d78fc",
+      "git_status": "clean",
+      "canonical_sha256": "d8a3a220eb2b1661f3fc1e4534af59635ea6e8d8bcf338ca0a201d1119f9a750",
+      "alias": "../../../../../skills/auto-manager/templates/script/baker/baker-service.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/controller/README.md",
+      "target": ".agents/skills/auto-manager/templates/script/controller/README.md",
+      "sha256": "710aeae5adf8acbebfe12c654c23e3d8ff926a7a30e663df068e6511ac5c211a",
+      "git_status": "clean",
+      "canonical_sha256": "579b57e436b72179ae024e4ea63ccee2e26e466a748a063607aedb3a200b53e6",
+      "alias": "../../../../../skills/auto-manager/templates/script/controller/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/controller/controller-processor.cs",
+      "target": ".agents/skills/auto-manager/templates/script/controller/controller-processor.cs",
+      "sha256": "0e5ec6f3a61c8522d341fadeb7bde4db9b996121136a2c0f30e7120226eec44c",
+      "git_status": "clean",
+      "canonical_sha256": "bdee6c4aaaf97295ab17d212ca473f1e64347ce576f26675f196052f606a7429",
+      "alias": "../../../../../skills/auto-manager/templates/script/controller/controller-processor.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/generator/README.md",
+      "target": ".agents/skills/auto-manager/templates/script/generator/README.md",
+      "sha256": "8e50e2b1636828460f480034e9f798b2fd4ef9c720e7e51b2d34d3ce938ee96d",
+      "git_status": "clean",
+      "canonical_sha256": "035d118ab296ac74792a6c5b74492b63e166697f245f9fffdfdc00a6dcdf5582",
+      "alias": "../../../../../skills/auto-manager/templates/script/generator/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/generator/generator-facade.cs",
+      "target": ".agents/skills/auto-manager/templates/script/generator/generator-facade.cs",
+      "sha256": "f32673a368a2d59fca046ce9cf172fe6be17187e13d246368da150dff871789a",
+      "git_status": "clean",
+      "canonical_sha256": "f46f0551ffde87ee403511598c0e1e9b6f17a1c04d2de79848b26db7f0b300be",
+      "alias": "../../../../../skills/auto-manager/templates/script/generator/generator-facade.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/manager/README.md",
+      "target": ".agents/skills/auto-manager/templates/script/manager/README.md",
+      "sha256": "6c6dc5b6187a5b1f2a466d291e060bbdfa6e554f874d1314b16815a1d51291f7",
+      "git_status": "clean",
+      "canonical_sha256": "5c340af3152130840006c1386a62e3d075dc70ecf4085de4863c1026146d7b1c",
+      "alias": "../../../../../skills/auto-manager/templates/script/manager/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/manager/runtime-manager.cs",
+      "target": ".agents/skills/auto-manager/templates/script/manager/runtime-manager.cs",
+      "sha256": "f7db030e6a7b73555f0c086c1a52af82fed82b8de1074260958686cab38675e9",
+      "git_status": "clean",
+      "canonical_sha256": "7501367257f8115e4bc56c3952ddbc8a1c4417d20718ec2da74d7a918d277150",
+      "alias": "../../../../../skills/auto-manager/templates/script/manager/runtime-manager.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/window/README.md",
+      "target": ".agents/skills/auto-manager/templates/script/window/README.md",
+      "sha256": "5e688be6867a37c096dc8801f4817ad39b2908d7bfc5413471f79cb44fb22dca",
+      "git_status": "clean",
+      "canonical_sha256": "514e973a80c143611a88cb7f2ddaf7236c5dbad1302b6eb5b4d4865280c687e9",
+      "alias": "../../../../../skills/auto-manager/templates/script/window/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/script/window/editor-window.cs",
+      "target": ".agents/skills/auto-manager/templates/script/window/editor-window.cs",
+      "sha256": "815615cca249ceab05c62403b3f54f2a4037a21284c0eed2543ecd3bf6498db8",
+      "git_status": "clean",
+      "canonical_sha256": "e955c2f825a3360bce7edcc070d47ec5e00dca0ce8666f1431576ad20e49ba24",
+      "alias": "../../../../../skills/auto-manager/templates/script/window/editor-window.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/README.md",
+      "target": ".agents/skills/auto-manager/templates/shader/README.md",
+      "sha256": "6e5b15bba45bbac0b49477ad78b94ae51af8cc750a1f886a1a39d0799677cbef",
+      "git_status": "clean",
+      "canonical_sha256": "4f9ae456dc74109df73faa5e871d379c67a8a9488712cd8ec496a65dbe680772",
+      "alias": "../../../../skills/auto-manager/templates/shader/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/hlsl/README.md",
+      "target": ".agents/skills/auto-manager/templates/shader/hlsl/README.md",
+      "sha256": "daa5f118ce857022af597cbc1c9d534f317f4da0036df192c8dbe56c2163b64d",
+      "git_status": "M .agents/agents/unity-developer/templates/shader/hlsl/README.md",
+      "canonical_sha256": "7a9591d63b30766ddde750524986098f408ef8e1cc3fdd39bda7a8758f115b88",
+      "alias": "../../../../../skills/auto-manager/templates/shader/hlsl/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/hlsl/function-lib.hlsl",
+      "target": ".agents/skills/auto-manager/templates/shader/hlsl/function-lib.hlsl",
+      "sha256": "f02e22ab9943faeb59c08799e0dcaf3994a4361f2f869786498bfee2eb7b2e74",
+      "git_status": "clean",
+      "canonical_sha256": "1a0f3be80dec2bd1963d108878714f5142932a1948c9fb54171e2789f3c2b110",
+      "alias": "../../../../../skills/auto-manager/templates/shader/hlsl/function-lib.hlsl"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/particle/README.md",
+      "target": ".agents/skills/auto-manager/templates/shader/particle/README.md",
+      "sha256": "ec6a26528280160f1c083f15af1fa34d53913f563b746fd3cdd3dbbf23749bf7",
+      "git_status": "clean",
+      "canonical_sha256": "ec6a26528280160f1c083f15af1fa34d53913f563b746fd3cdd3dbbf23749bf7",
+      "alias": "../../../../../skills/auto-manager/templates/shader/particle/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/postprocess/README.md",
+      "target": ".agents/skills/auto-manager/templates/shader/postprocess/README.md",
+      "sha256": "c8ed082af6e54d4cfb17ee5511683e531a26b33273a800f29ea7e412caf12990",
+      "git_status": "clean",
+      "canonical_sha256": "21185d00daa58175376c73e6fea6d6a80c0e85facb57650f252b9c3ca03bf1f0",
+      "alias": "../../../../../skills/auto-manager/templates/shader/postprocess/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/postprocess/compute-template.compute",
+      "target": ".agents/skills/auto-manager/templates/shader/postprocess/compute-template.compute",
+      "sha256": "2407e6f2eb47bbd1760f7cd70733fea82bf001e38425974d1c9851d05c8e1ec1",
+      "git_status": "clean",
+      "canonical_sha256": "2407e6f2eb47bbd1760f7cd70733fea82bf001e38425974d1c9851d05c8e1ec1",
+      "alias": "../../../../../skills/auto-manager/templates/shader/postprocess/compute-template.compute"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/postprocess/fullscreen-postprocess.shader",
+      "target": ".agents/skills/auto-manager/templates/shader/postprocess/fullscreen-postprocess.shader",
+      "sha256": "82824695dd7971be77ddc2caa793d0c0ceb707b5792936b7bea919cf71f25459",
+      "git_status": "clean",
+      "canonical_sha256": "82824695dd7971be77ddc2caa793d0c0ceb707b5792936b7bea919cf71f25459",
+      "alias": "../../../../../skills/auto-manager/templates/shader/postprocess/fullscreen-postprocess.shader"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/postprocess/spatial-filter-budget.hlsl",
+      "target": ".agents/skills/auto-manager/templates/shader/postprocess/spatial-filter-budget.hlsl",
+      "sha256": "20a2c43adc9fc10caaf228035d7ad7d70388721a44e2efbaf32c9d85ce292b97",
+      "git_status": "clean",
+      "canonical_sha256": "20a2c43adc9fc10caaf228035d7ad7d70388721a44e2efbaf32c9d85ce292b97",
+      "alias": "../../../../../skills/auto-manager/templates/shader/postprocess/spatial-filter-budget.hlsl"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/postprocess/urp-renderpass.cs",
+      "target": ".agents/skills/auto-manager/templates/shader/postprocess/urp-renderpass.cs",
+      "sha256": "86a6b14a8257391a388e5eaf278c187ba06b8d3e97ae795631b3692c31220850",
+      "git_status": "clean",
+      "canonical_sha256": "86a6b14a8257391a388e5eaf278c187ba06b8d3e97ae795631b3692c31220850",
+      "alias": "../../../../../skills/auto-manager/templates/shader/postprocess/urp-renderpass.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/postprocess/volume-template.cs",
+      "target": ".agents/skills/auto-manager/templates/shader/postprocess/volume-template.cs",
+      "sha256": "59d923e88f71fd508751c47e068daa8aff634f926f4e68a4cdc052a3019ac847",
+      "git_status": "clean",
+      "canonical_sha256": "59d923e88f71fd508751c47e068daa8aff634f926f4e68a4cdc052a3019ac847",
+      "alias": "../../../../../skills/auto-manager/templates/shader/postprocess/volume-template.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/render/README.md",
+      "target": ".agents/skills/auto-manager/templates/shader/render/README.md",
+      "sha256": "f83f72e6628fc585b4a09945e32320af0d8cf92c2534361aa6ec6eb4100afa8a",
+      "git_status": "M .agents/agents/unity-developer/templates/shader/render/README.md",
+      "canonical_sha256": "155ceac05dacba683e67e2fb455357daefeb92632b2ccd483e91ce2449217dae",
+      "alias": "../../../../../skills/auto-manager/templates/shader/render/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/render/direct-effect.shader",
+      "target": ".agents/skills/auto-manager/templates/shader/render/direct-effect.shader",
+      "sha256": "0c4697d4a9939db3d9280963a557c805d9f3dc21df3a80358a8dbf2af76ccdde",
+      "git_status": "clean",
+      "canonical_sha256": "337c80e3a4b0a4f9a0d2fb384577eccea9510622b5fe24efacc4daaba365c230",
+      "alias": "../../../../../skills/auto-manager/templates/shader/render/direct-effect.shader"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/render/effect-function.hlsl",
+      "target": ".agents/skills/auto-manager/templates/shader/render/effect-function.hlsl",
+      "sha256": "bf98c6ebbb4ca10099be343eed7e62f5b28bdf5dcc820070534e1d3f0cbc0c5b",
+      "git_status": "clean",
+      "canonical_sha256": "84e7fc513c525cce410754cfe647e4a83b72f94fc7e33f12080424cfb4df7d3f",
+      "alias": "../../../../../skills/auto-manager/templates/shader/render/effect-function.hlsl"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/shader/render/effect-shader.shader",
+      "target": ".agents/skills/auto-manager/templates/shader/render/effect-shader.shader",
+      "sha256": "45707effb7725e7555375d6c713a7c5a2fb6ebb0424ee1110cd6707582abe4d0",
+      "git_status": "clean",
+      "canonical_sha256": "f3ed4c0312d4f3a12c36e78f01251ad6f055b2bcc21d58c93537099b3a519353",
+      "alias": "../../../../../skills/auto-manager/templates/shader/render/effect-shader.shader"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/standard/README.md",
+      "target": ".agents/skills/auto-manager/templates/standard/README.md",
+      "sha256": "0c6563b15187e9a07f4f786c0ea7d59a9bc26392bdac91707f0c895d12828a78",
+      "git_status": "clean",
+      "canonical_sha256": "0c6563b15187e9a07f4f786c0ea7d59a9bc26392bdac91707f0c895d12828a78",
+      "alias": "../../../../skills/auto-manager/templates/standard/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/standard/script/README.md",
+      "target": ".agents/skills/auto-manager/templates/standard/script/README.md",
+      "sha256": "08c285eee017536e171264b2502537e4ea572fe883aaf5d62cf5c30f421d1846",
+      "git_status": "clean",
+      "canonical_sha256": "08c285eee017536e171264b2502537e4ea572fe883aaf5d62cf5c30f421d1846",
+      "alias": "../../../../../skills/auto-manager/templates/standard/script/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/standard/script/parameter-panel.cs",
+      "target": ".agents/skills/auto-manager/templates/standard/script/parameter-panel.cs",
+      "sha256": "f277eaa360df4018ce869000bebaca0461101d85bfc007422204ba8891cf8991",
+      "git_status": "clean",
+      "canonical_sha256": "f277eaa360df4018ce869000bebaca0461101d85bfc007422204ba8891cf8991",
+      "alias": "../../../../../skills/auto-manager/templates/standard/script/parameter-panel.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/standard/script/script-doc-template.md",
+      "target": ".agents/skills/auto-manager/templates/standard/script/script-doc-template.md",
+      "sha256": "419bba49c07ae0461f75c5c58be9b0bbeec7a14787ebbc9cb9f79d963ac532b7",
+      "git_status": "clean",
+      "canonical_sha256": "33fa83b32b6d03387b6c9b1a14d552da60e74462cbd17fd339e5b63052f1fc71",
+      "alias": "../../../../../skills/auto-manager/templates/standard/script/script-doc-template.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/standard/script/standard-script.cs",
+      "target": ".agents/skills/auto-manager/templates/standard/script/standard-script.cs",
+      "sha256": "f40609473280c076af8ecdcc88922fbaff72cafe0d4d1dd42b9e5ef699f46350",
+      "git_status": "clean",
+      "canonical_sha256": "a24545ee3143ac34d26d9303abca1358e8109ac7efa17a6395724d9e297917c2",
+      "alias": "../../../../../skills/auto-manager/templates/standard/script/standard-script.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/standard/shader/README.md",
+      "target": ".agents/skills/auto-manager/templates/standard/shader/README.md",
+      "sha256": "33e9c805331f287cfb3c4318e0b5bfcf18435966b5611f717e8fb5dc80ef82dd",
+      "git_status": "clean",
+      "canonical_sha256": "d7487d3d714ce8bb78a7eb6bcf026320ca8a2b29f9bd317b641a988eac63e3db",
+      "alias": "../../../../../skills/auto-manager/templates/standard/shader/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/standard/shader/shader-doc-template.md",
+      "target": ".agents/skills/auto-manager/templates/standard/shader/shader-doc-template.md",
+      "sha256": "7d892f5ceb3bb1e6692fda5659f2bd55a3c66bed49556d6b74863b16cf27d454",
+      "git_status": "clean",
+      "canonical_sha256": "7d892f5ceb3bb1e6692fda5659f2bd55a3c66bed49556d6b74863b16cf27d454",
+      "alias": "../../../../../skills/auto-manager/templates/standard/shader/shader-doc-template.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/templates/standard/shader/standard-shader.shader",
+      "target": ".agents/skills/auto-manager/templates/standard/shader/standard-shader.shader",
+      "sha256": "a818486382a2ed71419baecbfed82a34dd56ae99ddd7faa7d938eb437f675df2",
+      "git_status": "clean",
+      "canonical_sha256": "a818486382a2ed71419baecbfed82a34dd56ae99ddd7faa7d938eb437f675df2",
+      "alias": "../../../../../skills/auto-manager/templates/standard/shader/standard-shader.shader"
+    },
+    {
+      "source": ".agents/agents/unity-developer/cli/README.md",
+      "target": ".agents/skills/unity-editor/references/cli/README.md",
+      "sha256": "63e9e954a1f62036458c312c9ac1e6afdbbcba4398a710c5c1b1a85463d83eb1",
+      "git_status": "clean",
+      "canonical_sha256": "45c2df7fadc8e41a979d0eb765edf9d484bd233a5c041652a745a280d80f9e04",
+      "alias": "../../../skills/unity-editor/references/cli/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/cli/roslyn.md",
+      "target": ".agents/skills/unity-editor/references/cli/roslyn.md",
+      "sha256": "ecd7d61b5d0643fc3c218e22aa4b6f37c044bc057a072feb2511f411480f6d45",
+      "git_status": "M .agents/agents/unity-developer/cli/roslyn.md",
+      "canonical_sha256": "7cd3bf44443ddb1683764926174e9a0b6878f0200e4921688c6c6475e09a626e",
+      "alias": "../../../skills/unity-editor/references/cli/roslyn.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/cli/unityctl.md",
+      "target": ".agents/skills/unity-editor/references/cli/unityctl.md",
+      "sha256": "85f26f7f372bd2fab08478909f5580494fc30de393cb3752f17d14c37e326ebe",
+      "git_status": "M .agents/agents/unity-developer/cli/unityctl.md",
+      "canonical_sha256": "469e4b2954bc7b343b0516d60861ca2459af98e0cc3b69d5bf1af1601e57e1cd",
+      "alias": "../../../skills/unity-editor/references/cli/unityctl.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/roslyn/camera-offscreen-capture.cs",
+      "target": ".agents/skills/unity-render-debug/scripts/camera-offscreen-capture.cs",
+      "sha256": "28f829befbe09dca00035d599b698ce33fd61a1b257a2b7c07808e129f3eb6a1",
+      "git_status": "?? .agents/agents/unity-developer/scripts/roslyn/camera-offscreen-capture.cs",
+      "canonical_sha256": "28f829befbe09dca00035d599b698ce33fd61a1b257a2b7c07808e129f3eb6a1",
+      "alias": "../../../../skills/unity-render-debug/scripts/camera-offscreen-capture.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/roslyn/pipeline-check.cs",
+      "target": ".agents/skills/unity-editor/scripts/roslyn/pipeline-check.cs",
+      "sha256": "50a5d90c36525d953acff47c823747ffa12647133abecbe14cf543fc3f3d0b85",
+      "git_status": "clean",
+      "canonical_sha256": "50a5d90c36525d953acff47c823747ffa12647133abecbe14cf543fc3f3d0b85",
+      "alias": "../../../../skills/unity-editor/scripts/roslyn/pipeline-check.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/roslyn/scan-temp-objects.cs",
+      "target": ".agents/skills/unity-editor/scripts/roslyn/scan-temp-objects.cs",
+      "sha256": "9754b53d5e8bf542392781311b6fe4d7a5112ed082034f83b7d01f98d24cc0b2",
+      "git_status": "clean",
+      "canonical_sha256": "9754b53d5e8bf542392781311b6fe4d7a5112ed082034f83b7d01f98d24cc0b2",
+      "alias": "../../../../skills/unity-editor/scripts/roslyn/scan-temp-objects.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/roslyn/scene-organize.cs",
+      "target": ".agents/skills/unity-editor/scripts/roslyn/scene-organize.cs",
+      "sha256": "01f4af9b6b9a71f64af1aaecb9232482788e51ca081281ec69bb9393c23e1b36",
+      "git_status": "clean",
+      "canonical_sha256": "01f4af9b6b9a71f64af1aaecb9232482788e51ca081281ec69bb9393c23e1b36",
+      "alias": "../../../../skills/unity-editor/scripts/roslyn/scene-organize.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/roslyn/scene-query.cs",
+      "target": ".agents/skills/unity-editor/scripts/roslyn/scene-query.cs",
+      "sha256": "0e911097166c4fad8298fe2fc8b97fcb50087139dbe4afcaec30c826c179923f",
+      "git_status": "clean",
+      "canonical_sha256": "0e911097166c4fad8298fe2fc8b97fcb50087139dbe4afcaec30c826c179923f",
+      "alias": "../../../../skills/unity-editor/scripts/roslyn/scene-query.cs"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/validation/hash/README.md",
+      "target": ".agents/skills/unity-feature-reuse/project-adapters/hash/README.md",
+      "sha256": "90cc16cf8976175a995eb48c3e36c8162d76803dcc3df878d2a9a090a9024745",
+      "git_status": "?? .agents/agents/unity-developer/scripts/validation/hash/README.md",
+      "canonical_sha256": "ccce1e79767750f0bd1baf190c4a4c1aed07cff4c3719e1a0eb52d110685a479",
+      "alias": "../../../../../skills/unity-feature-reuse/project-adapters/hash/README.md"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/validation/hash/analyze_variants.py",
+      "target": ".agents/skills/unity-feature-reuse/project-adapters/hash/analyze_variants.py",
+      "sha256": "4be777134d98363eaa2a5abe4e02a5318a549c440a2861f6c5f6349febff6742",
+      "git_status": "?? .agents/agents/unity-developer/scripts/validation/hash/analyze_variants.py",
+      "canonical_sha256": "4be777134d98363eaa2a5abe4e02a5318a549c440a2861f6c5f6349febff6742",
+      "alias": "../../../../../skills/unity-feature-reuse/project-adapters/hash/analyze_variants.py"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/validation/hash/fixtures/before.json",
+      "target": ".agents/skills/unity-feature-reuse/project-adapters/hash/fixtures/before.json",
+      "sha256": "32c209892b3f9a27e2fa048c4c183fda17e671d651b2419caeb2f62bb3b411d5",
+      "git_status": "?? .agents/agents/unity-developer/scripts/validation/hash/fixtures/before.json",
+      "canonical_sha256": "32c209892b3f9a27e2fa048c4c183fda17e671d651b2419caeb2f62bb3b411d5",
+      "alias": "../../../../../../skills/unity-feature-reuse/project-adapters/hash/fixtures/before.json"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/validation/hash/fixtures/final-stage-before.json",
+      "target": ".agents/skills/unity-feature-reuse/project-adapters/hash/fixtures/final-stage-before.json",
+      "sha256": "02af0bb9dd12dcc617f7b86f35911e0b5e7accd081df2cfe0c123d1e7e7e11b1",
+      "git_status": "?? .agents/agents/unity-developer/scripts/validation/hash/fixtures/final-stage-before.json",
+      "canonical_sha256": "02af0bb9dd12dcc617f7b86f35911e0b5e7accd081df2cfe0c123d1e7e7e11b1",
+      "alias": "../../../../../../skills/unity-feature-reuse/project-adapters/hash/fixtures/final-stage-before.json"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/validation/hash/source-map.json",
+      "target": ".agents/skills/unity-feature-reuse/project-adapters/hash/source-map.json",
+      "sha256": "5bd8d5b681db7d54fe6ae06ecbe0523dc54a1e9d7696264055c6e43e94fed4f7",
+      "git_status": "?? .agents/agents/unity-developer/scripts/validation/hash/source-map.json",
+      "canonical_sha256": "5bd8d5b681db7d54fe6ae06ecbe0523dc54a1e9d7696264055c6e43e94fed4f7",
+      "alias": "../../../../../skills/unity-feature-reuse/project-adapters/hash/source-map.json"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/validation/hash/verify_hash.py",
+      "target": ".agents/skills/unity-feature-reuse/project-adapters/hash/verify_hash.py",
+      "sha256": "6c239b76724d9fbe7f5fe2d57c6a118424f26464be87269c73104e4306eab279",
+      "git_status": "?? .agents/agents/unity-developer/scripts/validation/hash/verify_hash.py",
+      "canonical_sha256": "6c239b76724d9fbe7f5fe2d57c6a118424f26464be87269c73104e4306eab279",
+      "alias": "../../../../../skills/unity-feature-reuse/project-adapters/hash/verify_hash.py"
+    },
+    {
+      "source": ".agents/agents/unity-developer/scripts/validation/hash/verify_hash_final.py",
+      "target": ".agents/skills/unity-feature-reuse/project-adapters/hash/verify_hash_final.py",
+      "sha256": "b54591e11bea215bb117fd8ee6c9d0cde37160ef89f488f51ccfe9d8ced8b1e2",
+      "git_status": "?? .agents/agents/unity-developer/scripts/validation/hash/verify_hash_final.py",
+      "canonical_sha256": "b54591e11bea215bb117fd8ee6c9d0cde37160ef89f488f51ccfe9d8ced8b1e2",
+      "alias": "../../../../../skills/unity-feature-reuse/project-adapters/hash/verify_hash_final.py"
+    }
+  ],
+  "legacy_index": ".agents/agents/unity-developer/scripts/README.md",
+  "cutover": "Replace each listed source with a relative symlink to its target; preserve all directories, original content snapshot and existing platform links. No Assets changes."
+}

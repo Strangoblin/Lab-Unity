@@ -1,0 +1,143 @@
+{
+  "status": "PASS",
+  "project_root": ".",
+  "interpreter": ".mcp/.venv/bin/python",
+  "task_directory": "tmp/sessions/2026-10-10-lab-structure-audit",
+  "run_id": "mcp-isolated-a93d002a970b",
+  "results": [
+    {
+      "suite": "test_recipes.py",
+      "exit_code": 0,
+      "test_function_definitions": 30,
+      "log": "tmp/sessions/2026-10-10-lab-structure-audit/evidence/mcp-isolated-a93d002a970b/test_recipes.log"
+    },
+    {
+      "suite": "test_knowledge_paths.py",
+      "exit_code": 0,
+      "test_function_definitions": 5,
+      "log": "tmp/sessions/2026-10-10-lab-structure-audit/evidence/mcp-isolated-a93d002a970b/test_knowledge_paths.log"
+    }
+  ],
+  "real_before": {
+    ".mcp/state.json": {
+      "exists": true,
+      "sha256": "5786a6989b3ef75909a14fae0220458a7478001717a6cb747d583f4d857bac29"
+    },
+    ".mcp/deletes.jsonl": {
+      "exists": true,
+      "sha256": "9a3943584296d2a843c66f10181c774ec604b90af624c3beac097168777c3b97"
+    },
+    ".mcp/moves.jsonl": {
+      "exists": true,
+      "sha256": "7af11442f1c7da588acc941fded643faa9f10b05ddfd515b0d71e18be99e2040"
+    },
+    ".mcp/friction.jsonl": {
+      "exists": true,
+      "sha256": "7d1b4f9485ff8b08730d6662757f85a7ff6f8de5be910bf728256fdae4212945"
+    }
+  },
+  "boundary": "Copied project inputs, independent Git root and TMPDIR; no production gate reset.",
+  "fixture": "tmp/sessions/2026-10-10-lab-structure-audit/fixtures/mcp-isolated-urw3crmx",
+  "copied": [
+    ".mcp/gate_center.py",
+    ".mcp/policy.json",
+    ".mcp/pyproject.toml",
+    ".mcp/server.py",
+    ".mcp/telemetry.py",
+    ".mcp/gates/__init__.py",
+    ".mcp/gates/g_entry.py",
+    ".mcp/gates/g_knowledge.py",
+    ".mcp/tests/run_isolated.py",
+    ".mcp/tests/test_isolated_runner.py",
+    ".mcp/tests/test_knowledge_paths.py",
+    ".mcp/tests/test_recipes.py",
+    ".mcp/validation/__init__.py",
+    ".mcp/validation/atomic_io.py",
+    ".mcp/validation/check_norm.py",
+    ".mcp/validation/delete_gated.py",
+    ".mcp/validation/deletion.py",
+    ".mcp/validation/friction_report.py",
+    ".mcp/validation/gate_cli.py",
+    ".mcp/validation/judgement.py",
+    ".mcp/validation/knowledge_paths.py",
+    ".mcp/validation/move_gated.py",
+    ".mcp/validation/moving.py",
+    ".mcp/validation/norms.py",
+    ".mcp/validation/policy.py",
+    ".mcp/validation/project_paths.py",
+    ".mcp/validation/script_library.py",
+    ".mcp/validation/write_gated.py",
+    ".agents/rules/README.md",
+    ".agents/rules/compute-shader.md",
+    ".agents/rules/csharp-renderpass.md",
+    ".agents/rules/meta-architecture.md",
+    ".agents/rules/shader-development.md",
+    ".agents/agents/unity-developer/references/README.md",
+    ".agents/agents/unity-developer/references/mcp-gate-usage.md",
+    ".agents/agents/unity-developer/references/csharp-dev/README.md",
+    ".agents/agents/unity-developer/references/csharp-dev/script-structure.md",
+    ".agents/agents/unity-developer/references/platform/metal-notes.md",
+    ".agents/agents/unity-developer/references/shader/README.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/README.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/blit-fullscreen.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/blitter-api.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/compute-shader.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/feature-script-structure.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/fullscreen-structure.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/postprocess-differences.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/spatial-filter-budget.md",
+    ".agents/agents/unity-developer/references/shader/postprocess/volume-component.md",
+    ".agents/agents/unity-developer/references/standard/README.md",
+    ".agents/agents/unity-developer/references/standard/compute/README.md",
+    ".agents/agents/unity-developer/references/standard/compute/compute-shader-api.md",
+    ".agents/agents/unity-developer/references/standard/rendering/README.md",
+    ".agents/agents/unity-developer/references/standard/rendering/camera-capture.md",
+    ".agents/agents/unity-developer/references/standard/rendering/render-graph.md",
+    ".agents/agents/unity-developer/references/standard/rendering/rthandle-api.md",
+    ".agents/agents/unity-developer/references/standard/script/README.md",
+    ".agents/agents/unity-developer/references/standard/script/parameter-panel.md",
+    ".agents/agents/unity-developer/references/standard/script/script-structure.md",
+    ".agents/agents/unity-developer/references/standard/shader/README.md",
+    ".agents/agents/unity-developer/references/standard/shader/hlsl-includes.md",
+    ".agents/agents/unity-developer/references/standard/shader/shader-structure.md",
+    ".agents/agents/unity-developer/references/unity6-api/README.md",
+    ".agents/agents/unity-developer/references/urp-shader-lib/README.md",
+    ".agents/agents/unity-developer/references/urp-shader-lib/shader-structure.md",
+    ".agents/agents/unity-developer/scripts/roslyn/camera-offscreen-capture.cs",
+    ".agents/agents/unity-developer/scripts/roslyn/pipeline-check.cs",
+    ".agents/agents/unity-developer/scripts/roslyn/scan-temp-objects.cs",
+    ".agents/agents/unity-developer/scripts/roslyn/scene-organize.cs",
+    ".agents/agents/unity-developer/scripts/roslyn/scene-query.cs",
+    "AGENTS.md",
+    ".agents/README.md",
+    ".codex/AGENTS.md",
+    ".codex/INTERFACE.md",
+    "Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader"
+  ],
+  "preflight_log": "tmp/sessions/2026-10-10-lab-structure-audit/evidence/mcp-isolated-a93d002a970b/preflight.log",
+  "real_after": {
+    ".mcp/state.json": {
+      "exists": true,
+      "sha256": "5786a6989b3ef75909a14fae0220458a7478001717a6cb747d583f4d857bac29"
+    },
+    ".mcp/deletes.jsonl": {
+      "exists": true,
+      "sha256": "9a3943584296d2a843c66f10181c774ec604b90af624c3beac097168777c3b97"
+    },
+    ".mcp/moves.jsonl": {
+      "exists": true,
+      "sha256": "7af11442f1c7da588acc941fded643faa9f10b05ddfd515b0d71e18be99e2040"
+    },
+    ".mcp/friction.jsonl": {
+      "exists": true,
+      "sha256": "7d1b4f9485ff8b08730d6662757f85a7ff6f8de5be910bf728256fdae4212945"
+    }
+  },
+  "real_gate_state_and_audit_unchanged": true,
+  "fixture_retained": false,
+  "fixture_cleaned": true,
+  "archive_adaptation": {
+    "source_sha256": "bd17e54fb9eeecc4f3b011b41b2a2055e35ba1f36e8a80e29b648b5a68acdcd4",
+    "method": "Project-root prefixes made repository-relative; externally configured Python and glslang paths represented by DENSE_PYTHON/GLSLANG_VALIDATOR. Numeric results and captured output hashes unchanged."
+  }
+}

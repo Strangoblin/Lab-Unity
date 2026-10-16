@@ -1,0 +1,8 @@
+{
+  "MaskRBR.shader": "80ab16416599e2b4b490fb7a914ce3d8ceececac8dbe030580a77490ac66e0d9",
+  "MaskRBRFeature.cs": "6e1a07b5487f70c165f23df2c54c6a34aa1ddb7514736377bf844e8e2612b77c",
+  "MaskRBRMask.shader": "f61882dd0c31655dee92c1f0dbcbb72655606b5344b63cf0c8b27ec2ba3136b6",
+  "README.md": "d459c8c94ff6548542425e8ec6ba7b823a74b4823b638982675026b6612403bd",
+  "Validation~/PipelineChecks.cs": "fe7da699288df1c3694e3d9cca187e2ce9bcabace53c8fe7dbe53c65ed48acf4",
+  "Validation~/ShaderChecks.cs": "f07392f82e681b91982a7f3ddc1ca7d5fcaec97eef50aa296602d2b775347633"
+}

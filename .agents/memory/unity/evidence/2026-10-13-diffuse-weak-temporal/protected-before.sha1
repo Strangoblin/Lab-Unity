@@ -1,0 +1,4 @@
+ae732476ae1655c5369f66d9ceef409090d8dfe3  Assets/Scenes/SampleScene.unity
+f82953826185f63f092fada5ff4b3fd5ecd6921e  Assets/Settings/PC_Renderer.asset
+25120b492e169a365881dcf72ac6f0c9f2585f98  Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGIFunction.hlsl
+fe2baa56bc5e48f33e1cadf249775e8eb8037f13  Assets/Mine/Shaders/PostProcess/SSGI/SSGITemporal.hlsl

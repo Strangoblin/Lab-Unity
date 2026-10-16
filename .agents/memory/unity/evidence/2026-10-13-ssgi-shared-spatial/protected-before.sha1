@@ -1,0 +1,8 @@
+f82953826185f63f092fada5ff4b3fd5ecd6921e  Assets/Settings/PC_Renderer.asset
+ae732476ae1655c5369f66d9ceef409090d8dfe3  Assets/Scenes/SampleScene.unity
+019adfa041f6558ca7d227a271952e8f37be89f3  Assets/Mine/Special/HLSL/RayStepFunction.hlsl
+46d4e88a239dab969a8df4dde32b6cbb22872044  Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl
+e50bf870ad51aed02eb27d22877c7a24c70129d0  Assets/Mine/Shaders/PostProcess/SSGI/SSGIFeature.cs
+ae66bdf399f35c651273e8a270af0bca343236d2  Assets/Mine/Shaders/PostProcess/SSGI/SSGITemporalFilter.cs
+fe2baa56bc5e48f33e1cadf249775e8eb8037f13  Assets/Mine/Shaders/PostProcess/SSGI/SSGITemporal.hlsl
+b7175d229708bfe880f2f29bc07b246ec7285e0b  Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl

@@ -1,0 +1,13 @@
+{
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBR.shader": "af066d204f75bde5206ee56cfdd28e1f0559b0ee72a85707b0df0547da1ed29a",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBR.shader.meta": "bf2754868b244301f1e762df7248c2a8b83e1b7c505135682c8b49e6798e8ffb",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRFeature.cs": "34b581f44e6ae0d006b92bc2ef9e867e1cc18444ca1857f72fd62e66216f9295",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRFeature.cs.meta": "250eea091d324e41d22ea98073ce18b4d91fd119c31be087e646a52117cd405e",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRMask.shader": "f61882dd0c31655dee92c1f0dbcbb72655606b5344b63cf0c8b27ec2ba3136b6",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRMask.shader.meta": "07049fd3e194b3d990a4931e7c9ba5d4fcd7f99a8e5691dd54bb462181fca0e2",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/README.md": "a4cf8464bf41c4494108a85479721dbba32f76613f680cabbe922c7ff099a9e0",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/README.md.meta": "8bb698fff5ac870856ed895511ce75dc9c568c5cee624696ad9818456511fed1",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/Validation~/PipelineChecks.cs": "baee95272047bd16810ae4d28eb83830e3ff1b6abc926d8913126941ff39fae5",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR/Validation~/ShaderChecks.cs": "8254a9bab41e1a07b97ea7fb7faa346610754a7e8632e744eac3bcc882c5ccbf",
+  "Assets/Mine/Shaders/PostProcess/MaskRBR.meta": "d576bbdab758278e665415155d27fc5d52a37e17ad40799022ca77c4bb3ead01"
+}

@@ -1,0 +1,174 @@
+{
+  "passed": true,
+  "cases": 21,
+  "outcomes": [
+    {
+      "family": "library",
+      "case": "genuine",
+      "expectedAccepted": true,
+      "accepted": true,
+      "exitCode": 0,
+      "message": "{\"passed\": true, \"assertions\": 89095, \"cases\": 39, \"output\": \"tmp/sessions/2026-10-13-ssr-framework-r1/fixtures/checker-controls/library-genuine/results.json\"}\n"
+    },
+    {
+      "family": "library",
+      "case": "failed-cli",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "GPU command failed: {\"success\": false, \"result\": {\"passed\": true, \"assertions\": 89095, \"cases\": 39, \"output\": \"tmp/sessions/2026-10-13-ssr-framework-r1/fixtures/checker-controls/library-failed-cli/results.json\"}}\n"
+    },
+    {
+      "family": "library",
+      "case": "missing-payload",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Unexpected GPU validation result\n"
+    },
+    {
+      "family": "camera",
+      "case": "genuine",
+      "expectedAccepted": true,
+      "accepted": true,
+      "exitCode": 0,
+      "message": "{\"passed\": true, \"assertions\": 1152441, \"cases\": 39, \"output\": \"tmp/sessions/2026-10-13-ssr-framework-r1/fixtures/checker-controls/camera-genuine\"}\n"
+    },
+    {
+      "family": "camera",
+      "case": "failed-cli",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Traceback (most recent call last):\n  File \"/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_result.py\", line 35, in <module>\n    main()\n  File \"/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_result.py\", line 11, in main\n    raise RuntimeError(f\"Unity execution failed: {response}\")\nRuntimeError: Unity execution failed: {'success': False, 'result': {'passed': True, 'assertions': 1152441, 'cases': 39, 'output': 'tmp/sessions/2026-10-13-ssr-framework-r1/fixtures/checker-controls/camera-failed-cli'}}\n"
+    },
+    {
+      "family": "camera",
+      "case": "missing-payload",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Traceback (most recent call last):\n  File \"/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_result.py\", line 35, in <module>\n    main()\n  File \"/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_result.py\", line 16, in main\n    raise RuntimeError(f\"Unexpected validation result: {payload}\")\nRuntimeError: Unexpected validation result: None\n"
+    },
+    {
+      "family": "timing",
+      "case": "genuine",
+      "expectedAccepted": true,
+      "accepted": true,
+      "exitCode": 0,
+      "message": "report: tmp/sessions/2026-10-13-ssr-framework-r1/fixtures/checker-controls/timing-genuine/results.json\nmetric: GPU-synchronized render-request wall milliseconds; not GPU timestamps\n642x366 DDA48-DDA64       median=3.712ms P95=4.829ms blocks=[4.27, 3.637, 3.557]\n642x366 DDA48-Ray         median=3.587ms P95=4.328ms blocks=[3.619, 3.553, 3.562]\n642x366 Ray-DDA64         median=3.776ms P95=4.641ms blocks=[3.955, 3.792, 3.648]\n642x366 Ray-Ray           median=3.837ms P95=7.202ms blocks=[5.484, 3.78, 3.666]\n1920x1080 DDA48-DDA64       median=9.190ms P95=10.020ms blocks=[9.277, 9.237, 9.048]\n1920x1080 DDA48-Ray         median=9.341ms P95=11.562ms blocks=[9.255, 9.62, 9.336]\n1920x1080 Ray-DDA64         median=9.320ms P95=10.139ms blocks=[9.256, 9.326, 9.397]\n1920x1080 Ray-Ray           median=9.290ms P95=10.274ms blocks=[9.117, 9.307, 9.346]\n"
+    },
+    {
+      "family": "timing",
+      "case": "failed-cli",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Unity timing command failed: {\"success\": false, \"result\": {\"passed\": true, \"reportPath\": \"tmp/sessions/2026-10-13-ssr-framework-r1/fixtures/checker-controls/timing-failed-cli/results.json\", \"blocks\": 24}}\n"
+    },
+    {
+      "family": "timing",
+      "case": "missing-payload",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Unity timing result failed\n"
+    },
+    {
+      "family": "library",
+      "case": "no-assertions",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Missing GPU assertion evidence\n"
+    },
+    {
+      "family": "library",
+      "case": "empty-matrix",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Incomplete GPU validation matrix\n"
+    },
+    {
+      "family": "camera",
+      "case": "no-assertions",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Traceback (most recent call last):\n  File \"/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_result.py\", line 35, in <module>\n    main()\n  File \"/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_result.py\", line 19, in main\n    raise RuntimeError(\"Missing or mismatched assertion count\")\nRuntimeError: Missing or mismatched assertion count\n"
+    },
+    {
+      "family": "camera",
+      "case": "empty-matrix",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Traceback (most recent call last):\n  File \"/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_result.py\", line 35, in <module>\n    main()\n  File \"/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_result.py\", line 30, in main\n    raise RuntimeError(\"Incomplete or failed positive test matrix\")\nRuntimeError: Incomplete or failed positive test matrix\n"
+    },
+    {
+      "family": "timing",
+      "case": "zero-blocks",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Empty or mismatched timing blocks\n"
+    },
+    {
+      "family": "timing",
+      "case": "missing-array",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Traceback (most recent call last):\n  File \"/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_timing.py\", line 33, in <module>\n    times = block[\"synchronizedMilliseconds\"]\nKeyError: 'synchronizedMilliseconds'\n"
+    },
+    {
+      "family": "timing",
+      "case": "wrong-budget",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Unexpected backend or production tier budget\n"
+    },
+    {
+      "family": "timing",
+      "case": "nonfinite-submit",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Invalid timer samples\n"
+    },
+    {
+      "family": "timing",
+      "case": "nonfinite-total",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Invalid timer samples\n"
+    },
+    {
+      "family": "timing",
+      "case": "single-resolution",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Missing Game View or 1080p timing resolution\n"
+    },
+    {
+      "family": "timing",
+      "case": "wrong-mode",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Timing configuration mode differs from the requested entry point\n"
+    },
+    {
+      "family": "timing",
+      "case": "not-restored",
+      "expectedAccepted": false,
+      "accepted": false,
+      "exitCode": 1,
+      "message": "Timing report failed or original state changed\n"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+PASS test_recipes.py: exit 0; /Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1/evidence/mcp-isolated-3e5de42f6e1d/test_recipes.log
+PASS test_knowledge_paths.py: exit 0; /Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1/evidence/mcp-isolated-3e5de42f6e1d/test_knowledge_paths.log
+PASS test_directory_deletion.py: exit 0; /Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1/evidence/mcp-isolated-3e5de42f6e1d/test_directory_deletion.log
+PASS real .mcp state/audit fingerprints unchanged
+Report: /Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssr-framework-r1/output/mcp-isolated-3e5de42f6e1d/report.json

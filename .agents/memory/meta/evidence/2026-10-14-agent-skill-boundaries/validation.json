@@ -1,0 +1,70 @@
+{
+  "status": "PASS",
+  "strict_architecture": {
+    "fixture": "phase7",
+    "tracked_claude": 25,
+    "tracked_agents": 197,
+    "tracked_codex": 39,
+    "inventory_entries": 256,
+    "agents_broken_markdown_links": 0,
+    "skill_drift_files": 0,
+    "skill_drift_groups": 0,
+    "mcp_hardcoded_claude_files": 0,
+    "mcp_hardcoded_claude_hits": 0,
+    "platform_hook_drift": 0,
+    "absolute_path_hits": 0,
+    "codex_case_hits": 0,
+    "phase2_contract_errors": 0,
+    "agent_ownership_errors": 0
+  },
+  "controls": {
+    "ownership": 19,
+    "scan_scope": 8,
+    "resource_binding": 5,
+    "isolated_runner": 9
+  },
+  "mcp_suites": [
+    {
+      "suite": "test_recipes.py",
+      "exit_code": 0
+    },
+    {
+      "suite": "test_knowledge_paths.py",
+      "exit_code": 0
+    },
+    {
+      "suite": "test_directory_deletion.py",
+      "exit_code": 0
+    },
+    {
+      "suite": "test_project_resources.py",
+      "exit_code": 0
+    }
+  ],
+  "production_state_and_audit_unchanged": true,
+  "template_api_check": {
+    "templates": 17,
+    "exit_code": 0,
+    "scope": "lexical/obsolete API only; no Unity compilation"
+  },
+  "hash": {
+    "code_and_immutable_baselines": "unchanged",
+    "canonical_root_and_fixture_probe": "PASS",
+    "contract_rerun": "not required for unchanged code"
+  },
+  "skill_validation": "agent-maintenance and four existing canonical skills pass; auto-manager retains existing Claude extension fields outside Codex validator allow-list",
+  "opencode_worker": {
+    "model": "opencode-go/deepseek-v4.1-flash",
+    "calls": 1,
+    "scope": "bounded meta skill/conventions editing",
+    "review": "task-only diff and runtime script checks accepted"
+  },
+  "review_fixes": [
+    "role template now skill asset",
+    "cleanup hands record results to role",
+    "existing benchmark reports bypass collection"
+  ],
+  "git_basis": "f9b3ad8be467fa01e91fabd37fa4f05bb7b216cb",
+  "assets_changed": false,
+  "policy_or_hook_levels_changed": false
+}

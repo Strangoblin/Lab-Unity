@@ -1,0 +1,10 @@
+{
+  "asset-preservation.json": "97e9ad227a95241f04ecddb93882c4454ad421e2eb58b3d5ee7ee580c08583d7",
+  "baseline-input-sha256.json": "b95d1bda607724d68e0e0e863d9b283254e89982ddc519d0d5e24e8c01a7e8b8",
+  "baseline.json": "9a82cd425db216c0b7c3931f498cf4e0a8305eb599217cc77299c5a3095912b6",
+  "equivalence.json": "2ce2313baae57a5845ae8006ba987cc9ab91ac3c6ee75de62fdef20ab0fc3d1d",
+  "rbr-gpu.json": "3177364323813c85287f4818c43f3f111f98b31c6763bae88c01bb062cfa6970",
+  "rbr-pipeline.json": "b10c9bea6b291f7dafcb2b0b3bb9aa692c96bbbda8b500ca6f3033eac71ffb16",
+  "shader-status.json": "744a07e39bfec29272509a3a806362d8375f49724b59b6bcb86c2582a685944c",
+  "source-sha256.json": "d58d60c652abad73a8d708edcf7772e6319cba9c7a504e31da9fb9cf74dc66b2"
+}

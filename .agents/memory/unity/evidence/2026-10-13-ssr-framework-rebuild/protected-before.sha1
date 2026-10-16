@@ -1,0 +1,6 @@
+03e6c9039e06d0f74182df82cfce97b60b1f8572  Assets/Settings/PC_Renderer.asset
+ae732476ae1655c5369f66d9ceef409090d8dfe3  Assets/Scenes/SampleScene.unity
+e50bf870ad51aed02eb27d22877c7a24c70129d0  Assets/Mine/Shaders/PostProcess/SSGI/SSGIFeature.cs
+ae66bdf399f35c651273e8a270af0bca343236d2  Assets/Mine/Shaders/PostProcess/SSGI/SSGITemporalFilter.cs
+25120b492e169a365881dcf72ac6f0c9f2585f98  Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGIFunction.hlsl
+b7175d229708bfe880f2f29bc07b246ec7285e0b  Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl

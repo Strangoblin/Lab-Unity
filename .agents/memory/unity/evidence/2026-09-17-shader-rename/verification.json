@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-10",
+  "status": "passed",
+  "semantic_plan_exact_equal": true,
+  "changes": 84,
+  "names": 75,
+  "bodies_read_from_git": 155,
+  "unique_snapshot_bodies": 13,
+  "known_blobs_without_find_object_commit": [],
+  "source_sha256": "81f02f2a3f45be23aa56cf7c94d9d6e2fcaa8d266aa9791229828e3a3c8dbd0c",
+  "scope": "重建全部 JSON 字段值并校验；不要求重建原 JSON 空白排版。没有写入 Git 或 Assets。"
+}

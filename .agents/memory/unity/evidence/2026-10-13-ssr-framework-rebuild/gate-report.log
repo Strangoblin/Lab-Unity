@@ -1,0 +1,31 @@
+══════════════════════════════════════════════════════════════
+  摩擦报告（MCP v3）
+══════════════════════════════════════════════════════════════
+记录 441 条  |  真实操作 358  |  仪式调用 41  |  仪式比 0.115
+结果分布: {'warn': 2, 'denied': 4, 'dry_run': 2, 'ok': 432, 'error': 1}
+
+── 拒绝 Top ──
+      3  scope.workspace
+      1  deletion.guid-referenced
+
+── 警告 / 已放宽 Top ──
+      1  ceremony.recipe_gate
+      1  ceremony.knowledge_high_priority
+
+── 策略中从未命中的检查 ──
+  ceremony.knowledge_resolvable, deletion.recoverability, move.presafety, norm.cs-type-decl, norm.divider-added, norm.region-added, norm.shader-decl, placement.category, placement.root.existing, placement.root.new, scope.path
+
+── 提案 ──
+  [1] (safety-healthy) ceremony.knowledge_resolvable（block）零命中 —— 不可退役类，零命中 = 没有不安全/越界的操作，属健康信号。
+  [2] (safety-healthy) deletion.recoverability（block）零命中 —— 不可退役类，零命中 = 没有不安全/越界的操作，属健康信号。
+  [3] (safety-healthy) move.presafety（block）零命中 —— 不可退役类，零命中 = 没有不安全/越界的操作，属健康信号。
+  [4] (safety-healthy) norm.cs-type-decl（block）零命中 —— 不可退役类，零命中 = 没有不安全/越界的操作，属健康信号。
+  [5] (observe) norm.divider-added（warn）零命中 —— 已是放宽态，继续观察。
+  [6] (retire-or-demote) norm.region-added（block）在 358 次真实操作中零命中 —— 复核是否退役，或降为 warn 观察。
+  [7] (safety-healthy) norm.shader-decl（block）零命中 —— 不可退役类，零命中 = 没有不安全/越界的操作，属健康信号。
+  [8] (observe) placement.category（warn）零命中 —— 已是放宽态，继续观察。
+  [9] (observe) placement.root.existing（warn）零命中 —— 已是放宽态，继续观察。
+  [10] (retire-or-demote) placement.root.new（block）在 358 次真实操作中零命中 —— 复核是否退役，或降为 warn 观察。
+  [11] (safety-healthy) scope.path（block）零命中 —— 不可退役类，零命中 = 没有不安全/越界的操作，属健康信号。
+
+改 policy.json 前须经 meta-developer 复核 —— 见 .agents/agents/meta-developer/references/enforcement-policy.md

@@ -1,0 +1,38 @@
+[
+  {
+    "path": "Assets/Mine/Shaders/PostProcess/SSGI/AO/AO.md",
+    "current_sha256": "dbe6627a405be9244be10d0b52d279f212600dfdc94060095d68e61cedb99233",
+    "old_text": "读数来自 **Play Mode 离屏相机对照采集**：把主相机（642×522）复制到一张 `ARGB32` RT、关闭该相机的后处理，逐配置渲染后回读（脚本 `.codex/tmp/ao/verify3.cs`；`Debug=AO` 直出可见度）。",
+    "new_text": "读数来自 **2026-09-21 的 Play Mode 离屏相机对照采集**：把主相机（642×522）复制到一张 `ARGB32` RT、关闭该相机的后处理，逐配置渲染后回读，`Debug=AO` 直出可见度。原始 [verify3.cs 历史脚本](../../../../../../.agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify3.cs) 已从当时回退包恢复，仅供追溯旧读数；它没有适配后续 AO 改动，当前实现需重新采集。",
+    "requires_approval": true,
+    "requires_unity_gate": true,
+    "depends_on_archive_target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify3.cs",
+    "reason": "修复正式文档失效历史引用；不把冻结探针写成当前可运行入口。"
+  },
+  {
+    "path": ".agents/agents/unity-developer/scripts/README.md",
+    "current_sha256": "10fd8574c7595c637d652098752fd95738dd6a0f870f44b8826aa6e0640a8c2a",
+    "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/staging/post-archive-docs/unity-scripts-README.md",
+    "prepared_sha256": "8c543d84e799f54cc687d894ecdc66db0c471ced4770c6918e7ffb7c998325a9",
+    "requires_unity_gate": false,
+    "depends_on_archive_target": ".agents/agents/unity-developer/scripts/validation/hash/README.md",
+    "reason": "在既有脚本索引登记可复跑 Hash 工具；保留当前相机脚本入口。"
+  },
+  {
+    "path": ".agents/agents/unity-developer/memory/2026-10-10-validation-artifact-archive.md",
+    "current_sha256": null,
+    "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/staging/post-archive-docs/2026-10-10-validation-artifact-archive.md",
+    "prepared_sha256": "1449ecc9302a9a4872ce93096cad8aa9394748fa622d81fc83b3600f2529b5bf",
+    "requires_unity_gate": false,
+    "reason": "为角色归档证据建立可发现入口；仅归档完成后安装。"
+  },
+  {
+    "path": ".agents/agents/unity-developer/memory/MEMORY.md",
+    "current_sha256": "8e9eae6e4fee0490a324f6a5825e5d6051da284fef3ee6ac87b554b2ebcee530",
+    "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/staging/post-archive-docs/unity-MEMORY.md",
+    "prepared_sha256": "79215fd71b32263777013aface33c13e66e3d40883be905a5a9599669dd247cc",
+    "requires_unity_gate": false,
+    "depends_on_archive_target": ".agents/agents/unity-developer/memory/2026-10-10-validation-artifact-archive.md",
+    "reason": "把归档入口加入既有角色 Memory 索引。"
+  }
+]

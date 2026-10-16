@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "method": "In-memory current caller mutations and protected output routes; no Assets modifications.",
+  "checks": [
+    {
+      "control": "SSL time key",
+      "expected": "rejection",
+      "result": "PASS",
+      "reason": "SSL radial caller math changed beyond direct Hash_Sine21 mapping"
+    },
+    {
+      "control": "SSO downstream jitter scale",
+      "expected": "rejection",
+      "result": "PASS",
+      "reason": "Current complete Hash consumer function differs: Assets/Mine/Shaders/PostProcess/SSO/SSO.shader OffsetUV"
+    },
+    {
+      "control": "Rain column key",
+      "expected": "rejection",
+      "result": "PASS",
+      "reason": "Hash-bearing statements/caller math changed beyond listed mappings: Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl"
+    },
+    {
+      "control": "Rain downstream lifetime",
+      "expected": "rejection",
+      "result": "PASS",
+      "reason": "Unreviewed historical whole-file drift; review current Hash scope before accepting: Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl"
+    },
+    {
+      "control": "strict historical migration snapshot",
+      "expected": "rejection due to explicitly reported historical drift",
+      "result": "PASS",
+      "reason": "Historical whole-file snapshot drift: Assets/Mine/Shaders/PostProcess/SSL/SSL.shader, Assets/Mine/Shaders/PostProcess/SSO/SSO.shader, Assets/Mine/Shaders/PostProcess/Kuwahara/Kuwahara.shader, Assets/Mine/Shaders/PostProcess/DDOF/DDOF.shader"
+    },
+    {
+      "control": "reject output tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash",
+      "expected": "rejection",
+      "result": "PASS",
+      "reason": "Output must not be inside the validation archive"
+    },
+    {
+      "control": "reject output Assets/Mine",
+      "expected": "rejection",
+      "result": "PASS",
+      "reason": "Output must be inside a task directory under project tmp/sessions"
+    },
+    {
+      "control": "reject output .agents/agents/unity-developer/scripts/validation/hash",
+      "expected": "rejection",
+      "result": "PASS",
+      "reason": "Output must be inside a task directory under project tmp/sessions"
+    },
+    {
+      "control": "reject output tmp/sessions",
+      "expected": "rejection",
+      "result": "PASS",
+      "reason": "Output must be inside a task directory under project tmp/sessions"
+    },
+    {
+      "control": "SSO signed remap",
+      "expected": "rejection",
+      "result": "PASS",
+      "reason": "Current complete Hash consumer function differs: Assets/Mine/Shaders/PostProcess/SSO/SSO.shader Hash21"
+    }
+  ]
+}

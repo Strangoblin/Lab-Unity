@@ -1,0 +1,68 @@
+{
+  "provenance": "2026-10-09 original dense reference results; hashes computed read-only before cleanup on 2026-10-10.",
+  "scope": "Immutable expected serialized NPY hashes and dimensions for frozen CPU reference; actual GPU outputs remain archived RGBA inputs.",
+  "report_path": "original-results/dense-reference-report.json",
+  "report_sha256": "a9dd87221a39cbabc87a3e3f18718005b69ecb0af3f951e703b2febf31387f53",
+  "arrays": {
+    "disk_r16_one5-dense-reference.npy": {
+      "sha256": "ed6e02c62713cac0958c6e1c614c2846d10c41345fdc0c2ec884165855346c4e",
+      "size_bytes": 3686528,
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32"
+    },
+    "disk_r16_one9-dense-reference.npy": {
+      "sha256": "a7bd4251dae97fd5e945b6daf4c678f81e71e83fcc42b729e6693b3fdf163c23",
+      "size_bytes": 3686528,
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32"
+    },
+    "disk_r16_two9-dense-reference.npy": {
+      "sha256": "4b8b49ef7bd2bc3a138f68cda933dc515b25c3bf0273466a958a2dca0cbd9b92",
+      "size_bytes": 3686528,
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32"
+    },
+    "disk_r3_one9-dense-reference.npy": {
+      "sha256": "cb348a18b45580fbc40e01c4d8f343865c5ca0a10e545af1d937dde433f9fe0f",
+      "size_bytes": 3686528,
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32"
+    },
+    "disk_r80_one9-dense-reference.npy": {
+      "sha256": "8a6406e4abe89aa8b0bf312f294b53bbd2a0cea554fe4ea1b7d30ad754c8b29e",
+      "size_bytes": 3686528,
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32"
+    },
+    "uniform_one9-dense-reference.npy": {
+      "sha256": "7b24bcb0b3cdc6ac9385ebd4b6be23329c72c6f28931c030a587faab57ca5db1",
+      "size_bytes": 3686528,
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "width": 640,
+  "height": 360,
+  "input_dir": "inputs",
+  "cases": [
+    {
+      "name": "uniform_one9",
+      "source": "uniform_one9-source.rgba",
+      "output": "uniform_one9-output.rgba",
+      "rounds": 1,
+      "per_pass_radius_pixels": 18.0,
+      "taps": 9,
+      "strength": 1,
+      "core_radius": 4.0,
+      "crop_size": 128
+    },
+    {
+      "name": "disk_r80_one9",
+      "source": "disk_r80_one9-source.rgba",
+      "output": "disk_r80_one9-output.rgba",
+      "rounds": 1,
+      "per_pass_radius_pixels": 18.0,
+      "taps": 9,
+      "strength": 1,
+      "core_radius": 4.0,
+      "crop_size": 256
+    },
+    {
+      "name": "disk_r16_one9",
+      "source": "disk_r16_one9-source.rgba",
+      "output": "disk_r16_one9-output.rgba",
+      "rounds": 1,
+      "per_pass_radius_pixels": 18.0,
+      "taps": 9,
+      "strength": 1,
+      "core_radius": 4.0,
+      "crop_size": 128
+    },
+    {
+      "name": "disk_r16_two9",
+      "source": "disk_r16_one9-source.rgba",
+      "output": "disk_r16_two9-output.rgba",
+      "rounds": 2,
+      "per_pass_radius_pixels": 12.7279224,
+      "taps": 9,
+      "strength": 1,
+      "core_radius": 4.0,
+      "crop_size": 128
+    },
+    {
+      "name": "disk_r3_one9",
+      "source": "disk_r3_one9-source.rgba",
+      "output": "disk_r3_one9-output.rgba",
+      "rounds": 1,
+      "per_pass_radius_pixels": 18.0,
+      "taps": 9,
+      "strength": 1,
+      "core_radius": 3.0,
+      "crop_size": 64
+    },
+    {
+      "name": "disk_r16_one5",
+      "source": "disk_r16_one9-source.rgba",
+      "output": "disk_r16_one5-output.rgba",
+      "rounds": 1,
+      "per_pass_radius_pixels": 18.0,
+      "taps": 5,
+      "strength": 1,
+      "core_radius": 4.0,
+      "crop_size": 128
+    }
+  ]
+}

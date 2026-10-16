@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_comparison.py", line 53, in <module>
+    main()
+  File "/Users/xiaokangji/Unity/Lab/Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_comparison.py", line 33, in main
+    raise RuntimeError("Shader time drifted during the comparison")
+RuntimeError: Shader time drifted during the comparison

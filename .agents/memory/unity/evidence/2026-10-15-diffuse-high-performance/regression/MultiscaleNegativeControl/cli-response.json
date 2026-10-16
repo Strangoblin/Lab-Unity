@@ -1,0 +1,1 @@
+{"success":true,"result":"{\n  \"detected\": true,\n  \"assertions\": 15,\n  \"error\": \"Multiscale reference checkerboard coarse stride-2 from fine maximum channel difference 1.70879745\",\n  \"output\": \"tmp/sessions/2026-10-15-ssgi-multiscale-control-45b198e8/output\"\n}"}

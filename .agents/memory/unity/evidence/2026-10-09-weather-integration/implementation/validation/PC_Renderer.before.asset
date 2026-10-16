@@ -1,0 +1,218 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8666594091835673655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f34910ba34284720be7006cff69df99, type: 3}
+  m_Name: SSGI
+  m_EditorClassIdentifier: Assembly-CSharp::SSGIFeature
+  m_Active: 0
+  settings:
+    compositeShader: {fileID: 4800000, guid: 0c2cf0c88542b4f5daa3ac19dd7493ff, type: 3}
+    temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
+    ao:
+      shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
+      mode: 1
+      radius: 1
+      bias: 0.02
+      angleBias: 10
+      depthSigma: 0.15
+    diffuseGI:
+      shader: {fileID: 4800000, guid: 0f1271be0061c430aa91678b9a119c1b, type: 3}
+      maxDistance: 5
+      thickness: 0.15
+      normalBias: 0.03
+      depthSigma: 0.15
+    specularGI:
+      shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
+      skyCubemap: {fileID: 0}
+      maxDistance: 50
+      thickness: 0.05
+      normalBias: 0.03
+      roughness: 0.1
+      skyMaxMip: 6
+    performance:
+      ao: 1
+      diffuseGI: 1
+      specularGI: 1
+    intensity:
+      ao: 1
+      diffuseGI: 1
+      specularGI: 1
+    temporal:
+      ao: 0.85
+      diffuseGI: 0.9
+      specularGI: 0.5
+    debug: 0
+--- !u!114 &-6861971581733455524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3dcbe7b74f544b58bb86d2e2f92a478, type: 3}
+  m_Name: DebugOutput
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.RenderingDebug.DebugOutputFeature
+  m_Active: 0
+  settings:
+    debugMaterial: {fileID: 2100000, guid: 0c8fe852eedd74ea197790eb34c0413d, type: 2}
+    debugShader: {fileID: 4800000, guid: 70405813d7cd74e7f9a09f0eabf75f89, type: 3}
+    additionalPassIndex: 1
+    requireDepth: 1
+    debug: 1
+--- !u!114 &-4968987183116551271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94d7a248b160a4f348535d4395df6eea, type: 3}
+  m_Name: PickerFeature
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Chosen.PickerFeature
+  m_Active: 1
+  m_PickerShader: {fileID: 0}
+  m_DebugView: 0
+  m_OutlineMaskShader: {fileID: 0}
+  m_OutlineCompositeShader: {fileID: 0}
+  m_DebugShowMask: 0
+--- !u!114 &-4316052137097848494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4237868ab7ff94201863c10f7115d746, type: 3}
+  m_Name: OutlineFeature
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Chosen.OutlineFeature
+  m_Active: 1
+  m_MaskShader: {fileID: 0}
+  m_CompositeShader: {fileID: 0}
+  m_DebugShowMask: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de640fe3d0db1804a85f9fc8f5cadab6, type: 3}
+  m_Name: PC_Renderer
+  m_EditorClassIdentifier: 
+  debugShaders:
+    debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7, type: 3}
+    hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
+    probeVolumeSamplingDebugComputeShader: {fileID: 7200000, guid: 53626a513ea68ce47b59dc1299fe3959, type: 3}
+  probeVolumeResources:
+    probeVolumeDebugShader: {fileID: 4800000, guid: e5c6678ed2aaa91408dd3df699057aae, type: 3}
+    probeVolumeFragmentationDebugShader: {fileID: 4800000, guid: 03cfc4915c15d504a9ed85ecc404e607, type: 3}
+    probeVolumeOffsetDebugShader: {fileID: 4800000, guid: 53a11f4ebaebf4049b3638ef78dc9664, type: 3}
+    probeVolumeSamplingDebugShader: {fileID: 4800000, guid: 8f96cd657dc40064aa21efcc7e50a2e7, type: 3}
+    probeSamplingDebugMesh: {fileID: -3555484719484374845, guid: 57d7c4c16e2765b47a4d2069b311bffe, type: 3}
+    probeSamplingDebugTexture: {fileID: 2800000, guid: 24ec0e140fb444a44ab96ee80844e18e, type: 3}
+    probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
+  m_RendererFeatures:
+  - {fileID: -6861971581733455524}
+  - {fileID: -8666594091835673655}
+  - {fileID: 1854382760940641301}
+  m_RendererFeatureMap: 5cb9f3e33361c5a0c9b3a24f9712ba87159c79cf4b17bc19
+  m_UseNativeRenderPass: 1
+  xrSystemData: {fileID: 0}
+  postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
+  m_AssetVersion: 3
+  m_PrepassLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_OpaqueLayerMask:
+    serializedVersion: 2
+    m_Bits: 119
+  m_TransparentLayerMask:
+    serializedVersion: 2
+    m_Bits: 119
+  m_DefaultStencilState:
+    overrideStencilState: 0
+    stencilReference: 1
+    stencilCompareFunction: 3
+    passOperation: 2
+    failOperation: 0
+    zFailOperation: 0
+  m_ShadowTransparentReceive: 1
+  m_RenderingMode: 2
+  m_DepthPrimingMode: 0
+  m_CopyDepthMode: 2
+  m_DepthAttachmentFormat: 0
+  m_DepthTextureFormat: 0
+  m_AccurateGbufferNormals: 0
+  m_IntermediateTextureMode: 0
+--- !u!114 &2669520963029075480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94d7a248b160a4f348535d4395df6eea, type: 3}
+  m_Name: Picker
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Picker.PickerFeature
+  m_Active: 1
+  m_PickerShader: {fileID: 4800000, guid: ca33c5902740947ca971f21f674b0a3f, type: 3}
+  m_DebugView: 0
+  m_OutlineMaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
+  m_OutlineCompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
+  m_DebugShowMask: 0
+--- !u!114 &1854382760940641301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 576fa3a7d3660458caa985fd7105602a, type: 3}
+  m_Name: MaskBlur
+  m_EditorClassIdentifier: Assembly-CSharp::MaskBlurFeature
+  m_Active: 1
+  settings:
+    shader: {fileID: 4800000, guid: 49706e69a6fbf43d79cdd1e56a36ea4f, type: 3}
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    quality: 1
+    blurRadius: 0.5
+    intensity: 0.5
+    debug: 0
+--- !u!114 &4655793570601728598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4237868ab7ff94201863c10f7115d746, type: 3}
+  m_Name: Outline
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Picker.OutlineFeature
+  m_Active: 1
+  m_MaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
+  m_CompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
+  m_DebugShowMask: 0

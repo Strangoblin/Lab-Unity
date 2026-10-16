@@ -1,0 +1,20 @@
+{
+  "fixture": "phase7",
+  "tracked_claude": 25,
+  "tracked_agents": 197,
+  "tracked_codex": 39,
+  "inventory_entries": 256,
+  "agents_broken_markdown_links": 0,
+  "skill_drift_files": 0,
+  "skill_drift_groups": 0,
+  "mcp_hardcoded_claude_files": 0,
+  "mcp_hardcoded_claude_hits": 0,
+  "platform_hook_drift": 0,
+  "absolute_path_hits": 21,
+  "codex_case_hits": 0,
+  "phase2_contract_errors": 0
+}
+inventory=/Users/xiaokangji/Unity/Lab/.codex/tests/06_architecture/output/migration-inventory.json
+findings=/Users/xiaokangji/Unity/Lab/.codex/tests/06_architecture/output/baseline-findings.json
+FAIL:
+- architecture docs contain 21 absolute path hits

@@ -1,0 +1,22 @@
+{
+  "Assets/Mine/Shaders/PostProcess/Rainy/Rainy.shader.meta": "3fe0aaa2e5908df3e039fdfdf3fc22ffaa0e20883b65abc60395cf14c50b944a",
+  "Assets/Mine/Shaders/PostProcess/Rainy/README.md": "870778464e71dffe13bf3fb796a08e4cccf844a20ae2c612f8b3c37cd74beefb",
+  "Assets/Mine/Shaders/PostProcess/Rainy/Rainy.shader": "b11715484ab3d37cc4d50b7e538e2bb41cb3f7bbfb93ab22e32229883cc527a4",
+  "Assets/Mine/Shaders/PostProcess/Rainy/Mine_PostProcess_Rainy.mat": "971fafa84f53f4988e41d742993ef174a0587dd3fcbcecc42b3ce72ac0f3fe2f",
+  "Assets/Mine/Shaders/PostProcess/Rainy/README.md.meta": "15fe8644a35879a95cce2bcca1e3f91f3d6805f6fe6aab8a3877482945055af5",
+  "Assets/Mine/Shaders/PostProcess/Rainy/Mine_PostProcess_Rainy.mat.meta": "600f5bd9b729a9879b51ec565f7a7db304aabd9080dded70f6acb50d67897ce0",
+  "Assets/Mine/Shaders/PostProcess/Sandy/Sandy.shader": "58b80b2d40279ab0ea082658bf0e5027fde528949079e9da07b2a7e34da7c820",
+  "Assets/Mine/Shaders/PostProcess/Sandy/Sandy.shader.meta": "c28bba192b3dc4de4416cea2685b4af08c59d8131f001f39f584fa5ec281d44b",
+  "Assets/Mine/Shaders/PostProcess/Sandy/README.md": "d6c068deec9c4e777e33964250b6188f04b36af2eb0fe85cf84e65b878265bcb",
+  "Assets/Mine/Shaders/PostProcess/Sandy/Mine_PostProcess_Sandy.mat.meta": "265a3d9fe880bf8cfcd48ded9fdfbc201a07581d5b8160eca1ca1b3b5ed76421",
+  "Assets/Mine/Shaders/PostProcess/Sandy/Mine_PostProcess_Sandy.mat": "4874bcde215231fb588a166ad1f05ddbe72b04b27148d18e65a5859bad724519",
+  "Assets/Mine/Shaders/PostProcess/Sandy/README.md.meta": "709f54900de0e383b989961864dee967a5c6465ac2be942ac789bf7a6ad8fc99",
+  "Assets/Mine/Shaders/PostProcess/Snowy/Mine_PostProcess_Snowy.mat.meta": "adb488ce74830ecf1dc2622c61d42b07cadb8ec29985d9a6a89178644dcb92ce",
+  "Assets/Mine/Shaders/PostProcess/Snowy/Mine_PostProcess_Snowy.mat": "516a4d38eb7a9be1c04336bc740260eaaadef41b7119196af87469c7b5a56b08",
+  "Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader": "86a39da7a94f24eecb6c37de4dddb65bbf88ef7a0d3c4861e352cbb0d81f4a47",
+  "Assets/Mine/Shaders/PostProcess/Snowy/README.md": "5d60699ad32c982fb3ef453ec0d907f895a947b23a98132af852089cbdbd65eb",
+  "Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader.meta": "61c10a0ff7f2bf62c4b14ec8908a113b6968b197331b2fb4caf9b45112fd55e8",
+  "Assets/Mine/Shaders/PostProcess/Snowy/README.md.meta": "f4a325ea21b2cb2ff10340beeea4adfe9b1d0ccdee8d9e7d5fe35972d2fcff74",
+  "Assets/Textures/Noise2DRG.asset": "50de1b9ad3fe92d12783237d760ec5b89b9fce430cafb0a843923d6772037949",
+  "Assets/Textures/Noise2DRG.asset.meta": "d799015acbc81562ecb760e600ee9212ab67f2cd2c1bae87995841649e7868fe"
+}
