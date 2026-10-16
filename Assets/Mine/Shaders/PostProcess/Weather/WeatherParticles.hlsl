@@ -4,6 +4,39 @@
 #ifndef WEATHER_PARTICLES_INCLUDED
 #define WEATHER_PARTICLES_INCLUDED
 
+struct WeatherParticleContext
+{
+    float2 localUV;
+    float4 random;
+    float angle;
+    float cycle;
+};
+
+// ════════════════════════════════════════════════════════════
+//  Weather_CreateParticleContext — 共用网格、周期随机与等比 TRS 逆变换
+// ════════════════════════════════════════════════════════════
+WeatherParticleContext Weather_CreateParticleContext(WeatherScreenContext context)
+{
+    float2 tileCount = _ParticleTileCount.xy;
+    float2 tiledUV = context.effectUV * tileCount;
+    float2 tile = floor(tiledUV);
+    float2 tileUV = frac(tiledUV);
+    float phase = frac(dot(tile, float2(0.75487766, 0.56984029)));
+    float time = Weather_ParticleTime(context) + phase;
+    float seed = floor(time) + tile.x * 17.0 + tile.y * 101.0;
+
+    WeatherParticleContext particle;
+    particle.cycle = frac(time);
+    particle.random = (Weather_Random(seed) * 2.0 - 1.0) * _Randomness;
+    particle.angle = particle.random.x;
+    float2 translation = particle.random.xy * 0.25;
+    float scale = (particle.random.x * 0.25 + 0.75) * _ParticleScale;
+    float tileAspect = context.targetAspect * tileCount.y / tileCount.x;
+    particle.localUV = TRS2D_InverseTransformUV(
+        tileUV, translation, particle.angle, scale, float2(0.5, 0.5), tileAspect);
+    return particle;
+}
+
 // ════════════════════════════════════════════════════════════
 //  Weather_RainDepth — 噪声高度与形状合成雨滴凹陷深度
 // ════════════════════════════════════════════════════════════
@@ -24,30 +57,14 @@ float2 Weather_RainOffset(WeatherScreenContext context)
     if (_ParticleShape <= 0.0 || _ParticleOpacity <= 0.0 || _RefractionScale <= 0.0)
         return 0.0;
 
-    float2 uv = context.effectUV;
-    float2 tileCount = float2(4.0, 4.0);
-    float2 tile = floor(uv * tileCount);
-    float2 tileUV = frac(uv * tileCount);
-    float phase = frac(dot(tile, float2(0.75487766, 0.56984029)));
-    float time = Weather_ParticleTime(context) + phase;
-    float index = floor(time);
-    float cycle = frac(time);
-
-    float4 random = (Weather_Random(index + tile.x * 17.0 + tile.y * 101.0)
-        * 2.0 - 1.0) * _Randomness;
-    float2 pivot = float2(0.5, 0.5);
-    float2 translation = random.xy * 0.25;
-    float angle = random.x;
-    float scale = (random.x * 0.25 + 0.75) * 0.35;
-    float alpha = smoothstep(1.0, 0.3, cycle);
-    float tileAspect = context.targetAspect * tileCount.y / tileCount.x;
-    float2 localUV = TRS2D_InverseTransformUV(
-        tileUV, translation, angle, scale, pivot, tileAspect);
+    WeatherParticleContext particle = Weather_CreateParticleContext(context);
+    float2 localUV = particle.localUV;
+    float alpha = smoothstep(1.0, 0.3, particle.cycle);
 
     if (alpha <= 0.0 || any(localUV < 0.0) || any(localUV > 1.0))
         return 0.0;
 
-    float2 textureOffset = random.xy;
+    float2 textureOffset = particle.random.xy;
     float center = Weather_RainDepth(localUV, textureOffset, alpha);
     if (center <= 0.0)
         return 0.0;
@@ -59,7 +76,7 @@ float2 Weather_RainOffset(WeatherScreenContext context)
     float up = Weather_RainDepth(localUV + delta, textureOffset, alpha);
     float down = Weather_RainDepth(localUV - delta, textureOffset, alpha);
     float2 slope = float2(right - left, up - down) / 0.04;
-    float2 rotatedSlope = TRS2D_RotateIsotropic(slope, angle);
+    float2 rotatedSlope = TRS2D_RotateIsotropic(slope, particle.angle);
     return rotatedSlope / (1.0 + length(rotatedSlope)) * 0.015 * center * _RefractionScale;
 }
 
@@ -71,22 +88,12 @@ float Weather_SandParticle(WeatherScreenContext context)
     if (_ParticleOpacity <= 0.0)
         return 0.0;
 
-    float2 uv = context.effectUV;
-    float2 tileCount = float2(40.0, 24.0);
-    float2 tile = floor(uv * tileCount);
-    float2 tileUV = frac(uv * tileCount);
-    float phase = frac(dot(tile, float2(0.75487766, 0.56984029)));
-    float time = Weather_ParticleTime(context) + phase;
-    float cycle = frac(time);
-    float4 random = (Weather_Random(floor(time) + tile.x * 17.0 + tile.y * 101.0)
-        * 2.0 - 1.0) * _Randomness;
-    float scale = (random.z * 0.25 + 0.75) * 0.22;
-    float alpha = smoothstep(0.0, 0.12, cycle) * (1.0 - smoothstep(0.55, 1.0, cycle));
-    float aspect = context.targetAspect * tileCount.y / tileCount.x;
-    float2 localUV = TRS2D_InverseTransformUV(
-        tileUV, random.xy * 0.25, random.x * PI, scale, float2(0.5, 0.5), aspect);
+    WeatherParticleContext particle = Weather_CreateParticleContext(context);
+    float2 localUV = particle.localUV;
+    float alpha = smoothstep(0.0, 0.12, particle.cycle)
+        * (1.0 - smoothstep(0.55, 1.0, particle.cycle));
     float noise = SAMPLE_TEXTURE2D(
-        _WeatherNoiseTex, sampler_LinearRepeat, localUV + random.xy).r;
+        _WeatherNoiseTex, sampler_LinearRepeat, localUV + particle.random.xy).r;
     float shape = 1.0 - smoothstep(0.0, 0.5, length(localUV - 0.5) * 2.0);
     return shape * lerp(0.35, 1.0, noise) * alpha * _ParticleOpacity;
 }
@@ -99,23 +106,13 @@ float Weather_SnowParticle(WeatherScreenContext context)
     if (_ParticleShape <= 0.0 || _ParticleOpacity <= 0.0)
         return 0.0;
 
-    float2 uv = context.effectUV;
-    float time = Weather_ParticleTime(context);
-    float index = floor(time);
-    float cycle = frac(time);
-
-    float4 random = (Weather_Random(index) * 2.0 - 1.0) * _Randomness;
-    float2 pivot = float2(0.5, 0.5);
-    float2 translation = random.xy * 0.5;
-    float angle = random.x;
-    float scale = (random.x * 0.25 + 0.75) * 0.1;
-    float alpha = smoothstep(1.0, 0.3, cycle);
-    uv = TRS2D_InverseTransformUV(
-        uv, translation, angle, scale, pivot, context.targetAspect);
+    WeatherParticleContext transform = Weather_CreateParticleContext(context);
+    float2 localUV = transform.localUV;
+    float alpha = smoothstep(1.0, 0.3, transform.cycle);
 
     float snow = SAMPLE_TEXTURE2D(
-        _WeatherNoiseTex, sampler_LinearRepeat, uv + random.xy).r;
-    float sdf = _ParticleShape - length(lerp(uv, snow, 0.5) - 0.5) * 2.0;
+        _WeatherNoiseTex, sampler_LinearRepeat, localUV + transform.random.xy).r;
+    float sdf = _ParticleShape - length(lerp(localUV, snow, 0.5) - 0.5) * 2.0;
     float particle = saturate(sdf) * alpha * _ParticleOpacity;
     return Weather_Composite10(particle);
 }

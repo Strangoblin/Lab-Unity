@@ -16,6 +16,8 @@ Shader "PostProcess/Weather"
         _CycleRate ("Particle Cycle Rate", Range(0, 2)) = 1
 
         [Header(Particles)]
+        _ParticleTileCount ("Particle Tile Count", Vector) = (4.5, 4.5, 0, 0)
+        _ParticleScale ("Particle Scale", Range(0.001, 4)) = 0.35
         _ParticleShape ("Shape Threshold", Range(0, 1)) = 0.5
         _ParticleOpacity ("Particle Opacity", Range(0, 1)) = 0.5
         _RefractionScale ("Rain Refraction Scale", Range(0, 4)) = 1
@@ -45,12 +47,15 @@ Shader "PostProcess/Weather"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Assets/Mine/Special/HLSL/TRS.hlsl"
+    #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
 
     TEXTURE2D(_WeatherNoiseTex);
 
     CBUFFER_START(UnityPerMaterial)
         float _Randomness;
         float _CycleRate;
+        float4 _ParticleTileCount;
+        float _ParticleScale;
         float _ParticleShape;
         float _ParticleOpacity;
         float _RefractionScale;

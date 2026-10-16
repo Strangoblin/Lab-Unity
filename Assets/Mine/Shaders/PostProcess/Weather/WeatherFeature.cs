@@ -30,6 +30,8 @@ namespace Mine.Weather
             internal static readonly int NoiseID = Shader.PropertyToID("_WeatherNoiseTex");
             internal static readonly int RandomnessID = Shader.PropertyToID("_Randomness");
             internal static readonly int CycleRateID = Shader.PropertyToID("_CycleRate");
+            internal static readonly int ParticleTileCountID = Shader.PropertyToID("_ParticleTileCount");
+            internal static readonly int ParticleScaleID = Shader.PropertyToID("_ParticleScale");
             internal static readonly int ParticleShapeID = Shader.PropertyToID("_ParticleShape");
             internal static readonly int ParticleOpacityID = Shader.PropertyToID("_ParticleOpacity");
             internal static readonly int RefractionScaleID = Shader.PropertyToID("_RefractionScale");
@@ -255,6 +257,8 @@ namespace Mine.Weather
                 material.SetTexture(Settings.NoiseID, noise);
                 material.SetFloat(Settings.RandomnessID, p.Randomness);
                 material.SetFloat(Settings.CycleRateID, p.CycleRate);
+                material.SetVector(Settings.ParticleTileCountID, new Vector4(p.ParticleTileCount.x, p.ParticleTileCount.y, 0f, 0f));
+                material.SetFloat(Settings.ParticleScaleID, p.ParticleScale);
                 material.SetFloat(Settings.ParticleShapeID, p.ParticleShape);
                 material.SetFloat(Settings.ParticleOpacityID, p.ParticleOpacity);
                 material.SetFloat(Settings.RefractionScaleID, p.RefractionScale);

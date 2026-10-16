@@ -7,11 +7,11 @@
 | 验证 | 结果与范围 |
 |---|---|
 | 导入／编译 | C#与Shader编译成功，Weather Shader supported，两个命名Pass；迁移后再次编译成功 |
-| Profile契约 | 13项通过：真实迁移值、全关、周期冻结、白Tint调色、非法值纯解析、雪雾与霜边端点 |
+| Profile契约 | 原有13项与新增23项通过：迁移值、模块端点、TileCount／Scale默认与边界、非有限输入纯解析、快照隔离和连续Bind覆盖 |
 | Feature契约 | 29项通过：材质复用／更换／释放、一次诊断、12组Depth／Debug需求、值快照、相机与资源筛选；EditMode确认原生材质销毁 |
 | 兼容基线GPU | 100项通过：18组A/B、48种模块组合、31个端点及3个控制；A/B固定两个纵横比、三个时间，373248个像素，RGBA均有限 |
 | 正常帧预算 | 8项通过，实测Weather Pass数0／1／1／2；四种单模块Debug各1，状态完整恢复 |
-| 当前真实管线 | 96项通过、103次StandardRequest；48种组合、Debug、透视／正交、比例、renderScale=1／0.75、预设切换、第二Base及真实Base＋Overlay跳过 |
+| 当前真实管线 | 105项通过、112次StandardRequest；原有96项加9项粒子矩形网格／尺度边界，涵盖三天气、模块组合、Debug、相机几何、renderScale与Stack跳过 |
 | 全关 | 真实管线与禁用Feature同帧输出误差为0；正常路径入队前筛除 |
 | RT几何 | 320×180目标、renderScale=0.75时，实际绑定240×135；不同纵横比的输出均有限 |
 | 隔离 | 测试结束恢复Profile、Debug、Feature启用状态、renderScale及全局值；临时对象释放；运行日志没有Error／Exception |
@@ -21,9 +21,19 @@ GPU A/B容差为 `abs(new-ref) <= 0.001*(1+abs(ref))`。最大绝对误差0.0006
 
 ## 基线与当前调参
 
-兼容基线对应模块检查点 `7fcc8e4`。2026-10-09工作区已有粒子视觉调整：Rain网格4.5×4.5，Sand网格3×3与尺寸0.2，Snow采用1.5×1.5分区与新的位移。保留这些改动，未将其纳入本次提交。
+兼容基线对应模块检查点 `7fcc8e4`。2026-10-09工作区已有粒子视觉调整：Rain网格4.5×4.5，Sand网格3×3与尺寸0.2，Snow采用1.5×1.5分区与新的位移。本次将网格和尺度提取为Profile参数，保留上述默认值。
 
-上表100项GPU结果对应调优前的兼容基线；当前调参版本通过96项真实管线、8项正常帧预算及82项GPU模块／端点控制；18项严格旧粒子响应对照记录了上述调参引入的预期差异。`ShaderChecks.cs`仍用于严格检查旧算法兼容性，调优后运行会报告粒子响应差异。当前Renderer选择Rain并关闭Weather，测试保留这一状态。
+上表100项GPU结果对应调优前的兼容基线；统一随机前的调参版本通过96项真实管线、8项正常帧预算及82项GPU模块／端点控制；18项严格旧粒子响应对照记录了上述调参引入的预期差异。`ShaderChecks.cs`仍用于严格检查旧算法兼容性，调优后运行会报告粒子响应差异。当前Renderer选择Rain并关闭Weather，测试保留这一状态。
+
+## 共享粒子变换与统一随机（2026-10-09）
+
+三天气通过 `Weather_CreateParticleContext` 共用分块、相位、周期随机、位移、旋转、尺度与等比TRS逆变换；种子统一包含网格坐标和周期索引，位移使用random.xy，旋转与随机尺度均使用random.x。Sand不再使用PI旋转系数与random.z尺度，Snow不再使用仅周期索引的种子；这些是用户要求的表现调整，严格旧粒子A/B不作为此次验收标准。生命周期、形状、折射／叠色由各天气负责。
+
+`TransformChecks.cs` 的23项检查通过，验证三预设与ConfigurePreset默认值、矩形TileCount、Scale、快照隔离、范围钳制／非有限回退、临时OnValidate及Rain→Sand→Snow→Rain连续绑定。原有13项Profile检查继续通过。TileCount范围0.01–256，Scale范围0.001–4；非有限值按当前Kind回退，Resolve不回写来源。
+
+真实管线105项通过，新增9项覆盖每种天气的(7,2)/Scale=0.4、(0.01,256)/Scale=0.001、(256,0.01)/Scale=4，并包含Randomness=0与1。新增用例检查浮点输出有限、实际执行时参数绑定与关键词正确；没有作画面品质或新旧像素一致性的断言。全关输出误差仍为0。C#编译成功，执行三天气变体后Shader诊断为空，运行日志无Error／Exception。退出PlayMode后Rain／关闭／Debug Off状态恢复，SampleScene与PC_Renderer磁盘哈希未变化。
+
+此次逐case记录见 `Validation~/pipeline-transform-results.json`；原来的96项记录仍保留在 `pipeline-results.json`，作为整合阶段历史记录。
 
 ## 复现
 
@@ -31,6 +41,7 @@ GPU A/B容差为 `abs(new-ref) <= 0.001*(1+abs(ref))`。最大绝对误差0.0006
 
 ```sh
 unityctl script execute Assets/Mine/Shaders/PostProcess/Weather/Validation~/ProfileChecks.cs
+unityctl script execute Assets/Mine/Shaders/PostProcess/Weather/Validation~/TransformChecks.cs
 unityctl script execute Assets/Mine/Shaders/PostProcess/Weather/Validation~/FeatureChecks.cs
 unityctl script execute Assets/Mine/Shaders/PostProcess/Weather/Validation~/ShaderChecks.cs
 unityctl play enter

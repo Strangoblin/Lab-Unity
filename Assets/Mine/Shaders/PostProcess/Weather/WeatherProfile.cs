@@ -19,6 +19,10 @@ namespace Mine.Weather
         private const float MaximumFogDistance = 10000f;
         private const float MaximumRefractionScale = 4f;
         private const float MaximumTintMultiplier = 4f;
+        private const float MinimumParticleTileCount = 0.01f;
+        private const float MaximumParticleTileCount = 256f;
+        private const float MinimumParticleScale = 0.001f;
+        private const float MaximumParticleScale = 4f;
 
         [Header("Technical · Alpha")]
         [Tooltip("LegacySnow 仅用于保留旧雪天气的 Alpha 合成。")]
@@ -55,6 +59,12 @@ namespace Mine.Weather
         [Serializable]
         public sealed class ParticleSettings
         {
+            [Tooltip("水平、垂直粒子网格数量，范围 0.01–256；越大分布越密。")]
+            public Vector2 TileCount = DefaultParticleTileCount(WeatherKind.Rain);
+
+            [Tooltip("单个网格内粒子尺度，范围 0.001–4；关闭粒子使用 Opacity。")]
+            [Range(MinimumParticleScale, MaximumParticleScale)] public float Scale = DefaultParticleScale(WeatherKind.Rain);
+
             [Tooltip("雨、雪的形状阈值；0 = 关闭粒子。沙不使用此值。")]
             [Range(0f, 1f)] public float Shape = 0.5f;
 
@@ -121,7 +131,14 @@ namespace Mine.Weather
             bool snow = kind == WeatherKind.Snow;
 
             Common = new CommonSettings { Kind = kind, Randomness = randomness, CycleRate = 2f * migratedWind };
-            Particles = new ParticleSettings { Shape = migratedStrength, Opacity = migratedStrength, RefractionScale = 1f };
+            Particles = new ParticleSettings
+            {
+                TileCount = DefaultParticleTileCount(kind),
+                Scale = DefaultParticleScale(kind),
+                Shape = migratedStrength,
+                Opacity = migratedStrength,
+                RefractionScale = 1f
+            };
             Lens = new LensSettings
             {
                 Strength = migratedStrength,
@@ -150,7 +167,10 @@ namespace Mine.Weather
         public ResolvedWeatherSettings Resolve()
         {
             CommonSettings common = Common ?? new CommonSettings();
-            ParticleSettings particles = Particles ?? new ParticleSettings();
+            WeatherKind kind = NormalizeKind(common.Kind);
+            Vector2 defaultTileCount = DefaultParticleTileCount(kind);
+            float defaultScale = DefaultParticleScale(kind);
+            ParticleSettings particles = Particles ?? new ParticleSettings { TileCount = defaultTileCount, Scale = defaultScale };
             LensSettings lens = Lens ?? new LensSettings();
             FogSettings fog = Fog ?? new FogSettings();
             ToneSettings tone = Tone ?? new ToneSettings();
@@ -158,9 +178,13 @@ namespace Mine.Weather
 
             return new ResolvedWeatherSettings
             {
-                Kind = NormalizeKind(common.Kind),
+                Kind = kind,
                 Randomness = ClampFinite(common.Randomness, 0f, 1f, 1f),
                 CycleRate = ClampFinite(common.CycleRate, 0f, 2f, 1f),
+                ParticleTileCount = new Vector2(
+                    ClampFinite(particles.TileCount.x, MinimumParticleTileCount, MaximumParticleTileCount, defaultTileCount.x),
+                    ClampFinite(particles.TileCount.y, MinimumParticleTileCount, MaximumParticleTileCount, defaultTileCount.y)),
+                ParticleScale = ClampFinite(particles.Scale, MinimumParticleScale, MaximumParticleScale, defaultScale),
                 ParticleShape = ClampFinite(particles.Shape, 0f, 1f, 0.5f),
                 ParticleOpacity = ClampFinite(particles.Opacity, 0f, 1f, 0.5f),
                 RefractionScale = ClampFinite(particles.RefractionScale, 0f, MaximumRefractionScale, 1f),
@@ -176,7 +200,7 @@ namespace Mine.Weather
                     ClampFinite(tint.r, 0f, MaximumTintMultiplier, 0.88f),
                     ClampFinite(tint.g, 0f, MaximumTintMultiplier, 0.96f),
                     ClampFinite(tint.b, 0f, MaximumTintMultiplier, 1.05f), 1f),
-                LegacySnowAlpha = NormalizeKind(common.Kind) == WeatherKind.Snow
+                LegacySnowAlpha = kind == WeatherKind.Snow
                     && AlphaPolicy == WeatherAlphaPolicy.LegacySnow
             };
         }
@@ -201,6 +225,8 @@ namespace Mine.Weather
             Common.Kind = settings.Kind;
             Common.Randomness = settings.Randomness;
             Common.CycleRate = settings.CycleRate;
+            Particles.TileCount = settings.ParticleTileCount;
+            Particles.Scale = settings.ParticleScale;
             Particles.Shape = settings.ParticleShape;
             Particles.Opacity = settings.ParticleOpacity;
             Particles.RefractionScale = settings.RefractionScale;
@@ -214,6 +240,17 @@ namespace Mine.Weather
             Tone.Strength = settings.ToneStrength;
             Tone.Tint = settings.ToneTint;
             AlphaPolicy = settings.LegacySnowAlpha ? WeatherAlphaPolicy.LegacySnow : WeatherAlphaPolicy.PreserveInput;
+        }
+
+        private static Vector2 DefaultParticleTileCount(WeatherKind kind)
+        {
+            float count = kind == WeatherKind.Sand ? 3f : kind == WeatherKind.Snow ? 1.5f : 4.5f;
+            return new Vector2(count, count);
+        }
+
+        private static float DefaultParticleScale(WeatherKind kind)
+        {
+            return kind == WeatherKind.Sand ? 0.2f : kind == WeatherKind.Snow ? 0.1f : 0.35f;
         }
 
         private static float ClampFinite(float value, float minimum, float maximum, float fallback)
@@ -234,6 +271,8 @@ namespace Mine.Weather
         public WeatherKind Kind;
         public float Randomness;
         public float CycleRate;
+        public Vector2 ParticleTileCount;
+        public float ParticleScale;
         public float ParticleShape;
         public float ParticleOpacity;
         public float RefractionScale;

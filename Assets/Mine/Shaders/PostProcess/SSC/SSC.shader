@@ -18,6 +18,7 @@ Shader "PostProcess/SSC"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Assets/Mine/Special/HLSL/DeclareCustomTexture.hlsl"
+    #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
 
     TEXTURE2D_X(_MainTex2D);
     SAMPLER(sampler_MainTex2D);
@@ -178,7 +179,7 @@ Shader "PostProcess/SSC"
             Count = 32;
         #endif
 
-        float jitter = frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+        float jitter = Hash_Sine21(uv);
         float step = (tFar - tNear) / Count;
         float tCurrent = max(tNear, 0.0) + jitter * step * _Jitter;
 

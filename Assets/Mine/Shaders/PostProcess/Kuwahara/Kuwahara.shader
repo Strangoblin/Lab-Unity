@@ -1,35 +1,59 @@
+// ════════════════════════════════════════════════════════════
+//  Kuwahara — 桑原滤波（Basic / Generalized / Anisotropic 三模式）
+//
+//  Unity 6 URP 17+ 全屏后处理，六个 Pass 互斥：
+//    Pass 0  Basic          4 象限硬选方差最低区（不做加权）
+//    Pass 1  Generalized    8 扇形反方差加权混合
+//    Pass 2  StructureTensor  ddx/ddy 结构张量（Aniso 链）
+//    Pass 3  BlurHorizontal  张量水平模糊（调用 BlurFunction.hlsl）
+//    Pass 4  EigenDecomp     张量垂直模糊 + 2x2 特征分解
+//    Pass 5  AnisoFilter     椭圆核各向异性滤波
+//  采样预算由 _SampleQuality 档位决定（9 / 16 / 25 个固定 offset），
+//  _Radius 只缩放 offset，不参与循环边界。Pass 编排见 KuwaharaFeature.cs。
+// ════════════════════════════════════════════════════════════
 Shader "PostProcess/Kuwahara"
 {
     Properties
     {
+        [Header(Kernel)]
         _Radius ("Radius", Range(1, 10)) = 5
-        _Sharpness ("Sharpness Q", Range(1.0, 18.0)) = 8.0
+
+        [Header(Weight)]
         _Hardness ("Hardness", Range(1.0, 100.0)) = 8.0
-        _Alpha ("Alpha", Range(0.01, 2.0)) = 1.0
         _WeightScale ("Weight Scale", Range(1.0, 2000.0)) = 1000
+
+        [Header(Anisotropic)]
+        _Alpha ("Alpha", Range(0.01, 2.0)) = 1.0
     }
 
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+    #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/BlurFunction.hlsl"
 
-    // ── 共用参数 ──
-    int _Radius;
-    float _Q;          // Sharpness
-    float _Hardness;   // 方差惩罚
-    float _Alpha;      // Aniso 专用（各向异性敏感度）
+    // ── 参数 ──
+    CBUFFER_START(UnityPerMaterial)
+        int   _Radius;
+        int   _SampleQuality;   // 质量档展开：0 = 9 点, 1 = 16 点, 2 = 25 点
+        float _Q;               // 权重陡度；Aniso 用面板 Sharpness，Generalized 由 C# 固定为 2，Basic 不使用
+        float _Hardness;        // 方差惩罚（Generalized / Aniso 使用）
+        float _WeightScale;     // 方差放大倍率，三种模式都写面板值，仅 Generalized / Aniso 读取
+        float _Alpha;           // Aniso 各向异性敏感度
+        float _BlurScale;       // 张量模糊半径，由质量档降采样率推导（downsample + 1）
+    CBUFFER_END
 
-    // ── Aniso 专用 ──
+    // ── 张量纹理（Feature 端 cmd.SetGlobalTexture 发布） ──
     TEXTURE2D_X(_TFM);
-    float _BlurScale;
 
+    // ── 常量 ──
     #define _N 8
     #define _ZERO_CROSS 0.58
 
-    // 固定 5x5 采样核。半径只缩放采样范围，不增加纹理读取次数。
+    // 固定 25 点采样核。半径只缩放采样范围，不增加纹理读取次数。
     // 与 BlurFunction 的固定 tap 思路一致，最大偏移为 ±Radius。
-    static const float2 KuwaharaSampleOffsets[25] = {
+    static const float2 KuwaharaSampleOffsets[25] =
+    {
         float2(-1.0, -1.0), float2(-0.5, -1.0), float2(0.0, -1.0), float2(0.5, -1.0), float2(1.0, -1.0),
         float2(-1.0, -0.5), float2(-0.5, -0.5), float2(0.0, -0.5), float2(0.5, -0.5), float2(1.0, -0.5),
         float2(-1.0,  0.0), float2(-0.5,  0.0), float2(0.0,  0.0), float2(0.5,  0.0), float2(1.0,  0.0),
@@ -37,50 +61,53 @@ Shader "PostProcess/Kuwahara"
         float2(-1.0,  1.0), float2(-0.5,  1.0), float2(0.0,  1.0), float2(0.5,  1.0), float2(1.0,  1.0)
     };
 
-    int _SampleQuality; // 0: Low(9), 1: Medium(16), 2: High(25)
+    // 低 / 中档核的固定 offset 子集，与 25 点核同分布
+    static const float2 KuwaharaSampleOffsetsLow[9] =
+    {
+        float2(-1, -1), float2(0, -1), float2(1, -1),
+        float2(-1,  0), float2(0,  0), float2(1,  0),
+        float2(-1,  1), float2(0,  1), float2(1,  1)
+    };
+
+    static const float2 KuwaharaSampleOffsetsMedium[16] =
+    {
+        float2(-1, -1), float2(-0.3333, -1), float2(0.3333, -1), float2(1, -1),
+        float2(-1, -0.3333), float2(-0.3333, -0.3333), float2(0.3333, -0.3333), float2(1, -0.3333),
+        float2(-1, 0.3333), float2(-0.3333, 0.3333), float2(0.3333, 0.3333), float2(1, 0.3333),
+        float2(-1, 1), float2(-0.3333, 1), float2(0.3333, 1), float2(1, 1)
+    };
+
+    // ════════════════════════════════════════════════════════════
+    //  KuwaharaSampleCount — 质量档展开为编译期可裁剪的样本数
+    // ════════════════════════════════════════════════════════════
     int KuwaharaSampleCount()
     {
         return _SampleQuality <= 0 ? 9 : (_SampleQuality == 1 ? 16 : 25);
     }
 
+    // ════════════════════════════════════════════════════════════
+    //  KuwaharaSampleOffset — 取归一化到 [-1, 1] 的第 index 个采样偏移
+    // ════════════════════════════════════════════════════════════
     float2 KuwaharaSampleOffset(int index)
     {
-        if (_SampleQuality <= 0)
-        {
-            static const float2 low[9] = {
-                float2(-1,-1), float2(0,-1), float2(1,-1),
-                float2(-1, 0), float2(0, 0), float2(1, 0),
-                float2(-1, 1), float2(0, 1), float2(1, 1)
-            };
-            return low[index];
-        }
-        if (_SampleQuality == 1)
-        {
-            static const float2 medium[16] = {
-                float2(-1,-1), float2(-0.3333,-1), float2(0.3333,-1), float2(1,-1),
-                float2(-1,-0.3333), float2(-0.3333,-0.3333), float2(0.3333,-0.3333), float2(1,-0.3333),
-                float2(-1,0.3333), float2(-0.3333,0.3333), float2(0.3333,0.3333), float2(1,0.3333),
-                float2(-1,1), float2(-0.3333,1), float2(0.3333,1), float2(1,1)
-            };
-            return medium[index];
-        }
+        if (_SampleQuality <= 0)  return KuwaharaSampleOffsetsLow[index];
+        if (_SampleQuality == 1)  return KuwaharaSampleOffsetsMedium[index];
         return KuwaharaSampleOffsets[index];
     }
 
-    // ── 权重公式（Generalized & Aniso 共用） ──
-    //   w = 1 / (1 + pow(var * H * Scale, Q * 0.5))
-    //   Scale 由 C# 按模式设定:
-    //     Generalized: 0.125 (H=8 → 1×, 匹配原版 1/(1+var))
-    //     Aniso:       1000  (恢复原版 Aniso 的敏感度)
-    float _WeightScale;
+    // ════════════════════════════════════════════════════════════
+    //  KuwaharaWeight — 反方差权重 w = 1 / (1 + pow(var * Hardness * WeightScale, Q * 0.5))
+    //
+    //  Basic 不做加权，不调用本函数；WeightScale 三种模式都写面板值，只有本函数读取
+    // ════════════════════════════════════════════════════════════
     float KuwaharaWeight(float varianceSum)
     {
         return 1.0 / (1.0 + pow(max(0, varianceSum) * _Hardness * _WeightScale, _Q * 0.5));
     }
 
-    // ═══════════════════════════════════════════
-    //  Pass 0: Basic (4 象限硬选)
-    // ═══════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════
+    //  Pass 0: Basic — 4 象限分区，硬选方差最低区
+    // ════════════════════════════════════════════════════════════
     half4 Frag_Basic(Varyings input) : SV_Target
     {
         float2 uv = input.texcoord;
@@ -138,9 +165,9 @@ Shader "PostProcess/Kuwahara"
         return half4(finalColor, 1.0);
     }
 
-    // ═══════════════════════════════════════════
-    //  Pass 1: Generalized (8 区加权混合)
-    // ═══════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════
+    //  Pass 1: Generalized — 8 扇形分区，反方差加权混合
+    // ════════════════════════════════════════════════════════════
     half4 Frag_Generalized(Varyings input) : SV_Target
     {
         float2 uv = input.texcoord;
@@ -195,9 +222,9 @@ Shader "PostProcess/Kuwahara"
         return half4(finalColor, 1.0);
     }
 
-    // ═══════════════════════════════════════════
-    //  Pass 2: Structure Tensor (ddx/ddy)
-    // ═══════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════
+    //  Pass 2: StructureTensor — ddx/ddy 结构张量 (Sxx, Syy, Sxy)
+    // ════════════════════════════════════════════════════════════
     half4 Frag_StructureTensor(Varyings input) : SV_Target
     {
         float2 uv = input.texcoord;
@@ -213,18 +240,20 @@ Shader "PostProcess/Kuwahara"
         return half4(Sxx, Syy, Sxy, 1.0);
     }
 
-    // ═══════════════════════════════════════════
-    //  Pass 3: Blur Horizontal (BlurFunction)
-    // ═══════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════
+    //  Pass 3: BlurHorizontal — 张量水平模糊，调用 BlurFunction.hlsl
+    // ════════════════════════════════════════════════════════════
     half4 Frag_BlurH(Varyings input) : SV_Target
     {
         float2 texelSize = 1.0 / _ScreenParams.xy;
         return BlurHorizontal(input.texcoord, texelSize, _BlurScale, _BlitTexture, sampler_LinearClamp);
     }
 
-    // ═══════════════════════════════════════════
-    //  Pass 4: Blur Vertical + Eigen Decomposition
-    // ═══════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════
+    //  Pass 4: EigenDecomp — 张量垂直模糊 + 2x2 特征分解
+    //
+    //  输出：RG = 主特征向量方向, B = 角度 phi, A = 各向异性 (λ1-λ2)/(λ1+λ2)
+    // ════════════════════════════════════════════════════════════
     half4 Frag_EigenDecomp(Varyings input) : SV_Target
     {
         float2 texelSize = 1.0 / _ScreenParams.xy;
@@ -253,9 +282,9 @@ Shader "PostProcess/Kuwahara"
         return half4(tDir.x, tDir.y, phi, A);
     }
 
-    // ═══════════════════════════════════════════
-    //  Pass 5: Anisotropic Kuwahara Filter
-    // ═══════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════
+    //  Pass 5: AnisoFilter — 沿张量方向的椭圆核各向异性滤波
+    // ════════════════════════════════════════════════════════════
     half4 Frag_AnisoFilter(Varyings input) : SV_Target
     {
         float4 t = SAMPLE_TEXTURE2D_X(_TFM, sampler_LinearClamp, input.texcoord);
@@ -348,56 +377,72 @@ Shader "PostProcess/Kuwahara"
 
         return saturate(output / output.w);
     }
+
     ENDHLSL
 
     SubShader
     {
         Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
-        Cull Off ZWrite Off ZTest Always
+
+        Cull Off
+        ZWrite Off
+        ZTest Always
+        Blend One Zero
 
         Pass
         {
             Name "Basic"
+
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag_Basic
             ENDHLSL
         }
+
         Pass
         {
             Name "Generalized"
+
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag_Generalized
             ENDHLSL
         }
+
         Pass
         {
             Name "StructureTensor"
+
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag_StructureTensor
             ENDHLSL
         }
+
         Pass
         {
             Name "BlurHorizontal"
+
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag_BlurH
             ENDHLSL
         }
+
         Pass
         {
             Name "EigenDecomp"
+
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag_EigenDecomp
             ENDHLSL
         }
+
         Pass
         {
             Name "AnisoFilter"
+
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag_AnisoFilter

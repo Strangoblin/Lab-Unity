@@ -208,6 +208,50 @@ public class Script
                 }
             }
 
+            // Shared particle transform: custom rectangular grids and safe parameter endpoints.
+            camera.orthographic = false;
+            pipeline.renderScale = 1f;
+            feature.settings.debug = Mine.Weather.WeatherDebugMode.Particles;
+            UnityEngine.Vector2[] grids =
+            {
+                new UnityEngine.Vector2(7f, 2f),
+                new UnityEngine.Vector2(0.01f, 256f),
+                new UnityEngine.Vector2(256f, 0.01f)
+            };
+            float[] particleScales = { 0.4f, 0.001f, 4f };
+            for (int kindIndex = 0; kindIndex < profiles.Count; kindIndex++)
+            {
+                var profile = profiles[kindIndex];
+                var savedTiles = profile.Particles.TileCount;
+                float savedParticleScale = profile.Particles.Scale;
+                float savedRandomness = profile.Common.Randomness;
+                SetModules(profile, 1);
+                feature.settings.profile = profile;
+                for (int transformIndex = 0; transformIndex < grids.Length; transformIndex++)
+                {
+                    profile.Particles.TileCount = grids[transformIndex];
+                    profile.Particles.Scale = particleScales[transformIndex];
+                    profile.Common.Randomness = transformIndex == 1 ? 0f : 1f;
+                    var pixels = Render(camera, 320, 180, graphProbe, ref renderCount, ref beginCount);
+                    var item = Inspect(feature, camera, pixels, baseline, kindIndex, 1,
+                        "particle-transform/" + profile.Kind + "/" + transformIndex,
+                        320, 180, 1f, graphProbe);
+                    var boundMaterial = GetPrivate(feature, "_material") as UnityEngine.Material;
+                    Require(boundMaterial != null, item.name + " did not create a Weather material.");
+                    var boundTiles = boundMaterial.GetVector("_ParticleTileCount");
+                    Require(UnityEngine.Mathf.Approximately(boundTiles.x, grids[transformIndex].x)
+                        && UnityEngine.Mathf.Approximately(boundTiles.y, grids[transformIndex].y),
+                        item.name + " has stale or incorrect grid parameters.");
+                    Require(UnityEngine.Mathf.Approximately(boundMaterial.GetFloat("_ParticleScale"), particleScales[transformIndex]),
+                        item.name + " has a stale or incorrect scale parameter.");
+                    AssertBudget(item, profile.Resolve(), feature.settings.debug);
+                    cases.Add(item);
+                }
+                profile.Particles.TileCount = savedTiles;
+                profile.Particles.Scale = savedParticleScale;
+                profile.Common.Randomness = savedRandomness;
+            }
+
             // An independent second Base with different dimensions exercises per-camera snapshots.
             feature.settings.debug = Mine.Weather.WeatherDebugMode.Off;
             var second = MakeCamera(UnityEngine.Camera.main, "Weather Independent Base Validation", temporaryObjects);

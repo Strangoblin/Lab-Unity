@@ -30,8 +30,7 @@ WeatherScreenContext Weather_CreateContext(float2 sourceUV)
 // ════════════════════════════════════════════════════════════
 float4 Weather_Random(float index)
 {
-    return frac(sin((index + 1.0) * float4(127.1, 311.7, 74.7, 269.5))
-                * 43758.5453);
+    return Hash_Sine14(index + 1.0);
 }
 
 // ════════════════════════════════════════════════════════════

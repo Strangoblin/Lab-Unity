@@ -19,6 +19,7 @@
 | 分组 | 参数 | 作用与关闭方式 |
 |---|---|---|
 | Common | Kind / Randomness / CycleRate | 单一天气、粒子随机程度、循环速度；CycleRate=0 冻结粒子，不关闭氛围 |
+| Particles | TileCount / Scale | 二维网格数量与单格粒子尺度；范围分别0.01–256、0.001–4，保持严格为正 |
 | Particles | Shape / Opacity | 雨雪形状阈值、粒子贡献；Opacity=0 关闭，雨雪 Shape=0 也关闭 |
 | Particles | RefractionScale | 雨滴折射倍率，默认1；0关闭雨滴，沙雪忽略 |
 | Lens | Strength | 水汽、积尘或霜边；0关闭 |
@@ -28,17 +29,23 @@
 | Tone | Strength / Tint | 去饱和与冷暖颜色倍率；Strength=0关闭，白 Tint 仍保留去饱和 |
 | Technical | AlphaPolicy | PreserveInput 保留输入Alpha；LegacySnow 保留旧雪霜边／雾的Alpha合成 |
 
-运行脚本赋值同样经 `Resolve()` 处理 NaN、Infinity、非法枚举及越界值。常规强度范围0–1；CycleRate 0–2，RefractionScale 0–4，Tint RGB 0–4。Shader内部参数由Feature绑定。
+运行脚本赋值同样经 `Resolve()` 处理 NaN、Infinity、非法枚举及越界值。常规强度范围0–1；CycleRate 0–2，RefractionScale 0–4，Tint RGB 0–4。TileCount 与 Scale 的非有限值按当前 Kind 回退默认，有限越界值钳制；关闭粒子仍使用 Opacity。Shader内部参数由Feature绑定。
+
+调参顺序：选择预设，先用 TileCount 调分布密度、Scale 调单格尺寸，再调 Shape／Opacity／折射，最后分别调镜头、雾与调色。
 
 ## 迁移预设
 
 预设从旧 Material 的实际值迁移，旧 Randomness 均1、Wind均0.5、冷暖强度均1；CycleRate=2×旧Wind。
 
-| 预设 | Shape / Opacity | Lens / Fog | Tone Tint | Alpha |
-|---|---|---|---|---|
-| Rain | 0.5 / 0.5 | 0.5 / 0.5 | (0.88, 0.96, 1.05) | PreserveInput |
-| Sand | 1 / 1 | 1 / 1 | (1.08, 0.96, 0.82) | PreserveInput |
-| Snow | 0.3 / 0.3 | 0.3 / 0.3 | (0.88, 0.96, 1.05) | LegacySnow |
+| 预设 | TileCount / Scale | Shape / Opacity | Lens / Fog | Tone Tint | Alpha |
+|---|---|---|---|---|---|
+| Rain | (4.5, 4.5) / 0.35 | 0.5 / 0.5 | 0.5 / 0.5 | (0.88, 0.96, 1.05) | PreserveInput |
+| Sand | (3, 3) / 0.2 | 1 / 1 | 1 / 1 | (1.08, 0.96, 0.82) | PreserveInput |
+| Snow | (1.5, 1.5) / 0.1 | 0.3 / 0.3 | 0.3 / 0.3 | (0.88, 0.96, 1.05) | LegacySnow |
+
+TileCount／Scale 默认值来自当前粒子调参；新建 Profile 默认采用 Rain 的网格与尺度。
+
+三天气共用网格局部UV与随机规则：种子为周期整数加网格坐标偏移，旋转与随机尺度均使用 random.x。`Weather_Random` 通过 [HashFunction](../../../Special/HLSL/HashFunction.md) 复用纯四通道映射；`index+1`、天气种子与网格/周期流程仍留本目录，现有随机序列保持原式。差异保留在形状、寿命与输出方式：雨雪周期内渐隐，沙粒先出现再消失；雨输出高度差分折射，沙雪分别输出沙色／雪白的粒子贡献。
 
 Snow 霜边基础宽度0.03、噪声宽度0.3，雾基础距离50、噪声增量100、滚动0.5。周期、霜边、雾和调色在Weather中分别调节。
 

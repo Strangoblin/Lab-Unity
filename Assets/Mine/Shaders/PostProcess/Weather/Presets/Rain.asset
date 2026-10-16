@@ -18,6 +18,8 @@ MonoBehaviour:
     Randomness: 1
     CycleRate: 1
   Particles:
+    TileCount: {x: 4.5, y: 4.5}
+    Scale: 0.35
     Shape: 0.5
     Opacity: 0.5
     RefractionScale: 1
