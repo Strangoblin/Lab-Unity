@@ -14,6 +14,8 @@ CBUFFER_START(UnityPerMaterial)
     float4 _InteriorMap_ST;
     float _RoomBrightness;
     float _ProjectionType;
+    float _MapProjection;
+    float _MapCoverage;
 CBUFFER_END
 
 static const float INTERIOR_INV_PI = 0.31830988618;
@@ -213,10 +215,22 @@ float3 InteriorMappingRenderWithWindowSize(
         InteriorIntersectHemisphere(rayOrigin, rayDirection, roomSize, roomDepth, hitPosition, wallId, hitMask);
     }
 
-    float2 mapUV = InteriorMapUV(hitPosition, projectionType);
     float textureMask;
-    float3 interiorLayer = InteriorApplyRoomTint(
-        InteriorSampleRoom(mapUV, textureMask));
+    float3 sampledColor;
+    if (_MapProjection > 3.5 || _MapProjection < -0.5)
+    {
+        float2 mapUV = InteriorMapUV(hitPosition, projectionType);
+        sampledColor = InteriorSampleRoom(mapUV, textureMask);
+    }
+    else
+    {
+        float3 mapDirection = float3(hitPosition.xy, -hitPosition.z);
+        float4 mapSample = HDRMapSample(TEXTURE2D_ARGS(_InteriorMap, sampler_InteriorMap),
+            mapDirection, (int)round(_MapProjection), (int)round(_MapCoverage));
+        sampledColor = mapSample.rgb;
+        textureMask = step(0.0001, mapSample.a);
+    }
+    float3 interiorLayer = InteriorApplyRoomTint(sampledColor);
     interiorLayer = lerp(_FallbackColor.rgb, interiorLayer, textureMask);
     return lerp(_FallbackColor.rgb, interiorLayer, hitMask) * _RoomBrightness;
 }

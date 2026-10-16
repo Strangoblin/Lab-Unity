@@ -45,6 +45,7 @@ Shader "Render/FinInstanced"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
+            #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
 
             // ---- per-instance point data from CPU ----
             struct HairPoint
@@ -82,16 +83,12 @@ Shader "Render/FinInstanced"
             // ---- hash helpers ----
             float Hash1(float2 p)
             {
-                p = frac(p * float2(123.34, 456.21));
-                p += dot(p, p + 45.32);
-                return frac(p.x * p.y);
+                return Hash_Frac22(p).x;
             }
 
             float2 Hash2(float2 p)
             {
-                p = frac(p * float2(123.34, 456.21));
-                p += dot(p, p + 45.32);
-                return frac(float2(p.x * p.y, p.x + p.y));
+                return Hash_Frac22(p);
             }
 
             // ---- vertex / fragment ----

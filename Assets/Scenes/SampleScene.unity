@@ -1316,7 +1316,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ab42036c30644bc7a5af914e7748e0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::POSSComponent
-  registrationIndex: 0
+  registrationIndex: 1
 --- !u!1 &258468803
 GameObject:
   m_ObjectHideFlags: 0
@@ -1692,7 +1692,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
@@ -2258,6 +2258,10 @@ PrefabInstance:
     - target: {fileID: 3931866816596481887, guid: c945a3c25386541f893d72bfcefb76fa, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5311396672319644327, guid: c945a3c25386541f893d72bfcefb76fa, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5365294130383475497, guid: c945a3c25386541f893d72bfcefb76fa, type: 3}
       propertyPath: m_Name
@@ -3438,7 +3442,9 @@ MonoBehaviour:
   forceFields:
   - {x: 0, y: -9.81, z: 0}
   - {x: 2, y: 0, z: 0}
+  _windDrag: 1
   spawnArea: {x: 30, y: 55, z: 30}
+  lifetime: 2
 --- !u!114 &672302022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3581,7 +3587,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ab42036c30644bc7a5af914e7748e0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::POSSComponent
-  registrationIndex: 1
+  registrationIndex: 0
 --- !u!1 &726814606
 GameObject:
   m_ObjectHideFlags: 0

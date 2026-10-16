@@ -1,74 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8666594091835673655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f34910ba34284720be7006cff69df99, type: 3}
-  m_Name: SSGI
-  m_EditorClassIdentifier: Assembly-CSharp::SSGIFeature
-  m_Active: 0
-  settings:
-    compositeShader: {fileID: 4800000, guid: 0c2cf0c88542b4f5daa3ac19dd7493ff, type: 3}
-    temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
-    ao:
-      shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
-      mode: 1
-      radius: 1
-      bias: 0.02
-      angleBias: 10
-      depthSigma: 0.15
-    diffuseGI:
-      shader: {fileID: 4800000, guid: 0f1271be0061c430aa91678b9a119c1b, type: 3}
-      maxDistance: 5
-      thickness: 0.15
-      normalBias: 0.03
-      depthSigma: 0.15
-    specularGI:
-      shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
-      skyCubemap: {fileID: 0}
-      maxDistance: 50
-      thickness: 0.05
-      normalBias: 0.03
-      roughness: 0.1
-      skyMaxMip: 6
-    performance:
-      ao: 1
-      diffuseGI: 1
-      specularGI: 1
-    intensity:
-      ao: 1
-      diffuseGI: 1
-      specularGI: 1
-    temporal:
-      ao: 0.85
-      diffuseGI: 0.9
-      specularGI: 0.5
-    debug: 0
---- !u!114 &-6881124377121611309
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d83cb71e604a0462a894126adc9e10b8, type: 3}
-  m_Name: Weather
-  m_EditorClassIdentifier: Assembly-CSharp::Mine.Weather.WeatherFeature
-  m_Active: 1
-  settings:
-    shader: {fileID: 4800000, guid: 4298b51398eca4a64bcda5bb24238c8d, type: 3}
-    noiseTexture: {fileID: 2800000, guid: acde34ba16b7a4de1ad501e1068301d9, type: 2}
-    profile: {fileID: 11400000, guid: bd96443d72f254b91b8738a1adc656cc, type: 2}
-    showInSceneView: 1
-    debug: 0
 --- !u!114 &-6861971581733455524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87,6 +18,34 @@ MonoBehaviour:
     debugShader: {fileID: 0}
     additionalPassIndex: -1
     requireDepth: 0
+    debug: 0
+--- !u!114 &-6187475661629958052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 124eab495a91643f4be081a51e35e833, type: 3}
+  m_Name: MaskRBRFeature
+  m_EditorClassIdentifier: Assembly-CSharp::MaskRBRFeature
+  m_Active: 0
+  settings:
+    shader: {fileID: 4800000, guid: 991eb88dafa5c47ff89b3b017e06ab10, type: 3}
+    maskShader: {fileID: 4800000, guid: d64bff969cf53424e93ee915a781ff1a, type: 3}
+    source: 0
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 0
+    quality: 1
+    halfAngle: 60
+    anisotropy: 0.7
+    length: 0.2
+    falloff: 2
+    jitterStrength: 0
+    intensity: 0.25
     debug: 0
 --- !u!114 &-4968987183116551271
 MonoBehaviour:
@@ -148,10 +107,10 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
   - {fileID: -6861971581733455524}
-  - {fileID: -8666594091835673655}
   - {fileID: 1854382760940641301}
-  - {fileID: -6881124377121611309}
-  m_RendererFeatureMap: 5cb9f3e33361c5a0c9b3a24f9712ba87159c79cf4b17bc19d3a16236d65581a0
+  - {fileID: -6187475661629958052}
+  - {fileID: 7979418361354919465}
+  m_RendererFeatureMap: 5cb9f3e33361c5a0159c79cf4b17bc195cd82b1cabab21aa291eca0eb996bc6e
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -180,6 +139,32 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
+--- !u!114 &1854382760940641301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 576fa3a7d3660458caa985fd7105602a, type: 3}
+  m_Name: MaskBlur
+  m_EditorClassIdentifier: Assembly-CSharp::MaskBlurFeature
+  m_Active: 0
+  settings:
+    shader: {fileID: 4800000, guid: 49706e69a6fbf43d79cdd1e56a36ea4f, type: 3}
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    kernel: 1
+    quality: 2
+    radiusMode: 1
+    blurRadius: 5
+    normalizedRadius: 0.05
+    jitterStrength: 1
+    intensity: 0.5
+    debug: 0
 --- !u!114 &2669520963029075480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,28 +183,6 @@ MonoBehaviour:
   m_OutlineMaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_OutlineCompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
---- !u!114 &1854382760940641301
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 576fa3a7d3660458caa985fd7105602a, type: 3}
-  m_Name: MaskBlur
-  m_EditorClassIdentifier: Assembly-CSharp::MaskBlurFeature
-  m_Active: 1
-  settings:
-    shader: {fileID: 4800000, guid: 49706e69a6fbf43d79cdd1e56a36ea4f, type: 3}
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 4294967295
-    quality: 1
-    blurRadius: 0.5
-    intensity: 0.5
-    debug: 0
 --- !u!114 &4655793570601728598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,3 +199,55 @@ MonoBehaviour:
   m_MaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_CompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
+--- !u!114 &7979418361354919465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f34910ba34284720be7006cff69df99, type: 3}
+  m_Name: SSGIFeature
+  m_EditorClassIdentifier: Assembly-CSharp::SSGIFeature
+  m_Active: 0
+  settings:
+    compositeShader: {fileID: 4800000, guid: 0c2cf0c88542b4f5daa3ac19dd7493ff, type: 3}
+    temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
+    ao:
+      shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
+      mode: 1
+      radius: 1
+      bias: 0.02
+      angleBias: 10
+      depthSigma: 0.15
+    diffuseGI:
+      shader: {fileID: 4800000, guid: 0f1271be0061c430aa91678b9a119c1b, type: 3}
+      traceBackend: 0
+      maxDistance: 5
+      thickness: 0.15
+      normalBias: 0.03
+      depthSigma: 0.15
+    specularGI:
+      shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
+      skyCubemap: {fileID: 0}
+      traceBackend: 0
+      maxDistance: 50
+      thickness: 0.05
+      normalBias: 0.03
+      roughness: 0.1
+      skyMaxMip: 6
+    performance:
+      ao: 1
+      diffuseGI: 1
+      specularGI: 1
+    intensity:
+      ao: 1
+      diffuseGI: 1
+      specularGI: 1
+    temporal:
+      ao: 0
+      diffuseGI: 0.5
+      specularGI: 0.5
+    debug: 0

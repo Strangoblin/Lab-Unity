@@ -60,6 +60,7 @@ Shader "Render/PBRToon"
     #include "Assets/Mine/Special/HLSL/PBRFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/SSSFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/NormalFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/MaskFunction.hlsl"
 
     TEXTURE2D(_MainTex);
     SAMPLER(sampler_MainTex);
@@ -302,11 +303,7 @@ Shader "Render/PBRToon"
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
         float2 screenUV = GetNormalizedScreenSpaceUV(input.positionCS);
         float sceneDepth = SampleSceneDepth(screenUV);
-        #if UNITY_REVERSED_Z
-            float visible = step(sceneDepth - 0.0000001, input.positionCS.z);
-        #else
-            float visible = step(input.positionCS.z, sceneDepth + 0.0000001);
-        #endif
+        float visible = Mask_VisibleRawDepth(input.positionCS.z, sceneDepth, 0.0000001);
         return half4(saturate(_MaskBlurWeight) * visible, 0, 0, 1);
     }
 
