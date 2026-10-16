@@ -1,14 +1,10 @@
-# 领域知识索引
+# 知识库
 
-`.agents/knowledge/` 是路由索引层，不是第二个正文副本。每个领域索引应指向角色归属的 references 或共享 rules。
+| 入口 | 内容 |
+|---|---|
+| [meta](meta/README.md) | 架构、库归属、平台与执行合同 |
+| [unity](unity/README.md) | Unity / URP / Shader / C# / Compute 事实与规范 |
+| [external](external/README.md) | 上游资料和第三方技能来源，只指向实体内容 |
+| [rules](rules/README.md) | 按任务文件类型取用的项目约束 |
 
-## ID 约定
-
-知识 ID 使用 `domain/<canonical-relative-path>`，例如 `unity/standard/shader/shader-structure.md`。ID 不使用 basename，不包含绝对路径，不因平台改变。
-
-## 读取规则
-
-1. 先读取领域索引。
-2. 由索引解析到唯一规范路径。
-3. 缺失、重复或命中兼容壳时失败，不猜测替代文件。
-4. MCP gate 的回执应记录解析后的仓库相对路径。
+知识保存当前事实；经验回 memory，步骤 / 脚本回 skills。工具稳定 ID 采用 `meta/`、`unity/`、`rules/`，解析合同见 [knowledge-paths](meta/interfaces/knowledge-paths.md)。

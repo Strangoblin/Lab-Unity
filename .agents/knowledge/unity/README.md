@@ -1,17 +1,12 @@
-# Unity 领域知识索引
+# Unity 知识
 
-本索引为 Unity 任务提供稳定路由。Phase 2 只建立入口；Phase 3 将具体 references、templates 和 memory 按清单迁入角色目录。
+| 任务类型 | 事实 / 规范入口 |
+|---|---|
+| 普通 Shader / 共享 HLSL | [Shader 标准](standard/shader/README.md)、[Shader 规则](../rules/shader-development.md) |
+| C# / MonoBehaviour / 工具 | [Script 标准](standard/script/README.md)、[C# RenderPass 规则](../rules/csharp-renderpass.md) |
+| Compute | [Compute 标准](standard/compute/README.md)、[Compute 规则](../rules/compute-shader.md) |
+| URP / RenderGraph / RTHandle | [Rendering 标准](standard/rendering/README.md) |
+| 全屏后处理 Feature / Pass / Volume | [Postprocess](shader/postprocess/README.md) |
+| Metal / 项目门禁事实 | [平台笔记](platform/metal-notes.md)、[MCP 使用事实](mcp-gate-usage.md) |
 
-## 规范路径
-
-- 共享硬规则：`.agents/rules/<rule>.md`
-- Unity references：`.agents/agents/unity-developer/references/<category>/<document>.md`
-- Unity templates：`.agents/agents/unity-developer/templates/<category>/<template>`
-- Unity memory：`.agents/agents/unity-developer/memory/<record>.md`
-
-## 当前高优先级 ID（迁移后的目标）
-
-- `unity/standard/shader/shader-structure.md`
-- `unity/standard/script/script-structure.md`
-
-迁移前的旧 `.claude` 路径仅是兼容期来源，不在本索引中作为新权威 ID 发布。
+稳定 ID 保持 `unity/<相对本目录路径>`，如 `unity/standard/shader/shader-structure.md`。模板、Editor 命令和操作流程只在对应 skills；上下文只在 memory。
