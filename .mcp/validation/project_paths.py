@@ -85,6 +85,16 @@ def resolve_target_dir(file_type: str, category: str, effect: str = "") -> dict:
     }
 
 
+def _canonical(path: str) -> str:
+    """比较用规范形：绝对化 + 分隔符归一 + 大小写归一（Windows）。
+
+    为什么必须归一：Windows 上 os.path.join(PROJECT_ROOT, "Assets/Mine") 的前缀内部
+    残留正斜杠（混合分隔符），而 os.path.commonpath 的返回值是全反斜杠形——
+    `commonpath(...) == prefix` 的字符串相等因此在 Windows 上恒为 False。
+    """
+    return os.path.normcase(os.path.normpath(os.path.abspath(path)))
+
+
 def validate_path(path: str) -> dict:
     """校验写入路径是否在合法目录内."""
     allowed_prefixes = [
@@ -96,11 +106,17 @@ def validate_path(path: str) -> dict:
     full = os.path.join(PROJECT_ROOT, path) if not os.path.isabs(path) else path
     full = os.path.abspath(full)
     resolved = os.path.realpath(full)
+    c_full, c_resolved = _canonical(full), _canonical(resolved)
 
     for prefix in allowed_prefixes:
-        if (os.path.commonpath([full, prefix]) == prefix
-                and os.path.commonpath([resolved, os.path.realpath(prefix)]) == os.path.realpath(prefix)):
-            return {"status": "OK", "path": path, "full_path": full}
+        c_prefix = _canonical(prefix)
+        c_resolved_prefix = _canonical(os.path.realpath(prefix))
+        try:
+            if (os.path.commonpath([c_full, c_prefix]) == c_prefix
+                    and os.path.commonpath([c_resolved, c_resolved_prefix]) == c_resolved_prefix):
+                return {"status": "OK", "path": path, "full_path": full}
+        except ValueError:
+            continue   # 不同盘符（Windows）——不在任何前缀作用域内，按拒绝处理
 
     return {
         "status": "DENIED",

@@ -11,7 +11,7 @@ sys.path.insert(0, ROOT)
 
 from gate_center import RECIPES, GATE_REGISTRY, RETIRED_GATES
 from gates.g_entry import ALLOWED_AGENTS
-from validation.project_paths import validate_path
+from validation.project_paths import validate_path, PROJECT_ROOT
 
 TMP = os.path.join(os.path.dirname(ROOT), "tmp")   # 项目根/tmp
 
@@ -84,6 +84,33 @@ async def test_meta_bypass_boundary():
     print("  ✅ meta-developer 与 .agents 路径均不进入 Unity MCP")
 
 
+def test_validate_path_scope():
+    print("\n── validate_path 作用域（Windows 分隔符回归）──")
+    # 正向：Assets/Mine 全域放行。35a2fd6（2026-09-18）起前缀字符串是混合分隔符
+    # （...\Lab\Assets/Mine），而 commonpath 返回全反斜杠形，字符串相等在 Windows 上
+    # 恒为 False → Assets/Mine 全域误判 PATH_NOT_ALLOWED。此前正向写入用例只落在
+    # tmp/（前缀无内部正斜杠，恰好通过），故回归长期未被捕获。
+    for p in ("Assets/Mine/Scripts/TerrainManager/Plan.md",
+              "Assets/Mine/Scripts/TerrainManager.cs.meta",
+              "Assets/Mine/Shaders/PostProcess/SSGI/AO/AO.shader",
+              "Assets/Mine/Special/HLSL/BlurFunction.hlsl"):
+        r = validate_path(p)
+        assert r["status"] == "OK", f"{p} 应放行，got {r}"
+
+    # 绝对路径 / 混合分隔符 / 盘符大小写均不改变判定
+    abs_ok = os.path.join(PROJECT_ROOT, "Assets", "Mine", "Scripts", "Test.cs")
+    for p in (abs_ok, abs_ok.replace("\\", "/"), abs_ok[0].lower() + abs_ok[1:]):
+        r = validate_path(p)
+        assert r["status"] == "OK", f"{p} 应放行，got {r}"
+
+    # 反向：前缀扩展目录不得被放行（commonpath 语义，非 startswith），越界路径拦截
+    for p in ("Assets/MineElsewhere/x.cs", "Assets/Other/x.cs",
+              "Assets/Mine/../Other/x.cs", "Library/x.cs"):
+        r = validate_path(p)
+        assert r["status"] == "DENIED" and r["error"] == "PATH_NOT_ALLOWED", f"{p} 应拦截，got {r}"
+    print("  ✅ Assets/Mine 放行 / 前缀扩展与越界拦截 / 分隔符与大小写归一")
+
+
 async def test_production_chain():
     print("\n── Production (2-gate chain → write) ──")
     await call("gate_reset")
@@ -97,6 +124,31 @@ async def test_production_chain():
     assert r["annotations"]["mode"] == "Production", f"注解 mode 应为 Production: {r}"
     cleanup("test_gate.txt")
     print(f"  ✅ 2 门禁链走通 + 写入审计记录 OK")
+
+
+async def test_assets_mine_prefix_gated_ops():
+    print("\n── Assets/Mine 前缀: write/move/delete 端到端 ──")
+    # 回归（Codex 2026-09-26 报告）：validate_path 的 Assets/Mine 前缀在 Windows 上
+    # 恒判 PATH_NOT_ALLOWED，而此前端到端用例全部只落在 tmp/，三通道在真实前缀上
+    # 从未被测过。探针用 '.' 前缀文件名：Unity 忽略导入（与 atomic_io 的隐藏临时
+    # 文件同一机制），同轮创建 → 移动 → 删除，无 .meta、无残留。
+    probe = "Assets/Mine/Shaders/PostProcess/.gate_probe.shader"
+    moved = "Assets/Mine/Shaders/PostProcess/.gate_probe_moved.shader"
+    await call("gate_reset")
+    await call("gate_set_recipe", name="Production")
+    await call("gate_pass", gate_id="g_entry", agent="unity-developer")
+    await call("gate_pass", gate_id="g_knowledge", loaded_files=HIGH_PRIO, status="COMPLETE")
+    r = await call("write_gated", path=probe, content=GOOD_SHADER)
+    assert r["status"] == "OK", f"write_gated 应放行 Assets/Mine, got {r}"
+    r = await call("move_gated", moves=[{"from": probe, "to": moved}],
+                   reason="门禁回归: Assets/Mine 前缀移动探针")
+    assert r["status"] == "OK", f"move_gated 应放行 Assets/Mine, got {r}"
+    r = await call("delete_gated", paths=[moved], reason="门禁回归: Assets/Mine 前缀清理探针")
+    assert r["status"] == "OK", f"delete_gated 应放行 Assets/Mine, got {r}"
+    for p in (probe, moved, probe + ".meta", moved + ".meta"):
+        assert not os.path.exists(os.path.join(os.path.dirname(ROOT), p)), f"残留: {p}"
+    await call("gate_reset")
+    print("  ✅ 三通道在 Assets/Mine 前缀均放行且无残留")
 
 
 async def test_knowledge_fabricated():
@@ -763,7 +815,9 @@ async def main():
     self_check()
 
     await test_meta_bypass_boundary()
+    test_validate_path_scope()
     await test_production_chain()
+    await test_assets_mine_prefix_gated_ops()
     await test_knowledge_fabricated()
     await test_knowledge_reference_impl()
     await test_knowledge_missing_high_prio()
