@@ -1,16 +1,16 @@
 {
-  "version": 1,
-  "description": "Phase 1 target ownership allow-list. This file is a contract fixture, not a migration command.",
+  "version": 3,
+  "description": "Plain platform entries route to shared role definitions; knowledge, memory and skills are separate libraries. Architecture sources contain no symlinks.",
   "claude": {
     "retain": [
       "CLAUDE.md",
       "settings.json",
       "settings.local.json",
       "hooks/**",
-      "agents/**",
-      "skills/**"
+      "agents/README.md",
+      "skills/README.md"
     ],
-    "notes": "agents/** and skills/** are compatibility-only after shared content is migrated; rules/** remains only if Claude path discovery requires an adapter."
+    "notes": "Native discovery aliases are retired; shared roles, rules and skills are explicitly loaded through the role inventory."
   },
   "codex": {
     "retain": [
@@ -23,25 +23,28 @@
       "hooks/**",
       "tests/**",
       "tmp/**",
-      "agents/*.toml",
-      "agents/unity-developer",
-      "agents/meta-developer",
-      "rules",
-      "skills",
-      "knowledge",
-      "interfaces"
+      "agents/README.md",
+      "agents/meta-developer.toml",
+      "agents/unity-developer.toml"
     ],
-    "notes": "Codex runtime configuration, tests, hooks and temporary workspace remain platform-specific; exec/auto replacement agents are retired."
+    "notes": "Platform runtime configuration, two thin role-route TOMLs, hooks and tests remain; shared discovery links and duplicate bodies are retired."
   },
   "shared_target": {
     "root": ".agents",
     "roles": ".agents/agents/<role>/AGENT.md",
-    "rules": ".agents/rules/",
-    "references": ".agents/agents/<role>/references/",
-    "templates": ".agents/agents/<role>/templates/",
-    "cli": ".agents/agents/<role>/cli/",
-    "scripts": ".agents/agents/<role>/scripts/",
-    "memory": ".agents/agents/<role>/memory/",
-    "skills": ".agents/skills/"
-  }
+    "rules": ".agents/knowledge/rules/",
+    "references": ".agents/knowledge/<domain>/",
+    "templates": ".agents/skills/<skill>/templates/",
+    "cli": ".agents/skills/<skill>/references/cli/",
+    "scripts": ".agents/skills/<skill>/scripts/",
+    "memory": ".agents/memory/<domain>/",
+    "skills": ".agents/skills/",
+    "interfaces": ".agents/knowledge/meta/interfaces/"
+  },
+  "platform_routes": [
+    ".claude/CLAUDE.md",
+    ".claude/agents/README.md",
+    ".codex/AGENTS.md",
+    ".codex/agents/README.md"
+  ]
 }
