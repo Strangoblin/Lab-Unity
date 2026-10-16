@@ -1,4 +1,5 @@
 using UnityEngine;
+using Mine.SceneGizmo;
 
 /// <summary>
 /// Defines the forward direction used by an InteriorMap baker and visualizes it as a Scene view arrow.
@@ -6,7 +7,7 @@ using UnityEngine;
 /// </summary>
 [ExecuteAlways]
 [DisallowMultipleComponent]
-public sealed class InteriorMapBakeDirection : MonoBehaviour
+public sealed class InteriorMapBakeDirection : MonoBehaviour, IGizmoSource
 {
     [Header("Direction")]
     [SerializeField] private Vector3 _originOffset = Vector3.zero;
@@ -16,14 +17,37 @@ public sealed class InteriorMapBakeDirection : MonoBehaviour
     [SerializeField] private float _headLength = 0.3f;
     [SerializeField] private float _headWidth = 0.15f;
 
-    [Header("Gizmos")]
-    [SerializeField] private bool _drawGizmo = true;
-    [SerializeField] private Color _gizmoColor = new Color(1f, 0.75f, 0.15f, 0.95f);
+    [Header("Debug")]
+    [SerializeField] private string _gizmoMember = "Interior";
 
     public Vector3 Origin => transform.TransformPoint(_originOffset);
     public Vector3 Direction => transform.forward;
     public Vector3 EndPoint => Origin + Direction * _length;
     public float Length => _length;
+
+    // ════════════════════════════════════════════════════════════
+    //  Gizmo declaration — the bake view direction
+    // ════════════════════════════════════════════════════════════
+    public string Member
+    {
+        get => _gizmoMember;
+        set => _gizmoMember = value;
+    }
+
+    public GizmoForm Form => GizmoForm.Direction;
+
+    private void OnDrawGizmos() => SceneGizmos.Draw(this, false);
+
+    private void OnDrawGizmosSelected() => SceneGizmos.Draw(this, true);
+
+    public void DrawGizmos(GizmoCanvas canvas)
+    {
+        Vector3 origin = Origin;
+        canvas.Arrow(origin, Direction, _length, _headLength, _headWidth);
+
+        // Origin marker — shows where the baked panorama is observed from
+        canvas.WireSphere(origin, _headWidth * 0.35f);
+    }
 
     // ════════════════════════════════════════════════════════════
     //  Validation — keep the direction marker readable
@@ -33,37 +57,5 @@ public sealed class InteriorMapBakeDirection : MonoBehaviour
         _length = Mathf.Max(_length, 0.001f);
         _headLength = Mathf.Clamp(_headLength, 0.001f, _length);
         _headWidth = Mathf.Max(_headWidth, 0.001f);
-    }
-
-    // ════════════════════════════════════════════════════════════
-    //  Gizmos — draw the bake view direction in the Scene view
-    // ════════════════════════════════════════════════════════════
-    private void OnDrawGizmos()
-    {
-        if (!_drawGizmo) return;
-
-        Vector3 origin = Origin;
-        Vector3 direction = Direction.normalized;
-        Vector3 endPoint = origin + direction * _length;
-        Vector3 up = transform.up;
-        if (Mathf.Abs(Vector3.Dot(direction, up)) > 0.98f)
-            up = transform.right;
-
-        Vector3 side = Vector3.Cross(direction, up).normalized;
-        Vector3 headBase = endPoint - direction * _headLength;
-        Vector3 sideLeft = headBase + side * _headWidth;
-        Vector3 sideRight = headBase - side * _headWidth;
-        Vector3 upLeft = headBase + up * _headWidth;
-        Vector3 upRight = headBase - up * _headWidth;
-
-        Color previousColor = Gizmos.color;
-        Gizmos.color = _gizmoColor;
-        Gizmos.DrawLine(origin, endPoint);
-        Gizmos.DrawLine(endPoint, sideLeft);
-        Gizmos.DrawLine(endPoint, sideRight);
-        Gizmos.DrawLine(endPoint, upLeft);
-        Gizmos.DrawLine(endPoint, upRight);
-        Gizmos.DrawWireSphere(origin, _headWidth * 0.35f);
-        Gizmos.color = previousColor;
     }
 }

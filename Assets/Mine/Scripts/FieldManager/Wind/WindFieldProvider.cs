@@ -1,9 +1,10 @@
 using UnityEngine;
+using Mine.SceneGizmo;
 
 namespace Mine.Fields
 {
     /// <summary>Owns one finite XZ wind-speed texture; consumers apply a shared analytic height profile.</summary>
-    public sealed class WindFieldProvider : FieldProvider
+    public sealed class WindFieldProvider : FieldProvider, IGizmoSource
     {
         public enum Quality { Low, Medium, High }
 
@@ -26,7 +27,7 @@ namespace Mine.Fields
         [SerializeField, Min(0f)] private float _upperHeightGain = 1.3f;
 
         [Header("Debug")]
-        [SerializeField] private bool _showArea = true;
+        [SerializeField] private string _gizmoMember = "Wind";
 
         private const int MaxSources = 16;
         private RenderTexture _texture;
@@ -48,6 +49,29 @@ namespace Mine.Fields
         public RenderTexture Texture => _texture;
         public Vector3 BaseVelocity => _baseVelocity;
         private int Resolution => _quality == Quality.Low ? 64 : _quality == Quality.High ? 256 : 128;
+
+        // ════════════════════════════════════════════════════════════
+        //  Gizmo declaration — the XZ area the field texture covers
+        // ════════════════════════════════════════════════════════════
+        public string Member
+        {
+            get => _gizmoMember;
+            set => _gizmoMember = value;
+        }
+
+        public GizmoForm Form => GizmoForm.Volume;
+
+        private void OnDrawGizmos() => SceneGizmos.Draw(this, false);
+
+        private void OnDrawGizmosSelected() => SceneGizmos.Draw(this, true);
+
+        public void DrawGizmos(GizmoCanvas canvas)
+        {
+            Vector3 center = _followTarget != null ? _followTarget.position : transform.position;
+            center.y = _referenceHeight;
+
+            canvas.PlaneRect(center, Vector3.right, Vector3.forward, _areaSize.x, _areaSize.y);
+        }
 
         // ════════════════════════════════════════════════════════════
         //  Resource ownership and spatial generation
@@ -182,15 +206,6 @@ namespace Mine.Fields
             _texture.Release();
             if (Application.isPlaying) Destroy(_texture); else DestroyImmediate(_texture);
             _texture = null;
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            if (!_showArea) return;
-            Vector3 center = _followTarget != null ? _followTarget.position : transform.position;
-            center.y = _referenceHeight;
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireCube(center, new Vector3(_areaSize.x, 0f, _areaSize.y));
         }
     }
 }

@@ -6,6 +6,8 @@
 
 The scene framework owns the bake volume, view direction, and a dedicated disabled bake camera. The tool window lets the user select a framework, create or repair a standard framework, configure texture settings, choose a bake type, bake a texture, load an existing asset, save the result, and preview the output.
 
+The volume and direction components participate in the shared Scene Gizmo framework: both register into the `Interior` member, and that member owns their enablement, display scenario and color. See [SceneGizmo](../SceneGizmo/SceneGizmo.md).
+
 ---
 
 ## Workflow

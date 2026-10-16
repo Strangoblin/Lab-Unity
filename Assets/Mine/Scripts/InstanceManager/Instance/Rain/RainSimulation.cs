@@ -1,12 +1,13 @@
 using UnityEngine;
 using System.Runtime.InteropServices;
 using Mine.Fields;
+using Mine.SceneGizmo;
 
 /// <summary>
 /// Rain particle simulation — particles spawn throughout a rotated volume and
 /// grow then shrink over independently staggered lifetimes.
 /// </summary>
-public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
+public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator, IGizmoSource
 {
     [Header("Compute")]
     public ComputeShader rainShader;
@@ -28,6 +29,9 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
     [Min(0.01f)]
     [Tooltip("Average lifetime in seconds; each particle varies by +/-25%.")]
     public float lifetime = 2f;
+
+    [Header("Debug")]
+    [SerializeField] private string _gizmoMember = "Instance";
 
     private const int MaxForceFields = 16;
 
@@ -63,6 +67,63 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
     private static readonly int SimulationTimeId = Shader.PropertyToID("_SimulationTime");
 
     public ComputeBuffer VisibleCountBuffer => null;
+
+    // ════════════════════════════════════════════════════════════
+    //  Gizmo declaration — emission plane, fall volume and fall arrow
+    // ════════════════════════════════════════════════════════════
+    public string Member
+    {
+        get => _gizmoMember;
+        set => _gizmoMember = value;
+    }
+
+    public GizmoForm Form => GizmoForm.Volume;
+
+    private void OnDrawGizmos() => SceneGizmos.Draw(this, false);
+
+    private void OnDrawGizmosSelected() => SceneGizmos.Draw(this, true);
+
+    public void DrawGizmos(GizmoCanvas canvas)
+    {
+        using (canvas.LocalSpace(transform.localToWorldMatrix))
+        {
+            float halfWidth = spawnArea.x * 0.5f;
+            float halfDepth = spawnArea.z * 0.5f;
+            float floorY = -spawnArea.y;
+
+            // ── Emission plane ─────────────────────────────────────
+            canvas.PlaneRect(Vector3.zero, Vector3.right, Vector3.forward, spawnArea.x, spawnArea.z);
+
+            // ── Fall volume — four vertical edges down to the floor ─
+            canvas.Color = GizmoTint.Fade(canvas.BaseColor, 0.3f);
+            for (int cornerIndex = 0; cornerIndex < FallCorners.Length; cornerIndex++)
+            {
+                Vector3 top = new Vector3(
+                    FallCorners[cornerIndex].x * halfWidth,
+                    0f,
+                    FallCorners[cornerIndex].y * halfDepth);
+                canvas.Line(top, new Vector3(top.x, floorY, top.z));
+            }
+
+            // ── Floor and fall direction ───────────────────────────
+            canvas.Color = GizmoTint.Emphasis(canvas.BaseColor, 0.4f);
+            canvas.PlaneRect(new Vector3(0f, floorY, 0f), Vector3.right, Vector3.forward, spawnArea.x, spawnArea.z);
+
+            canvas.Color = canvas.BaseColor;
+            canvas.Arrow(Vector3.zero, Vector3.down, spawnArea.y, ArrowHeadLength, ArrowHeadWidth);
+        }
+    }
+
+    private const float ArrowHeadLength = 0.5f;
+    private const float ArrowHeadWidth = 0.3f;
+
+    private static readonly Vector2[] FallCorners =
+    {
+        new Vector2(-1f, -1f),
+        new Vector2(1f, -1f),
+        new Vector2(1f, 1f),
+        new Vector2(-1f, 1f)
+    };
 
     // ════════════════════════════════════════════════════════════
     //  Initialize
@@ -149,51 +210,4 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator
         rainShader.SetVectorArray(ForceFieldsId, uploadedForceFields);
         rainShader.SetInt(ForceFieldCountId, count);
     }
-
-    // ════════════════════════════════════════════════════════════
-    //  Gizmos — emission plane + fall volume
-    // ════════════════════════════════════════════════════════════
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
-    {
-        Transform t = transform;
-        Vector3 c = t.position;
-        Vector3 r = t.right   * spawnArea.x * 0.5f;
-        Vector3 f = t.forward * spawnArea.z * 0.5f;
-        Vector3 d = t.up      * spawnArea.y;  // fall distance (full)
-
-        Gizmos.color = new Color(0.3f, 0.7f, 1f, 0.8f);
-
-        // Emission plane wire rectangle
-        Gizmos.DrawLine(c - r - f, c + r - f);
-        Gizmos.DrawLine(c + r - f, c + r + f);
-        Gizmos.DrawLine(c + r + f, c - r + f);
-        Gizmos.DrawLine(c - r + f, c - r - f);
-
-        // Fall volume — 4 vertical edges
-        Gizmos.color = new Color(0.3f, 0.7f, 1f, 0.3f);
-        Vector3 b = c - d;
-        Gizmos.DrawLine(c - r - f, b - r - f);
-        Gizmos.DrawLine(c + r - f, b + r - f);
-        Gizmos.DrawLine(c + r + f, b + r + f);
-        Gizmos.DrawLine(c - r + f, b - r + f);
-
-        // Bottom wire rectangle
-        Gizmos.color = new Color(1f, 0.3f, 0.3f, 0.5f);
-        Gizmos.DrawLine(b - r - f, b + r - f);
-        Gizmos.DrawLine(b + r - f, b + r + f);
-        Gizmos.DrawLine(b + r + f, b - r + f);
-        Gizmos.DrawLine(b - r + f, b - r - f);
-
-        // Fall direction arrow
-        Gizmos.color = new Color(0.3f, 1f, 1f, 0.9f);
-        Gizmos.DrawLine(c, b);
-        // Arrowhead
-        Vector3 ah = b + t.up * 0.5f;
-        Gizmos.DrawLine(b, ah + t.right * 0.3f + t.forward * 0.3f);
-        Gizmos.DrawLine(b, ah - t.right * 0.3f + t.forward * 0.3f);
-        Gizmos.DrawLine(b, ah + t.right * 0.3f - t.forward * 0.3f);
-        Gizmos.DrawLine(b, ah - t.right * 0.3f - t.forward * 0.3f);
-    }
-#endif
 }
