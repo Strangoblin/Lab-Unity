@@ -11,6 +11,32 @@ internal sealed class SSGITemporalFilter
 {
     internal enum Signal { AO, DiffuseGI, SpecularGI }
 
+    internal readonly struct HistoryKey : System.IEquatable<HistoryKey>
+    {
+        readonly SSGITraceBackend _backend;
+        readonly Vector4 _geometry;
+        readonly Vector4 _spatial;
+        readonly Vector4 _sampling;
+        readonly int _shaderId;
+        readonly int _environmentId;
+
+        public HistoryKey(SSGITraceBackend backend, Vector4 geometry, Vector4 spatial,
+            Vector4 sampling, int shaderId, int environmentId = 0)
+        {
+            _backend = backend;
+            _geometry = geometry;
+            _spatial = spatial;
+            _sampling = sampling;
+            _shaderId = shaderId;
+            _environmentId = environmentId;
+        }
+
+        public bool Equals(HistoryKey other) => _backend == other._backend
+            && _geometry.Equals(other._geometry) && _spatial.Equals(other._spatial)
+            && _sampling.Equals(other._sampling) && _shaderId == other._shaderId
+            && _environmentId == other._environmentId;
+    }
+
     sealed class CameraHistory
     {
         public Camera camera;
@@ -20,6 +46,9 @@ internal sealed class SSGITemporalFilter
         public readonly int[] lastSignalFrame = { -1, -1, -1 };
         public readonly int[] lastColorSide = { -1, -1, -1 };
         public readonly bool[] written = new bool[3];
+        public readonly HistoryKey[] keys = new HistoryKey[3];
+        public readonly Vector4[] depthLayouts = new Vector4[3];
+        public readonly Vector4[] depthScales = new Vector4[3];
         public int width;
         public int height;
         public int frameIndex;
@@ -67,6 +96,9 @@ internal sealed class SSGITemporalFilter
                 written[channel] = false;
                 lastSignalFrame[channel] = -1;
                 lastColorSide[channel] = -1;
+                keys[channel] = default;
+                depthLayouts[channel] = default;
+                depthScales[channel] = default;
             }
             for (int side = 0; side < 2; ++side)
             {
@@ -164,7 +196,7 @@ internal sealed class SSGITemporalFilter
     }
 
     public TextureHandle Resolve(RenderGraph graph, ContextContainer frameData,
-        TextureHandle current, Signal signal, float blend)
+        TextureHandle current, Signal signal, float blend, HistoryKey historyKey = default)
     {
         if (_active == null || !current.IsValid())
             return current;
@@ -172,6 +204,20 @@ internal sealed class SSGITemporalFilter
         UniversalResourceData resources = frameData.Get<UniversalResourceData>();
         _active.EnsureColor(signal, _cameraId);
         int channel = (int)signal;
+        if (signal != Signal.AO)
+        {
+            TextureDesc depth = graph.GetTextureDesc(resources.cameraDepthTexture);
+            var layout = new Vector4(depth.width, depth.height, depth.slices, (float)depth.dimension);
+            Vector4 rtScale = RTHandles.rtHandleProperties.rtHandleScale;
+            var scale = new Vector4(rtScale.x, rtScale.y,
+                ScalableBufferManager.widthScaleFactor, ScalableBufferManager.heightScaleFactor);
+            if (!historyKey.Equals(_active.keys[channel])
+                || !layout.Equals(_active.depthLayouts[channel]) || !scale.Equals(_active.depthScales[channel]))
+                _active.valid[channel] = false;
+            _active.keys[channel] = historyKey;
+            _active.depthLayouts[channel] = layout;
+            _active.depthScales[channel] = scale;
+        }
         int readSide = _active.frameIndex & 1;
         int writeSide = readSide ^ 1;
         TextureHandle historyColor = graph.ImportTexture(_active.color[channel, readSide]);

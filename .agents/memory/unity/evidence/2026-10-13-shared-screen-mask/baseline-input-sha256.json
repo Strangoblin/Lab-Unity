@@ -1,0 +1,112 @@
+{
+  "Blur.Composite.Gaussian.High.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "6c8077b08b7525f4e83086a0855bda1a1698da4891eda99fd00a1dfb3a8a55f4",
+    "encodedSha256": "b9335ef3bf6f8fa5d5252ddfff14d2840c4554bf0cae80339712b47a84dd7199",
+    "decompressedBytes": 921600
+  },
+  "Blur.Composite.Gaussian.Low.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "4f31372dce87e582daf710e6794b23ea2c24b49549e3cf40a38ea0086923cc49",
+    "encodedSha256": "7d2c024060c2a139ea562986d512589ccb52c07d6877f0607556b2fff7f6c05a",
+    "decompressedBytes": 921600
+  },
+  "Blur.Composite.Gaussian.Medium.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "6c8077b08b7525f4e83086a0855bda1a1698da4891eda99fd00a1dfb3a8a55f4",
+    "encodedSha256": "b9335ef3bf6f8fa5d5252ddfff14d2840c4554bf0cae80339712b47a84dd7199",
+    "decompressedBytes": 921600
+  },
+  "Blur.Composite.JitteredGaussian.High.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "8af8b20f85e220c3e7ceb3f62463e9095e346370813bad27d3146e59a9a28f43",
+    "encodedSha256": "797b4d6050222c46bb92b5934651dffc3b7ab9a5bc4c2bc3f4682a448792c026",
+    "decompressedBytes": 921600
+  },
+  "Blur.Composite.JitteredGaussian.Low.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "f8ece05dd9ce0709fc142349496c012002a17605a38627f2e3d35b696916f1d6",
+    "encodedSha256": "27ec968c757f0f6c12fc4a46457e5bc2d3fb693cf2116eb766947f49970dfae2",
+    "decompressedBytes": 921600
+  },
+  "Blur.Composite.JitteredGaussian.Medium.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "8af8b20f85e220c3e7ceb3f62463e9095e346370813bad27d3146e59a9a28f43",
+    "encodedSha256": "797b4d6050222c46bb92b5934651dffc3b7ab9a5bc4c2bc3f4682a448792c026",
+    "decompressedBytes": 921600
+  },
+  "Blur.Composite.Radius0.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "dd329faff578136584d500f63185e7c7d265b04cc6e8dbb37fb4f0608a74a0ef",
+    "encodedSha256": "d1b6d2b284286f02124f5367d293baaf3182df31132869ba89925f5647c2c02f",
+    "decompressedBytes": 921600
+  },
+  "Blur.Mask.ExcludedLayers.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "d4ef89a3cdcf1c6297b421c169a6cddbc274e97ae10469b7d6fcc49f1083fdd8",
+    "encodedSha256": "e53bb5fb4ee5c20a5e3513efc0af2f803422998594cd964707e616cd7359cf2c",
+    "decompressedBytes": 921600
+  },
+  "Blur.Mask.FullyOccluded.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "67d2a355877906cce157acbe34cd107c0611b94261a6c9e1553820beae922604",
+    "encodedSha256": "112b3ed7e7815487e18c7e628bf5d55f4d3fc0b275bb6e90e94cb5758ed11fb8",
+    "decompressedBytes": 921600
+  },
+  "Blur.Mask.Weight0.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "d4ef89a3cdcf1c6297b421c169a6cddbc274e97ae10469b7d6fcc49f1083fdd8",
+    "encodedSha256": "e53bb5fb4ee5c20a5e3513efc0af2f803422998594cd964707e616cd7359cf2c",
+    "decompressedBytes": 921600
+  },
+  "Blur.Mask.Weight035.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "2b527ff3cec7bd8df28efa567ed2c57abf594b176905f3be397408dd6299c6e4",
+    "encodedSha256": "3be38f840c0a75f45274c1fbb4ccefd8a499abde5029e46b37e6a52465829d42",
+    "decompressedBytes": 921600
+  },
+  "Blur.Mask.Weight1.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "14c9ca15182aed3593db0fac2f6b933f19ec297a40b37e0fc305b25d8f8dc4a2",
+    "encodedSha256": "f412a3f8e7af9247b0e772c708e9522bf6acad17f9a37a3b24ad404dae2da8b7",
+    "decompressedBytes": 921600
+  },
+  "RBR.Composite.OffCenterMainLight.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "00d1a03bb6c14c3c40eefaf4d3c1aa09de3856cc6b1b4d0f36753442afa25d71",
+    "encodedSha256": "8f33e6c1b902d67c005cb4e839187f3904623ec49e407e53a6fc621303e16fed",
+    "decompressedBytes": 921600
+  },
+  "RBR.Mask.EmptySelection.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "1d4ec9901c6493080803f8883ec9574c6d25991ad0f56b0e5411be380e258d51",
+    "encodedSha256": "627d48ad38793acceebbd84870d02c370043d3d7cd7c33282ed8fb98e73d50cc",
+    "decompressedBytes": 921600
+  },
+  "RBR.Mask.Objects.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "97c3548d323fcdf090c7ab741388ba39de9015733b19b60cc5717c78577712fe",
+    "encodedSha256": "8214132f7c2826c03479a74916e17d4d0f328f6b040eabf2f4d0e9057e645e36",
+    "decompressedBytes": 921600
+  },
+  "RBR.Mask.Sky.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "c5f7e134c339d89c36dffa11154281e917c3ae46525da23838f76451eb693135",
+    "encodedSha256": "eb3747008d55e939380358f77867a1237df7cd6ad195ce95627f20c59f9f96d3",
+    "decompressedBytes": 921600
+  },
+  "RBR.Mask.SkyAndObjects.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "faef484d1c3e09ada0fcf5bb670bf553903dcae25a3a21c95d84855db2f0e2ff",
+    "encodedSha256": "a1510c3912570c2ed286deb95c13d81279c0e190097eeb3749d1ccb48a7454a5",
+    "decompressedBytes": 921600
+  },
+  "RBR.Rays.BehindMainLight.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "1d4ec9901c6493080803f8883ec9574c6d25991ad0f56b0e5411be380e258d51",
+    "encodedSha256": "627d48ad38793acceebbd84870d02c370043d3d7cd7c33282ed8fb98e73d50cc",
+    "decompressedBytes": 921600
+  },
+  "RBR.Rays.EmptySelection.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "1d4ec9901c6493080803f8883ec9574c6d25991ad0f56b0e5411be380e258d51",
+    "encodedSha256": "627d48ad38793acceebbd84870d02c370043d3d7cd7c33282ed8fb98e73d50cc",
+    "decompressedBytes": 921600
+  },
+  "RBR.Rays.MissingMainLight.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "1d4ec9901c6493080803f8883ec9574c6d25991ad0f56b0e5411be380e258d51",
+    "encodedSha256": "627d48ad38793acceebbd84870d02c370043d3d7cd7c33282ed8fb98e73d50cc",
+    "decompressedBytes": 921600
+  },
+  "RBR.Rays.OffCenterMainLight.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "f939c98c3290b65033aa0534c7996a4ccad55b981cf2416b5084b0c9131a4652",
+    "encodedSha256": "312209a5ae5720240575ba9ca6539f23af4bf99878290e9d3039613386531a53",
+    "decompressedBytes": 921600
+  },
+  "Scene.Reference.rgba-f32.bin.gz.b64": {
+    "decodedFloatSha256": "4bab3e133daca057710dfa7a2b93dd323a41b899d6d5c7b7f0488d33b3a64669",
+    "encodedSha256": "cff28a28ca6cd68ce0d6361ad0b595b64d3a0d7af63e240b55da7755b0dd84c7",
+    "decompressedBytes": 921600
+  }
+}

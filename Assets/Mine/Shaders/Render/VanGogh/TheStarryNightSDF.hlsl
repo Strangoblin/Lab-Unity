@@ -1,5 +1,6 @@
 // ════════════════════════════════════════════════════════════
 //  TheStarryNightSDF.hlsl — 星夜 SDF 功能库
+//  内部依赖：HashFunction.hlsl（通用随机映射）
 //  径向：min 距离并集（逐星半径缩放）；周向：2NN 平滑 Voronoi 角场
 //  山水：纵向（V 渐变 + U 波）+ 横向（U 渐变 + 逐层位移）
 //  麦田：纵向转置调用（uv.yx）→ 竖笔触扭摆
@@ -14,17 +15,19 @@
 #ifndef THE_STARRY_NIGHT_SDF_HLSL
 #define THE_STARRY_NIGHT_SDF_HLSL
 
+#include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
+
 // ════════════════════════════════════════════════════════════
 //  Hash / Hash2 — 1D/2D 哈希（±0.5）；置于最前（Metal 不支持下向引用）
 // ════════════════════════════════════════════════════════════
 float Hash(float x)
 {
-    return frac(sin(x * 12.9898) * 43758.5453) - 0.5;
+    return Hash_Sine21(float2(x, 0.0)) - 0.5;
 }
 
 float Hash2(float x, float y)
 {
-    return frac(sin(x * 127.1 + y * 311.7) * 43758.5453) - 0.5;
+    return Hash_Sine21(float2(x, y)) - 0.5;
 }
 
 // ════════════════════════════════════════════════════════════

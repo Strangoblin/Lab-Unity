@@ -1,0 +1,96 @@
+{
+  "_comment": "MCP v3 执行策略 —— 严格度是数据，不是代码。改这里 = 调框架，不必改判定逻辑。level: block(DENIED) | warn(放行+警告) | off(不检查，仅记账)。缺省条目 = 用检查自身的固有级别（= v2 行为）。",
+  "version": 3,
+  "checks": {
+    "scope.path": {
+      "level": "block",
+      "why": "作用域是安全边界，不因 agent 聪明而放开；不可退役",
+      "retirable": false
+    },
+    "norm.shader-decl": {
+      "level": "block",
+      "why": "缺 Shader 声明 = 文件根本不可用。零命中 = agent 从没写坏过，不是这条检查冗余 —— 报告不应提议退役此类。",
+      "retirable": false
+    },
+    "norm.cs-type-decl": {
+      "level": "block",
+      "retirable": false,
+      "why": "零命中 = agent 从没写坏过 .cs，不是这条检查冗余。缺类型声明 = 文件根本不可用，而检查成本是一次正则 —— 报告里的 retire-or-demote 提案不适用于此类正确性检查。"
+    },
+    "norm.region-added": {
+      "level": "block",
+      "why": "项目风格硬规则，机械可判"
+    },
+    "norm.divider-added": {
+      "level": "warn",
+      "why": "风格提示，不值得阻断"
+    },
+    "placement.root.new": {
+      "level": "block",
+      "why": "新文件落点是全新决定"
+    },
+    "placement.root.existing": {
+      "level": "warn",
+      "why": "就地编辑，历史决定不回溯"
+    },
+    "placement.category": {
+      "level": "warn",
+      "why": "注解与路径不符只是提醒"
+    },
+    "deletion.recoverability": {
+      "level": "block",
+      "why": "不可逆损失，唯一硬闸；不可退役",
+      "retirable": false
+    },
+    "deletion.guid-referenced": {
+      "level": "block",
+      "why": "删了会断引用；不可退役",
+      "retirable": false
+    },
+    "move.presafety": {
+      "level": "block",
+      "why": "预检不通过即零改动；不可退役",
+      "retirable": false
+    },
+    "ceremony.recipe_gate": {
+      "level": "warn",
+      "retirable": false,
+      "since": "2026-10-09",
+      "why": "2026-10-09 降级（人工批准）：仪式比 1.79（> 0.30 阈值），agent 已能自主读知识，声明是纯税。降 warn 后未过链仍可写但携带 warning 并记账 —— 观察期一个完整任务周期，质量下滑即升回 block（不必等样本）。可降级不可退役。"
+    },
+    "ceremony.knowledge_high_priority": {
+      "level": "warn",
+      "retirable": false,
+      "since": "2026-10-09",
+      "why": "2026-10-09 降级：历史 10 次拒绝多为「读了但没按名字申报」的形式性误拦。降 warn 后仍要求申报，缺项只提示不阻断；同属观察期。"
+    },
+    "ceremony.knowledge_resolvable": {
+      "level": "block",
+      "retirable": false,
+      "since": null,
+      "why": "编造文件名必须拦（防幻觉）——历史 5 次 G15_UNRESOLVED_FILE 是真拦截，不是形式。与「漏读」是两种失败模式，不随仪式降级一起放宽。"
+    },
+    "scope.workspace": {
+      "level": "block",
+      "retirable": false,
+      "why": "工作目录是用户下达的边界；越界走 request→人工批准，不因 agent 聪明而放开"
+    }
+  },
+  "workspace": {
+    "_comment": "工作目录（任务级写入边界）。required=true → applies_to 下的写入必须先 gate_set_workspace。",
+    "required": true,
+    "applies_to": [
+      "Assets/Mine/"
+    ]
+  },
+  "_history": [
+    {
+      "date": "2026-10-09",
+      "by": "human-approved",
+      "change": "ceremony.recipe_gate: block→warn；ceremony.knowledge_high_priority: block→warn",
+      "evidence": "friction_report demote 提案（仪式比 1.79）；历史 G15_MISSING_HIGH_PRIORITY 10 次形式性误拦",
+      "kept_block": "ceremony.knowledge_resolvable（防幻觉，5 次真拦截）、norm.cs-type-decl（正确性，零成本）",
+      "observation": "一个完整 Unity 任务周期；regression → 立即回 block"
+    }
+  ]
+}

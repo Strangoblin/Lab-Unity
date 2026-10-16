@@ -1,73 +1,20 @@
 # Production Mode
 
-> 门禁驱动的静态工作流。每个 [Gx] 节点是强制决策点：必须输出结构化决策后才能进入下一步。
-> 业界对标：Tool Denial by Construction + Structured Output as Transition Contract。
+适用库内已有方案的实现、修复、重构与整理。共用门禁和授权以 [执行契约](../capabilities/execution-contract.md) 为准。
 
----
+## 流程
 
-## Process
+承接开发入口已完成的模式选择、recipe 与工作区登记，不重新初始化；已有知识与设计结论直接复用，变化时更新。
 
-```
-用户需求
-  │
-  ├── ═══════════ [G0] 框架入口 ═══════════
-  │     → 确认 agent 上下文
-  │
-  ├── ═══════════ [G1] 模式确认 ═══════════
-  │     → 确认 mode + reason
-  │
-  ├── [P1] 知识预加载 → @capabilities/knowledge.md（全量）
-  │
-  ├── ═══════════ [G1.5] 知识加载校验 ═══════════
-  │     → 输出 Knowledge Check（定义见 SKILL.md 门禁）
-  │     → 未全读 → 补读后输出 COMPLETE 再进入 P2（门禁只收 COMPLETE）
-  │
-  ├── [P2] 方案设计
-  │     ├── P2a: 读取目标文件
-  │     ├── P2b: 规范符合度检查 → 输出检查清单表
-  │     └── P2c: 修改计划
-  │
-  ├── ═══════════ [G2] 脚本决策 ═══════════
-  │     → @capabilities/script-decision.md
-  │
-  ├── ═══════════ [G3] 文件放置 ═══════════
-  │     → @capabilities/file-placement.md
-  │
-  ├── [P3] 代码生成
-  │     ⚠️ 读取 [G2] Decision + [G3] TargetDir
-  │     ⚠️ 写入前确认门禁通过
-  │
-  ├── ═══════════ Editor Required ═══════════
-  │
-  ├── [P4] 编译验证 → @capabilities/compile.md
-  │
-  ├── [P5] 场景操作 → @capabilities/scene-setup.md（使用 [G2] 决定的脚本）
-  │
-  ├── [P6] 运行时验证 → @capabilities/runtime.md
-  │
-  └── [P7] 退出 + 报告
-```
+1. P1 按 [知识预加载](../capabilities/knowledge.md) 读取门禁必读和相关领域，输出并同步 G1.5。
+2. P2a 读取目标代码，新增 / 扩展 / 结构重构按 [可持续开发判断](../capabilities/sustainable-development.md) 明确设计边界（已有结论复用，局部小修按影响简化）；P2b 按 [完整性核验](../capabilities/completeness.md) 逐项对照；P2c 将相关结论并入范围内修改计划。
+3. G2 按 [脚本决策](../capabilities/script-decision.md) 查现有库；G3 按 [文件放置](../capabilities/file-placement.md) 解析实际落点并检查目录。
+4. P3 依据 G2/G3 通过门禁生成/修改代码；重大改动先按 [Git 基准](../capabilities/backup.md) 核对回退来源。
+5. Editor 已连接时 P4 [编译](../capabilities/compile.md)，按需 P5 [场景配置](../capabilities/scene-setup.md)，P6 [运行验证](../capabilities/runtime.md)。静态 Shader 可按 [载体检查](../capabilities/shader-validation.md) 选择隔离渲染；运行时行为再进入 Play。
+6. P7 按 [清理](../capabilities/cleanup.md) 分类产物，报告实际证据及未验证项，再交角色记录。
 
----
+## 失败与 Editor 边界
 
-## 门禁契约（后果验证 v2 — 链唯一 [g_entry, g_knowledge]）
-
-| 门禁 | 输出格式 | MCP 同步调用 | 失败阻断 |
-|------|---------|-------------|---------|
-| **[G0]** | `Agent: <name>` | `gate_set_recipe("Production")` + `gate_pass("g_entry", agent=...)` | 不在框架内 → 加载 agent 后重试 |
-| **[G1]** | `Mode: <mode> \| Reason: <why>` | —（模式经 gate_set_recipe 声明；g_mode 门禁已退役） | 模式未确认 → 不执行后续 |
-| **[G1.5]** | `Knowledge Check — Loaded: <files> \| Status: COMPLETE` | `gate_pass("g_knowledge", loaded_files=..., status="COMPLETE")` | 高优先级未全读 / 声明不命中真实文件 → 阻断 P2 |
-| **[G2]** | `Decision: USE \| CREATE reusable \| CREATE tmp \| NONE` | —（脚本决策为流程提示，经 write_gated `script_decision` 注解记录） | 未输出 Decision → 不进入 P3 |
-| **[G3]** | `FileType: <ext> \| Category: <cat> \| TargetDir: <path>` | `write_gated(path, content, file_type=..., category=..., effect=...)` | 内容违反结构规范，**或 TargetDir 不在 `Effects`/`Scripts`/`Shaders`/`Special` 之下** → DENIED（NORM_VIOLATION） |
-
-> 每个 [Gx] 的输出是下一步的输入。跳过门禁 = 下一步无法执行。
-> unity-gate MCP server 已注册时同步调用右侧工具（Assets/Mine/ 写入被 settings deny 原生 Write/Edit 强制走 write_gated）。所有模式（含 Quick）链一致；write_gated 执行结构规范 + **文件落点**检查（error 阻断 / warning 提示）——落点是 G3 自己声明的 TargetDir，现在由工具校验而非只作记录。
-
----
-
-## Red Flags
-
-- Agent 未输出 [Gx] 格式就进入下一步 → 退回门禁
-- [G2] Decision=USE 但 agent 写了新脚本 → 废弃新脚本，使用已有
-- 同一错误连续 2 次 → 第 3 次前暂停
-- `git stash --all` → 立即拦截
+[Editor 可用性](../../unity-editor/references/availability.md) 决定验证深度；未连接可完成独立代码工作并注明未编译/运行。
+修复上限和人工决策节点见 [恢复与退出](../capabilities/recovery.md)。
+G2=USE 不再造同功能脚本；warning 不代替流程自查。写删移、GUID、工作区与删除/移动授权边界保持现行门禁强度。

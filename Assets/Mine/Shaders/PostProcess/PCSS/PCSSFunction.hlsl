@@ -5,6 +5,7 @@
 
 // 时域累积共享库（跨效果横切，Assets 全路径）
 #include "Assets/Mine/Special/HLSL/TemporalFunction.hlsl"
+#include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
 
 // ── 质量档位（编译期固定采样数，编译器可展开循环）──
 // 未定义 = High: 32, PCSS_MEDIUM: 16, PCSS_LOW: 8
@@ -117,7 +118,7 @@ static const float BlurDepthSens = 10.0;
 //  通用工具
 // ════════════════════════════════════════════════════════════
 
-float Random1D(float2 seed) { return frac(sin(dot(seed, float2(12.9898, 78.233))) * 43758.5453); }
+float Random1D(float2 seed) { return Hash_Sine21(seed); }
 float2 RotateVector(float2 v, float angle) { float s = sin(angle), c = cos(angle); return float2(v.x * c - v.y * s, v.x * s + v.y * c); }
 
 bool IsSkybox(float rawDepth)

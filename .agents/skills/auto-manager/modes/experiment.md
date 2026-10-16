@@ -1,100 +1,21 @@
 # Experiment Mode
 
-> 🧪 无库内模板、需搜索网络方案、自主迭代直到目标达成。
-> 适用：库内无 template/reference，方案需要从网络搜索，不需要人工逐步观察效果。
+适用无库内方案、需要搜索外部实现与有限自主迭代的任务。逐步人工调参用 Research；已有方案的修复/实现用 Production。
+共用授权和门禁以 [执行契约](../capabilities/execution-contract.md) 为准。
 
----
+## 流程
 
-## When to Use
+承接开发入口已完成的模式选择、recipe 与工作区登记，不重新初始化；已有知识与设计结论直接复用，变化时更新。
 
-| 触发 | 示例 |
-|------|------|
-| 库内无模板/方案 | "实现 SSR"（库里没有 SSR 模板） |
-| 需要搜索网络找实现 | "参考 Nvidia 那篇 paper" |
-| 不需要每步人工观测 | "跑通就行，效果对了告诉我" |
-| 自主迭代直到目标 | "改到和参考图差不多" |
+1. E1 按 [WebSearch → Plan](../capabilities/web-search.md) 找来源、验证版本/依赖，在形成阶段方案时按 [可持续开发判断](../capabilities/sustainable-development.md) 标出基线、职责与待验证假设（已有结论复用，无依据的近期变化标为未知），并给出验收标准；在已有授权内完成可审阅材料后，由用户确认 Plan。当前会话已有同一 Plan 授权则直接沿用。
+2. E2 按 [知识](../capabilities/knowledge.md) 取用库内约束并同步 G1.5；需要同类功能先做 [复用](../../unity-feature-reuse/SKILL.md)。依据 [脚本决策](../capabilities/script-decision.md) / [落点](../capabilities/file-placement.md) 门禁实现。
+3. 已连接 Editor 时执行 [编译](../capabilities/compile.md) 与必要的 [运行/渲染验证](../capabilities/runtime.md)。Play 仅用于运行时行为；非视觉目标优先 snapshot/logs/查询，视觉目标交人工观测。
+4. 按 [Git 基准](../capabilities/backup.md) 保留可比较来源与必要验证输入，再依证据进入下一迭代。
+5. E3 阶段前 2 次失败可修复；第 3 次联网确认疑点并修改 Plan，必要方向变化重新确认。最多 3 大循环；连续 2 个大循环同阶段失败先说明方案疑点。
+6. E4 目标达成按 [产物规范](../../../knowledge/meta/interfaces/task-artifacts.md) 收尾。耗尽循环保留现场、来源与失败总结，不自动回滚。
 
-**Don't use for:**
-- 需要逐帧看效果的 Shader 调参 → Research Mode
-- 有现成模板的框架升级/Bug 修复 → Production Mode
+## 边界
 
----
-
-## Process
-
-```
-用户指令
-  │
-  ├── [E1] WebSearch → Plan → @capabilities/web-search.md
-  │     └── 🔴 暂停，等待用户确认 Plan
-  │
-  ├── [E2] 迭代执行
-  │     ├── @capabilities/knowledge.md
-  │     ├── @capabilities/compile.md（≤ 3 次自动修复）
-  │     ├── @capabilities/runtime.md（优先结构化验证）
-  │     └── @capabilities/backup.md（项目内 .backup/）
-  │
-  ├── [E3] 失败处理 + 大循环（mode 特有编排）
-  │     ├── 单阶段 ≤ 2 次失败 → 继续
-  │     ├── 第 3 次 → WebSearch 确认疑点 → 重新进入 E2
-  │     └── 3 个大循环全失败 → 兜底退出，保留现场
-  │
-  └── [E4] 正常退出 → 报告产物路径 + 提示清理
-```
-
----
-
-## 门禁映射（后果验证 v2）
-
-> 链统一 [g_entry, g_knowledge]（G0→G1.5）——所有配方一致。E1 WebSearch→Plan 继续文档驱动，无 MCP 同步；g_web_search/g_plan/g_mode/g_script/g_file 已退役，调用返回 GATE_NOT_IN_RECIPE。
-
-```
-G0   → gate_set_recipe("Experiment") + gate_pass("g_entry", agent="<agent>")
-G1.5 → gate_pass("g_knowledge", loaded_files="<已读文件列表>", status="COMPLETE")
-G3   → write_gated(path, content, ...)   ← 内容规范 + 文件落点检查（error 阻断 / warning 提示）
-```
-
-- 写入走 `write_gated`；未过配方门禁、内容违反结构规范、或落点不在已知顶层根下都会 DENIED
-- 移动/改名走 `move_gated`（不要拿 write+delete 拼）
-- Codex 对等：`python .mcp/validation/check_norm.py <file>`
-
----
-
-## Rationalizations
-
-| Agent 可能的错误 | 为什么不行 |
-|-----------------|-----------|
-| "跳过 Plan 确认，直接开始写" | Plan 是 Experiment 唯一的用户介入点。跳过 = 方向错了白迭代。 |
-| "编译过了就是成功了" | Experiment 的目标是效果达成，不是编译通过。必须验证输出结果。 |
-| "主观看一眼就当验证了"（非视觉目标） | 能用结构化工具验证的不要依赖主观观测。视觉目标才需要人工在 Editor 确认。 |
-| "第 3 次了，再试一次" | 3 次失败是硬边界，必须回到 Plan 重新审视方向。盲目重试浪费 token。 |
-| "失败了自动回滚" | Experiment 保留现场给用户分析。回滚由用户决定。 |
-
----
-
-## Red Flags
-
-- Plan 中未找到任何网络方案 → 可能需求不明确或技术不可行，暂停询问
-- 连续 2 个大循环在同一个阶段失败 → 方案可能有根本性问题，暂停询问
-- Editor 断连超过 60s → 同 Production 兜底退出
-- 用户中途插入指令 → 优先响应用户，再决定是否继续 Experiment
-
----
-
-## Verification
-
-- [ ] E1 Plan 已被用户确认
-- [ ] 每次编译失败后修复 ≤ 3 次
-- [ ] 非视觉目标未用主观观测代替结构化验证
-- [ ] .backup/ 有迭代备份记录
-- [ ] 正常退出有产物路径报告
-- [ ] 失败退出有方案总结 + 建议
-
----
-
-## 跨引用
-
-- 模式选择逻辑 + 对比表：../../../agents/unity-developer/AGENT.md
-- 编译验证：../capabilities/compile.md
-- 运行时验证：../capabilities/runtime.md
-- 知识预加载：../capabilities/knowledge.md
+Plan / WebSearch 是流程要求，其旧 MCP gate 已退役。所有模式共用 g_entry / g_knowledge 配方链；不要调用 g_plan / g_web_search。
+[Editor 不可用](../../unity-editor/references/availability.md) 时完成可独立代码工作，明确未编译/运行；恢复上限见 [recovery](../capabilities/recovery.md)。
+编译通过不能替代目标达成证据，视觉判断也不能替代可查询的行为验证。

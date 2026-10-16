@@ -5,7 +5,7 @@
 ## 使用
 
 1. 在实际相机使用的 Universal Renderer Data 上添加 **Diffuse GI Feature**。
-2. 将本目录 `DiffuseGI.shader` 拖入 `settings.shader`，将共享 `SSGITemporal.shader` 拖入 `settings.temporalShader`；后者未指定时保留空间结果。
+2. 将本目录 `DiffuseGI.shader` 拖入 `settings.shader`，将共享 `SSGITemporal.shader` 拖入 `controls.temporalShader`；后者未指定时保留空间结果，累积仍需 Renderer 实际提供运动向量。
 3. 从 Medium 档、Intensity = 1 开始，在场景中放置受光彩色表面与邻近接收面，观察颜色串染。
 4. Debug 依次检查 Trace、Indirect、Confidence；Off 显示与原场景色相加的结果。
 5. Intensity = 0 且 Debug = Off 时完全跳过本效果。Debug 可独立查看未乘强度的结果。
@@ -18,8 +18,9 @@ Feature 在 `AfterRenderingSkybox` 执行，要求 RenderGraph 开启。输入�
 
 ```text
 本帧场景色 + 深度 + 法线
-  → Trace（低分辨率，cosine 半球采样 + 世界空间首个命中）
-  → BlurHorizontal → BlurVertical（深度/法线双边权重）
+  → Trace（低分辨率，cosine 半球采样 + 深度采样穿越）
+  → SpatialResolve.Fine（共享 5×5 核，Trace texel 步幅 1）
+  → SpatialResolve.Coarse（读取 Fine，步幅 2）
   → Resolve（全分辨率几何引导上采样）
   → SSGITemporalFilter（可选，运动重投影与历史拒绝）
   → Composite（原场景色 + 接收反照率 × 强度 × GI）
@@ -29,12 +30,52 @@ Feature 在 `AfterRenderingSkybox` 执行，要求 RenderGraph 开启。输入�
 
 | 文件 | 职责 |
 |---|---|
-| `DiffuseGIFeature.cs` | 档位、资源依赖、五阶段编排、相机筛选 |
-| `DiffuseGI.shader` | uniforms、五个 Pass、全屏入口 |
+| `DiffuseGIFeature.cs` | 档位、资源依赖、两级空间重建编排、相机筛选 |
+| `DiffuseGI.shader` | uniforms、四个 Pass、全屏入口 |
 | `DiffuseGIFunction.hlsl` | 半球采样、辐亮度估计、保边重建与合成 |
-| `ScreenSpaceTrace.hlsl` | 不依赖镜面权重的几何追踪 |
+| `../SSGISpatialFilter.hlsl` | 沿用 Specular 的共享空间重建核心，固定 25 样本 |
+| `../ScreenSpaceTrace.hlsl` | 通用库的 DDA/RAY 几何适配，以及原深度辅助 |
 
-旧 `RayMarchFunction.hlsl` 的各策略直接调用 SSR 专属 `HitProcess`，因此本次把 GI 所需的几何追踪独立成函数库，没有直接复用会乘 `_Smoothness` 的颜色返回接口。该几何接口可供后续 SSR 重构复用。
+几何算法复用 `Special/HLSL/RayStepFunction.hlsl` 与 `ScreenSpaceTraceFunction.hlsl`，不复用旧 SSR 颜色接口。默认 DDA 使用旧 SSR 框架的齐次增量、定步数穿越和二分精炼，RAY 保留原世界步进；不接 HiZ、不创建金字塔，方向采样和贡献不变。空间阶段另按 Specular 已验证的宽核重建对齐。合同见 [统一说明](../SSGI.md#几何追踪后端)。
+
+### 共享空间重建
+
+`SSGISpatial_Resolve` 是 SSGI 家族私有流程，两路共用固定 5×5 核、`1/(1+x²+y²)` 空间权重、`exp2(-abs(eyeDepthDelta)*2)` 深度权重与法线幂 32。Diffuse 三档都使用两级空洞式重建：Fine 步幅 1，Coarse 步幅 2，单位为实际 Trace texel；半径只缩放固定 offset，不改变循环边界。两个 RenderGraph Pass 复用 Shader Pass 1，四个 Shader Pass 的索引不变。Specular 保留单遍 2/2/1 步幅。
+
+Coarse 必须读取 Fine 输出，而不是重新读取 Trace。Fine 的相邻像素混合先连接奇偶子网格，再扩大覆盖范围；这与历史单遍步幅 2 候选不同。两级均使用原始相机深度/法线作 guide，保持低分辨率不变，不是生成 mip 金字塔。无边缘/边界时组合最大支持半径为 6 个 Trace texel。旧单遍 Low/Medium 步幅 1.5、High 步幅 1 作为必要 A/B 输入冻结于 `../Validation~/BaselineDiffuseGIFeature.cs`。
+
+相较上一版单遍重建，本阶段增加一张低分辨率 RGBA16F RT 和一次 Raster Pass，每个像素的空间循环从 25 tap 变为两级合计 50 tap（每 tap 另有 guide 查询）；不宣称 GPU 提速。大尺度重建可能抹平同一表面上的真实照明细节，软深度 guide 也不能保证完全消除跨边漏光。本阶段没有增加方差图、亮度权重或历史权重，尚非完整的方差引导去噪。
+
+Diffuse 保留中心/样本法线有效性检查及归一化，RGBA 使用相同权重；不按置信度拒绝样本，也不改总射线平均/黑色 miss。Specular 保留原始法线权重、中心颜色 fallback 和中心 alpha。两者共享算法但不混用 BRDF、环境回退或 alpha 策略。
+
+后续四点上采样仍使用原严格 `depthSigma` 和归一化法线，缺少兼容 guide 时为零。`depthSigma` 现仅控制上采样，不再控制低分辨率去噪；其序列化值/范围/默认 0.15 不变，也没有通过隐藏最小值或倍率改写它。
+
+### 两级验收（2026-10-14）
+
+Metal 相机/共享空间/消费者/历史矩阵 **66 组、1,152,803 断言**通过，距离、错误后端历史、空间颜色与遗漏 Fine 四个负控制均被识别。两级独立 CPU/GPU RGBAFloat 探针最大差 `9.536743e-7`；这不等同于生产 RGBA16F 的精度界限，Specular 三档冻结滤波回归 RGB 差为 0。可复跑入口和探针范围见 [Validation README](../Validation~/README.md)。
+
+同一临时 Renderer、当前复制视角、640×360、Medium/DDA、时缓 0.5、固定 Shader 时间和射线帧 32–47 下，回读生产持久 Diffuse history：帧差亮度 RMS 从 `0.0034007781` 降至 `0.0026334282`（约 22.6%），表面平均亮度约 +0.29%。两路逐像素表面 mask 一致；不是与前阶段旧镜头数字相除，也不是 GPU 性能、运动稳定性或全场景方差结论。PNG 显示平滑范围扩大，真实间接光细节保留、边缘串色与移动镜头观感仍需人工确认。
+
+### 采样序列（2026-10-14）
+
+旧版已使用径向分层/黄金角点集与逐帧二维旋转，并非独立纯随机；问题之一是像素 Hash 的白噪声偏移让过滤邻域内的方向覆盖容易成簇。本轮在保持预算与重建链不变的情况下，尝试面向空间重建的互补采样：
+
+- 每个 8×8 Trace 像素块，将像素的三位坐标按 Morton 次序映射到二维 Sobol 数字网的前 64 个点。未平移的对齐 2×2、4×4、8×8 子块分别具有对应二维格子的互补覆盖；连续旋转后不能再声称严格落在原固定格子内。
+- 块级平移复用通用 `Special/HLSL/HashFunction.hlsl::Hash_FracGrid22`；不扩展共享 Hash API。采样/帧调度留在本功能私有 `DiffuseGI_Noise`，不把 GI 生命周期混入通用库。
+- 继续逐帧添加原二维低差异旋转，既不冻结采样也不缩窄半球。每条射线在自身径向区间内抖动：`xi.x=(rayIndex+rotation.x)/rayCount`；方位仍为黄金角点集加 `rotation.y`。这避免射线数 4/8 与数字网径向位数叠加时，多个像素的有效径向相位重复。
+- `DiffuseGI_Direction` 的完整 cosine 加权半球、黑色 miss、总射线数分母、confidence 和贡献权重全部不变。Low/Medium/High 仍为 4/6/8 条射线、24/48/64 步及 1/8、1/4、1/2 Trace 分辨率。
+- 两级 1→2 空间核、上采样、时缓、Specular/AO、步进库均不变，无新增运行时纹理或 Pass。Diffuse 历史签名 `sampling.w=3` 表示实现版本而非空间级数，拒绝此前单遍与两级旧采样历史；只拒绝本通道本帧，不重分配历史。
+
+本方案是程序化邻域低差异采样，**不是离线优化的蓝噪声/STBN**。块边界、几何拒绝和不同光照形状会破坏理想互补性，不保证每个区域/档位都降噪。CPU float32 检查覆盖三档、128 帧、128×128 网格、范围/径向区间/cosine 均值/数字网和四类合成积分；部分 Low/High 的纯径向 horizon 合成项反而更差，不能以总体平均掩盖此限制。
+
+本轮 Metal 正向矩阵 **67 组、1,152,825 断言**及四个负控制通过，包括 `w=2` 旧序列仅失效 Diffuse 历史；Specular 三档冻结回归 RGB 差仍为 0。采样专属 A/B/A 均使用当前生产两级 Feature，旧采样完整 helper 冻结于 `Validation~/RuntimeFixture/SequenceBaselineFunction.hlsl`，不是旧单遍 Feature 或仍 include 活采样的几何基线。
+
+当前复制静止视角、640×360、Medium/DDA、时缓 0.5、固定 Shader 时间、预热 32 请求、采样帧 32–95：
+- 原始 Trace（原生 160×90，同帧依赖导出至自有 RGBA16F RT）：亮度帧差 RMS `0.0276067393 → 0.0236816167`，约下降 **14.2%**；时间方差下降约 **18.3%**。
+- 生产持久 history：亮度帧差 RMS `0.0026292862 → 0.0022240074`，约下降 **15.4%**；围绕每像素多帧均值的时间方差下降约 **31.9%**，平均亮度约 **+0.10%**。
+- 三支逐帧表面 mask、预算、帧号、历史有效和 Shader 时间严格匹配。重复旧基线存在微小非逐位差异；统计量和按平均亮度归一化的均值图 RMS 漂移均受 **0.2%** 上限检查，并报告实际值，不宣称 bitwise 确定性。
+
+这些是本视角的有限窗口收益，不能证明均值图完全无偏、移动镜头无条纹/拖影，也不能与前次空间重建百分比直接相加。结果有改善，但不是“已经消除 0.5 抖动”；需人工观察后决定是否继续做更强的采样/方差引导方案。GPU/同步耗时对比按用户要求仍后置，运行入口见 [Validation README](../Validation~/README.md#sequence-comparison)。
 
 ## 估计量与合成约定
 
@@ -60,10 +101,11 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 
 | 分组 | 参数 | 默认值 | 含义 |
 |---|---|---|---|
+| Technical | traceBackend | DDA | DDA 投影增量采样 / Ray 世界距离采样；Trace target 4.5 |
 | Technical | maxDistance | 5 | 世界空间射线最大距离 |
 | Technical | thickness | 0.15 | 线性视深度命中厚度，过大易漏光 |
 | Technical | normalBias | 0.03 | 起点沿接收法线的偏移，过大丢近接触 |
-| Technical | depthSigma | 0.15 | 滤波几何深度阈值，单位同线性视深度 |
+| Technical | depthSigma | 0.15 | 四点上采样眼深尺度；低分辨率宽核沿用 Specular 的固定尺度 0.5 |
 | Performance | performance | Medium | 成本档位，见下表 |
 | Performance | temporalBlend | 0.9 | 最大历史权重；0 关闭历史混合 |
 | Artistic | intensity | 1 | 合成强度，0 关闭（Debug Off 时） |
@@ -71,13 +113,21 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 | Artistic | receiverAlbedo | sRGB 0.8 | 统一接收反照率近似 |
 | Debug | debug | Off | Off / Trace / Indirect / Confidence |
 
-| 档位 | 宽高比例 | 像素数比例 | 每像素射线 | 每条步进预算 |
+| 档位 | 宽高比例 | 像素数比例 | 每像素射线 | RAY/DDA 样本数 |
 |---|---|---|---|---|
 | Low | 1/8 × 1/8 | 1/64 | 4 | 24 |
 | Medium | 1/4 × 1/4 | 1/16 | 6 | 48 |
-| High | 1/2 × 1/2 | 1/4 | 8 | 64 |
+| High | 1/3 × 1/3 | 约 1/9 | 8 | 64 |
 
-低分辨率尺寸向上取整且不小于 1，过滤步长使用真实低分辨率 RT 尺寸，不依赖 `_ScreenParams`。档位仅为初始预算，未经 GPU 性能基准，不承诺帧耗。
+低分辨率尺寸向上取整且不小于 1，过滤步长使用真实低分辨率 RT 尺寸，不依赖 `_ScreenParams`。Trace 使用质量局部关键字编译固定射线/步进预算，无关键字保留 uniform fallback 供冻结几何基线使用；不强制展开循环，也不把编译期预算单独宣称为明显提速。
+
+2026-10-15 性能再平衡仅把 High 的宽高从各 1/2 调为各 1/3，仍为 8 条射线、64 个步进样本，Low/Medium、完整 cosine 半球、两级重建、时缓和 Specular 不变。1080p 原生 Trace 从 960×540 降为 640×360，追踪像素约减少 55.6%；不是把 High 直接降成 Medium（后者为 480×270、6 条射线、48 步）。粗一级的空间网格也扩大同一滤波核的全分辨率覆盖，代价可能是局部照明细节变软、物体边缘阶梯和噪声变化，不保证等画质。
+
+临时 1/4 High 候选曾出现更明显的边缘/细节损失，因此没有合入。1/3 候选的受控静止视角、时缓 0.5、64 帧窗口中，亮度帧差 RMS 约增加 7%，平均亮度约 −0.10%；这是局部取舍证据，不代表地面抖动已解决。正式版本的同步墙钟对照和复跑合同见 [Timing](../Timing.md#diffuse-high-性能再平衡2026-10-15) 与 [Validation](../Validation~/README.md#high-budget-comparison)。
+
+后端、有效几何/距离衰减、采样档与滤波参数变化使本通道历史失效，不释放纹理；最终强度、接收反照率和历史混合权重不在签名中。DDA 完成固定样本后 miss 沿用零贡献，不重跑 RAY；可能漏掉样本间薄前景。当前验证入口及历史逐格验收的区别见 [统一说明](../SSGI.md)，旧验收表是当时 RAY 快照。
+
+High 分辨率变化由历史签名 `_sampling.x` 自动识别；旧 1/2 High 历史只拒绝 Diffuse 一帧，不重分配全分辨率历史 RT，也不失效 AO/Specular。`_sampling.w=3` 仍是当前采样实现版本，不为此重复增加版本号。
 
 ## 输出与局限
 
@@ -85,7 +135,7 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 - 输入场景色是朝相机方向的出射光近似，含直接光、环境光、可能的已有 GI 和镜面高光；无法恢复真正的漫反射入射光。加法合成可能与烘焙/探针 GI 重复，需要按场景调强度。
 - 单层深度看不到屏幕外和遮挡背面。追踪输入是“不透明几何 + 天空盒”（`AfterRenderingSkybox`，见“事件排序”），**不含透明几何**；透明物体对最终画面的影响是“在合成之后混合上来”，而不是进入 gather。旧版本用截屏测出的“隐藏 Water/RainDrops 后 GI>0.10 从 39315 降到 3952”属于这种覆盖造成的取景伪影（见“被撤回的旧结论”）。未命中时仍不注入额外环境光，沿用原场景的环境照明。
 - 当前接入公共时域双缓冲，启用时逐帧旋转采样并按运动向量、历史深度拒绝。尚未实现方差钳制；遮挡边界和快速光照变化仍可能有拖影。
-- 实际滤波强度有限：GI>0.02 像素上的相对变化约 4.47%，`depthSigma` 从 0.01 调到 2.0 只再改变梯度 1.48e-4。它是保边去噪，不是强平滑。
+- 旧 H/V 版本曾测得 GI>0.02 像素相对变化约 4.47%、`depthSigma` 扫描的梯度差 1.48e-4；这些是历史证据。步幅 2 初始候选的静态时缓 0.5 帧差 RMS 降约 15%，但出现格状残留，最终改为步幅 1.5；后续用户改变镜头/时缓，不能继续用旧镜头数字给最终版本算百分比。当前未宣称消除所有随机噪声或 GPU 提速，边缘串色/运动画质仍需确认。
 - 不实现 AO/HBAO、HiZ 加速、Cache-Aware 专利采样或 Compute 迁移。早期设计文档中的“最高 62% 加速”不能作为此实现性能结论。
 - XR、动态分辨率与多相机的运行结果需分别验证；使用纹理数组/立体宏并不等于已完成这些平台验收。
 

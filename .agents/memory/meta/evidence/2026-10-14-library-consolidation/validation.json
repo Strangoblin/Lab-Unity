@@ -1,0 +1,75 @@
+{
+  "status": "PASS",
+  "metrics": {
+    "removed_architecture_symlinks": 84,
+    "files_consolidated": 405,
+    "historical_files_immutable": 346,
+    "historical_byte_errors": [],
+    "merged_architecture_documents": 6,
+    "roles": {
+      "unity-developer": 21,
+      "meta-developer": 21
+    },
+    "plain_entrypoint": "各平台入口 -> .agents/agents/README.md -> 角色及所需 memory/knowledge/skills"
+  },
+  "architecture": {
+    "fixture": "plain-routes",
+    "tracked_claude": 25,
+    "tracked_agents": 197,
+    "tracked_codex": 39,
+    "inventory_entries": 256,
+    "agents_broken_markdown_links": 0,
+    "skill_drift_files": 0,
+    "skill_drift_groups": 0,
+    "mcp_hardcoded_claude_files": 0,
+    "mcp_hardcoded_claude_hits": 0,
+    "platform_hook_drift": 0,
+    "absolute_path_hits": 0,
+    "codex_case_hits": 0,
+    "phase2_contract_errors": 0,
+    "agent_ownership_errors": 0,
+    "architecture_symlink_errors": 0
+  },
+  "controls": {
+    "ownership_and_routes": 20,
+    "scan_scope": 8,
+    "isolated_runner": 9
+  },
+  "mcp_suites": [
+    {
+      "suite": "test_recipes.py",
+      "exit_code": 0
+    },
+    {
+      "suite": "test_knowledge_paths.py",
+      "exit_code": 0
+    },
+    {
+      "suite": "test_directory_deletion.py",
+      "exit_code": 0
+    },
+    {
+      "suite": "test_project_resources.py",
+      "exit_code": 0
+    }
+  ],
+  "production_state_and_audit_unchanged_during_isolated_run": true,
+  "assets_read_or_changed_by_this_task": false,
+  "opencode": {
+    "model": "opencode-go/deepseek-v4.1-flash",
+    "calls_this_stage": 1,
+    "owned_docs": 5,
+    "verified_links": 22,
+    "review": "Accepted after source/route checks"
+  },
+  "scope_notes": [
+    "No softlinks in the real architecture roots; dependency environments and owned fault-injection fixtures are excluded.",
+    "Historical bytes and path context are retained; historical direct-click links are not promised.",
+    "Claude agent/skill/path-rule automatic discovery via links is intentionally replaced by explicit routes; platform runtime TOML remains thin configuration."
+  ],
+  "gate_initialization_regression": {
+    "known_failure": "repeat gate_set_recipe after g_entry loses passed entry; g_knowledge returns PREREQUISITE",
+    "fixed_flow": "select mode -> initialize once -> entry/workspace/knowledge; G1 and iterations do not reset",
+    "isolated_test": "PASS, positive path and duplicate-init negative control"
+  }
+}

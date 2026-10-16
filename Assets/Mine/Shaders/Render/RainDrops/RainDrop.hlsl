@@ -1,11 +1,13 @@
 #ifndef RAINDROP_INCLUDED
 #define RAINDROP_INCLUDED
 
+#include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
+
 // ============================================================================
 //  RainDrop.hlsl — 程序化雨滴工具库
 //  ============================================================================
-//  依赖: Core.hlsl (Unity URP)
-//  使用: #include "Assets/Mine/Special/Shaders/RainDrop.hlsl"
+//  依赖: Core.hlsl (Unity URP)；内部包含 HashFunction.hlsl
+//  使用: #include "Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl"
 //  ============================================================================
 
 // ---- 数据结构 ----
@@ -31,9 +33,7 @@ struct DropLayerResult
 
 float2 Hash2D(float2 p)
 {
-    float3 p3 = frac(float3(p.xyx) * 0.1031);
-    p3 += dot(p3, p3.yzx + 33.33);
-    return frac(float2((p3.x + p3.y) * p3.z, (p3.x + p3.z) * p3.y));
+    return Hash_FracGrid22(p);
 }
 
 float Saw(float b, float t)

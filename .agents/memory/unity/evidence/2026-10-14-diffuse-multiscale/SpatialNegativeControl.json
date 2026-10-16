@@ -1,0 +1,1 @@
+{"success":true,"result":"{\n  \"detected\": true,\n  \"assertions\": 1148,\n  \"error\": \"Spatial reference constant radius 1.0 normalize on maximum channel difference 0.25\",\n  \"output\": \"tmp/sessions/2026-10-14-ssgi-camera-e8034b78/output\"\n}"}

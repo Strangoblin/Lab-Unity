@@ -1,88 +1,19 @@
-"""项目路径规则 — 文件类型 + 类别 → 合法目录."""
+"""项目路径规则 — 作用域、工作目录边界、受管文件落点."""
 
 import os
-from typing import Optional
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-# ════════════════════════════════════════════════════════════════
-#  咨询层（退役）— 「这个文件该放哪」
-#
-#  CATEGORY_BASE / VALID_FILE_TYPES / resolve_target_dir 服务于已退役的 g_file 门禁，
-#  当前唯一调用方 gates/g_file.py 不在任何配方中（调用即 GATE_NOT_IN_RECIPE），
-#  故本层实际不可达。保留是为了不动物化 GATE_REGISTRY 的退役集合（测试钉住了它）。
-#  生效的放置校验在下方「执行层」。
-# ════════════════════════════════════════════════════════════════
+# 基础作用域（仓库相对）—— validate_path 与工作目录校验同源，防止两处各列一份
+ALLOWED_PREFIXES = [
+    "Assets/Mine",
+    ".agents/skills/unity-editor/scripts/roslyn",
+    "tmp",
+]
 
-# ── 类别 → 基础目录 ──
-CATEGORY_BASE: dict[str, str] = {
-    "PostProcess": "Assets/Mine/Shaders/PostProcess",
-    "Render":      "Assets/Mine/Shaders/Render",
-    "Graph":       "Assets/Mine/Shaders/Graph",
-    "Script":      "Assets/Mine/Scripts",
-}
-
-VALID_FILE_TYPES = {".shader", ".compute", ".hlsl", ".cs"}
-VALID_CATEGORIES = set(CATEGORY_BASE.keys())
-
-# ── 类别判断示例 ──
-CATEGORY_EXAMPLES: dict[str, list[str]] = {
-    "PostProcess": ["SSR", "SSSM", "Kuwahara", "PCSS", "POSS", "DDOF", "SNN", "RimToon", "SSC", "SSO", "SSL"],
-    "Render":      ["Water", "Grass", "XRay", "RainDrops", "SimpleGrass"],
-    "Graph":       ["CelToon", "Cloud", "Outline", "Scan", "Gate", "SunShadow", "TreeLeaves", "CubeSphereCloud", "WorldChange", "WaterTotal", "HeightCloud"],
-    "Script":      ["CamController", "InteractionManager", "FGDLutBaker", "NoiseGenerator", "InstanceManager", "CurveGenerator", "CustomRenderer", "Picker"],
-}
-
-
-def resolve_target_dir(file_type: str, category: str, effect: str = "") -> dict:
-    """根据类型 + 类别 + 效果名，返回合法的 TargetDir.
-
-    category=PostProcess/Render/Graph: TargetDir = <base>/<effect>/
-    category=Script:                    TargetDir = <base>/<module>/
-    """
-    if file_type not in VALID_FILE_TYPES:
-        return {"status": "DENIED", "error": "INVALID_FILE_TYPE",
-                "hint": f"FileType 必须为 {VALID_FILE_TYPES}。收到: '{file_type}'"}
-
-    if category not in VALID_CATEGORIES:
-        return {"status": "DENIED", "error": "INVALID_CATEGORY",
-                "hint": f"Category 必须为 {VALID_CATEGORIES}。收到: '{category}'"}
-
-    base = CATEGORY_BASE[category]
-
-    if effect:
-        target_dir = os.path.join(base, effect)
-    else:
-        target_dir = base
-
-    # 转为项目相对路径
-    rel_dir = os.path.relpath(target_dir, PROJECT_ROOT) if os.path.isabs(target_dir) else target_dir
-
-    # 检查目录是否存在
-    full_path = os.path.join(PROJECT_ROOT, rel_dir)
-    dir_exists = os.path.isdir(full_path)
-
-    # 子目录是否已存在效果
-    existing_effects = []
-    if dir_exists:
-        try:
-            existing_effects = [d for d in sorted(os.listdir(full_path))
-                              if os.path.isdir(os.path.join(full_path, d))
-                              and not d.startswith(".") and not d.startswith("_")]
-        except PermissionError:
-            pass
-
-    return {
-        "status": "OK",
-        "file_type": file_type,
-        "category": category,
-        "effect": effect,
-        "target_dir": rel_dir,
-        "full_path": full_path,
-        "dir_exists": dir_exists,
-        "existing_effects": existing_effects[:15],  # 截断避免过长
-        "category_examples": CATEGORY_EXAMPLES.get(category, []),
-    }
+# 已迁出的 camera 只保留同一文件的权利，不授权所属 skill 目录。
+CANONICAL_ROSLYN_ROOT = ".agents/skills/unity-editor/scripts/roslyn"
+ALLOWED_EXACT_FILES = {".agents/skills/unity-render-debug/scripts/camera-offscreen-capture.cs"}
 
 
 def _canonical(path: str) -> str:
@@ -97,16 +28,18 @@ def _canonical(path: str) -> str:
 
 def validate_path(path: str) -> dict:
     """校验写入路径是否在合法目录内."""
-    allowed_prefixes = [
-        os.path.join(PROJECT_ROOT, "Assets/Mine"),
-        os.path.join(PROJECT_ROOT, ".agents", "agents", "unity-developer", "scripts", "roslyn"),
-        os.path.join(PROJECT_ROOT, "tmp"),
-    ]
+    allowed_prefixes = [os.path.join(PROJECT_ROOT, p) for p in ALLOWED_PREFIXES]
 
     full = os.path.join(PROJECT_ROOT, path) if not os.path.isabs(path) else path
     full = os.path.abspath(full)
     resolved = os.path.realpath(full)
     c_full, c_resolved = _canonical(full), _canonical(resolved)
+
+    for target in ALLOWED_EXACT_FILES:
+        canonical_target = os.path.abspath(os.path.join(PROJECT_ROOT, target))
+        if (full == canonical_target and resolved == canonical_target
+                and (not os.path.lexists(full) or (os.path.isfile(full) and not os.path.islink(full)))):
+            return {"status": "OK", "path": path, "full_path": full}
 
     for prefix in allowed_prefixes:
         c_prefix = _canonical(prefix)
@@ -122,7 +55,8 @@ def validate_path(path: str) -> dict:
         "status": "DENIED",
         "error": "PATH_NOT_ALLOWED",
         "path": path,
-        "hint": "路径必须在以下目录内: Assets/Mine/, .agents/agents/unity-developer/scripts/roslyn/, tmp/",
+        "hint": f"路径必须在以下目录内: {', '.join(p + '/' for p in ALLOWED_PREFIXES)}；"
+                f"或命中精确文件: {', '.join(sorted(ALLOWED_EXACT_FILES))}",
     }
 
 
@@ -132,6 +66,15 @@ def validate_path(path: str) -> dict:
 #  与咨询层的分工：咨询层回答「该放哪」（从未生效），本层回答「放对了吗」。
 #  规则照着 Assets/Mine 的**现实布局**写，不是照着理想布局写。
 # ════════════════════════════════════════════════════════════════
+
+# 类别 → 基础目录 —— check_placement 用它校验 `category` 注解与路径是否一致。
+# （旧 g_file 门禁的「该放哪」咨询层已随该门禁删除；这里只留执行层要用的映射。）
+CATEGORY_BASE: dict[str, str] = {
+    "PostProcess": "Assets/Mine/Shaders/PostProcess",
+    "Render":      "Assets/Mine/Shaders/Render",
+    "Graph":       "Assets/Mine/Shaders/Graph",
+    "Script":      "Assets/Mine/Scripts",
+}
 
 # 受管扩展名 —— 由 write_gated 落盘、因而需要管放置的文件类型。
 #
@@ -199,3 +142,74 @@ def check_placement(path: str, is_new: bool, category: str = "") -> dict:
             })
 
     return {"errors": errors, "warnings": warnings}
+
+
+# ════════════════════════════════════════════════════════════════
+#  工作目录边界 — 「本次任务允许在哪个子树里操作」（用户下达，任务级）
+#
+#  基础作用域（validate_path）回答「框架允许写哪里」，本层回答「这次任务只许动哪里」。
+#  是本层**收窄**而非放宽：工作目录必须先落在基础作用域内（gate_set_workspace 校验）。
+#  applies_to 之外的路径不归本层管 —— tmp/ 这类非工程资产不受任务边界约束。
+# ════════════════════════════════════════════════════════════════
+
+def _rel_posix(path: str) -> str:
+    rel = str(path).replace("\\", "/")
+    if os.path.isabs(rel):
+        try:
+            rel = os.path.relpath(rel, PROJECT_ROOT)
+        except ValueError:
+            return rel
+    return rel.lstrip("./")
+
+
+def _under(rel: str, prefix: str) -> bool:
+    prefix = prefix.rstrip("/")
+    return rel == prefix or rel.startswith(prefix + "/")
+
+
+def build_scope_error(kind: str, detail: str, path: str) -> dict:
+    return {"id": kind, "level": "error", "name": "工作目录边界", "detail": detail, "path": path}
+
+
+def check_workspace(path: str, roots: list, required: bool, applies_to: list) -> dict:
+    """工作目录检查 → {"errors": [...], "warnings": [...]}。
+
+    roots 为空 = 未声明工作目录；required 决定这是不是错误。
+    """
+    errors: list = []
+    warnings: list = []
+    rel = _rel_posix(path)
+
+    if not any(_under(rel, p) for p in applies_to):
+        return {"errors": errors, "warnings": warnings}   # 非工程资产区（如 tmp/）不设边界
+
+    if not roots:
+        if required:
+            errors.append(build_scope_error(
+                "workspace-required",
+                f"未声明工作目录 —— {rel} 在任务边界区内，先 gate_set_workspace(<目录>)。",
+                path))
+        return {"errors": errors, "warnings": warnings}
+
+    if not any(_under(rel, r) for r in roots):
+        errors.append(build_scope_error(
+            "workspace-root",
+            f"{rel} 不在本次工作目录内。已授权: {roots}。"
+            f"确需扩展请走 gate_request_workspace(<目录>, <原因>) 交人工批准。",
+            path))
+    return {"errors": errors, "warnings": warnings}
+
+
+def check_workspace_roots(roots: list, base_allowed: list) -> dict:
+    """校验工作目录本身合法: 每个 root 必须落在基础作用域内（收窄而非放宽）。"""
+    bad = []
+    for r in roots:
+        rel = _rel_posix(r)
+        full = os.path.join(PROJECT_ROOT, rel)
+        resolved = os.path.realpath(full)
+        if not any(_under(rel, b) and _under(resolved, PROJECT_ROOT) for b in base_allowed):
+            bad.append(r)
+    if bad:
+        return {"status": "DENIED", "error": "WORKSPACE_NOT_ALLOWED", "offending": bad,
+                "hint": f"工作目录必须先落在基础作用域内: {base_allowed}"}
+    return {"status": "OK"}

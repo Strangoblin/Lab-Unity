@@ -17,6 +17,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         public Shader shader;
 
         [Header("Technical · Geometry")]
+        public SSGITraceBackend traceBackend = SSGITraceBackend.DDA;
         [Range(0.1f, 50f)] public float maxDistance = 5f;
         [Range(0.001f, 1f)] public float thickness = 0.15f;
         [Range(0.001f, 0.5f)] public float normalBias = 0.03f;
@@ -53,12 +54,14 @@ public class DiffuseGIFeature : ScriptableRendererFeature
     // ════════════════════════════════════════════════════════════
     internal static Vector3Int GetTier(SSGIQuality performance)
     {
+        Vector3Int tier;
         switch (performance)
         {
-            case SSGIQuality.Low: return new Vector3Int(8, 4, 24);
-            case SSGIQuality.High: return new Vector3Int(2, 8, 64);
-            default: return new Vector3Int(4, 6, 48);
+            case SSGIQuality.Low: tier = new Vector3Int(8, 4, 24); break;
+            case SSGIQuality.High: tier = new Vector3Int(3, 8, 64); break;
+            default: tier = new Vector3Int(4, 6, 48); break;
         }
+        return tier;
     }
 
     internal class DiffuseGIPass : ScriptableRenderPass
@@ -83,6 +86,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             public int debugMode;
             public int frameIndex;
             public TextureHandle signal;
+            public SSGITraceBackend backend;
         }
 
         public DiffuseGIPass(Material material, Settings settings, Controls controls = null)
@@ -104,34 +108,39 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         }
 
         // ════════════════════════════════════════════════════════════
-        //  RenderGraph — Trace → Bilateral H/V → Resolve → Composite
+        //  RenderGraph — Trace → SpatialFine → SpatialCoarse → Resolve → Composite
         // ════════════════════════════════════════════════════════════
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
             _temporal.BeginFrame(frameData);
             Record(renderGraph, frameData, TextureHandle.nullHandle, false, _temporal.FrameIndex,
                 _controls.performance, _controls.intensity, _controls.distanceFalloff,
-                _controls.receiverAlbedo, _controls.debug);
+                _controls.receiverAlbedo, _controls.debug, out _);
             _temporal.CompleteFrame(renderGraph, frameData);
         }
 
         public TextureHandle RecordIntegrated(RenderGraph renderGraph, ContextContainer frameData,
-            TextureHandle source, int frameIndex, SSGIQuality performance)
+            TextureHandle source, int frameIndex, SSGIQuality performance,
+            out SSGITemporalFilter.HistoryKey historyKey)
         {
             return Record(renderGraph, frameData, source, true, frameIndex, performance,
-                1f, 0f, Color.white, DebugMode.Off);
+                1f, 0f, Color.white, DebugMode.Off, out historyKey);
         }
 
         private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData,
             TextureHandle inputSource, bool integrated, int frameIndex, SSGIQuality performance,
-            float intensity, float distanceFalloff, Color receiverAlbedo, DebugMode debug)
+            float intensity, float distanceFalloff, Color receiverAlbedo, DebugMode debug,
+            out SSGITemporalFilter.HistoryKey historyKey)
         {
+            historyKey = default;
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             UniversalCameraData camera = frameData.Get<UniversalCameraData>();
             if (resources.isActiveTargetBackBuffer || !resources.activeColorTexture.IsValid()
                 || !resources.cameraDepthTexture.IsValid() || !resources.cameraNormalsTexture.IsValid())
                 return TextureHandle.nullHandle;
 
+            SSGITraceBackend backend = _settings.traceBackend == SSGITraceBackend.Ray
+                ? SSGITraceBackend.Ray : SSGITraceBackend.DDA;
             Vector3Int tier = GetTier(performance);
             RenderTextureDescriptor fullDesc = camera.cameraTargetDescriptor;
             fullDesc.depthBufferBits = 0;
@@ -147,30 +156,32 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             giDesc.width = Mathf.Max(1, (fullDesc.width + tier.x - 1) / tier.x);
             giDesc.height = Mathf.Max(1, (fullDesc.height + tier.x - 1) / tier.x);
             TextureHandle trace = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Trace", false);
-            TextureHandle blur = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Blur", false);
+            TextureHandle fine = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.SpatialFine", false);
             TextureHandle filtered = UniversalRenderer.CreateRenderGraphTexture(renderGraph, giDesc, "DiffuseGI.Filtered", false);
             Vector4 size = new Vector4(1f / giDesc.width, 1f / giDesc.height, giDesc.width, giDesc.height);
             TextureHandle source = integrated ? inputSource : resources.activeColorTexture;
 
-            AddPass(renderGraph, resources, "DiffuseGI.Trace", source, trace, 0, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug);
-            AddPass(renderGraph, resources, "DiffuseGI.BlurHorizontal", trace, blur, 1, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug);
-            AddPass(renderGraph, resources, "DiffuseGI.BlurVertical", blur, filtered, 2, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug);
-            AddPass(renderGraph, resources, "DiffuseGI.Resolve", filtered, resolved, 3, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug);
+            PassData traceData = AddPass(renderGraph, resources, "DiffuseGI.Trace", source, trace, 0, tier, size, frameIndex, TextureHandle.nullHandle,
+                intensity, distanceFalloff, receiverAlbedo, debug, backend);
+            historyKey = new SSGITemporalFilter.HistoryKey(backend, traceData.traceParams,
+                traceData.filterParams, new Vector4(tier.x, tier.y, tier.z, 3f), _material.shader.GetInstanceID());
+            AddPass(renderGraph, resources, "DiffuseGI.SpatialResolve.Fine", trace, fine, 1, tier, size, frameIndex, TextureHandle.nullHandle,
+                intensity, distanceFalloff, receiverAlbedo, debug, backend);
+            AddPass(renderGraph, resources, "DiffuseGI.SpatialResolve.Coarse", fine, filtered, 1, tier, size, frameIndex, TextureHandle.nullHandle,
+                intensity, distanceFalloff, receiverAlbedo, debug, backend, 2f);
+            AddPass(renderGraph, resources, "DiffuseGI.Resolve", filtered, resolved, 2, tier, size, frameIndex, TextureHandle.nullHandle,
+                intensity, distanceFalloff, receiverAlbedo, debug, backend);
             if (integrated)
                 return resolved;
 
             TextureHandle temporal = _temporal.Resolve(renderGraph, frameData,
-                resolved, SSGITemporalFilter.Signal.DiffuseGI, _controls.temporalBlend);
+                resolved, SSGITemporalFilter.Signal.DiffuseGI, _controls.temporalBlend, historyKey);
             var compositeDesc = renderGraph.GetTextureDesc(resources.activeColorTexture);
             compositeDesc.name = "DiffuseGI.Composite";
             compositeDesc.clearBuffer = false;
             TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
-            AddPass(renderGraph, resources, "DiffuseGI.Composite", source, composite, 4,
-                tier, size, frameIndex, temporal, intensity, distanceFalloff, receiverAlbedo, debug);
+            AddPass(renderGraph, resources, "DiffuseGI.Composite", source, composite, 3,
+                tier, size, frameIndex, temporal, intensity, distanceFalloff, receiverAlbedo, debug, backend);
             resources.cameraColor = composite;
             return TextureHandle.nullHandle;
         }
@@ -178,10 +189,10 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         // ════════════════════════════════════════════════════════════
         //  单阶段记录 — 显式资源依赖与相机独立参数快照
         // ════════════════════════════════════════════════════════════
-        private void AddPass(RenderGraph graph, UniversalResourceData resources, string name,
+        private PassData AddPass(RenderGraph graph, UniversalResourceData resources, string name,
             TextureHandle source, TextureHandle target, int shaderPass, Vector3Int tier, Vector4 size,
             int frameIndex, TextureHandle signal, float intensity, float distanceFalloff,
-            Color receiverAlbedo, DebugMode debug)
+            Color receiverAlbedo, DebugMode debug, SSGITraceBackend backend, float spatialStride = 1f)
         {
             using (var builder = graph.AddRasterRenderPass<PassData>(name, out var data))
             {
@@ -191,7 +202,8 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 data.traceParams = new Vector4(Mathf.Clamp(_settings.maxDistance, 0.1f, 50f),
                     Mathf.Clamp(_settings.thickness, 0.001f, 1f), Mathf.Clamp(_settings.normalBias, 0.001f, 0.5f),
                     Mathf.Clamp(distanceFalloff, 0f, 4f));
-                data.filterParams = new Vector4(Mathf.Clamp(_settings.depthSigma, 0.01f, 2f), 32f, 0f, 0f);
+                data.filterParams = new Vector4(Mathf.Clamp(_settings.depthSigma, 0.01f, 2f), 32f,
+                    spatialStride, 0f);
                 data.sourceSize = size;
                 Color albedo = receiverAlbedo.linear;
                 data.receiverAlbedo = new Color(Mathf.Clamp01(albedo.r), Mathf.Clamp01(albedo.g), Mathf.Clamp01(albedo.b), 1f);
@@ -201,6 +213,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 data.debugMode = (int)debug;
                 data.frameIndex = frameIndex;
                 data.signal = signal;
+                data.backend = backend;
 
                 builder.UseTexture(source, AccessFlags.Read);
                 builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
@@ -208,9 +221,9 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 builder.SetRenderAttachment(target, 0, AccessFlags.Write);
                 if (shaderPass == 0)
                     builder.SetGlobalTextureAfterPass(target, Settings.TraceTextureID);
-                if (shaderPass == 3)
+                if (shaderPass == 2)
                     builder.SetGlobalTextureAfterPass(target, Settings.TextureID);
-                if (shaderPass == 4)
+                if (shaderPass == 3)
                 {
                     builder.UseTexture(signal, AccessFlags.Read);
                     builder.UseGlobalTexture(Settings.TraceTextureID, AccessFlags.Read);
@@ -218,6 +231,10 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 }
                 builder.SetRenderFunc((PassData pass, RasterGraphContext context) =>
                 {
+                    CoreUtils.SetKeyword(pass.material, "DIFFUSE_GI_LOW", pass.rayCount == 4);
+                    CoreUtils.SetKeyword(pass.material, "DIFFUSE_GI_MEDIUM", pass.rayCount == 6);
+                    CoreUtils.SetKeyword(pass.material, "DIFFUSE_GI_HIGH", pass.rayCount == 8);
+                    CoreUtils.SetKeyword(pass.material, "SSGI_TRACE_RAY", pass.backend == SSGITraceBackend.Ray);
                     pass.material.SetVector(Settings.TraceParamsID, pass.traceParams);
                     pass.material.SetVector(Settings.FilterParamsID, pass.filterParams);
                     pass.material.SetVector(Settings.SourceSizeID, pass.sourceSize);
@@ -231,6 +248,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                         context.cmd.SetGlobalTexture(Settings.TextureID, pass.signal);
                     Blitter.BlitTexture(context.cmd, pass.source, new Vector4(1f, 1f, 0f, 0f), pass.material, pass.shaderPass);
                 });
+                return data;
             }
         }
 

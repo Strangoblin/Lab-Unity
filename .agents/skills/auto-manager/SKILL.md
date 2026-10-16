@@ -1,84 +1,44 @@
 ---
 name: autoagent
 description: >-
-  Adaptive mode router for Unity implementation tasks. PROACTIVELY invoke this
-  skill when the user asks to modify any file, write any code, edit any shader,
-  organize any assets, refactor any class, or debug any issue in a Unity
-  project. Routes to Research Mode (exploratory) or Production Mode
-  (systematic). Always loads project knowledge base first. When Unity Editor is
-  running, extends pipeline with compile → run → cleanup.
-  Do not activate for meta-developer or .agents/.mcp/.claude/.codex maintenance.
+  Route Unity tasks through one project entry: development workflows, standalone
+  Editor operations, rendering checks, reuse analysis or read-only consultation.
+  Use for Unity code, shaders, assets, refactoring, debugging and verification;
+  exclude .agents/.mcp/.claude/.codex system maintenance.
 user-invocable: true
 argument-hint: "<task description>"
 ---
 
 # AutoAgent
 
-> Unity 开发任务自适应路由器。覆盖所有开发任务，Editor 可用时自动扩展为完整流水线。
+Unity 任务的统一分流入口。外部角色与索引到本文件；本 skill 再选择开发流程或专门能力，不要求预读全部内部资源。
+agent 提供领域判断、上下文取用与 memory 记录；体系维护由 agent-maintenance 承担。
 
-## CRITICAL — 门禁驱动的执行流程
+## 先按任务分流
 
-**This skill body loads on trigger. 每个 [Gx] 必须输出结构化决策才能继续。**
+按最具体的当前目标选择分支；已有对照报告的判读走耗时对照，普通事实咨询才取知识。
 
-```
-[G0] 框架入口
-  OUTPUT: ## G0: Framework Check — Agent: unity-developer | NOT LOADED
-  └── NOT LOADED → Read ../../agents/unity-developer/AGENT.md → 重试
+| 当前目标 | 下一节点 |
+|---|---|
+| 新增 / 修改代码、Shader、资产或功能文档，修复、调参、结构重构 | [开发流程](AutoMode.md) |
+| 独立执行 Editor 查询、编译、运行、测试或构建 | [unity-editor](../unity-editor/SKILL.md) |
+| 独立查看中间输出、获取完整相机 PNG | [unity-render-debug](../unity-render-debug/SKILL.md) |
+| 采集渲染耗时，或判读已有对照报告 | [unity-render-benchmark](../unity-render-benchmark/SKILL.md) |
+| 只比较已有实现与行为契约，形成复用结论 | [unity-feature-reuse](../unity-feature-reuse/SKILL.md) |
+| 创建或维护 unityctl 插件 | [unityctl-plugins](../unityctl-plugins/SKILL.md) |
+| 只解释事实、查看实现或已有记录，不实施改动 | 按需取用 [Unity 知识](../../knowledge/unity/README.md) 或 [领域记忆](../../memory/unity/MEMORY.md) |
 
-[G1] 模式确认
-  OUTPUT: ## G1: Mode Selection — Mode: <mode> | Reason: <why>
-  └── Research | Production | Experiment
+混合任务以最终交付为准：包含功能实施或修复时进入开发流程，由选定模式调用所需专门能力。
+独立操作与只读分析不初始化完整开发 recipe、不运行通用设计检查；已有脚本、截图或报告按对应 skill 的实际需要取用。
 
-[G1.5] 知识加载校验
-  OUTPUT: ## [G1.5] Knowledge Check — Loaded: <已读文件列表> | Status: COMPLETE
-  └── 高优先级必读清单 + 判定标准见 capabilities/knowledge.md
-  └── 未全读 → 补读后重新输出 COMPLETE，禁止进入下一步（门禁只收 COMPLETE）
+专门操作若需要新增 / 修改受管源码、任务脚本、适配器或持久资产，进入开发流程后实施，原操作目标作为验证。
+分流不授予写入、场景 / Renderer 修改、Play 或重启权限；仍遵守实际执行 skill 的授权与通道约束。
 
-Read 对应的 mode 文件 → 按 mode 文件中的 [Gx] 门禁逐步执行
-```
+用户已明确选择专门 skill，或当前任务已完成分流时，沿用该分支；内部资源协作不反跳本入口，不重新初始化 recipe。
+任务从查询 / 操作升级为实施时只补齐开发分支；同一任务已有判断与上下文直接复用。
 
-**门禁不是建议。每个 [Gx] 必须显式输出决策，下一步读取上一步的输出来决定行为。**
+## 资源归属
 
-**MCP 同步（unity-gate server 已注册时，[Gx] 输出文本的同时调用对应工具）——后果验证 v2，链唯一 [g_entry, g_knowledge]：**
-
-```
-所有模式（配方链一致）:
-  G0   → gate_pass("g_entry", agent="<agent>")
-  G1.5 → gate_pass("g_knowledge", loaded_files="<已读文件列表>", status="COMPLETE")   ← 唯一实质门禁
-  G3   → write_gated(path, content, script_decision="<Decision>", file_type=..., ...)  ← 注解非阻塞
-  删除 → delete_gated(paths, reason="<原因>")                                          ← 唯一删除通道
-  移动 → move_gated(moves=[{"from":..., "to":...}], reason="<原因>")                   ← 唯一移动通道
-```
-
-- `Assets/Mine/` 写入走 `write_gated`、删除走 `delete_gated`、**移动/改名走 `move_gated`**——settings 的 `Edit(/Assets/Mine/**)` deny 会**连带命中 Bash**（`rm`/`mv`/`cp`/写入型 `sed`/`tee`/重定向；只读的 `sed -n` 放行），MCP 工具是唯一通道；未过配方门禁会 DENIED。门禁按**操作**建模，别拿 write+delete 拼一个移动
-- **g_mode/g_script/g_file 门禁已退役**：模式走 `gate_set_recipe`，脚本决策/文件分类走 write_gated 注解（记录不阻塞）
-- **write_gated 后果验证**：违反结构规范（shader-decl / cs-type-decl / region-added）或**文件落点**（受管文件须在 `Effects`/`Scripts`/`Shaders`/`Special` 之下）→ DENIED；分隔线风格、`category` 注解与路径不符 → warning 提示
-- **delete_gated 后果验证**：`tracked-dirty`（有未提交改动）或 `.meta` GUID 仍被引用 → DENIED；`untracked` 放行但标注不可恢复；整批 all-or-nothing，`reason` 必填
-- **move_gated 后果验证**：预检零改动（不覆盖目标、GUID 不得已被声明、批内不得链式）；**`tracked-dirty` 的源放行**（内容只是换位置，这正是它存在的理由）；`.meta` 成对搬运保 GUID；`reason` 必填
-- **Codex 对等**：`python .mcp/validation/check_norm.py <file>` 全量检查
-
-**报告格式：** Editor 可用/不可用分别注明全流水线或仅代码；Research 标记需人工观测。
-
----
-
-## 激活条件
-
-| 条件 | 说明 |
-|------|------|
-| 用户发出开发任务 | 创建/修改代码、Shader、文件整理、重构、调试、文档 |
-| 非纯对话/咨询 | 涉及文件写入或项目操作；meta 体系维护除外 |
-
-**边界：** `meta-developer` 或 `.agents/**`、`.mcp/**`、`.claude/**`、`.codex/**` 任务不激活本 Skill、不调用 Unity MCP，改走 meta 工作流。Editor 不是激活前提，只影响 Unity 流水线深度。
-
-## 路由速查
-
-```
-用户指令
-  │
-  ├── 需搜索网络方案 / 无库内模板 / 自主迭代 → 🧪 Experiment Mode
-  ├── Shader / 渲染 / 调参 / 效果验证 → 🔬 Research Mode
-  ├── 功能开发 / Bug修复 / 重构 / 文件整理 → 🏭 Production Mode
-  └── 纯咨询 / 闲聊                  → 不激活
-```
-
-完整选择逻辑和边界情况见 [AutoMode.md](AutoMode.md)。
+模式、能力与模板由开发节点按需取用；知识与模板之间的契约引用、专门 skill 之间的实际执行依赖可以直接连接。
+外部 Unity 任务入口指向本文件，不从角色或总清单直接下钻 modes / capabilities / templates。
+临时产物按 [会话产物规范](../../knowledge/meta/interfaces/task-artifacts.md) 归属，实际结果交角色记录。

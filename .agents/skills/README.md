@@ -1,23 +1,24 @@
-# Shared skills
+# 共享技能索引
 
-`.agents/skills/` 是项目共享 skills 的唯一编辑位置。`.claude/skills/` 与 `.codex/skills` 仅保留指向共享源的软链；不得维护实体副本。
+`.agents/skills/` 是技能及其执行资源的唯一编辑位置，每个技能由 `SKILL.md` 提供能力入口。
 
-## Phase 3 drift decisions
+Unity 任务首次分派到 [autoagent](auto-manager/SKILL.md)，再由其选择开发流程或专门能力。下表是能力清单，不在角色 / 总索引中另建并行流程；明确点名的专门能力与已分派任务沿用当前分支。
 
-| Skill file | Decision |
-|---|---|
-| `auto-manager/AutoMode.md` | 采用 `.claude` 较新内容，路径归一到 `.agents`。 |
-| `auto-manager/capabilities/knowledge.md` | 采用较新的分类与高优先级规则，路径归一到角色 references/templates。 |
-| `codex-bridge/SKILL.md` | 改为 `.agents` 共享 SSOT + Claude/Codex 薄适配。 |
-| `codex-orchestrate/SKILL.md` | 保留 Claude 编排与 MCP 边界，但知识源改为 `.agents`。 |
-| `codex-opencode-go/SKILL.md` | 消除 Claude/Codex 品牌漂移，改用项目 Agent。 |
-| `opencode-orchestrate/SKILL.md` | 通过本机 OpenCode CLI 将有明确边界的任务派发给 `deepseek-v4.1-flash`。 |
-| `dwsy-project-planner/SKILL.md` | 消除平台品牌绑定，使用 active project architect。 |
-
-Phase 5 负责验证 Claude 对 `.agents/skills` 的发现能力，并决定是否将旧 skill 路径改为软链或生成壳。
-
-## 退役
-
-| Skill | 日期 | 原因 |
+| Skill / 目录 | 工作范围 | 状态 / 来源 |
 |---|---|---|
-| `codex-orchestrate` | 2026-09-21 | **前提失效**——该 skill 整体是「Claude 派发给 Codex」的编排约定（codex exec 模板、沙箱、验证流程、任务书）。现 Claude 与 Codex 是**对等并行**的两个开发引擎，不存在派发/从属关系（见 `.codex/INTERFACE.md` §3/§6）。原内容分流：链路与配置 → `codex-opencode-go`；双边契约与入口同步 → `codex-bridge`。项目内实体与 `.claude/skills/` 软链已删（`git rm`，可回溯）；`~/.claude/skills/` 全局副本待删（被 settings 的 `Bash(rm -rf ~/*)` deny 挡住，需人工执行） |
+| [agent-maintenance](agent-maintenance/SKILL.md) | 体系编辑、索引与引用核验、平台同步、迁移 | 本项目维护 |
+| [autoagent](auto-manager/SKILL.md) / `auto-manager` | Unity 统一任务分流、开发模式与验证编排 | 本项目维护 |
+| [unity-editor](unity-editor/SKILL.md) | Editor 连接、CLI、编译、场景、运行、日志与测试 | 本项目维护 |
+| [unity-feature-reuse](unity-feature-reuse/SKILL.md) | 同类实现比较、公共流程与函数复用 | 本项目维护 |
+| [unity-render-debug](unity-render-debug/SKILL.md) | 中间输出、Game View 观察、完整相机 PNG | 本项目维护 |
+| [unity-render-benchmark](unity-render-benchmark/SKILL.md) | 渲染同步墙钟 A/B 采集与结果判读 | 本项目维护 |
+| [codex-bridge](codex-bridge/SKILL.md) | Claude / Codex 接口与共享入口同步 | 本项目维护 |
+| [codex-opencode-go](codex-opencode-go/SKILL.md) | 本项目的 OpenCode Go 委派边界（通用手册见全局权威） | 本项目维护 |
+| [opencode-orchestrate](opencode-orchestrate/SKILL.md) | 通过本机 OpenCode CLI 派发边界明确的任务（deepseek-v4.1-flash） | 本项目维护（2026-10-05 合入） |
+| [unityctl-plugins](unityctl-plugins/SKILL.md) | unityctl 插件创建与实现 | 外部：unityctl-plugins 目录 |
+
+外部来源仅标注技能出处，不构成第三套知识；来源追踪见 [knowledge/external/README.md](../knowledge/external/README.md)。
+
+## 历史兼容
+
+`codex-orchestrate` 项目版本已退役，接入配置与双边契约分别由对应技能持有。

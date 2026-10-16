@@ -1,0 +1,1 @@
+{"success":true,"result":"{\n  \"passed\": true,\n  \"assertions\": 7373101,\n  \"noiseReduction\": 0.22563950877145456,\n  \"meanChange\": 0.0028904841247314739,\n  \"output\": \"tmp/sessions/2026-10-14-diffuse-multiscale-ab-af416c43/output\"\n}"}

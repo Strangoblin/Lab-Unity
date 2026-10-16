@@ -1,0 +1,2726 @@
+[
+  {
+    "path": ".codex/tmp/._diffusegi",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._probe-mats.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/probe-mats.cs",
+    "size_bytes": 725,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-trace2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-trace2.cs",
+    "size_bytes": 3508,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-10.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-10.cs",
+    "size_bytes": 4588,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._lod0-DiffuseGIFunction.hlsl",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/lod0-DiffuseGIFunction.hlsl",
+    "size_bytes": 9024,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-9.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-9.cs",
+    "size_bytes": 4141,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._sweep4.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/sweep4.cs",
+    "size_bytes": 733,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-14.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-14.cs",
+    "size_bytes": 5976,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-dbg.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-dbg.cs",
+    "size_bytes": 3900,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-neg-diag.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-neg-diag.cs",
+    "size_bytes": 4710,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-persist.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-persist.cs",
+    "size_bytes": 879,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._probe-pp.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/probe-pp.cs",
+    "size_bytes": 2150,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._probe-cameras.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/probe-cameras.cs",
+    "size_bytes": 1637,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-alive.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-alive.cs",
+    "size_bytes": 3214,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-anomaly2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-anomaly2.cs",
+    "size_bytes": 4845,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-11.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-11.cs",
+    "size_bytes": 4749,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-8.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-8.cs",
+    "size_bytes": 4714,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._hello.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/hello.cs",
+    "size_bytes": 80,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._ScreenSpaceTrace.hlsl",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/ScreenSpaceTrace.hlsl",
+    "size_bytes": 5451,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-3.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-3.cs",
+    "size_bytes": 5407,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-final.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-final.cs",
+    "size_bytes": 6580,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._DiffuseGI.shader",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/DiffuseGI.shader",
+    "size_bytes": 6725,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-blur.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-blur.cs",
+    "size_bytes": 4650,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-trace.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-trace.cs",
+    "size_bytes": 4391,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-7.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-7.cs",
+    "size_bytes": 6990,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._drift-diag.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/drift-diag.cs",
+    "size_bytes": 3591,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._ortho.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/ortho.cs",
+    "size_bytes": 1906,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._probe-ortho2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/probe-ortho2.cs",
+    "size_bytes": 1472,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-6.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-6.cs",
+    "size_bytes": 5293,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-2.cs",
+    "size_bytes": 7858,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._probe-state.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/probe-state.cs",
+    "size_bytes": 1279,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-msaa2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-msaa2.cs",
+    "size_bytes": 4395,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-5.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-5.cs",
+    "size_bytes": 6143,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-1.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-1.cs",
+    "size_bytes": 5649,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._scene-state.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/scene-state.cs",
+    "size_bytes": 787,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-pollution.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-pollution.cs",
+    "size_bytes": 5638,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._ortho-control.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/ortho-control.cs",
+    "size_bytes": 2552,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._persist-feature.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/persist-feature.cs",
+    "size_bytes": 3032,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._ortho-control2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/ortho-control2.cs",
+    "size_bytes": 2678,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._state-now.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/state-now.cs",
+    "size_bytes": 647,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-swap-diag.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-swap-diag.cs",
+    "size_bytes": 3780,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-4.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-4.cs",
+    "size_bytes": 4107,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._DiffuseGIFunction.hlsl",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/DiffuseGIFunction.hlsl",
+    "size_bytes": 8079,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-anomaly.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-anomaly.cs",
+    "size_bytes": 7902,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-16.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-16.cs",
+    "size_bytes": 4473,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._inspect-state.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/inspect-state.cs",
+    "size_bytes": 2844,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._probe-uniforms2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/probe-uniforms2.cs",
+    "size_bytes": 2399,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-msaa.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-msaa.cs",
+    "size_bytes": 4757,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._rt-capture-test.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/rt-capture-test.cs",
+    "size_bytes": 3027,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._probe-giregion.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/probe-giregion.cs",
+    "size_bytes": 5181,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-12.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-12.cs",
+    "size_bytes": 5324,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._sweep2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/sweep2.cs",
+    "size_bytes": 4734,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._probe-uniforms.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/probe-uniforms.cs",
+    "size_bytes": 1688,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-waterloc.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-waterloc.cs",
+    "size_bytes": 3683,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._lod0-ScreenSpaceTrace.hlsl",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/lod0-ScreenSpaceTrace.hlsl",
+    "size_bytes": 6154,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-rt-13.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-rt-13.cs",
+    "size_bytes": 4978,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._sweep3.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/sweep3.cs",
+    "size_bytes": 1954,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-sky.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-sky.cs",
+    "size_bytes": 4409,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._skeleton-new.md",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/skeleton-new.md",
+    "size_bytes": 18701,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._inspect-renderer.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/inspect-renderer.cs",
+    "size_bytes": 1046,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._verify-dbg2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/verify-dbg2.cs",
+    "size_bytes": 3403,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._sweep.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/sweep.cs",
+    "size_bytes": 4810,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/diffusegi/._probe-layers.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi/probe-layers.cs",
+    "size_bytes": 1356,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/._ao",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/._probe_tex.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/probe_tex.cs",
+    "size_bytes": 558,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/._verify_persist.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/verify_persist.cs",
+    "size_bytes": 1967,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/._verify4.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/verify4.cs",
+    "size_bytes": 7141,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/._register.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/register.cs",
+    "size_bytes": 3429,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/._verify.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/verify.cs",
+    "size_bytes": 2344,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/._verify3.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/verify3.cs",
+    "size_bytes": 7108,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/._restore.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/restore.cs",
+    "size_bytes": 627,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/._verify2.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/verify2.cs",
+    "size_bytes": 6567,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/._staged",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/staged",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/staged/._AO.md",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/staged/AO.md",
+    "size_bytes": 12177,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/ao/staged/._SSGI_Content_Skeleton.md",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/ao/staged/SSGI_Content_Skeleton.md",
+    "size_bytes": 22136,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/._DiffuseGI.Check.dll",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/DiffuseGI.Check.dll",
+    "size_bytes": 10752,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/._DiffuseGI.Check.rsp",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/DiffuseGI.Check.rsp",
+    "size_bytes": 46162,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/._DiffuseGI.md",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/DiffuseGI.md",
+    "size_bytes": 6840,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/._DiffuseGIFeature.cs",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/DiffuseGIFeature.cs",
+    "size_bytes": 12419,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/._diffusegi-editor-clean.log",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi-editor-clean.log",
+    "size_bytes": 526139,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/._diffusegi-editor-utf8.log",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi-editor-utf8.log",
+    "size_bytes": 21636,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": ".codex/tmp/._diffusegi-editor.log",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": ".codex/tmp/diffusegi-editor.log",
+    "size_bytes": 33416,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-anomaly",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/._notrans-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/notrans-i1.png",
+    "size_bytes": 222689,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/._notrans-indirect.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/notrans-indirect.png",
+    "size_bytes": 57183,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/._base-off.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/base-off.png",
+    "size_bytes": 225381,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/._nop2-indirect.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/nop2-indirect.png",
+    "size_bytes": 72251,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/._nop2-off.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/nop2-off.png",
+    "size_bytes": 205522,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/._notrans-off.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/notrans-off.png",
+    "size_bytes": 192003,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/._base-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/base-i1.png",
+    "size_bytes": 232378,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/._nop2-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/nop2-i1.png",
+    "size_bytes": 212714,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/._base-indirect.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-anomaly/base-indirect.png",
+    "size_bytes": 72129,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-blur",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-blur",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-blur/._ds-2.00.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-blur/ds-2.00.png",
+    "size_bytes": 69840,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-blur/._ds-0.01.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-blur/ds-0.01.png",
+    "size_bytes": 69316,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-blur/._ds-0.15.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-blur/ds-0.15.png",
+    "size_bytes": 69922,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-blur/._trace-ref.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-blur/trace-ref.png",
+    "size_bytes": 65904,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-final",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._debug-trace.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/debug-trace.png",
+    "size_bytes": 75583,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._ortho-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/ortho-i1.png",
+    "size_bytes": 132789,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._intensity-4.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/intensity-4.png",
+    "size_bytes": 244978,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._perf-medium.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/perf-medium.png",
+    "size_bytes": 79481,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._perf-high.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/perf-high.png",
+    "size_bytes": 79301,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._feature-off.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/feature-off.png",
+    "size_bytes": 234271,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._debug-indirect.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/debug-indirect.png",
+    "size_bytes": 79481,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._intensity-0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/intensity-0.png",
+    "size_bytes": 234271,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._intensity-1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/intensity-1.png",
+    "size_bytes": 241763,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._debug-confidence.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/debug-confidence.png",
+    "size_bytes": 79984,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._perf-low.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/perf-low.png",
+    "size_bytes": 76906,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-final/._ortho-di.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-final/ortho-di.png",
+    "size_bytes": 29254,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-msaa",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/._ms2-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/ms2-i1.png",
+    "size_bytes": 220545,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/._ms2-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/ms2-i0.png",
+    "size_bytes": 213242,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/._ms1-di.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/ms1-di.png",
+    "size_bytes": 65849,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/._ms4-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/ms4-i0.png",
+    "size_bytes": 213242,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/._ms4-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/ms4-i1.png",
+    "size_bytes": 220545,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/._ms1-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/ms1-i0.png",
+    "size_bytes": 213242,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/._ms1-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/ms1-i1.png",
+    "size_bytes": 220545,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/._ms4-di.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/ms4-di.png",
+    "size_bytes": 65849,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/._ms2-di.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa/ms2-di.png",
+    "size_bytes": 65849,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-msaa2",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa2",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa2/._rt4-ms4-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa2/rt4-ms4-i0.png",
+    "size_bytes": 235252,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa2/._rt4-ms4-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa2/rt4-ms4-i1.png",
+    "size_bytes": 243039,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa2/._rt4-ms1-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa2/rt4-ms1-i0.png",
+    "size_bytes": 220956,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa2/._rt4-ms1-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-msaa2/rt4-ms1-i1.png",
+    "size_bytes": 229197,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-ortho-check",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._05-restored-orthofalse.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/05-restored-orthofalse.png",
+    "size_bytes": 452309,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._13-restored.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/13-restored.png",
+    "size_bytes": 451733,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._00-base-orthofalse.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/00-base-orthofalse.png",
+    "size_bytes": 453286,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._04-ortho-true-repeat.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/04-ortho-true-repeat.png",
+    "size_bytes": 451809,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._02-sun-off.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/02-sun-off.png",
+    "size_bytes": 510231,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._14-ortho-true.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/14-ortho-true.png",
+    "size_bytes": 451736,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._10-base.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/10-base.png",
+    "size_bytes": 452720,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._12-cullingmask-0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/12-cullingmask-0.png",
+    "size_bytes": 451795,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._01-repeat-nodelay.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/01-repeat-nodelay.png",
+    "size_bytes": 451733,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._11-magenta-solid.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/11-magenta-solid.png",
+    "size_bytes": 453522,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/._03-ortho-true.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-ortho-check/03-ortho-true.png",
+    "size_bytes": 451819,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-rt",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._H-tier-low.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/H-tier-low.png",
+    "size_bytes": 229895,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._B-feature-disabled.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/B-feature-disabled.png",
+    "size_bytes": 217562,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._C-i0-debugoff.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/C-i0-debugoff.png",
+    "size_bytes": 212338,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._I-tier-high.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/I-tier-high.png",
+    "size_bytes": 227369,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._A-medium-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/A-medium-i1.png",
+    "size_bytes": 238535,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._E-debug-trace.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/E-debug-trace.png",
+    "size_bytes": 69733,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._rt-i1-a.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/rt-i1-a.png",
+    "size_bytes": 217679,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._rt-i1-b.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/rt-i1-b.png",
+    "size_bytes": 217679,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._rt-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/rt-i0.png",
+    "size_bytes": 220600,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._A2-medium-i1-repeat.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/A2-medium-i1-repeat.png",
+    "size_bytes": 225658,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._D-i1-back.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/D-i1-back.png",
+    "size_bytes": 228172,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._G-debug-confidence.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/G-debug-confidence.png",
+    "size_bytes": 70693,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/._F-debug-indirect.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt/F-debug-indirect.png",
+    "size_bytes": 62808,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-rt2",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._H-tier-low.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/H-tier-low.png",
+    "size_bytes": 214283,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._J-ortho-false-trace.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/J-ortho-false-trace.png",
+    "size_bytes": 62855,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._M1-screencapture-with-magenta-screen-cam.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/M1-screencapture-with-magenta-screen-cam.png",
+    "size_bytes": 452654,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._B-feature-disabled.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/B-feature-disabled.png",
+    "size_bytes": 207911,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._C-i0-debugoff.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/C-i0-debugoff.png",
+    "size_bytes": 207911,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._A2-repeat.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/A2-repeat.png",
+    "size_bytes": 215134,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._I-tier-high.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/I-tier-high.png",
+    "size_bytes": 215080,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._A-medium-i1-off.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/A-medium-i1-off.png",
+    "size_bytes": 215134,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._M2-screencapture-plain.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/M2-screencapture-plain.png",
+    "size_bytes": 452654,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._K-ortho-true-trace.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/K-ortho-true-trace.png",
+    "size_bytes": 17522,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._E-debug-trace.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/E-debug-trace.png",
+    "size_bytes": 62855,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._L-msaa4-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/L-msaa4-i1.png",
+    "size_bytes": 225891,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._D-i1-back.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/D-i1-back.png",
+    "size_bytes": 215134,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._G-debug-confidence.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/G-debug-confidence.png",
+    "size_bytes": 67753,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/._F-debug-indirect.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt2/F-debug-indirect.png",
+    "size_bytes": 67036,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-rt3",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/._i0-off.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/i0-off.png",
+    "size_bytes": 220948,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/._i1-debug-indirect.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/i1-debug-indirect.png",
+    "size_bytes": 68956,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/._i1-off.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/i1-off.png",
+    "size_bytes": 228294,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/._i4-off.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/i4-off.png",
+    "size_bytes": 231622,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/._i1-debug-trace.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt3/i1-debug-trace.png",
+    "size_bytes": 64884,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-rt4",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt4",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt4/._pp-i1-di.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt4/pp-i1-di.png",
+    "size_bytes": 67879,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt4/._pp-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt4/pp-i1.png",
+    "size_bytes": 231216,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt4/._pp-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt4/pp-i0.png",
+    "size_bytes": 224668,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-rt5",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt5",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt5/._pp-i1-di.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt5/pp-i1-di.png",
+    "size_bytes": 70796,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt5/._pp-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt5/pp-i1.png",
+    "size_bytes": 235037,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt5/._pp-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt5/pp-i0.png",
+    "size_bytes": 227927,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-rt6",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt6",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt6/._notm-i1-di.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt6/notm-i1-di.png",
+    "size_bytes": 71647,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt6/._notm-i4.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt6/notm-i4.png",
+    "size_bytes": 260319,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt6/._notm-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt6/notm-i0.png",
+    "size_bytes": 250025,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt6/._notm-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt6/notm-i1.png",
+    "size_bytes": 257269,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-rt7",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/._hdr-di.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/hdr-di.png",
+    "size_bytes": 69683,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/._hdr-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/hdr-i0.png",
+    "size_bytes": 218353,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/._hdr-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/hdr-i1.png",
+    "size_bytes": 226116,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/._hdr-i2.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/hdr-i2.png",
+    "size_bytes": 227584,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/._hdr-i4.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-rt7/hdr-i4.png",
+    "size_bytes": 229211,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-takeover",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._8-msaa-4.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/8-msaa-4.png",
+    "size_bytes": 390125,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._1-medium-off-intensity1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/1-medium-off-intensity1.png",
+    "size_bytes": 390483,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._8-msaa-2.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/8-msaa-2.png",
+    "size_bytes": 391229,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._8-msaa-1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/8-msaa-1.png",
+    "size_bytes": 393682,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._3-debug-trace.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/3-debug-trace.png",
+    "size_bytes": 93009,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._5-debug-confidence.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/5-debug-confidence.png",
+    "size_bytes": 304807,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._9-restored-medium-off-intensity1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/9-restored-medium-off-intensity1.png",
+    "size_bytes": 390111,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._7-tier-high.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/7-tier-high.png",
+    "size_bytes": 377248,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._4-debug-indirect.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/4-debug-indirect.png",
+    "size_bytes": 369537,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._2-medium-off-intensity0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/2-medium-off-intensity0.png",
+    "size_bytes": 295145,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._6-tier-low.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/6-tier-low.png",
+    "size_bytes": 375552,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/._8-msaa-8.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover/8-msaa-8.png",
+    "size_bytes": 390271,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-takeover2",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/._1-medium-off-i1.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/1-medium-off-i1.png",
+    "size_bytes": 390906,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/._0-baseline-nofeature.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/0-baseline-nofeature.png",
+    "size_bytes": 295287,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/._3-debug-trace.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/3-debug-trace.png",
+    "size_bytes": 93355,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/._5-debug-confidence.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/5-debug-confidence.png",
+    "size_bytes": 304929,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/._2-medium-off-i0.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/2-medium-off-i0.png",
+    "size_bytes": 294842,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/._7-tier-high.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/7-tier-high.png",
+    "size_bytes": 375899,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/._4-debug-indirect.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/4-debug-indirect.png",
+    "size_bytes": 369504,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/._6-tier-low.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover2/6-tier-low.png",
+    "size_bytes": 374625,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-takeover3",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover3",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover3/._perspective-gi.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover3/perspective-gi.png",
+    "size_bytes": 452972,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover3/._orthographic-gi.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover3/orthographic-gi.png",
+    "size_bytes": 451796,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-trace",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-trace",
+    "size_bytes": 0,
+    "kind": "directory",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/._trace-high.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/trace-high.png",
+    "size_bytes": 66922,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/._trace-low.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/trace-low.png",
+    "size_bytes": 63928,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/._trace-medium.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/trace-medium.png",
+    "size_bytes": 66270,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/._indirect-medium.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/indirect-medium.png",
+    "size_bytes": 70504,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/._indirect-low.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/indirect-low.png",
+    "size_bytes": 67796,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/._indirect-high.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-trace/indirect-high.png",
+    "size_bytes": 70387,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Screenshots/._diffusegi-takeover-01.png",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Screenshots/diffusegi-takeover-01.png",
+    "size_bytes": 27902,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Assets/Mine/Shaders/PostProcess/SSR/._DiffuseGIFeature.cs.new",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Assets/Mine/Shaders/PostProcess/SSR/DiffuseGIFeature.cs.new",
+    "size_bytes": 13079,
+    "kind": "file",
+    "appledouble": false
+  },
+  {
+    "path": "Assets/Mine/Shaders/PostProcess/SSR/._DiffuseGIFeature.cs.new.meta",
+    "size_bytes": 163,
+    "kind": "file",
+    "appledouble": true
+  },
+  {
+    "path": "Assets/Mine/Shaders/PostProcess/SSR/DiffuseGIFeature.cs.new.meta",
+    "size_bytes": 155,
+    "kind": "file",
+    "appledouble": false
+  }
+]

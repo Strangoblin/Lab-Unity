@@ -1,0 +1,392 @@
+{
+  "reference_model": "Exact bilinear-integrated expectation under ideal uniform independent strata; deterministic hash is compared, not assumed independent.",
+  "value_space": "linear float32 GPU readback; references computed float64",
+  "cases": [
+    {
+      "name": "uniform_one9",
+      "taps": 9,
+      "axes": [
+        "H",
+        "V"
+      ],
+      "rounds": 1,
+      "executed_radius_pixels": 18.0,
+      "jitter_strength": 1.0,
+      "kernel_mass": 1.0,
+      "kernel_discrete_m2_pixels": 466.25004197600185,
+      "center_xy": [
+        319.5,
+        179.5
+      ],
+      "core_radius": 4.0,
+      "core_pixel_count": 52,
+      "gpu_core_R": {
+        "min": 0.199951171875,
+        "max": 0.199951171875,
+        "mean": 0.199951171875,
+        "std": 0.0,
+        "p01_p50_p99": [
+          0.199951171875,
+          0.199951171875,
+          0.199951171875
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "reference_core_R": {
+        "min": 0.20000000298023224,
+        "max": 0.20000000298023224,
+        "mean": 0.20000000298023224,
+        "std": 0.0,
+        "p01_p50_p99": [
+          0.20000000298023224,
+          0.20000000298023224,
+          0.20000000298023224
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "residual_core_R": {
+        "min": -4.883110523223877e-05,
+        "max": -4.883110523223877e-05,
+        "mean": -4.883110523223877e-05,
+        "std": 0.0,
+        "p01_p50_p99": [
+          -4.883110523223877e-05,
+          -4.883110523223877e-05,
+          -4.883110523223877e-05
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 52
+      },
+      "core_residual_rmse": 4.883110523223877e-05,
+      "core_residual_nrmse": 0.00024415552252299305,
+      "gpu_R_alpha_max_abs_difference": 0.169921875,
+      "gpu_GB_max_abs": 1.2998046875,
+      "source_R_alpha_max_abs_difference": 0.17000000178813934,
+      "gpu_reference_total_linear_R_ratio": 0.999755844477477
+    },
+    {
+      "name": "disk_r80_one9",
+      "taps": 9,
+      "axes": [
+        "H",
+        "V"
+      ],
+      "rounds": 1,
+      "executed_radius_pixels": 18.0,
+      "jitter_strength": 1.0,
+      "kernel_mass": 1.0,
+      "kernel_discrete_m2_pixels": 466.25004197600185,
+      "center_xy": [
+        319.5,
+        179.5
+      ],
+      "core_radius": 4.0,
+      "core_pixel_count": 52,
+      "gpu_core_R": {
+        "min": 1.0,
+        "max": 1.0,
+        "mean": 1.0,
+        "std": 0.0,
+        "p01_p50_p99": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "reference_core_R": {
+        "min": 0.9999999999999997,
+        "max": 0.9999999999999997,
+        "mean": 0.9999999999999998,
+        "std": 1.1102230246251565e-16,
+        "p01_p50_p99": [
+          0.9999999999999997,
+          0.9999999999999997,
+          0.9999999999999997
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "residual_core_R": {
+        "min": 3.3306690738754696e-16,
+        "max": 3.3306690738754696e-16,
+        "mean": 3.3306690738754696e-16,
+        "std": 0.0,
+        "p01_p50_p99": [
+          3.3306690738754696e-16,
+          3.3306690738754696e-16,
+          3.3306690738754696e-16
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 52
+      },
+      "core_residual_rmse": 3.3306690738754696e-16,
+      "core_residual_nrmse": 3.3306690738754706e-16,
+      "gpu_R_alpha_max_abs_difference": 0.0,
+      "gpu_GB_max_abs": 0.0,
+      "source_R_alpha_max_abs_difference": 0.0,
+      "gpu_reference_total_linear_R_ratio": 0.9988073479656153
+    },
+    {
+      "name": "disk_r16_one9",
+      "taps": 9,
+      "axes": [
+        "H",
+        "V"
+      ],
+      "rounds": 1,
+      "executed_radius_pixels": 18.0,
+      "jitter_strength": 1.0,
+      "kernel_mass": 1.0,
+      "kernel_discrete_m2_pixels": 466.25004197600185,
+      "center_xy": [
+        319.5,
+        179.5
+      ],
+      "core_radius": 4.0,
+      "core_pixel_count": 52,
+      "gpu_core_R": {
+        "min": 0.094482421875,
+        "max": 0.267578125,
+        "mean": 0.19537823016826922,
+        "std": 0.03372661287620069,
+        "p01_p50_p99": [
+          0.11602294921875,
+          0.19842529296875,
+          0.25500244140625006
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "reference_core_R": {
+        "min": 0.19552668372094828,
+        "max": 0.1985281879193782,
+        "mean": 0.19676977065389112,
+        "std": 0.000967676090615799,
+        "p01_p50_p99": [
+          0.19552668372094828,
+          0.19653666497711608,
+          0.1985281879193782
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "residual_core_R": {
+        "min": -0.10104426184594828,
+        "max": 0.07104146002288395,
+        "mean": -0.0013915404856219527,
+        "std": 0.033711959892129474,
+        "p01_p50_p99": [
+          -0.08001882494284383,
+          0.0020695842036713985,
+          0.05898086686977952
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 24
+      },
+      "core_residual_rmse": 0.03374066722356971,
+      "core_residual_nrmse": 0.17147281877417023,
+      "gpu_R_alpha_max_abs_difference": 0.0,
+      "gpu_GB_max_abs": 0.0,
+      "source_R_alpha_max_abs_difference": 0.0,
+      "gpu_reference_total_linear_R_ratio": 1.0009725648047303
+    },
+    {
+      "name": "disk_r16_two9",
+      "taps": 9,
+      "axes": [
+        "H",
+        "V",
+        "H",
+        "V"
+      ],
+      "rounds": 2,
+      "executed_radius_pixels": 12.7279224,
+      "jitter_strength": 1.0,
+      "kernel_mass": 1.0,
+      "kernel_discrete_m2_pixels": 233.2085758846875,
+      "center_xy": [
+        319.5,
+        179.5
+      ],
+      "core_radius": 4.0,
+      "core_pixel_count": 52,
+      "gpu_core_R": {
+        "min": 0.2125244140625,
+        "max": 0.233154296875,
+        "mean": 0.22175715519831732,
+        "std": 0.005712528899296299,
+        "p01_p50_p99": [
+          0.21264892578125,
+          0.221435546875,
+          0.232843017578125
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "reference_core_R": {
+        "min": 0.22057736741156075,
+        "max": 0.2230660796815217,
+        "mean": 0.22169304503826612,
+        "std": 0.000821660527377367,
+        "p01_p50_p99": [
+          0.22057736741156075,
+          0.22163126282814022,
+          0.2230660796815217
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "residual_core_R": {
+        "min": -0.0105416656190217,
+        "max": 0.011623340326845033,
+        "mean": 6.411016005114886e-05,
+        "std": 0.005615446082110856,
+        "p01_p50_p99": [
+          -0.009685397305047146,
+          -0.000458854511627374,
+          0.011300344614633055
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 28
+      },
+      "core_residual_rmse": 0.005615812035112637,
+      "core_residual_nrmse": 0.02533147593395769,
+      "gpu_R_alpha_max_abs_difference": 0.0,
+      "gpu_GB_max_abs": 0.0,
+      "source_R_alpha_max_abs_difference": 0.0,
+      "gpu_reference_total_linear_R_ratio": 0.9980742920355259
+    },
+    {
+      "name": "disk_r3_one9",
+      "taps": 9,
+      "axes": [
+        "H",
+        "V"
+      ],
+      "rounds": 1,
+      "executed_radius_pixels": 18.0,
+      "jitter_strength": 1.0,
+      "kernel_mass": 1.0,
+      "kernel_discrete_m2_pixels": 466.25004197600185,
+      "center_xy": [
+        319.5,
+        179.5
+      ],
+      "core_radius": 3.0,
+      "core_pixel_count": 32,
+      "gpu_core_R": {
+        "min": 0.0,
+        "max": 0.02667236328125,
+        "mean": 0.009404420852661133,
+        "std": 0.011532621779108675,
+        "p01_p50_p99": [
+          0.0,
+          0.0006465911865234375,
+          0.026639251708984374
+        ],
+        "zero_count": 16,
+        "le_1e_minus6_count": 16
+      },
+      "reference_core_R": {
+        "min": 0.008545125233601741,
+        "max": 0.008582310200551726,
+        "mean": 0.008563713208875563,
+        "std": 1.8578962228970684e-05,
+        "p01_p50_p99": [
+          0.008545125233601741,
+          0.008563708700674392,
+          0.008582310200551726
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "residual_core_R": {
+        "min": -0.008582310200551726,
+        "max": 0.018127220014995123,
+        "mean": 0.00084070764378557,
+        "std": 0.011533781968945772,
+        "p01_p50_p99": [
+          -0.008582310200551726,
+          -0.007898534047078312,
+          0.01809411403285197
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 20
+      },
+      "core_residual_rmse": 0.01156438134313713,
+      "core_residual_nrmse": 1.3503933470298408,
+      "gpu_R_alpha_max_abs_difference": 0.0,
+      "gpu_GB_max_abs": 0.0,
+      "source_R_alpha_max_abs_difference": 0.0,
+      "gpu_reference_total_linear_R_ratio": 1.0078914854675534
+    },
+    {
+      "name": "disk_r16_one5",
+      "taps": 5,
+      "axes": [
+        "H",
+        "V"
+      ],
+      "rounds": 1,
+      "executed_radius_pixels": 18.0,
+      "jitter_strength": 1.0,
+      "kernel_mass": 0.9999999999999999,
+      "kernel_discrete_m2_pixels": 466.2497333649859,
+      "center_xy": [
+        319.5,
+        179.5
+      ],
+      "core_radius": 4.0,
+      "core_pixel_count": 52,
+      "gpu_core_R": {
+        "min": 0.08441162109375,
+        "max": 0.36572265625,
+        "mean": 0.2223686805138221,
+        "std": 0.06428530808792823,
+        "p01_p50_p99": [
+          0.1053607177734375,
+          0.2198486328125,
+          0.363232421875
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "reference_core_R": {
+        "min": 0.19331831115931428,
+        "max": 0.19417736049576678,
+        "mean": 0.1937064120413733,
+        "std": 0.0002892158192464465,
+        "p01_p50_p99": [
+          0.19331831115931428,
+          0.19369205565412626,
+          0.19417736049576678
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 0
+      },
+      "residual_core_R": {
+        "min": -0.10939285350549838,
+        "max": 0.17165771469935537,
+        "mean": 0.028662268472448828,
+        "std": 0.06425238987412896,
+        "p01_p50_p99": [
+          -0.08825314713345676,
+          0.025970134210114557,
+          0.16911014666234309
+        ],
+        "zero_count": 0,
+        "le_1e_minus6_count": 18
+      },
+      "core_residual_rmse": 0.07035549188601985,
+      "core_residual_nrmse": 0.3632068300918856,
+      "gpu_R_alpha_max_abs_difference": 0.0,
+      "gpu_GB_max_abs": 0.0,
+      "source_R_alpha_max_abs_difference": 0.0,
+      "gpu_reference_total_linear_R_ratio": 0.9968285727970706
+    }
+  ]
+}

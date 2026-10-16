@@ -1,0 +1,9 @@
+Result: [
+  "config=Assets/Mine/Scripts/GizmoRender/GizmoRenderMembers.asset",
+  "guid=4e2e5c6cf445a4ecb8e42a4ee6e0ae65",
+  "members=Wind,Instance,Interior,Terrain",
+  "menu=Tools/GizmoRender",
+  "sceneDirty=False",
+  "configDirty=False",
+  "compileErrors=False"
+]

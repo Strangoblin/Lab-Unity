@@ -1,0 +1,19 @@
+{
+  "unchangedFromTaskStart": {
+    "Assets/Mine/Shaders/PostProcess/MaskBlur/MaskBlurFeature.cs.meta": true,
+    "Assets/Mine/Shaders/PostProcess/MaskBlur/MaskBlur.shader": true,
+    "Assets/Mine/Shaders/PostProcess/MaskBlur/MaskBlur.shader.meta": true,
+    "Assets/Mine/Shaders/PostProcess/MaskBlur/README.md.meta": true,
+    "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRFeature.cs.meta": true,
+    "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBR.shader.meta": true,
+    "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRMask.shader.meta": true,
+    "Assets/Mine/Shaders/PostProcess/MaskRBR/README.md.meta": true,
+    "Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader.meta": true,
+    "Assets/Mine/Shaders/Render/PBRToon/README.md": true,
+    "Assets/Mine/Shaders/Render/PBRToon/README.md.meta": true,
+    "Assets/Scenes/SampleScene.unity": true,
+    "Assets/Scenes/SampleScene.unity.meta": true,
+    "Assets/Settings/PC_Renderer.asset": true,
+    "Assets/Settings/PC_Renderer.asset.meta": true
+  }
+}

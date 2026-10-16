@@ -1,11 +1,12 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
+using Mine.GizmoRendering;
 
 /// <summary>
 /// Fish particle simulation — particles are distributed along and inside a
 /// CurveAsset tube, advancing purely by path sampling. No emission plane, no forces.
 /// </summary>
-public class FishSimulation : MonoBehaviour, IUniversalInstanceSimulator
+public class FishSimulation : MonoBehaviour, IUniversalInstanceSimulator, IGizmoSource
 {
     [Header("Compute")]
     public ComputeShader fishShader;
@@ -18,6 +19,9 @@ public class FishSimulation : MonoBehaviour, IUniversalInstanceSimulator
     [Header("Behaviour")]
     [Range(0f, 1f)] public float speedVariation = 0.5f;
     [Range(0f, 1f)] public float positionSmooth = 0.3f;
+
+    [Header("Debug")]
+    [SerializeField] private string _gizmoMember = "Instance";
 
     private const int MaxCurveSamples = 1024;
 
@@ -51,6 +55,47 @@ public class FishSimulation : MonoBehaviour, IUniversalInstanceSimulator
     private static readonly int PositionSmoothId   = Shader.PropertyToID("_PositionSmooth");
 
     public ComputeBuffer VisibleCountBuffer => null;
+
+    // ════════════════════════════════════════════════════════════
+    //  Gizmo declaration — curve path, tube radius and travel direction
+    // ════════════════════════════════════════════════════════════
+    public string Member
+    {
+        get => _gizmoMember;
+        set => _gizmoMember = value;
+    }
+
+    public GizmoForm Form => GizmoForm.Path;
+
+    private void OnDrawGizmos() => GizmoRender.Draw(this, false);
+
+    private void OnDrawGizmosSelected() => GizmoRender.Draw(this, true);
+
+    public void DrawGizmos(GizmoCanvas canvas)
+    {
+        if (curveAsset == null || curveAsset.positions == null || curveAsset.positions.Length < 2) return;
+
+        Vector3[] points = curveAsset.positions;
+        Vector3[] tangents = curveAsset.tangents;
+        if (tangents == null || tangents.Length != points.Length) return;
+
+        // ── Curve path ─────────────────────────────────────────────
+        canvas.Polyline(points, curveAsset.loop);
+
+        // ── Tube cross sections ────────────────────────────────────
+        canvas.Color = GizmoTint.Fade(canvas.BaseColor);
+        canvas.TubeFrames(points, tangents, tubeRadius, TubeFrameCount, TubeRingSegments);
+
+        // ── Travel direction at the path start ─────────────────────
+        canvas.Color = GizmoTint.Emphasis(canvas.BaseColor);
+        canvas.Arrow(points[0], tangents[0], ArrowLength, ArrowHeadLength, ArrowHeadWidth);
+    }
+
+    private const int TubeFrameCount = 32;
+    private const int TubeRingSegments = 16;
+    private const float ArrowLength = 0.5f;
+    private const float ArrowHeadLength = 0.1f;
+    private const float ArrowHeadWidth = 0.075f;
 
     // ════════════════════════════════════════════════════════════
     //  Debug — read back particle positions from GPU
@@ -202,67 +247,4 @@ public class FishSimulation : MonoBehaviour, IUniversalInstanceSimulator
 
         fishShader.SetBuffer(updateKernel, ParticleBufferId, particleBuffer);
     }
-
-    // ════════════════════════════════════════════════════════════
-    //  Gizmos — curve path + tube radius
-    // ════════════════════════════════════════════════════════════
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
-    {
-        if (curveAsset == null || curveAsset.positions == null || curveAsset.positions.Length < 2) return;
-
-        Vector3[] pts = curveAsset.positions;
-        Vector3[] tng = curveAsset.tangents;
-        if (tng == null || tng.Length != pts.Length) return;
-
-        // ── Curve path ─────────────────────────────────────────
-        Gizmos.color = new Color(0, 1, 1, 0.9f);
-        for (int i = 0; i < pts.Length - 1; i++)
-            Gizmos.DrawLine(pts[i], pts[i + 1]);
-        if (curveAsset.loop)
-            Gizmos.DrawLine(pts[pts.Length - 1], pts[0]);
-
-        // ── Tube rings ─────────────────────────────────────────
-        int ringCount = 32;
-        int ringSegments = 16;
-        float ringStep = 1f / ringCount;
-        Color ringColor = new Color(1, 1, 0, 0.25f);
-        for (int r = 0; r <= ringCount; r++)
-        {
-            float t = r * ringStep;
-            int idx = Mathf.Min((int)(t * (pts.Length - 1)), pts.Length - 1);
-
-            Vector3 tangent = tng[idx];
-            Vector3 up = Vector3.up;
-            if (Mathf.Abs(Vector3.Dot(tangent, up)) > 0.999f) up = Vector3.right;
-            Vector3 right = Vector3.Cross(tangent, up).normalized;
-            Vector3 curveUp = Vector3.Cross(right, tangent).normalized;
-
-            Gizmos.color = ringColor;
-            for (int s = 0; s < ringSegments; s++)
-            {
-                float a0 = (float)s / ringSegments * Mathf.PI * 2f;
-                float a1 = (float)(s + 1) / ringSegments * Mathf.PI * 2f;
-                Vector3 p0 = pts[idx] + right * Mathf.Cos(a0) * tubeRadius + curveUp * Mathf.Sin(a0) * tubeRadius;
-                Vector3 p1 = pts[idx] + right * Mathf.Cos(a1) * tubeRadius + curveUp * Mathf.Sin(a1) * tubeRadius;
-                Gizmos.DrawLine(p0, p1);
-            }
-        }
-
-        // ── Direction arrow ────────────────────────────────────
-        Vector3 start = pts[0];
-        Vector3 startT = tng[0];
-        Vector3 arrowBase = start + startT * 0.5f;
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(start, arrowBase);
-        Vector3 arrowUp = Vector3.up;
-        if (Mathf.Abs(Vector3.Dot(startT, arrowUp)) > 0.999f) arrowUp = Vector3.right;
-        Vector3 arrowR = Vector3.Cross(startT, arrowUp).normalized;
-        arrowUp = Vector3.Cross(arrowR, startT).normalized;
-        Gizmos.DrawLine(arrowBase, arrowBase + (-startT * 0.2f + arrowR * 0.15f) * 0.5f);
-        Gizmos.DrawLine(arrowBase, arrowBase + (-startT * 0.2f - arrowR * 0.15f) * 0.5f);
-        Gizmos.DrawLine(arrowBase, arrowBase + (-startT * 0.2f + arrowUp * 0.15f) * 0.5f);
-        Gizmos.DrawLine(arrowBase, arrowBase + (-startT * 0.2f - arrowUp * 0.15f) * 0.5f);
-    }
-#endif
 }

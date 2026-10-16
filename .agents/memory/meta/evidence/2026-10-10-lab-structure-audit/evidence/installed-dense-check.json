@@ -1,0 +1,144 @@
+{
+  "status": "passed",
+  "executed_at_utc": "2026-10-10T08:23:52.386423+00:00",
+  "command": [
+    "PYTHONDONTWRITEBYTECODE=1",
+    "${DENSE_PYTHON}",
+    ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/analyze_dense_reference.py",
+    "--manifest",
+    ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/manifest.json",
+    "--out-dir",
+    "tmp/sessions/2026-10-10-lab-structure-audit/output/installed-dense",
+    "--self-check"
+  ],
+  "shell_redirection": "> tmp/sessions/2026-10-10-lab-structure-audit/evidence/installed-dense-check.log 2>&1",
+  "cwd": ".",
+  "exit_code": 0,
+  "interpreter": "${DENSE_PYTHON}",
+  "versions": {
+    "python": "3.12",
+    "numpy": "2.3.5",
+    "pillow": "12.3.0"
+  },
+  "summary": {
+    "regenerated_reference_files": 6,
+    "all_sha_shape_dtype_match": true,
+    "report_values_exact_equal": true,
+    "uses_old_npy": false,
+    "scope": "Frozen CPU reference from saved RGBA; no Editor/GPU replay."
+  },
+  "proof_files": [
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/analyze_dense_reference.py",
+      "sha256": "464b46e386d3031659ffb3852a25f63bacddd00b48fef7f30a487f741e93e732",
+      "size_bytes": 13823
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/manifest.json",
+      "sha256": "375723e04d76a6aa1ab9c3797aabc676d72544191922a99263d0a77ff97a6ad7",
+      "size_bytes": 1745
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "sha256": "751c2bf4b98a94744b0777b00e5ed97b30d1dde0f3075ffbe289ceeb59a843f5",
+      "size_bytes": 1935
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/original-results/dense-reference-report.json",
+      "sha256": "a9dd87221a39cbabc87a3e3f18718005b69ecb0af3f951e703b2febf31387f53",
+      "size_bytes": 10758
+    },
+    {
+      "path": "tmp/sessions/2026-10-10-lab-structure-audit/output/installed-dense/reference-self-check.json",
+      "sha256": "ca128060cf1c333eb7af7b70787148a6820c511e9f20ab401a6eb18e888dcc2c",
+      "size_bytes": 1823
+    },
+    {
+      "path": "tmp/sessions/2026-10-10-lab-structure-audit/output/installed-dense/dense-reference-report.json",
+      "sha256": "a9dd87221a39cbabc87a3e3f18718005b69ecb0af3f951e703b2febf31387f53",
+      "size_bytes": 10758
+    },
+    {
+      "path": "tmp/sessions/2026-10-10-lab-structure-audit/evidence/installed-dense-check.log",
+      "sha256": "49af7f37a92c36cff7fe8d7c045692025057386b981a6e968533b2666ceda815",
+      "size_bytes": 11084
+    }
+  ],
+  "reference_self_check": {
+    "status": "passed",
+    "reference_files": [
+      {
+        "name": "uniform_one9-dense-reference.npy",
+        "sha256": "7b24bcb0b3cdc6ac9385ebd4b6be23329c72c6f28931c030a587faab57ca5db1",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r80_one9-dense-reference.npy",
+        "sha256": "8a6406e4abe89aa8b0bf312f294b53bbd2a0cea554fe4ea1b7d30ad754c8b29e",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r16_one9-dense-reference.npy",
+        "sha256": "a7bd4251dae97fd5e945b6daf4c678f81e71e83fcc42b729e6693b3fdf163c23",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r16_two9-dense-reference.npy",
+        "sha256": "4b8b49ef7bd2bc3a138f68cda933dc515b25c3bf0273466a958a2dca0cbd9b92",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r3_one9-dense-reference.npy",
+        "sha256": "cb348a18b45580fbc40e01c4d8f343865c5ca0a10e545af1d937dde433f9fe0f",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r16_one5-dense-reference.npy",
+        "sha256": "ed6e02c62713cac0958c6e1c614c2846d10c41345fdc0c2ec884165855346c4e",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      }
+    ],
+    "report_values_exact_equal": true,
+    "scope": "Frozen CPU reference from saved RGBA; no Editor/GPU replay."
+  },
+  "archive_adaptation": {
+    "source_sha256": "41777ef2f5174de2b88aa96a3b17a67928fe88a2ba22e81f467e1c695c6329fb",
+    "method": "Project-root prefixes made repository-relative; externally configured Python and glslang paths represented by DENSE_PYTHON/GLSLANG_VALIDATOR. Numeric results and captured output hashes unchanged."
+  }
+}

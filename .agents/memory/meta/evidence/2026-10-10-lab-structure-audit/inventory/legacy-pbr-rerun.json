@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "source": "tmp/pbr-btdf-check.cpp",
+      "source_sha256": "4b9bdfeaab382cdffaf1dabf84ee85d21016257a4c125240a3232d78f7ae8c05",
+      "legacy_binary": "tmp/pbr-btdf-check",
+      "command": [
+        "/usr/bin/clang++",
+        "-std=c++17",
+        "tmp/pbr-btdf-check.cpp",
+        "-o",
+        "<task-owned-output>"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: actual BTDF function arithmetic; Fresnel/TIR, hemisphere, IOR, analytic normal incidence, radiance reciprocity, blend endpoints, 126736 finite/nonnegative cases\n",
+      "note": "Standalone historical C++ arithmetic snapshot rerun; does not read current HLSL and is not current production equivalence proof."
+    },
+    {
+      "source": "tmp/pbr-organize-check.cpp",
+      "source_sha256": "f337f84db057087697165bb6f0ab74ed29f82127d22a24513f89cbf6ce2c2fdf",
+      "legacy_binary": "tmp/pbr-organize-check",
+      "command": [
+        "/usr/bin/clang++",
+        "-std=c++17",
+        "tmp/pbr-organize-check.cpp",
+        "-o",
+        "<task-owned-output>"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: actual BTDF function arithmetic; Fresnel/TIR, hemisphere, IOR, analytic normal incidence, radiance reciprocity, blend endpoints, 126736 finite/nonnegative cases\n",
+      "note": "Standalone historical C++ arithmetic snapshot rerun; does not read current HLSL and is not current production equivalence proof."
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "status": "PASS",
+  "executed_at_utc": "2026-10-10T08:23:41.585249+00:00",
+  "working_directory": ".",
+  "commands": [
+    {
+      "command": "GLSLANG_VALIDATOR=${GLSLANG_VALIDATOR} PYTHONDONTWRITEBYTECODE=1 python3 .agents/agents/unity-developer/scripts/validation/hash/verify_hash.py --output-dir tmp/sessions/2026-10-10-lab-structure-audit/output/installed-hash/current",
+      "exit_code": 0,
+      "report": {
+        "path": "tmp/sessions/2026-10-10-lab-structure-audit/output/installed-hash/current/final-validation-report.json",
+        "sha256": "f957b221053ac807ba1ecad2c55b498b85596e8375c9481c8bda0c5783268fca",
+        "size_bytes": 11599
+      }
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 /Library/Developer/CommandLineTools/usr/bin/python3 .agents/agents/unity-developer/scripts/validation/hash/analyze_variants.py --output-dir tmp/sessions/2026-10-10-lab-structure-audit/output/installed-hash/statistics",
+      "exit_code": 0,
+      "report": {
+        "path": "tmp/sessions/2026-10-10-lab-structure-audit/output/installed-hash/statistics/variant-statistics-report.json",
+        "sha256": "eb87afc8734376d4d7651c5f6147fe32143bc1f5c35d3e78337fd913eea07f57",
+        "size_bytes": 54473
+      }
+    }
+  ],
+  "summary": {
+    "cpu_comparisons": 63212,
+    "bit_mismatches": 0,
+    "range_checks": 54161,
+    "preserved_complete_files": 15,
+    "current_hash_contract_files": 13,
+    "shader_compute_include_order_files": 13,
+    "native_hlsl_spirv": "float SHADER_TARGET 20/35/50; uint 35/50; uint20 rejected as expected",
+    "algorithm_fault_controls": [
+      {
+        "algorithm": "Sine21",
+        "generated_copy_change": "12.9898 -> 13.9898",
+        "bit_mismatches": 14735
+      },
+      {
+        "algorithm": "FracGrid22",
+        "generated_copy_change": "0.1030 -> 0.1130",
+        "bit_mismatches": 22492
+      }
+    ],
+    "historical_complete_file_drift": [
+      {
+        "file": "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader",
+        "historical_source_sha256": "54f4960a02d45f8754adb19c6b851d056d999a0bb0de90ead1544b56ea43141a",
+        "current_source_sha256": "2dd99e4cf57aba862b3bee6f01372b42cb0a4e34e8513039d053948e8c1f3b97",
+        "reason": "Reviewed later source edits; historical whole-file preservation no longer applies. Current Hash-bearing statements, when present, remain exact after listed mappings.",
+        "current_contract": "Complete Frag_RBR2D tokens match the frozen baseline after hash21 -> Hash_Sine21: UV + frac(time), signed remap, dTuv amplitude, 24 samples and all radial math remain unchanged."
+      },
+      {
+        "file": "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+        "historical_source_sha256": "53b66f5f943320227cfc843786b69b136291973738c0c9f6f03c1eaffbef0f72",
+        "current_source_sha256": "439b64ba7012518da858f4a9fb224224a0abc05432e3b2c2be98086e1587d283",
+        "reason": "Reviewed later source edits; historical whole-file preservation no longer applies. Current Hash-bearing statements, when present, remain exact after listed mappings."
+      },
+      {
+        "file": "Assets/Mine/Shaders/PostProcess/Kuwahara/Kuwahara.shader",
+        "historical_source_sha256": "5ee873b39d70855c7b8b7777006da595e7273d458104bf0d8bd85ef811f5d512",
+        "current_source_sha256": "4a328a94969007330c26a3f3944b9c15070e2a55dc782a38cdfdb0647decaaf7",
+        "reason": "Reviewed later source edits; historical whole-file preservation no longer applies. Current Hash-bearing statements, when present, remain exact after listed mappings."
+      },
+      {
+        "file": "Assets/Mine/Shaders/PostProcess/DDOF/DDOF.shader",
+        "historical_source_sha256": "d0a65641750221dec3eefc086a39cd71f029b531b6c82063ef44cd47ceb55d7a",
+        "current_source_sha256": "579270ba018f49e5df4c1bd4b278c2961e69ac2ad7d148e48faa777e30f0951c",
+        "reason": "Reviewed later source edits; historical whole-file preservation no longer applies. Current Hash-bearing statements, when present, remain exact after listed mappings."
+      }
+    ],
+    "historical_drift_is_current_failure": false,
+    "statistics_domain_range_checks": 40,
+    "statistics_all_range_contracts_hold": true,
+    "statistics_equals_archived_report_after_path_metadata_normalization": true,
+    "statistics_normalized_fields": [
+      "baseline",
+      "baseline_path_base"
+    ],
+    "archived_statistics_report": {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/variant-statistics-report.json",
+      "sha256": "5a4572da88e731282c9b300f5925fa633bdd0883d6eacb61a2644d5e38567252",
+      "size_bytes": 54522
+    },
+    "statistics_method": "NumPy 2.0.2 float32 transcription of source-checked HLSL; no FMA contraction; statistics accumulated in float64."
+  },
+  "limits": [
+    "No Unity Editor/Metal/GPU or rendered-image equivalence validation.",
+    "Statistics are source-checked float32 NumPy transcription; not independent HLSL execution."
+  ],
+  "archive_adaptation": {
+    "source_sha256": "aed3be53ccb4565dffc3e2d23bb50cb533275d3b5910906db150b6b2ead06033",
+    "method": "Project-root prefixes made repository-relative; externally configured Python and glslang paths represented by DENSE_PYTHON/GLSLANG_VALIDATOR. Numeric results and captured output hashes unchanged."
+  }
+}

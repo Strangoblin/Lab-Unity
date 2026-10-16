@@ -1,0 +1,1 @@
+{"success":true,"result":"{\n  \"detected\": true,\n  \"assertions\": 37,\n  \"error\": \"Injected wrong-backend history acceptance channel 1: expected 0, actual 1\",\n  \"output\": \"tmp/sessions/2026-10-15-ssgi-history-control-9bba3e0c/output\"\n}"}

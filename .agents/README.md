@@ -1,33 +1,12 @@
-# `.agents/` 共享核心
+# 项目 Agent 库
 
-> 本目录是项目级 agent 体系的跨平台共享权威源（SSOT）。Claude、Codex 和其他接入方都应从这里读取共享角色、规则、知识索引与 skills。
+从 [agents 清单](agents/README.md) 选角色和所需库，直接取用正文；本文件不是额外必读层。
 
-## 所有权
+| 目录 | 用途 |
+|---|---|
+| `agents/` | 范围、取用与记录职责 |
+| `memory/` | 当前上下文与历史结论 |
+| `knowledge/` | 事实、规范、接口合同及外部来源 |
+| `skills/` | 工作流、脚本和模板 |
 
-- `.agents/agents/`：角色定义及其职责范围内的 references、templates、CLI、scripts、memory。
-- `.agents/rules/`：与客户端无关的项目硬规则。
-- `.agents/knowledge/`：按领域组织的知识路由索引，不复制知识正文。
-- `.agents/interfaces/`：跨平台路径、知识 ID 和适配契约。
-- `.agents/skills/`：共享 skills 的唯一编辑位置。
-- `.claude/`、`.codex/`：平台适配层；`.mcp/`：执行门禁基础设施。
-
-## 单源规则
-
-1. 跨平台内容只能在 `.agents/` 保留一个可编辑权威副本。
-2. 平台目录只能保留启动入口、配置、hooks、测试和兼容适配；禁止手工复制共享正文。
-3. 需要兼容旧路径时，只能使用明确标注的薄壳、软链或可验证生成物。
-4. 新增共享内容前，先检查目标层索引与全库同名文件，避免重复权威源。
-5. 所有仓库内路径使用 POSIX 风格相对路径；用户目录只能由外部配置注入。
-
-## 迁移状态
-
-当前为 Agent 架构重构收尾：共享 rules、角色定义、角色归属内容和 MCP knowledge roots 已切换到 `.agents`；旧 `.claude` 发现路径全部为相对软链（agent/rules/skills，2026-09-04 验证通过），`.codex/` 已切为薄适配入口。`.claude/skills/` 实体副本已删除（32 文件 → 9 软链），strict 验收全绿；仅剩空目录壳物理清理与退役日期管理。
-
-## 读取顺序
-
-1. 根 `AGENTS.md`。
-2. 角色入口：`.agents/agents/<role>/AGENT.md`。
-3. 任务相关的 `.agents/rules/` 和 `.agents/knowledge/<domain>/` 索引。
-4. 按索引读取具体 reference、template、script 或 memory；不要扫描整个目录。
-
-角色更名、长文档拆分和旧副本清理不属于本阶段。
+详细结构约定只在 [架构知识](knowledge/meta/architecture.md) 维护。共享内容只有一个实体位置；全部入口为明文指引，禁止软链与正文镜像。项目资源与权限由 `.mcp/` 接入。

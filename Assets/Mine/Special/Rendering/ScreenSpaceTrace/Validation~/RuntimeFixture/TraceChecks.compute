@@ -1,0 +1,131 @@
+// ═══════════════════════════════════════════════════════════════
+//  TraceChecks — all backends, frozen SSGI RAY baseline and mip export.
+// ═══════════════════════════════════════════════════════════════
+#pragma kernel Trace TEST_REVERSED=0
+#pragma kernel TraceReversed TEST_REVERSED=1
+#pragma kernel CopyMip
+
+Texture2D<float> _Depth;
+Texture2D<float> _Pyramid;
+#define SCREEN_TRACE_LOAD_DEPTH(pixel) _Depth.Load(int3(pixel, 0))
+#define SCREEN_TRACE_LOAD_PYRAMID(pixel, mip) _Pyramid.Load(int3(pixel, mip))
+#include "Assets/Mine/Special/HLSL/RayStepFunction.hlsl"
+#include "Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl"
+#include "Assets/Mine/Special/Rendering/ScreenSpaceTrace/Validation~/TraceTestContext.hlsl"
+
+float TraceTest_BaselineDepth(float2 uv)
+{
+    if (_TestFlags.x == 0)
+    {
+        int2 pixel = clamp((int2)floor(uv * _TestSize.xy), int2(0, 0), (int2)_TestSize.xy - 1);
+        float2 sourceUV = ((float2)pixel + 0.5) / _TestSize.xy * _TestDepthUvScaleBias.xy + _TestDepthUvScaleBias.zw;
+        return _Depth.Load(int3((int2)floor(sourceUV * _TestTextureSize.xy), 0));
+    }
+    float eyeDepth;
+    bool surface = ScreenTrace_LoadUV(uv, TraceTest_Context(), eyeDepth);
+    if (!surface)
+        return _TestFlags.z != 0 ? 0.0 : 1.0;
+    if (_TestFlags.y != 0)
+    {
+        float raw = (eyeDepth - _TestClip.x) / (_TestClip.y - _TestClip.x);
+        return _TestFlags.z != 0 ? 1.0 - raw : raw;
+    }
+    return (rcp(eyeDepth) - _TestZBufferParams.w) / _TestZBufferParams.z;
+}
+
+#define UNITY_REVERSED_Z TEST_REVERSED
+#define UNITY_UV_STARTS_AT_TOP 0
+#define UNITY_NEAR_CLIP_VALUE 0
+#define UNITY_MATRIX_I_VP _TestWorldToView
+#define TransformWorldToHClip(position) mul(_TestViewToClip, float4(position, 1.0))
+#define TransformWorldToView(position) position
+#define _ProjectionParams float4(1.0, _TestClip.x, _TestClip.y, 1.0 / _TestClip.y)
+#define unity_OrthoParams float4(0.0, 0.0, 0.0, _TestFlags.y)
+#define _ZBufferParams _TestZBufferParams
+#define _CameraDepthTexture_TexelSize _TestTextureSize.zwxy
+#define ClampAndScaleUVForBilinear(uv, texel) uv
+#define UnityStereoTransformScreenSpaceTex(uv) uv
+#define SAMPLE_TEXTURE2D_X_LOD(texture, samplerName, uv, mip) TraceTest_BaselineDepth(uv)
+#define LinearDepthToEyeDepth(raw) lerp(_TestClip.x, _TestClip.y, _TestFlags.z != 0 ? 1.0 - raw : raw)
+#define LinearEyeDepth(raw, params) rcp((params).z * raw + (params).w)
+#define ComputeWorldSpacePosition(uv, depth, matrix) float3(0.0, 0.0, 0.0)
+#include "Assets/Mine/Special/Rendering/ScreenSpaceTrace/Validation~/BaselineScreenSpaceTrace.hlsl"
+
+struct TraceTestInput
+{
+    float4 originRange;
+    float4 directionRange;
+};
+
+struct TraceTestOutput
+{
+    float4 geometry;
+    float4 diagnostic;
+};
+
+StructuredBuffer<TraceTestInput> _Inputs;
+RWStructuredBuffer<TraceTestOutput> _Outputs;
+int _TestRayCount;
+int _TestInjectFault;
+
+void TraceRun(uint3 dispatchId)
+{
+    uint rayIndex = dispatchId.x + dispatchId.y * 8;
+    if (rayIndex >= (uint)_TestRayCount)
+        return;
+    TraceTestInput input = _Inputs[rayIndex];
+    RayStepRay ray;
+    ray.origin = input.originRange.xyz;
+    ray.direction = input.directionRange.xyz;
+    ray.distanceRange = float2(input.originRange.w, input.directionRange.w);
+    ScreenTraceContext context = TraceTest_Context();
+    ScreenTraceConfig config = TraceTest_Config();
+    for (int backend = 0; backend < 3; backend++)
+    {
+        ScreenTraceHit hit;
+        bool found;
+        if (backend == 0)
+            found = ScreenTrace_TraceRay(ray, context, config, hit);
+        else if (backend == 1)
+            found = ScreenTrace_TraceDDA(ray, context, config, hit);
+        else
+            found = ScreenTrace_TraceHiZ(ray, context, config, hit);
+        TraceTestOutput output;
+        output.geometry = float4(hit.uv, hit.distance, hit.eyeDepth);
+        if (_TestInjectFault != 0 && backend == 1)
+            output.geometry.z += 0.5;
+        output.diagnostic = float4(hit.status, hit.steps, hit.depthQueries, found ? 1.0 : 0.0);
+        _Outputs[rayIndex * 4 + backend] = output;
+    }
+    ScreenSpaceTraceHit baseline;
+    bool baselineFound = SST_Trace(ray.origin, ray.direction, ray.distanceRange.y,
+        config.thickness, config.maxSteps, baseline);
+    TraceTestOutput baselineOutput;
+    baselineOutput.geometry = float4(baseline.uv, baseline.distance, 0.0);
+    baselineOutput.diagnostic = float4(0.0, 0.0, 0.0, baselineFound ? 1.0 : 0.0);
+    _Outputs[rayIndex * 4 + 3] = baselineOutput;
+}
+
+[numthreads(8, 8, 1)]
+void Trace(uint3 dispatchId : SV_DispatchThreadID)
+{
+    TraceRun(dispatchId);
+}
+
+[numthreads(8, 8, 1)]
+void TraceReversed(uint3 dispatchId : SV_DispatchThreadID)
+{
+    TraceRun(dispatchId);
+}
+
+RWTexture2D<float> _Destination;
+int _ExportMip;
+int2 _ExportSize;
+
+[numthreads(8, 8, 1)]
+void CopyMip(uint3 dispatchId : SV_DispatchThreadID)
+{
+    if (any(dispatchId.xy >= (uint2)_ExportSize))
+        return;
+    _Destination[dispatchId.xy] = _Pyramid.Load(int3(dispatchId.xy, _ExportMip));
+}

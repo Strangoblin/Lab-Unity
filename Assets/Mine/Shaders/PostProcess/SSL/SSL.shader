@@ -1,42 +1,52 @@
+// ════════════════════════════════════════════════════════════
+//  SSL — 屏幕空间光（Screen Space Light）
+//
+//  Unity 6 URP 17+ 全屏后处理，两种模式由关键字分发：
+//    RAY3D  沿视线 3D 步进，累积阴影光照（SSL_LIGHT）或深度密度（SSL_FOG）
+//    RBR2D  全屏径向模糊，模糊中心为主平行光方向的屏幕投影焦点
+//    Pass 0 生成 → Pass 1/2 多级模糊链（BlurFunction.hlsl）→ Pass 3 合成
+//  参数全部由 SSLFeature 经 PropertyToID 传入，面板不暴露。
+// ════════════════════════════════════════════════════════════
 Shader "PostProcess/SSL"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" { }
+        // 参数由 SSLFeature 传入，无需 Inspector 暴露
     }
 
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-    #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+    #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/BlurFunction.hlsl"
 
-    // ════════════════════════════════════════════════════════════
-    //  共享 Uniforms
-    // ════════════════════════════════════════════════════════════
+    // ── 参数 ──
+    CBUFFER_START(UnityPerMaterial)
+        int   _MaxSteps;
+        float _MaxDistance;
+        float _Intensity;
+        float _SSLScale;
+        float _BlurScale;
+        float _JitterScale;
+    CBUFFER_END
 
-    int   _MaxSteps;
-    float _MaxDistance;
-    float _Intensity;
-    float _SSLScale;
-    float _BlurScale;
-    float _JitterScale;
-
+    // ── 中间纹理（Feature 端 cmd.SetGlobalTexture 发布） ──
     TEXTURE2D_X(_SSLTex);
 
     // ════════════════════════════════════════════════════════════
-    //  RAY3D — 屏幕空间光体积步进（原 SSL 方法）
+    //  ReconstructWorldPos — 由深度重建世界坐标
     // ════════════════════════════════════════════════════════════
-
-    // 深度重建世界坐标
     float3 ReconstructWorldPos(float2 uv)
     {
         float rawDepth = SampleSceneDepth(uv);
         return ComputeWorldSpacePosition(uv, rawDepth, UNITY_MATRIX_I_VP);
     }
 
-    // 世界坐标采样阴影图
+    // ════════════════════════════════════════════════════════════
+    //  SampleShadow — 世界坐标采样主光阴影图
+    // ════════════════════════════════════════════════════════════
     float SampleShadow(float3 positionWS)
     {
         float4 shadowCoord = TransformWorldToShadowCoord(positionWS);
@@ -46,12 +56,19 @@ Shader "PostProcess/SSL"
             shadowCoord);
     }
 
+    // ════════════════════════════════════════════════════════════
+    //  HG — Henyey-Greenstein 相位函数
+    // ════════════════════════════════════════════════════════════
     float HG(float cosTheta, float g)
     {
         return (1 - g * g) / pow(1 + g * g - 2 * g * cosTheta, 1.5);
     }
 
-    // 屏幕空间光体积步进 — 沿视线累积阴影光照（SSL_LIGHT）/ 深度密度（SSL_FOG）
+    // ════════════════════════════════════════════════════════════
+    //  SSL — RAY3D 屏幕空间光体积步进
+    //
+    //  沿视线从相机步进至深度重建点，SSL_LIGHT 累积阴影光照、SSL_FOG 累积深度密度
+    // ════════════════════════════════════════════════════════════
     float SSL(
         float3 cameraPos,
         float3 lightDir,
@@ -66,7 +83,7 @@ Shader "PostProcess/SSL"
         float  rayLen  = clamp(length(rayVec), 0.0, maxDistance);
 
         float  stepSize   = rayLen / maxSteps;
-        float3 jitter     = frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+        float3 jitter     = Hash_Sine21(uv);
         float3 currentPos = cameraPos + rayDir * (stepSize * jitter.x * _JitterScale);
         float  density = 0.0;
 
@@ -104,13 +121,10 @@ Shader "PostProcess/SSL"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  RBR2D — 全屏径向模糊（样本 Full Scene Radial Blur 改造）
+    //  GetLightFocusUV — 主平行光方向在屏幕上的投影焦点
     //
-    //  blur 中心 = 主平行光方向在屏幕上的投影焦点，取代样本的
-    //  屏幕中心 + 假光偏移；模糊方向即平行光方向
+    //  沿光方向取远点投影为 UV，取代样本的「屏幕中心 + 假光偏移」
     // ════════════════════════════════════════════════════════════
-
-    // 平行光方向 → 屏幕空间焦点 UV（沿光方向取远点投影）
     float2 GetLightFocusUV()
     {
         Light mainLight = GetMainLight();
@@ -122,16 +136,9 @@ Shader "PostProcess/SSL"
         return clamp(focus, -0.5, 1.5);               // 允许离屏焦点，限制极端值
     }
 
-    // 2x1 hash — 采样抖动去 banding
-    float hash21(float2 p)
-    {
-        return frac(sin(dot(p, float2(41.0, 289.0))) * 45758.5453);
-    }
-
     // ════════════════════════════════════════════════════════════
-    //  Pass 0 入口 — 关键字分发到 RAY3D / RBR2D
+    //  Frag_RAY3D — RAY3D 入口，密度转主光颜色
     // ════════════════════════════════════════════════════════════
-
     half4 Frag_RAY3D(Varyings input) : SV_Target
     {
         float2 uv = input.texcoord;
@@ -154,7 +161,11 @@ Shader "PostProcess/SSL"
         return float4(sslColor, 1.0);
     }
 
-    // 径向模糊采样累积 — 沿 (uv → 光焦点) 方向递减加权
+    // ════════════════════════════════════════════════════════════
+    //  Frag_RBR2D — RBR2D 全屏径向模糊
+    //
+    //  沿 (uv → 光焦点) 方向递减加权累积 24 次采样，焦点处聚光收尾
+    // ════════════════════════════════════════════════════════════
     half4 Frag_RBR2D(Varyings input) : SV_Target
     {
         float2 uv = input.texcoord;
@@ -172,7 +183,7 @@ Shader "PostProcess/SSL"
         half4 col = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv) * 0.25;
 
         // 抖动去 banding
-        uv += dTuv * (hash21(uv + frac(_Time.y)) * 2.0 - 1.0);
+        uv += dTuv * (Hash_Sine21(uv + frac(_Time.y)) * 2.0 - 1.0);
 
         [loop]
         for (float i = 0.0; i < SAMPLES; i++)
@@ -187,6 +198,9 @@ Shader "PostProcess/SSL"
         return col;
     }
 
+    // ════════════════════════════════════════════════════════════
+    //  Frag — Pass 0 入口，关键字分发到 RAY3D / RBR2D
+    // ════════════════════════════════════════════════════════════
     half4 Frag(Varyings input) : SV_Target
     {
         #if defined(SSL_RBR2D)
@@ -197,9 +211,8 @@ Shader "PostProcess/SSL"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  模糊 Pass 入口 — BlurFunction.hlsl 双向高斯
+    //  Frag_BlurHorizontal / Frag_BlurVertical — 调用 BlurFunction.hlsl 双向高斯
     // ════════════════════════════════════════════════════════════
-
     half4 Frag_BlurHorizontal(Varyings input) : SV_Target
     {
         float2 uv = input.texcoord;
@@ -215,9 +228,8 @@ Shader "PostProcess/SSL"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  合成 Pass — RBR2D: lerp 模糊场景 / RAY3D: 加法体积光
+    //  Frag_Mix — 合成：RBR2D 按强度 lerp 模糊场景 / RAY3D 加法体积光
     // ════════════════════════════════════════════════════════════
-
     half4 Frag_Mix(Varyings input) : SV_Target
     {
         half4 mainColor = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
@@ -228,15 +240,12 @@ Shader "PostProcess/SSL"
             return mainColor + sslColor;
         #endif
     }
+
     ENDHLSL
 
     SubShader
     {
-        Tags
-        {
-            "RenderPipeline" = "UniversalPipeline"
-            "RenderType" = "Opaque"
-        }
+        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
 
         Cull Off
         ZWrite Off

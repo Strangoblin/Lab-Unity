@@ -1,34 +1,8 @@
-# Unity Lab — 项目 Agent 入口
+# Unity Lab — 项目入口
 
-本文件是平台无关的仓库入口。共享 agent 体系的唯一权威源是 `.agents/`；`.claude/` 和 `.codex/` 只提供各自客户端的薄适配，`.mcp/` 提供执行门禁。
+Unity 6 / URP 17+ 渲染实验室。先读 [Agent 清单](.agents/agents/README.md)，再直接取用匹配角色的 memory、knowledge 或 skill；不预加载全部库。
 
-## 项目身份
+共享内容在 `.agents/{agents,memory,knowledge,skills}`，入口均为明文，不建软链或镜像。平台配置归 `.claude/.codex`，实际门禁与项目资源绑定归 `.mcp`。
 
-Unity 6 + URP 17+ 渲染技术实验室，涉及 Shader / HLSL / Compute / RenderGraph / C# 与 Unity Editor 验证。
-
-## 渐进读取顺序
-
-1. 读取 `.agents/README.md`。
-2. 根据任务选择 `.agents/agents/<role>/AGENT.md`：
-   - `unity-developer`：Unity 功能、渲染、脚本和 Editor 验证。
-   - `meta-developer`：agent 体系、skills、rules、路径和适配层维护。
-3. 读取任务相关的 `.agents/rules/` 和 `.agents/knowledge/<domain>/` 索引。
-4. 按索引读取具体 reference、template、CLI、script 或 memory；不要扫描整个共享目录。
-
-## 平台适配
-
-- Claude：`.claude/CLAUDE.md`、settings、hooks 与 Claude 发现兼容层。
-- Codex：`.codex/AGENTS.md`、`INTERFACE.md`、config、hooks 与测试。
-- MCP：`.mcp/` 的 gate、validation 和测试；迁移完成后读取 `.agents` 的规范路径。
-
-## 安全与回退
-
-- 删除、移动旧副本或架构清理前，必须列出精确清单并取得人工确认。
-- 禁止 `git stash --all`。
-- 不修改 `Assets/Mine/` 功能代码，除非任务明确要求并完成对应门禁。
-- 文档和配置使用仓库相对路径；不写死用户机器绝对路径。
-- 每个架构阶段独立提交并保留可回退点。
-
-## 迁移状态
-
-当前为 Agent 架构重构收尾：共享 rules、角色定义、角色归属内容和 MCP knowledge roots 已切换到 `.agents`；Claude 适配层（agent/rules/skills 软链）与 Codex 适配层（入口/运行时角色）已完成切流与验证（2026-09-04 strict 验收全绿）。`.claude/` 仅剩发现软链与空目录壳，退役日期见 `.agents/agents/meta-developer/memory/2026-09-04-agent-architecture-cutover.md`。
+安全边界：存量删除 / 移动列精确清单并取得人工确认；同一授权不重复请求。禁止 `git stash --all`，保护已有改动。业务资产修改须任务授权及现有门禁；本体系整理不扩展资产权限。
+文档和配置用仓库相对路径；每个架构阶段独立提交并保留可回退点，不把用户脏改动混入自动提交。

@@ -1,0 +1,1 @@
+{"success":true,"result":"{\n  \"detected\": true,\n  \"assertions\": 37,\n  \"error\": \"DDA world distance: expected 2.5, actual 2.999897\",\n  \"output\": \"tmp/sessions/2026-10-15-ssgi-camera-e7e8618f/output\"\n}"}

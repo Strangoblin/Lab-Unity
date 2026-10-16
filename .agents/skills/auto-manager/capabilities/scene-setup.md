@@ -1,93 +1,20 @@
-# scene-setup — 场景配置
+# 场景配置
 
-> 通过 Roslyn 脚本在 Editor 中执行 C#，创建/配置场景物体。
+通过 [unity-editor](../../unity-editor/SKILL.md) 的 Roslyn 命令在当前 Editor 查询或配置场景。
+执行脚本前按 [script-decision](script-decision.md) 查库；复用入口见 [场景脚本索引](../../unity-editor/scripts/roslyn/README.md)。
 
----
+临时脚本执行：`unityctl script execute -f tmp/sessions/<date-task-id>/staging/setup_xxx.cs`。
+多程序集或 eval 约束先查 [Roslyn 命令](../../unity-editor/references/cli/roslyn.md)。
 
-## 命令
+## 资源与状态
 
-```bash
-unityctl script execute -f tmp/setup_xxx.cs
-```
+- 可查询组件、设置公开字段、调用 public 方法、创建本任务需要的 GameObject/组件。存量删除/层级调整沿用任务授权。
+- Shader/Material/ComputeShader/RenderTexture 字段优先绑定已存在且契约匹配的项目资源；地址通过资源接口或用户输入解析，不先造空资源再回填。
+- 调试期临时资源引用可用 `DEBUG_REF` 标识，记录原值；设计结束恢复/清空本任务临时引用，不清除其他人的字段。
+- 创建本任务测试物体时即挂在功能父容器下，例如 InstanceManager/FishTest；存量物体先查用途，不按 Test/Temp 名称自动改层级。
+- 查询候选不等于整理授权。`scene-organize.cs` 有修改层级/标脏副作用，核对精确对象与授权后才可使用。
 
-## 脚本模板
+## 收尾
 
-```csharp
-using UnityEngine;
-
-public class Script
-{
-    public static object Main()
-    {
-        // 创建物体
-        var go = new GameObject("TestObj");
-
-        // 添加组件
-        var comp = go.AddComponent<SomeComponent>();
-
-        // 通过 AssetDatabase 加载资源
-        var shader = UnityEditor.AssetDatabase.LoadAssetAtPath<ComputeShader>(
-            "Assets/Path/To/Shader.compute");
-        comp.someField = shader;
-
-        // 调用初始化
-        comp.Init();
-
-        return "OK: 描述结果";
-    }
-}
-```
-
-## 适用场景
-
-- 创建/删除 GameObject
-- 添加/移除 Component
-- 修改 Inspector 中的公开字段
-- 调用 public 方法（如 `InitInstances()`）
-- 读取组件状态进行调试
-
-## 调试期接口指向
-
-若 Feature 内存在需要外部资源引用的接口（`Shader`、`Material`、`ComputeShader`、`RenderTexture` 等），**可直接将接口指向项目中已有的资源地址**，跳过"先创建空资源再回填引用"的步骤。
-
-| 场景 | 示例 |
-|------|------|
-| Shader 字段 | `public Shader targetShader;` → Inspector 指向 `Assets/Mine/Shaders/PCSS/PCSS.shader` |
-| Material 引用 | `public Material debugMat;` → 指向已有的 `.mat` |
-| ComputeShader | `public ComputeShader cs;` → 指向已有 `.compute` |
-| RenderTexture | 直接指定已有的 RT 资产路径 |
-
-**标记格式：**
-
-```csharp
-// DEBUG_REF: 设计完成后清空此引用
-public Shader targetShader;
-```
-
-设计结束后清空所有 `DEBUG_REF` 标记的引用。
-
-## 场景整理规范
-
-同一框架的测试物体统一挂在功能父容器下，不散落在场景根级。
-
-```
-场景层级结构：
-  InstanceManager/                    ← 框架名（空物体，无组件）
-  ├── FishTest
-  └── RainTest
-
-  __TestObjects__/                    ← 其他散落测试物体（重清理时归类）
-  └── __Picker__/...
-```
-
-| 规则 | 说明 |
-|------|------|
-| 父容器按框架命名 | 如 `InstanceManager`，不是 `__TestObjects__` |
-| 子物体按功能命名 | `FishTest`、`RainTest`，清晰表示正在测试的功能 |
-| 根级不散落 | 任何含 `Test`/`Temp`/`Debug` 的物体都应在容器下 |
-| 创建时即归类 | 新测试物体直接在父容器下创建 |
-
-## 引用
-
-- 临时脚本管理规则见 [cleanup.md](cleanup.md) 中的 `tmp/.reusable/` 策略
-- 场景整理 Roslyn 脚本见 [cleanup.md](cleanup.md) 重清理部分
+按 [cleanup](cleanup.md) 与 [产物规范](../../../knowledge/meta/interfaces/task-artifacts.md) 处理自建对象、脚本和必要证据。
+可复用操作脚本归对应 skill 的 scripts，角色只记录关联与验证结论。

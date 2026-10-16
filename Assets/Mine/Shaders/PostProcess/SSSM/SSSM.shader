@@ -16,6 +16,7 @@ Shader "PostProcess/SSSM"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+    #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/BlurFunction.hlsl"
 
     // ── 参数 ──
@@ -84,7 +85,7 @@ Shader "PostProcess/SSSM"
         float3 dv = (endV - startV) / _StepCount * _StepSize;
 
         // ── 4. Jitter ──
-        float jitter = frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+        float jitter = Hash_Sine21(uv);
 
         float  K = startK + jitter * dk;
         float2 S = startS + jitter * ds;

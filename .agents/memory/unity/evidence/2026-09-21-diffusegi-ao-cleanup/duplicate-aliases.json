@@ -1,0 +1,26 @@
+[
+  {
+    "sha256": "4b966f45d11b918400c53f699e4a10777008437c37cdcdd699b88dfac1a1ff77",
+    "canonical": "Screenshots/ao-probe/hb_baseline.png",
+    "paths": [
+      "Screenshots/ao-probe/hb_baseline.png",
+      "Screenshots/ao-probe/ss_baseline.png"
+    ]
+  },
+  {
+    "sha256": "42d479cfde6b9472259729dc809f6741e25e1c577d79bfd65d3f52786301fedb",
+    "canonical": "Screenshots/ao-probe/raw_hb_base.bmp",
+    "paths": [
+      "Screenshots/ao-probe/raw_hb_base.bmp",
+      "Screenshots/ao-probe/raw_ss_base.bmp"
+    ]
+  },
+  {
+    "sha256": "d9a355f6c4c490010d0c53a18162d62e66bf239d4502db64234e2a5c03fc9423",
+    "canonical": "Screenshots/ao-probe/raw_hb_base.png",
+    "paths": [
+      "Screenshots/ao-probe/raw_hb_base.png",
+      "Screenshots/ao-probe/raw_ss_base.png"
+    ]
+  }
+]

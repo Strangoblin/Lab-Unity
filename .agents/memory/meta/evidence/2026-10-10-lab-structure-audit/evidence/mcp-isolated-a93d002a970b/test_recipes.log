@@ -1,0 +1,107 @@
+==================================================
+  Gate Tests (consequence-verification v3)
+==================================================
+
+── Self-check (registry invariants) ──
+  ✅ 自检通过: 链统一 / 退役集合 / requires 一致
+
+── Meta 边界: 不进入 Unity MCP ──
+  ✅ meta-developer 与 .agents 路径均不进入 Unity MCP
+
+── Production (2-gate chain → write) ──
+  ✅ 2 门禁链走通 + 写入审计记录 OK
+
+── g_knowledge 编造文件名 (denied) ──
+  ✅ DENIED: G15_UNRESOLVED_FILE (以下声明条目无法解析到真实文件: ['kuwahara-magic.md'])
+
+── g_knowledge 参考实现代码文件 (OK, 项目内真实文件) ──
+  ✅ OK: 参考实现代码文件解析成功
+
+── g_knowledge 缺高优先级文件 (denied) ──
+  ✅ DENIED: 缺高优先级 / PARTIAL 已废弃
+
+── 退役门禁 → GATE_NOT_IN_RECIPE (带退役提示) ──
+  ✅ 3 个退役门禁均拒绝且提示退役原因
+
+── 后果验证: 无 Shader 声明的 .shader (denied) ──
+  ✅ DENIED: NORM_VIOLATION (Shader 声明)
+
+── 后果验证: 合法最小 shader (OK) ──
+  ✅ OK: 合法 shader 放行
+
+── 后果验证: 新增 #region 行 (denied, 仅新增行) ──
+  ✅ DENIED: 新增行 #region 拦截 ([1])
+
+── 后果验证: 新增 // ==== 分隔线 (warning 不阻断) ──
+  ✅ OK + warning: 分隔线提示不阻断
+
+── 注解: 非法 script_decision 不阻断, 记录校验结果 ──
+  ✅ OK + 注解记录校验失败（非阻塞）
+
+── 未过门禁写入 (denied) ──
+  ✅ DENIED: 缺门禁 / 非法路径
+
+── 原子写: 无中间态临时文件残留 ──
+  ✅ OK: 内容完整, 无 .uetmp 残留
+
+── check_norm.py CLI (Codex 对等通道) ──
+  ✅ CLI: 合法 exit 0 / 违规 exit 1
+
+── 删除后果验证: 工作区分类 (隔离临时仓库) ──
+  ✅ 四分状态 + recoverable 标记 + GUID 引用（剔自身）判定正确
+
+── 移动后果验证: 预检 + 与 deletion 的分歧 (隔离临时仓库) ──
+  ✅ 预检各条 + .meta 配对 + GUID 占用；tracked-dirty 上 deletion 拦 / moving 放
+
+── 文件落点: 受管扩展名 / 新文件 error、既有 warning ──
+  ✅ 受管扩展名 / 落点 / 新旧强度 / category 一致性 均正确
+
+── write_gated 落点接线 ──
+  ✅ 落点校验已接线；被拒写入零落盘；非受管扩展名不受影响
+
+── delete_gated: 门禁 / 作用域 / reason / 审计 / 幂等 ──
+  ✅ 门禁 / 作用域 / reason 必填 / 删除 / 审计 / 幂等 / 重置 均正确
+
+── delete_gated.py CLI (Bash 通道) ──
+  ✅ 用法 / 门禁同源 / 作用域 / dry-run / 删除 / 落盘审计 / 幂等 均正确
+
+── move_gated: 门禁 / 作用域 / 形状 / 保真 / 审计 ──
+  ✅ 门禁 / 作用域 / reason / 形状 / 保真 / 落盘审计 / 重置 均正确
+
+── move_gated.py CLI (Bash 通道) ──
+  ✅ 用法 / 门禁同源 / 作用域 / dry-run / 移动 / .meta 配对 / 落盘审计 均正确
+
+── v3 策略数据化: 覆盖只放宽 / 缺省即 v2 ──
+  ✅ 放宽生效 / 收紧被拒 / 还原回固有 / 未知检查安全默认
+
+── v3 仪式降级机制: warn 放行留痕 / 退出即回 block ──
+  ✅ warn 放行且留痕 / 回 block 即拒（策略是数据，不是代码分支）
+
+── v3 统一写通道: gate_cli write（MCP 工具表冻结不再等于写入断掉）──
+  ✅ 用法 / 门禁同源 / 作用域逐码一致 / dry-run / stdin / 违规阻断 均正确
+
+── v3 摩擦账本: 聚合口径 / 提案规则 / 安全类保护 ──
+  ✅ dry-run 不计真实操作 / 安全类保护 / 小样本不结论
+
+── v3+ 工作目录: 未声明 / 越界 / 豁免 / 收窄 / 删移同约束 ──
+  ✅ 未声明阻断 / tmp 豁免 / 收窄校验 / 越界零落盘 / 删移同约束 / reset 清空
+
+── v3+ 多工作区: request 登记 ≠ 授权 / CLI 人工批准后才生效 ──
+  ✅ reason 必填 / 非法目标拒绝 / request≠grant / CLI 批准生效 / reject 移出 / show
+
+── v3+ 工作目录策略: required=false 回到 v2 ──
+  ✅ required 由 policy 数据控制 / 还原回 true
+
+── 已发布策略姿势（防漂移回归）──
+  ✅ 降级/保留/不可退役/工作目录开关 与决定一致
+
+── 已发布策略端到端: 未过链可写+留痕 / 防幻觉仍拦 ──
+  ✅ 未过链可写+留 warning / 防幻觉硬拦 / 缺项降为 RELAXED / 全申报仍 COMPLETE
+
+── 重启恢复: state.json 持久化 (子进程模拟) ──
+  ✅ 重启后 recipe/passed/工作目录 恢复, can_write OK
+  ✅ gate_reset 显式清空持久化
+
+==================================================
+  All tests passed ✓
+==================================================

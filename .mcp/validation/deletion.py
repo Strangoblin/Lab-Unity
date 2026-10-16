@@ -14,7 +14,7 @@
 """
 
 from __future__ import annotations
-import json, os, re, subprocess
+import hashlib, json, os, re, stat, subprocess
 from datetime import datetime, timezone
 
 # Unity .meta 的 guid 行：`guid: <32 位小写十六进制>`
@@ -23,6 +23,15 @@ GUID_RE = re.compile(r"^guid:\s*([0-9a-f]{32})\s*$", re.M)
 # 单次 git / grep 调用的上限；超时按「无法判定」处理，不放行
 TIMEOUT_GIT = 60
 TIMEOUT_GREP = 120
+
+# 结构类拒绝的错误码 → 对外 state 名（调用方与文档按 state 分流，不用猜字符串）
+STATE_BY_ERROR = {
+    "SYMLINK_NOT_ALLOWED": "symlink",
+    "UNSUPPORTED_TYPE": "unsupported-type",
+    "PATH_NOT_ALLOWED": "path-not-allowed",
+    "PROTECTED_ROOT": "protected-root",
+    "PRECHECK_FAILED": "precheck-failed",
+}
 
 
 def _git(project_root: str, *args: str) -> subprocess.CompletedProcess:
@@ -56,11 +65,14 @@ def classify(project_root: str, rel_paths: list[str]) -> dict[str, dict]:
         return result
 
     try:
-        tracked = _nul_list(_git(project_root, "ls-files", "-z", "--", *existing).stdout)
-        unstaged = _nul_list(_git(project_root, "diff", "--no-renames", "--name-only",
-                                  "-z", "--", *existing).stdout)
-        staged = _nul_list(_git(project_root, "diff", "--cached", "--no-renames",
-                                "--name-only", "-z", "--", *existing).stdout)
+        queries = [
+            _git(project_root, "ls-files", "-z", "--", *existing),
+            _git(project_root, "diff", "--no-renames", "--name-only", "-z", "--", *existing),
+            _git(project_root, "diff", "--cached", "--no-renames", "--name-only", "-z", "--", *existing),
+        ]
+        if any(q.returncode != 0 for q in queries):
+            raise OSError("git 状态查询失败")
+        tracked, unstaged, staged = (_nul_list(q.stdout) for q in queries)
     except (subprocess.SubprocessError, OSError):
         # 判定不了就不能放行 —— 未知状态按最坏情况处理
         for p in existing:
@@ -100,9 +112,212 @@ def guid_referenced_elsewhere(project_root: str, meta_rel: str, guid: str,
     try:
         r = subprocess.run(("grep", "-rlF", guid, assets_dir), cwd=project_root,
                            capture_output=True, text=True, timeout=TIMEOUT_GREP)
+        if r.returncode not in (0, 1):
+            raise OSError("grep 查询失败")
     except (subprocess.SubprocessError, OSError):
         return [f"<grep 失败: 无法排除 {guid} 是否仍被引用>"]
-    return [line for line in r.stdout.splitlines() if line and line != meta_rel]
+    # 逐行读取，不用 -Z：macOS/BSD grep 的 -Z 不产出 NUL 分隔，会把所有命中并成一条
+    return [p for p in r.stdout.splitlines() if p and p != meta_rel]
+
+
+# ═══ 目录预检 / 执行 —— 不跟随软链，不使用递归 rmtree ═══
+
+def _identity(st: os.stat_result) -> tuple:
+    return st.st_dev, st.st_ino, stat.S_IFMT(st.st_mode)
+
+
+def _fingerprint(full: str) -> dict:
+    """目录保存直接子项；普通文件保存内容 hash 与 inode，检测预检后的变化。"""
+    st = os.lstat(full)
+    if stat.S_ISLNK(st.st_mode):
+        raise ValueError("SYMLINK_NOT_ALLOWED")
+    identity = list(_identity(st))
+    if stat.S_ISDIR(st.st_mode):
+        return {"kind": "directory", "identity": identity,
+                "children": sorted(os.listdir(full))}
+    if not stat.S_ISREG(st.st_mode):
+        raise ValueError("UNSUPPORTED_TYPE")
+    fd = os.open(full, os.O_RDONLY | os.O_NOFOLLOW)
+    try:
+        if _identity(os.fstat(fd)) != _identity(st):
+            raise OSError("文件在预检期间发生变化")
+        digest = hashlib.sha256()
+        while True:
+            data = os.read(fd, 1024 * 1024)
+            if not data:
+                break
+            digest.update(data)
+        after = os.fstat(fd)
+        if (st.st_size, st.st_mtime_ns, st.st_ctime_ns) != (
+                after.st_size, after.st_mtime_ns, after.st_ctime_ns):
+            raise OSError("文件在预检期间发生变化")
+        return {"kind": "file", "identity": identity, "size": st.st_size,
+                "mtime_ns": st.st_mtime_ns, "ctime_ns": st.st_ctime_ns,
+                "sha256": digest.hexdigest()}
+    finally:
+        os.close(fd)
+
+
+def _lineage(project_root: str, rel: str, anchors: dict) -> None:
+    """记住项目根及每个祖先目录的 inode，阻止祖先被替换或改成软链。"""
+    current = project_root
+    parts = [""] + rel.split("/")[:-1]
+    key = ""
+    for part in parts:
+        if part:
+            current = os.path.join(current, part)
+            key = part if not key else key + "/" + part
+        st = os.lstat(current)
+        if stat.S_ISLNK(st.st_mode):
+            raise ValueError("SYMLINK_NOT_ALLOWED")
+        if not stat.S_ISDIR(st.st_mode):
+            raise ValueError("UNSUPPORTED_TYPE")
+        identity = list(_identity(st))
+        if key in anchors and anchors[key] != identity:
+            raise OSError("祖先目录在预检期间发生变化")
+        anchors[key] = identity
+
+
+def plan(project_root: str, checked: list[tuple[str, str]], *, recursive: bool = False,
+         protected_roots: list[str] | None = None) -> dict:
+    """展开精确删除清单。非空目录须 recursive；根目录和所有软链均拒绝。"""
+    root = os.path.abspath(project_root)
+    protected = {root}
+    for p in protected_roots or []:
+        protected.add(os.path.abspath(os.path.join(root, p)))
+    roots, blocked, entries, anchors = {}, [], {}, {}
+    for original, full in checked:
+        full = os.path.abspath(full)
+        try:
+            if os.path.commonpath([full, root]) != root:
+                raise ValueError("PATH_NOT_ALLOWED")
+        except ValueError:
+            blocked.append({"path": original, "state": "path-not-allowed",
+                            "error": "PATH_NOT_ALLOWED", "recoverable": False})
+            continue
+        rel = os.path.relpath(full, root).replace(os.sep, "/")
+        if full in protected or os.path.realpath(full) in protected:
+            blocked.append({"path": rel, "state": "protected-root",
+                            "error": "PROTECTED_ROOT", "recoverable": False})
+            continue
+        roots[rel] = full
+
+    # 父目录请求覆盖子项请求；执行不会重复删除同一路径。
+    selected = []
+    for rel in sorted(roots, key=lambda p: (p.count("/"), p)):
+        if not any(rel.startswith(parent + "/") for parent in selected):
+            selected.append(rel)
+
+    def visit(rel: str, full: str) -> None:
+        try:
+            _lineage(root, rel, anchors)
+            if not os.path.lexists(full):
+                entries[rel] = {"path": rel, "full_path": full, "kind": "missing"}
+                return
+            snap = _fingerprint(full)
+            entries[rel] = {"path": rel, "full_path": full, "kind": snap["kind"],
+                            "snapshot": snap}
+            if snap["kind"] == "directory":
+                if snap["children"] and not recursive:
+                    blocked.append({"path": rel, "state": "directory-not-empty",
+                                    "error": "DIRECTORY_NOT_EMPTY", "recoverable": False,
+                                    "detail": "非空目录须显式 recursive=True"})
+                else:
+                    for name in snap["children"]:
+                        visit(rel + "/" + name, os.path.join(full, name))
+        except ValueError as e:
+            code = str(e)
+            blocked.append({"path": rel,
+                            "state": STATE_BY_ERROR.get(code, code.lower().replace("_", "-")),
+                            "error": code, "recoverable": False})
+        except OSError as e:
+            blocked.append({"path": rel, "state": STATE_BY_ERROR["PRECHECK_FAILED"],
+                            "error": "PRECHECK_FAILED", "recoverable": False,
+                            "detail": str(e)})
+
+    for rel in selected:
+        visit(rel, roots[rel])
+    return {"blocked": blocked, "entries": list(entries.values()), "anchors": anchors,
+            "checked": [(e["path"], e["full_path"]) for e in entries.values()],
+            "requested_paths": list(roots), "recursive": recursive,
+            "status": {}}   # 调用方（judgement.delete）填入每个路径的分类结果
+
+
+def _parent_fd(project_root: str, rel: str, anchors: dict) -> tuple[int, str]:
+    """从项目根逐级以 O_NOFOLLOW 打开祖先；返回调用方负责关闭的父目录 fd。"""
+    fd = os.open(project_root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        if list(_identity(os.fstat(fd))) != anchors.get(""):
+            raise OSError("项目根在预检后发生变化")
+        key = ""
+        parts = rel.split("/")
+        for part in parts[:-1]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            os.close(fd)
+            fd = child
+            key = part if not key else key + "/" + part
+            if list(_identity(os.fstat(fd))) != anchors.get(key):
+                raise OSError("祖先目录在预检后发生变化")
+        return fd, parts[-1]
+    except Exception:
+        os.close(fd)
+        raise
+
+
+def execute(project_root: str, planned: dict) -> dict:
+    """先整批复核，再按已检清单 unlink/rmdir；发生竞态或 I/O 失败立即停止并如实报告。"""
+    deleted, failed = [], []
+    if planned.get("blocked"):
+        return {"status": "ERROR", "error": "PLAN_BLOCKED", "deleted": [],
+                "failed": planned["blocked"]}
+    entries = [e for e in planned["entries"] if e["kind"] != "missing"]
+    try:
+        for e in planned["entries"]:
+            rel, full = e["path"], e["full_path"]
+            fd, name = _parent_fd(project_root, rel, planned["anchors"])
+            try:
+                if e["kind"] == "missing":
+                    try:
+                        os.stat(name, dir_fd=fd, follow_symlinks=False)
+                    except FileNotFoundError:
+                        continue
+                    raise OSError("原先不存在的路径在预检后出现")
+                if _fingerprint(full) != e["snapshot"]:
+                    raise OSError("路径在预检后发生变化")
+            finally:
+                os.close(fd)
+    except (OSError, ValueError) as ex:
+        return {"status": "ERROR", "error": "PRECHECK_CHANGED", "deleted": [],
+                "failed": [{"path": rel, "error": str(ex)}]}
+
+    # 深层项先删；同层文件先于目录。仅处理枚举到的条目，rmdir 拒绝新增子项。
+    ordered = sorted(entries, key=lambda e: (-e["path"].count("/"),
+                                            e["kind"] == "directory", e["path"]))
+    for e in ordered:
+        rel = e["path"]
+        try:
+            fd, name = _parent_fd(project_root, rel, planned["anchors"])
+            try:
+                current = os.stat(name, dir_fd=fd, follow_symlinks=False)
+                if list(_identity(current)) != e["snapshot"]["identity"]:
+                    raise OSError("路径在执行期间被替换")
+                if e["kind"] == "file":
+                    if _fingerprint(e["full_path"]) != e["snapshot"]:
+                        raise OSError("文件在执行期间发生变化")
+                    os.unlink(name, dir_fd=fd)
+                else:
+                    os.rmdir(name, dir_fd=fd)
+                info = (planned.get("status") or {}).get(rel) or {
+                    "state": "unknown", "recoverable": False}
+                deleted.append({"path": rel, "kind": e["kind"], "state": info["state"],
+                                "recoverable": info["recoverable"]})
+            finally:
+                os.close(fd)
+        except (OSError, ValueError) as ex:
+            failed.append({"path": rel, "error": str(ex)})
+            break
+    return {"status": "ERROR" if failed else "OK", "deleted": deleted, "failed": failed,
+            **({"error": "DELETE_FAILED"} if failed else {})}
 
 
 def orphan_meta_warnings(project_root: str, deleting: list[str]) -> list[dict]:
@@ -141,11 +356,16 @@ def evaluate(project_root: str, checked: list[tuple[str, str]]) -> dict:
     blocked = [{"path": p, **info} for p, info in status.items()
                if info["state"] in ("tracked-dirty", "unknown")]
 
+    deleting = {p for p, _ in checked}
     for p, full in checked:
+        if os.path.isdir(full) and not os.path.islink(full):
+            # 空目录不承载文件内容；子文件的 dirty / GUID 安全性已各自判定。
+            status[p] = {"state": "directory", "recoverable": True}
+            continue
         guid = read_guid(full)
         if not guid:
             continue
-        refs = guid_referenced_elsewhere(project_root, p, guid)
+        refs = [r for r in guid_referenced_elsewhere(project_root, p, guid) if r not in deleting]
         if refs:
             blocked.append({"path": p, "state": "guid-referenced", "recoverable": False,
                             "detail": f"GUID {guid} 仍被其他文件引用",

@@ -1,14 +1,15 @@
 // ═══════════════════════════════════════════════════════════════
 //  SpecularGI Sampling — reflection rays and cubemap radiance.
+//  内部依赖：HashFunction.hlsl（通用随机映射）。
 // ═══════════════════════════════════════════════════════════════
 #ifndef SPECULAR_GI_SAMPLING_INCLUDED
 #define SPECULAR_GI_SAMPLING_INCLUDED
 
+#include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
+
 float2 SpecularGI_Hash22(float2 value)
 {
-    float3 p = frac(float3(value.xyx) * float3(0.1031, 0.1030, 0.0973));
-    p += dot(p, p.yzx + 33.33);
-    return frac((p.xx + p.yz) * p.zy);
+    return Hash_FracGrid22(value);
 }
 
 float3 SpecularGI_SampleGGXVNDF(float2 randomValue, float roughness, float3 normalWS, float3 viewToCameraWS)

@@ -1,115 +1,43 @@
-# AutoMode
+# AutoMode — 开发流程与资源
 
-> Unity 开发任务自适应系统的唯一真相源（Single Source of Truth）。
-> 定义模式选择逻辑、Editor 可用性策略、以及完整文件索引。
+承接统一入口选定的 Unity 开发任务。这里负责一次性启动，再交选定模式编排；下列资源按需读取，不是顺序必读清单。
 
----
+## 一次性启动
 
-## 宪法
+1. 取用 [Unity 角色](../../agents/unity-developer/AGENT.md) 与任务相关上下文；已加载的内容直接复用，不重读整库。
+2. 读取 [执行契约](capabilities/execution-contract.md)，按 [模式选择](capabilities/mode-selection.md) 确定模式，输出 `[G1] Mode + Reason`。任务开始仅初始化一次 `gate_set_recipe(mode)`。
+3. 按执行契约通过 g_entry 并登记用户已授权的工作区；已有明确授权直接沿用，资源位置不等于写入授权。缺少必需授权时再按契约询问。
+4. 进入选定模式，按其实际阶段加载知识、形成设计与实施验证。模式及后续迭代不重新初始化入口；知识与设计结论已有则复用，范围或假设变化时更新。
 
-宪法已提取到 agent 层：**[../../agents/unity-developer/AGENT.md](../../agents/unity-developer/AGENT.md)** — C1-C7 + 退出条件 + 完整性门禁。
+Research 的假设、Production 的修改计划与 Experiment 的阶段 Plan 分别承载本轮设计判断。
+首次新功能、能力扩展和结构重构在各模式实施前取用可持续开发能力；局部小修按实际影响简化。
+需要 Editor 验证时，在模式验证阶段按 [unity-editor](../unity-editor/SKILL.md) 检查当前可用性；尚未检查不等于未连接。
+可用性只决定验证深度，不替代模式选择、业务授权或实际证据。
 
----
+## 按需能力与模板
 
-## 宪法 + 模式 + 平台
+| 资源 | 何时取用 |
+|---|---|
+| [知识预加载](capabilities/knowledge.md) | 选定模式的知识阶段，申报真实已读材料 |
+| [可持续开发判断](capabilities/sustainable-development.md) | 首次实施前明确基线、约定、暂定选择、变化边界与验证 |
+| [完整性核验](capabilities/completeness.md) | Production 设计阶段，对照本次实际范围 |
+| [脚本决策](capabilities/script-decision.md) | 需要复用或新增脚本 |
+| [文件放置](capabilities/file-placement.md) | 从资源配置与授权确定实际落点 |
+| [Git 基准](capabilities/backup.md) | 重大改动或迭代前保留可比较来源 |
+| [编译](capabilities/compile.md) | 按模式编译与处理错误 |
+| [运行验证](capabilities/runtime.md) | 核对运行状态、行为与日志 |
+| [场景配置](capabilities/scene-setup.md) | 在授权范围内配置验证场景 |
+| [渲染验证](capabilities/shader-validation.md) | 选择 2D / 3D 载体、检查 Shader Pass 与证据 |
+| [恢复与退出](capabilities/recovery.md) | 失败重试、人工决策与停止条件 |
+| [清理](capabilities/cleanup.md) | 任务产物与存量整理 |
+| [联网方案](capabilities/web-search.md) | Experiment 查来源、版本与阶段方案 |
+| [模板](templates/README.md) | 从 Standard / Script / Shader 家族选择实际骨架 |
 
-全部提取到 agent 层，AutoMode 不再重复维护：
+各模式在使用处指向所需能力；能力再取用模板、脚本或专门 skill。不因资源可见就加载全部文件。
+项目路径按执行契约通过资源 ID 解析，不从模板目录推导工作区。
 
-| 内容 | 唯一来源 |
-|------|---------|
-| C1-C7 宪法 | [../../agents/unity-developer/AGENT.md](../../agents/unity-developer/AGENT.md) |
-| 模式选择逻辑 + 对比表 | [../../agents/unity-developer/AGENT.md](../../agents/unity-developer/AGENT.md) |
-| Editor 可用性策略 | [../../agents/unity-developer/AGENT.md](../../agents/unity-developer/AGENT.md) |
-| 退出条件 + 完整性门禁 | [../../agents/unity-developer/AGENT.md](../../agents/unity-developer/AGENT.md) |
+## 新内容归属
 
----
-
-## 模式入口
-
-- **Research Mode**：[modes/research.md](modes/research.md) — Shader 调试、参数调优、人工逐步观测
-- **Production Mode**：[modes/production.md](modes/production.md) — 功能开发、Bug 修复、有模板一条龙
-- **Experiment Mode**：[modes/experiment.md](modes/experiment.md) — 无模板、WebSearch 方案、自主迭代直到目标
-
----
-
-## 扩展指南
-
-新内容加入时，按以下决策树确定归属：
-
-```
-新内容
-  │
-  ├── 它是"怎么做一件事"的指令？
-  │     ├── 单一操作、无分支逻辑 → capabilities/
-  │     │     └── 例：编译、进入 Play Mode
-  │     │
-  │     └── 多步骤组合、有分支/条件 → modes/
-  │           └── 例：研发流水线、生产流水线
-  │
-  ├── 它是"对不对/停不停"的判断标准？
-  │     └── agents/ (宪法、退出条件、完整性门禁)
-  │     └── rules/ (路径限定的开发规范 + 错误诊断)
-  │
-  └── 它是"查一下"的参考资料？
-        ├── CLI 命令速查 → ../../agents/unity-developer/cli/unityctl.md
-        ├── Roslyn 脚本模板 → ../../agents/unity-developer/cli/roslyn.md
-        ├── Roslyn 可执行脚本 → ../../agents/unity-developer/scripts/roslyn/
-        └── 项目知识库 → ../../references/（内化知识库，2026-08-24）
-```
-
-### 各文件夹准入标准
-
-| 文件夹 | 准入条件 | 反例 |
-|--------|---------|------|
-| **capabilities/** | 单一工具，<150行，被至少一个 mode 引用 | 多步骤流程、纯参考文档 |
-| **modes/** | 编排多个 capability，有明确流程和退出条件 | 单一工具、纯规则 |
-| **agents/** | 宪法、决策规则、质量门禁 | 操作步骤、代码模板 |
-| **rules/**    | 路径限定开发规范 + 错误诊断 | 操作步骤 |
-| **cli/** | 命令参考文档 | 可执行代码 |
-| **scripts/** | 可执行代码（Roslyn C#、Shell） | 文档 |
-
-### 冲突裁决
-
-1. 同时满足多个条件 → 按优先级：**modes > capabilities > agents > rules > cli > scripts**
-2. 超过 150 行 → 考虑拆分
-3. 无法明确分类 → 先放入 `capabilities/`，标记 `// TODO: classify`
-4. 改动涉及 Constitution → 必须先更新 `../../agents/unity-developer/AGENT.md`
-
----
-
-## 文件索引
-
-### capabilities/ — 原子能力
-
-| 文件 | 职责 | 被哪些 mode 使用 |
-|------|------|-----------------|
-| [compile.md](capabilities/compile.md) | 编译验证 + 自动修复 | Research, Production, Experiment |
-| [runtime.md](capabilities/runtime.md) | Play Mode 进入/退出/日志 | Production, Experiment |
-| [scene-setup.md](capabilities/scene-setup.md) | Roslyn 场景配置 | Production |
-| [backup.md](capabilities/backup.md) | 重大改动前备份 | Production, Experiment |
-| [knowledge.md](capabilities/knowledge.md) | 知识库预加载（agents/unity-developer/references/） | Research, Production, Experiment |
-| [cleanup.md](capabilities/cleanup.md) | 轻/重清理系统 | Production, Experiment |
-| [web-search.md](capabilities/web-search.md) | WebSearch + Plan 方案设计 | Experiment |
-| [script-decision.md](capabilities/script-decision.md) | 脚本决策分支（[G2]） | Production |
-| [file-placement.md](capabilities/file-placement.md) | 文件放置分支（[G3]） | Production |
-
-### modes/ — 工作模式
-
-| 文件 | 职责 |
-|------|------|
-| [research.md](modes/research.md) | 研发流水线（快速试错 + 频繁暂停） |
-| [production.md](modes/production.md) | 生产流水线（全自动 + 自动修复） |
-| [experiment.md](modes/experiment.md) | 实验流水线（WebSearch + Plan + 自主迭代） |
-
-### 跨层资源
-
-| 层 | 路径 | 职责 |
-|----|------|------|
-| **Agent** | [../../agents/unity-developer/AGENT.md](../../agents/unity-developer/AGENT.md) | C1-C7 宪法 + 模式选择 + 退出条件 + 完整性门禁 |
-| **Platform** | [../../agents/unity-developer/AGENT.md](../../agents/unity-developer/AGENT.md) | Editor Bridge + 可用性策略 |
-| **CLI** | [../../agents/unity-developer/cli/unityctl.md](../../agents/unity-developer/cli/unityctl.md) | unityctl 完整命令参考 |
-| **CLI** | [../../agents/unity-developer/cli/roslyn.md](../../agents/unity-developer/cli/roslyn.md) | Roslyn 脚本食谱 + 命令速查 |
-| **Scripts** | [../../agents/unity-developer/scripts/roslyn/](../../agents/unity-developer/scripts/roslyn/) | 可复用 Roslyn C# 脚本 |
-| **Knowledge** | [../../agents/unity-developer/references/](../../agents/unity-developer/references/) | 内化知识库（结构规范 + 模板 + API 差异，2026-08-24 自 Assets/MarkDowns/ 迁移） |
-| **Learnings** | [../../rules/shader-development.md](../../rules/shader-development.md) | 编译/运行时错误诊断表 |
-| **Learnings** | [../../agents/unity-developer/memory/2025-06-15-safety-lessons.md](../../agents/unity-developer/memory/2025-06-15-safety-lessons.md) | 安全红线 + 经验教训 |
+任务分类维护在本 skill 的 SKILL.md；开发模式选择维护在 mode-selection，阶段编排归 modes。
+单项操作归 capabilities，生成骨架归 templates；可执行代码归实际负责的 skill。
+agent 不内嵌操作流程，知识事实留在领域知识库；任务产物按既有生命周期收尾，再交角色记录。

@@ -1,0 +1,2422 @@
+{
+  "status": "PASS real URP render requests and RGBAFloat output checks",
+  "renderer": "PC_Renderer",
+  "graphicsDevice": "Metal / Apple M2",
+  "caseCount": 96,
+  "renderRequestCount": 103,
+  "budgetVerifiedCaseCount": 0,
+  "maxAllOffNormalizedError": 0.0,
+  "maxAllOffError": 0.0,
+  "timeAtStart": 30.23028564453125,
+  "timeAtEnd": 30.23028564453125,
+  "snowOrthographicOnlyStability": true,
+  "featureSettingsRestored": true,
+  "renderScaleRestored": true,
+  "graphSessionStatus": "created temporary local debug session",
+  "expectedWeatherDiagnostics": [
+    "[Weather] 首版仅支持最终输出Base Camera；跳过非末端Camera Stack相机。"
+  ],
+  "graphBudgetNotes": [
+    "StandardRequest generated no graph debug data for the validation camera; URP disables generateDebugData while camera.isProcessingRenderRequest. Normal camera-frame budget capture remains pending."
+  ],
+  "cases": [
+    {
+      "name": "matrix/Rain/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [],
+      "boundTargetSize": [
+        1920.0,
+        1080.0,
+        0.0005208333022892475,
+        0.0009259259095415473
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/1",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 1,
+      "debug": "Off",
+      "changedPixels": 53,
+      "maxError": 0.04331190884113312,
+      "normalizedMaxError": 0.03742324933409691,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/2",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 2,
+      "debug": "Off",
+      "changedPixels": 30477,
+      "maxError": 0.04071420803666115,
+      "normalizedMaxError": 0.040714140981435776,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/3",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 3,
+      "debug": "Off",
+      "changedPixels": 30515,
+      "maxError": 0.04331190884113312,
+      "normalizedMaxError": 0.040714140981435776,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/4",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 4,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.2444833666086197,
+      "normalizedMaxError": 0.24447941780090332,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/5",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 5,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.2444833666086197,
+      "normalizedMaxError": 0.24447941780090332,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/6",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 6,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.26866868138313293,
+      "normalizedMaxError": 0.2686629593372345,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/7",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 7,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.26866868138313293,
+      "normalizedMaxError": 0.2686629593372345,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/8",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 8,
+      "debug": "Off",
+      "changedPixels": 12788,
+      "maxError": 0.10874754190444946,
+      "normalizedMaxError": 0.065872922539711,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/9",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 9,
+      "debug": "Off",
+      "changedPixels": 12782,
+      "maxError": 0.10874754190444946,
+      "normalizedMaxError": 0.06766746193170547,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/10",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 10,
+      "debug": "Off",
+      "changedPixels": 36532,
+      "maxError": 0.11325377225875854,
+      "normalizedMaxError": 0.065872922539711,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/11",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 11,
+      "debug": "Off",
+      "changedPixels": 36529,
+      "maxError": 0.11325377225875854,
+      "normalizedMaxError": 0.06766746193170547,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/12",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 12,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.24973928928375244,
+      "normalizedMaxError": 0.2497352510690689,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/13",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 13,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.24973928928375244,
+      "normalizedMaxError": 0.2497352510690689,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/14",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 14,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.2744441628456116,
+      "normalizedMaxError": 0.2744383215904236,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Rain/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.2744441628456116,
+      "normalizedMaxError": 0.2744383215904236,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/1",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 1,
+      "debug": "Off",
+      "changedPixels": 147,
+      "maxError": 0.2535703480243683,
+      "normalizedMaxError": 0.2535703480243683,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/2",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 2,
+      "debug": "Off",
+      "changedPixels": 28092,
+      "maxError": 0.16738159954547882,
+      "normalizedMaxError": 0.16738159954547882,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/3",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 3,
+      "debug": "Off",
+      "changedPixels": 28196,
+      "maxError": 0.2645309865474701,
+      "normalizedMaxError": 0.26433661580085754,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/4",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 4,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.48781469464302063,
+      "normalizedMaxError": 0.48781469464302063,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/5",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 5,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5516683459281921,
+      "normalizedMaxError": 0.5516683459281921,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/6",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 6,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.48781469464302063,
+      "normalizedMaxError": 0.48781469464302063,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/7",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 7,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5516683459281921,
+      "normalizedMaxError": 0.5516683459281921,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/8",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 8,
+      "debug": "Off",
+      "changedPixels": 14589,
+      "maxError": 0.131200909614563,
+      "normalizedMaxError": 0.0868205800652504,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/9",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 9,
+      "debug": "Off",
+      "changedPixels": 14703,
+      "maxError": 0.2521182596683502,
+      "normalizedMaxError": 0.2521182596683502,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/10",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 10,
+      "debug": "Off",
+      "changedPixels": 35526,
+      "maxError": 0.24158143997192383,
+      "normalizedMaxError": 0.16557078063488007,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/11",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 11,
+      "debug": "Off",
+      "changedPixels": 35611,
+      "maxError": 0.2626003324985504,
+      "normalizedMaxError": 0.2624073922634125,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/12",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 12,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.49149948358535767,
+      "normalizedMaxError": 0.49149948358535767,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/13",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 13,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5549378395080566,
+      "normalizedMaxError": 0.5549378395080566,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/14",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 14,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.49149948358535767,
+      "normalizedMaxError": 0.49149948358535767,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Sand/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5549378395080566,
+      "normalizedMaxError": 0.5549378395080566,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/1",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 1,
+      "debug": "Off",
+      "changedPixels": 50,
+      "maxError": 0.4350775182247162,
+      "normalizedMaxError": 0.43041375279426575,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/2",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 2,
+      "debug": "Off",
+      "changedPixels": 10277,
+      "maxError": 0.29975050687789917,
+      "normalizedMaxError": 0.29975050687789917,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/3",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 3,
+      "debug": "Off",
+      "changedPixels": 10327,
+      "maxError": 0.4350775182247162,
+      "normalizedMaxError": 0.43041375279426575,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/4",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 4,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.2999989986419678,
+      "normalizedMaxError": 0.2999989986419678,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/5",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 5,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5764484405517578,
+      "normalizedMaxError": 0.5764484405517578,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/6",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 6,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5097056031227112,
+      "normalizedMaxError": 0.5097056031227112,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/7",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 7,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5764484405517578,
+      "normalizedMaxError": 0.5764484405517578,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/8",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 8,
+      "debug": "Off",
+      "changedPixels": 12788,
+      "maxError": 0.10874754190444946,
+      "normalizedMaxError": 0.065872922539711,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/9",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 9,
+      "debug": "Off",
+      "changedPixels": 12826,
+      "maxError": 0.4591919481754303,
+      "normalizedMaxError": 0.4542697072029114,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/10",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 10,
+      "debug": "Off",
+      "changedPixels": 20988,
+      "maxError": 0.3147372305393219,
+      "normalizedMaxError": 0.3147367238998413,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/11",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 11,
+      "debug": "Off",
+      "changedPixels": 21026,
+      "maxError": 0.4591919481754303,
+      "normalizedMaxError": 0.4542697072029114,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/12",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 12,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.3150203824043274,
+      "normalizedMaxError": 0.31500154733657837,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/13",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 13,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.6052699685096741,
+      "normalizedMaxError": 0.605269193649292,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/14",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 14,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5351862907409668,
+      "normalizedMaxError": 0.5351823568344116,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "matrix/Snow/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.6052699685096741,
+      "normalizedMaxError": 0.605269193649292,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/0/Rain/0",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/0/Rain/15",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 65536,
+      "maxError": 0.2743983268737793,
+      "normalizedMaxError": 0.2743912935256958,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/0/Sand/0",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/0/Sand/15",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 65536,
+      "maxError": 0.5509761571884155,
+      "normalizedMaxError": 0.5509761571884155,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/0/Snow/0",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/0/Snow/15",
+      "width": 256,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 65536,
+      "maxError": 0.6035680174827576,
+      "normalizedMaxError": 0.6035672426223755,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/1/Rain/0",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        256.0,
+        256.0,
+        0.00390625,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/1/Rain/15",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 49152,
+      "maxError": 0.27433720231056213,
+      "normalizedMaxError": 0.27433672547340393,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/1/Sand/0",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/1/Sand/15",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 49152,
+      "maxError": 0.5474643707275391,
+      "normalizedMaxError": 0.5474643707275391,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/1/Snow/0",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/1/Snow/15",
+      "width": 384,
+      "height": 128,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 49152,
+      "maxError": 0.6616603136062622,
+      "normalizedMaxError": 0.6616603136062622,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/2/Rain/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        384.0,
+        128.0,
+        0.0026041667442768812,
+        0.0078125
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/2/Rain/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.26860231161117554,
+      "normalizedMaxError": 0.26860231161117554,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/2/Sand/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/2/Sand/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.534075915813446,
+      "normalizedMaxError": 0.534075915813446,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/2/Snow/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/2/Snow/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": true,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.6105815172195435,
+      "normalizedMaxError": 0.6052708625793457,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/3/Rain/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/3/Rain/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.7635321021080017,
+      "normalizedMaxError": 0.7317826151847839,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/3/Sand/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/3/Sand/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.7757945656776428,
+      "normalizedMaxError": 0.7696589231491089,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/3/Snow/0",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "geometry/3/Snow/15",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 0.75,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.7742691040039062,
+      "normalizedMaxError": 0.7369260191917419,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        240.0,
+        135.0,
+        0.004166666883975267,
+        0.007407407276332378
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "switch/72/Rain",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.2744441628456116,
+      "normalizedMaxError": 0.2744383215904236,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "switch/73/Sand",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.5549378395080566,
+      "normalizedMaxError": 0.5549378395080566,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "switch/74/Snow",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.6052699685096741,
+      "normalizedMaxError": 0.605269193649292,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "switch/75/Rain",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 57600,
+      "maxError": 0.2744441628456116,
+      "normalizedMaxError": 0.2744383215904236,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Off",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Particles",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Particles",
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Refraction",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Refraction",
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Lens",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Lens",
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Fog",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Fog",
+      "changedPixels": 57600,
+      "maxError": 0.9644514918327332,
+      "normalizedMaxError": 0.9644514918327332,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Rain/Final",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Final",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Off",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_RAIN"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Particles",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Particles",
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Refraction",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Refraction",
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Lens",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Lens",
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Fog",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Fog",
+      "changedPixels": 57600,
+      "maxError": 0.9854841828346252,
+      "normalizedMaxError": 0.9854841828346252,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Sand/Final",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Final",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Off",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Particles",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Particles",
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Refraction",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Refraction",
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Lens",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Lens",
+      "changedPixels": 23073,
+      "maxError": 0.8507353067398071,
+      "normalizedMaxError": 0.459674209356308,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Fog",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Fog",
+      "changedPixels": 57600,
+      "maxError": 0.9999966621398926,
+      "normalizedMaxError": 0.9999966621398926,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "zero-modules-debug/Snow/Final",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 0,
+      "debug": "Final",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": false,
+      "exclusiveKeywords": [
+        "WEATHER_SNOW"
+      ],
+      "boundTargetSize": [
+        320.0,
+        180.0,
+        0.0031250000465661287,
+        0.0055555556900799274
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "independent-second-base",
+      "width": 192,
+      "height": 256,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 49152,
+      "maxError": 0.5508556962013245,
+      "normalizedMaxError": 0.5508556962013245,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        192.0,
+        256.0,
+        0.0052083334885537624,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    },
+    {
+      "name": "base-plus-overlay-safe-skip",
+      "width": 320,
+      "height": 180,
+      "orthographic": false,
+      "renderScale": 1.0,
+      "moduleMask": 15,
+      "debug": "Off",
+      "changedPixels": 0,
+      "maxError": 0.0,
+      "normalizedMaxError": 0.0,
+      "declaredDepth": true,
+      "exclusiveKeywords": [
+        "WEATHER_SAND"
+      ],
+      "boundTargetSize": [
+        192.0,
+        256.0,
+        0.0052083334885537624,
+        0.00390625
+      ],
+      "weatherPassCount": -1,
+      "executedWeatherPasses": [],
+      "graphBudgetStatus": "unavailable: no debug data for this request camera"
+    }
+  ]
+}

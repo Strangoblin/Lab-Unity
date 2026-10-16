@@ -1,0 +1,15 @@
+3c1ea32510471948ee930ba090936a46e3cb5eeb  Assets/Settings/PC_Renderer.asset
+ae732476ae1655c5369f66d9ceef409090d8dfe3  Assets/Scenes/SampleScene.unity
+019adfa041f6558ca7d227a271952e8f37be89f3  Assets/Mine/Special/HLSL/RayStepFunction.hlsl
+46d4e88a239dab969a8df4dde32b6cbb22872044  Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl
+e50bf870ad51aed02eb27d22877c7a24c70129d0  Assets/Mine/Shaders/PostProcess/SSGI/SSGIFeature.cs
+fe2baa56bc5e48f33e1cadf249775e8eb8037f13  Assets/Mine/Shaders/PostProcess/SSGI/SSGITemporal.hlsl
+ae66bdf399f35c651273e8a270af0bca343236d2  Assets/Mine/Shaders/PostProcess/SSGI/SSGITemporalFilter.cs
+0c47015bfde911a0e8a0ad0949a8ae666683d309  Assets/Mine/Shaders/PostProcess/SSGI/SSGISpatialFilter.hlsl
+fb48ea8300d7a9e129a989376e44fa821a76bc6b  Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl
+451ffe8e1cd95f06b68719a1080fc1c23e13f684  Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGIFunction.hlsl
+cde393c00700c316f32ca9fca4f1ac86332aeb1a  Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGI.shader
+bf40871269515cba7083b339fb95c627c079e6bf  Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGIFeature.cs
+fa58ba1647f0cd7cc2d0b68d8178ba0a303982e3  Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGI.shader
+2310d6437845fd0358c015245419f52b4abf6798  Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGIFilter.hlsl
+b7175d229708bfe880f2f29bc07b246ec7285e0b  Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl

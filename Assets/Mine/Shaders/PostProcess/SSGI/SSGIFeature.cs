@@ -104,25 +104,28 @@ public class SSGIFeature : ScriptableRendererFeature
             TextureHandle scene = resources.activeColorTexture;
             _temporal.BeginFrame(frameData);
             int frameIndex = _temporal.FrameIndex;
+            SSGITemporalFilter.HistoryKey diffuseHistoryKey = default;
+            SSGITemporalFilter.HistoryKey specularHistoryKey = default;
             TextureHandle ao = _settings.intensity.ao > 0f && _aoPass != null
                 ? _aoPass.RecordIntegrated(graph, frameData, scene, frameIndex,
                     _settings.performance.ao) : TextureHandle.nullHandle;
             TextureHandle diffuse = _settings.intensity.diffuseGI > 0f && _diffusePass != null
                 ? _diffusePass.RecordIntegrated(graph, frameData, scene, frameIndex,
-                    _settings.performance.diffuseGI) : TextureHandle.nullHandle;
+                    _settings.performance.diffuseGI, out diffuseHistoryKey) : TextureHandle.nullHandle;
             TextureHandle specular = _settings.intensity.specularGI > 0f && _specularPass != null
                 ? _specularPass.RecordIntegrated(graph, frameData, scene, frameIndex,
-                    _settings.performance.specularGI, _settings.specularGI.roughness) : TextureHandle.nullHandle;
+                    _settings.performance.specularGI, _settings.specularGI.roughness,
+                    out specularHistoryKey) : TextureHandle.nullHandle;
 
             if (ao.IsValid())
                 ao = _temporal.Resolve(graph, frameData, ao,
                     SSGITemporalFilter.Signal.AO, _settings.temporal.ao);
             if (diffuse.IsValid())
                 diffuse = _temporal.Resolve(graph, frameData, diffuse,
-                    SSGITemporalFilter.Signal.DiffuseGI, _settings.temporal.diffuseGI);
+                    SSGITemporalFilter.Signal.DiffuseGI, _settings.temporal.diffuseGI, diffuseHistoryKey);
             if (specular.IsValid())
                 specular = _temporal.Resolve(graph, frameData, specular,
-                    SSGITemporalFilter.Signal.SpecularGI, _settings.temporal.specularGI);
+                    SSGITemporalFilter.Signal.SpecularGI, _settings.temporal.specularGI, specularHistoryKey);
             _temporal.CompleteFrame(graph, frameData);
 
             if (!ao.IsValid() && !diffuse.IsValid() && !specular.IsValid())

@@ -1,64 +1,14 @@
-# script-decision — 脚本决策分支
+# 脚本决策
 
-> 由 [G2] 触发。判断是否需要脚本、是否已有等价脚本、如何放置。
+G2 在实现前判断是否需要脚本，再查对应 skill 的实际脚本索引。决策是流程输入，g_script 门禁已退役；写入时经 script_decision 注解记录。
 
----
+1. 不需要脚本 → NONE。
+2. 查 [Editor Roslyn 库](../../unity-editor/scripts/roslyn/README.md) 或目标 skill 的 scripts，确认功能、输入、程序集依赖和副作用是否匹配；有等价脚本 → USE，不新写一套。
+3. 无等价脚本且可复用 → CREATE reusable，放负责该操作的 skill/scripts；通用 Editor 脚本在 `.agents/skills/unity-editor/scripts/roslyn/`。
+4. 一次性脚本 → CREATE tmp，放 `tmp/sessions/<date-task-id>/staging/<name>.cs`。
 
-## 分支树
+输出 `G2: Script Decision`，包含 `NeedScript / LibraryCheck / Match / Decision / Path`。LibraryCheck 必须来自实际索引/目录查询，不能未查库就声称“无等价脚本”。
 
-```
-[G2] 脚本决策（流程提示，非门禁 — g_script 已退役）
-  │
-  ├── ASK: 本次任务是否需要编写/执行 Roslyn 脚本？
-  │     ├── NO  → Decision: NONE
-  │     │      → 写入时经 write_gated 注解 script_decision="NONE"（记录不阻塞）
-  │     │      → 进入下一步
-  │     └── YES → 继续
-  │
-  ├── ASK: 该功能是否已在 scripts/roslyn/ 中有等价脚本？
-  │     TOOLS: ls scripts/roslyn/（或 script_list）
-  │     ├── YES → Decision: USE
-  │     │      → 使用已有脚本，不写新的
-  │     │      → 例: 查场景 → scene-query.cs
-  │     │      → 例: 管线诊断 → pipeline-check.cs（原名 check_pipeline.cs）
-  │     │      → 例: 整理场景 → scene-organize.cs
-  │     └── NO  → 继续
-  │
-  └── ASK: 该脚本逻辑是否可复用于后续会话？
-        ├── YES → Decision: CREATE reusable
-        │      → 写入: scripts/roslyn/<name>.cs
-        └── NO  → Decision: CREATE tmp
-               → 写入: tmp/<name>.cs
-```
-
----
-
-## OUTPUT 格式
-
-```
-## G2: Script Decision
-NeedScript: YES | NO
-LibraryCheck: <ls scripts/roslyn/ result>
-Match: <script> | NONE
-Decision: USE <script> | CREATE reusable | CREATE tmp | NONE
-Path: <file path if CREATE>
-```
-
----
-
-## 脚本库
-
-| 脚本 | 用途 |
-|------|------|
-| `scene-query.cs` | 场景层级遍历（含组件 + active 状态） |
-| `scene-organize.cs` | 测试物体分组整理到 __TestObjects__ |
-| `pipeline-check.cs` | 渲染管线 + Quality Level 诊断 |
-| `scan-temp-objects.cs` | 扫描临时物体 |
-
-> 屏幕调试不再需要 Roslyn 脚本：固定 Feature `Assets/Mine/Scripts/Debug/DebugOutputFeature`（Inspector 配置）
-> 新增可复用脚本后 → 更新上表
-
-## Red Flags
-
-- Decision=USE 但 agent 写了新脚本 → 废弃新脚本，使用已有
-- 未 ls scripts/roslyn/ 就声称"无等价脚本" → 退回重查
+相机 PNG 由 [unity-render-debug](../../unity-render-debug/SKILL.md) 集合 [capture 脚本](../../unity-render-debug/scripts/camera-offscreen-capture.cs)。
+新增复用脚本更新其所属 skill 的脚本索引；功能专属适配器留功能目录，通过资源接口关联。
+临时脚本按 [产物规范](../../../knowledge/meta/interfaces/task-artifacts.md) 收尾，`tmp/.reusable/` 为遗留目录，不再作为新库。

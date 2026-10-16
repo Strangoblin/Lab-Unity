@@ -1,0 +1,3013 @@
+{
+  "authorization": "User explicitly requested all architecture softlinks removed and memory/knowledge/skills consolidation in this session. No engine assets or dependency-environment links included.",
+  "links": [
+    {
+      "path": ".agents/agents/unity-developer/cli/unityctl.md",
+      "target": "../../../skills/unity-editor/references/cli/unityctl.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/cli/README.md",
+      "target": "../../../skills/unity-editor/references/cli/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/cli/roslyn.md",
+      "target": "../../../skills/unity-editor/references/cli/roslyn.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/roslyn/scene-organize.cs",
+      "target": "../../../../skills/unity-editor/scripts/roslyn/scene-organize.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/roslyn/scene-query.cs",
+      "target": "../../../../skills/unity-editor/scripts/roslyn/scene-query.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/roslyn/camera-offscreen-capture.cs",
+      "target": "../../../../skills/unity-render-debug/scripts/camera-offscreen-capture.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/roslyn/pipeline-check.cs",
+      "target": "../../../../skills/unity-editor/scripts/roslyn/pipeline-check.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/roslyn/scan-temp-objects.cs",
+      "target": "../../../../skills/unity-editor/scripts/roslyn/scan-temp-objects.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/verify_hash_final.py",
+      "target": "../../../../../skills/unity-feature-reuse/project-adapters/hash/verify_hash_final.py",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/verify_hash.py",
+      "target": "../../../../../skills/unity-feature-reuse/project-adapters/hash/verify_hash.py",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/README.md",
+      "target": "../../../../../skills/unity-feature-reuse/project-adapters/hash/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/analyze_variants.py",
+      "target": "../../../../../skills/unity-feature-reuse/project-adapters/hash/analyze_variants.py",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/source-map.json",
+      "target": "../../../../../skills/unity-feature-reuse/project-adapters/hash/source-map.json",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/fixtures/before.json",
+      "target": "../../../../../../skills/unity-feature-reuse/project-adapters/hash/fixtures/before.json",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/fixtures/final-stage-before.json",
+      "target": "../../../../../../skills/unity-feature-reuse/project-adapters/hash/fixtures/final-stage-before.json",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/README.md",
+      "target": "../../../skills/auto-manager/templates/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/README.md",
+      "target": "../../../../skills/auto-manager/templates/script/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/baker/baker-service.cs",
+      "target": "../../../../../skills/auto-manager/templates/script/baker/baker-service.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/baker/README.md",
+      "target": "../../../../../skills/auto-manager/templates/script/baker/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/controller/README.md",
+      "target": "../../../../../skills/auto-manager/templates/script/controller/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/controller/controller-processor.cs",
+      "target": "../../../../../skills/auto-manager/templates/script/controller/controller-processor.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/generator/README.md",
+      "target": "../../../../../skills/auto-manager/templates/script/generator/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/generator/generator-facade.cs",
+      "target": "../../../../../skills/auto-manager/templates/script/generator/generator-facade.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/manager/runtime-manager.cs",
+      "target": "../../../../../skills/auto-manager/templates/script/manager/runtime-manager.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/manager/README.md",
+      "target": "../../../../../skills/auto-manager/templates/script/manager/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/window/editor-window.cs",
+      "target": "../../../../../skills/auto-manager/templates/script/window/editor-window.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/script/window/README.md",
+      "target": "../../../../../skills/auto-manager/templates/script/window/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/standard/README.md",
+      "target": "../../../../skills/auto-manager/templates/standard/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/standard/script/parameter-panel.cs",
+      "target": "../../../../../skills/auto-manager/templates/standard/script/parameter-panel.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/standard/script/README.md",
+      "target": "../../../../../skills/auto-manager/templates/standard/script/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/standard/script/script-doc-template.md",
+      "target": "../../../../../skills/auto-manager/templates/standard/script/script-doc-template.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/standard/script/standard-script.cs",
+      "target": "../../../../../skills/auto-manager/templates/standard/script/standard-script.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/standard/shader/README.md",
+      "target": "../../../../../skills/auto-manager/templates/standard/shader/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/standard/shader/shader-doc-template.md",
+      "target": "../../../../../skills/auto-manager/templates/standard/shader/shader-doc-template.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/standard/shader/standard-shader.shader",
+      "target": "../../../../../skills/auto-manager/templates/standard/shader/standard-shader.shader",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/README.md",
+      "target": "../../../../skills/auto-manager/templates/shader/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/render/README.md",
+      "target": "../../../../../skills/auto-manager/templates/shader/render/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/render/direct-effect.shader",
+      "target": "../../../../../skills/auto-manager/templates/shader/render/direct-effect.shader",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/render/effect-shader.shader",
+      "target": "../../../../../skills/auto-manager/templates/shader/render/effect-shader.shader",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/render/effect-function.hlsl",
+      "target": "../../../../../skills/auto-manager/templates/shader/render/effect-function.hlsl",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/postprocess/fullscreen-postprocess.shader",
+      "target": "../../../../../skills/auto-manager/templates/shader/postprocess/fullscreen-postprocess.shader",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/postprocess/urp-renderpass.cs",
+      "target": "../../../../../skills/auto-manager/templates/shader/postprocess/urp-renderpass.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/postprocess/compute-template.compute",
+      "target": "../../../../../skills/auto-manager/templates/shader/postprocess/compute-template.compute",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/postprocess/spatial-filter-budget.hlsl",
+      "target": "../../../../../skills/auto-manager/templates/shader/postprocess/spatial-filter-budget.hlsl",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/postprocess/README.md",
+      "target": "../../../../../skills/auto-manager/templates/shader/postprocess/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/postprocess/volume-template.cs",
+      "target": "../../../../../skills/auto-manager/templates/shader/postprocess/volume-template.cs",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/particle/README.md",
+      "target": "../../../../../skills/auto-manager/templates/shader/particle/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/hlsl/function-lib.hlsl",
+      "target": "../../../../../skills/auto-manager/templates/shader/hlsl/function-lib.hlsl",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/unity-developer/templates/shader/hlsl/README.md",
+      "target": "../../../../../skills/auto-manager/templates/shader/hlsl/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/meta-developer/scripts/README.md",
+      "target": "../../../skills/agent-maintenance/scripts/README.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".agents/agents/meta-developer/scripts/check_api_refs.py",
+      "target": "../../../skills/agent-maintenance/scripts/check_api_refs.py",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/unity-developer.md",
+      "target": "../../.agents/agents/unity-developer/AGENT.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/meta-developer.md",
+      "target": "../../.agents/agents/meta-developer/AGENT.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/unity-developer/memory",
+      "target": "../../../.agents/agents/unity-developer/memory",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/unity-developer/references",
+      "target": "../../../.agents/agents/unity-developer/references",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/unity-developer/cli",
+      "target": "../../../.agents/agents/unity-developer/cli",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/unity-developer/scripts",
+      "target": "../../../.agents/agents/unity-developer/scripts",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/unity-developer/templates",
+      "target": "../../../.agents/agents/unity-developer/templates",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/meta-developer/memory",
+      "target": "../../../.agents/agents/meta-developer/memory",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/meta-developer/references",
+      "target": "../../../.agents/agents/meta-developer/references",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/meta-developer/scripts",
+      "target": "../../../.agents/agents/meta-developer/scripts",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/agents/meta-developer/memory.md",
+      "target": "../../../.agents/agents/meta-developer/memory.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/rules/compute-shader.md",
+      "target": "../../.agents/rules/compute-shader.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/rules/csharp-renderpass.md",
+      "target": "../../.agents/rules/csharp-renderpass.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/rules/shader-development.md",
+      "target": "../../.agents/rules/shader-development.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/rules/meta-architecture.md",
+      "target": "../../.agents/rules/meta-architecture.md",
+      "kind": "file",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/auto-manager",
+      "target": "../../.agents/skills/auto-manager",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/codex-bridge",
+      "target": "../../.agents/skills/codex-bridge",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/unity-render-benchmark",
+      "target": "../../.agents/skills/unity-render-benchmark",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/unity-feature-reuse",
+      "target": "../../.agents/skills/unity-feature-reuse",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/agent-maintenance",
+      "target": "../../.agents/skills/agent-maintenance",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/dwsy-project-planner",
+      "target": "../../.agents/skills/dwsy-project-planner",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/unity-render-debug",
+      "target": "../../.agents/skills/unity-render-debug",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/sickn33-unity-developer",
+      "target": "../../.agents/skills/sickn33-unity-developer",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/unityctl-plugins",
+      "target": "../../.agents/skills/unityctl-plugins",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/dirtybitgames-unity-editor",
+      "target": "../../.agents/skills/dirtybitgames-unity-editor",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/codex-opencode-go",
+      "target": "../../.agents/skills/codex-opencode-go",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".claude/skills/unity-editor",
+      "target": "../../.agents/skills/unity-editor",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".codex/knowledge",
+      "target": "../.agents/knowledge",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".codex/rules",
+      "target": "../.agents/rules",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".codex/skills",
+      "target": "../.agents/skills",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".codex/interfaces",
+      "target": "../.agents/interfaces",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".codex/agents/unity-developer",
+      "target": "../../.agents/agents/unity-developer",
+      "kind": "directory",
+      "git_status": "existing"
+    },
+    {
+      "path": ".codex/agents/meta-developer",
+      "target": "../../.agents/agents/meta-developer",
+      "kind": "directory",
+      "git_status": "existing"
+    }
+  ],
+  "groups": [
+    [
+      ".agents/agents/meta-developer/memory",
+      ".agents/memory/meta"
+    ],
+    [
+      ".agents/agents/unity-developer/memory",
+      ".agents/memory/unity"
+    ],
+    [
+      ".agents/agents/meta-developer/references",
+      ".agents/knowledge/meta"
+    ],
+    [
+      ".agents/agents/unity-developer/references",
+      ".agents/knowledge/unity"
+    ],
+    [
+      ".agents/rules",
+      ".agents/knowledge/rules"
+    ],
+    [
+      ".agents/interfaces",
+      ".agents/knowledge/meta/interfaces"
+    ]
+  ],
+  "moves": [
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-07-28-architecture-init.md",
+      "target": ".agents/memory/meta/2026-07-28-architecture-init.md",
+      "sha256": "7af329796e9b760657220f0c7b81951bfd657f232a3362d6ade159ab8ffba08e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-07-28-references-bootstrap.md",
+      "target": ".agents/memory/meta/2026-07-28-references-bootstrap.md",
+      "sha256": "ab8243d094df3e5c96db9bf3a3b7daaca022acabbc24e22d5dd5ac49e94bbb7a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-03-experiment-mode.md",
+      "target": ".agents/memory/meta/2026-08-03-experiment-mode.md",
+      "sha256": "a08c437abaf56ef013b379530d6bf3f8ff6793232a0fdac8cd03d02d08d724ed",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-07-ecs-decoupling.md",
+      "target": ".agents/memory/meta/2026-08-07-ecs-decoupling.md",
+      "sha256": "d579c40137a820bbfe2473e02447ea67c7016ba5cfea97fcc275ec5882cd78b6",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-07-mcp-server.md",
+      "target": ".agents/memory/meta/2026-08-07-mcp-server.md",
+      "sha256": "8f088b8ffb2d951d6bf1c1ab6ac00848676eeb02960fd9bba8f876845d157a1d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-24-knowledge-internalization.md",
+      "target": ".agents/memory/meta/2026-08-24-knowledge-internalization.md",
+      "sha256": "d4c5035b1e37a19e1f974b86ed618e6f36f7893c2c59e4729b8aeaa75c79f00a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-24-mcp-gate-audit.md",
+      "target": ".agents/memory/meta/2026-08-24-mcp-gate-audit.md",
+      "sha256": "8c9fa118d3dab98550564ba48e3619c41019100fd24bbdf0b0fe19909af2d23d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-24-references-relocation.md",
+      "target": ".agents/memory/meta/2026-08-24-references-relocation.md",
+      "sha256": "2fb20aa6bb6a7fdec521019b4f5b828dc16feab18e7ecf3212a503c6e7a56577",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-24-screenshot-removal.md",
+      "target": ".agents/memory/meta/2026-08-24-screenshot-removal.md",
+      "sha256": "1f630f356d4891dd50dbc41b3e00b47e578aea8b9fb0f6159d8cefeb212c84f6",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-25-codex-direct-read.md",
+      "target": ".agents/memory/meta/2026-08-25-codex-direct-read.md",
+      "sha256": "d248ec934f759cf0c59d2264938e7f6c99d64e53f5cfbc1d174fcb457c901d9d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-25-gate-consequence-verification.md",
+      "target": ".agents/memory/meta/2026-08-25-gate-consequence-verification.md",
+      "sha256": "c5533c6ef0ceec6365122dbea945a89c079eac67cdee5622c59c43d7f026e098",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-25-gate-recipe-layering.md",
+      "target": ".agents/memory/meta/2026-08-25-gate-recipe-layering.md",
+      "sha256": "12166375ecb8ec936b0dfd4c884c0dddbf37af792de538c243a07e46841334fe",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-25-no-screenshot-validation.md",
+      "target": ".agents/memory/meta/2026-08-25-no-screenshot-validation.md",
+      "sha256": "c05f69b1c9a64d6dcd6d4244a07813a3fcd500ed224477b0563e5259ea442bdb",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-08-27-feature-screen-debug-retired.md",
+      "target": ".agents/memory/meta/2026-08-27-feature-screen-debug-retired.md",
+      "sha256": "dd13b64c225c87ba16090521629e00fcb160215f9476e3ad55773d7ce56a8137",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-01-gate-state-persistence.md",
+      "target": ".agents/memory/meta/2026-09-01-gate-state-persistence.md",
+      "sha256": "e688d9aa8e227c63a44564b6df678cec914983c7b8c3fb42e4c5449d936c7ffd",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-03-template-conventions-promoted.md",
+      "target": ".agents/memory/meta/2026-09-03-template-conventions-promoted.md",
+      "sha256": "9507918d4de61165f260e91f664a2e2952bfc4e691c448d7570435d92ca7d55c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-03-template-reference-taxonomy.md",
+      "target": ".agents/memory/meta/2026-09-03-template-reference-taxonomy.md",
+      "sha256": "795ed8d311864bd7c02b06466d3bc799c37d83dffb87ffbff7d0d1e1156aff3d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-03-unityctl-bridge-host-isolation.md",
+      "target": ".agents/memory/meta/2026-09-03-unityctl-bridge-host-isolation.md",
+      "sha256": "97d080dc6c443032321cd5875bad3056bcf24373309db9243a61ec5c24c0155b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-04-agent-architecture-cutover.md",
+      "target": ".agents/memory/meta/2026-09-04-agent-architecture-cutover.md",
+      "sha256": "4416b2ecd6c2b0df91855994e5589fa96a3d464d3b71bbe365719d5258800781",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-04-codex-agent-temp-cleanup.md",
+      "target": ".agents/memory/meta/2026-09-04-codex-agent-temp-cleanup.md",
+      "sha256": "e66eb7c1ee0502c23a3b137c5db6cd17c726a37d6cc6ed380d1822e00f76c0f0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-04-codex-compatibility-links.md",
+      "target": ".agents/memory/meta/2026-09-04-codex-compatibility-links.md",
+      "sha256": "90eecc7edbcfdf1de292e89fde8b27085f4b065330c459e056acaf915c266b24",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-04-fgd-window-placement.md",
+      "target": ".agents/memory/meta/2026-09-04-fgd-window-placement.md",
+      "sha256": "16cf6f32c20f74669049aacae5de61d41f5ca01e09c922c44d2e3d9d8e6728d3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-04-interior-map-window-placement.md",
+      "target": ".agents/memory/meta/2026-09-04-interior-map-window-placement.md",
+      "sha256": "0227616f3bd19796f4f782d148c01b685223a5660e19cf4ccf6099b654d43dc7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-10-meta-mcp-bypass.md",
+      "target": ".agents/memory/meta/2026-09-10-meta-mcp-bypass.md",
+      "sha256": "f8c99845222e7195303c1767b2a3ad36ad75233c863d4dfe06cdb228ac5cf436",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-10-unity-cli-routing.md",
+      "target": ".agents/memory/meta/2026-09-10-unity-cli-routing.md",
+      "sha256": "6d02e455665c82bc2c162eb0203d06b42f8378d3a94621fbe518676c9e4f006e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-14-mine-write-scope.md",
+      "target": ".agents/memory/meta/2026-09-14-mine-write-scope.md",
+      "sha256": "de891e186d3732759f0b6c7ee3774d0f849c4122bf9ed60010fc49b21efb3e50",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-17-debug-validation-route.md",
+      "target": ".agents/memory/meta/2026-09-17-debug-validation-route.md",
+      "sha256": "bbda8ab21900adf3c3e73527da764d37c1a24c6a76f0a4fb374a60e1d01225c6",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-17-shader-menu-naming.md",
+      "target": ".agents/memory/meta/2026-09-17-shader-menu-naming.md",
+      "sha256": "4b7f7f13f76052496f6677fe1d241d269ec1deda931a0424df72d1726ff2d963",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-17-shader-validation-branches.md",
+      "target": ".agents/memory/meta/2026-09-17-shader-validation-branches.md",
+      "sha256": "e692c654bbcf51c74da714c8d15d03425e8d959e3775ab1ce678758c5b987232",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-17-urp17-material-templates.md",
+      "target": ".agents/memory/meta/2026-09-17-urp17-material-templates.md",
+      "sha256": "350536f31b8dbb6ff3137f097e7cb9dd2c1ad36c825d37f0a20e9caf3631bdb2",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-20-parameter-panel-template.md",
+      "target": ".agents/memory/meta/2026-09-20-parameter-panel-template.md",
+      "sha256": "afa0a0a409929a31a420497a2f5afd27218980ba08b36e71fb89bcaa5ecc4d7f",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-21-delete-gated.md",
+      "target": ".agents/memory/meta/2026-09-21-delete-gated.md",
+      "sha256": "610a1becf915f472565b2cb92691c50ec30b346020f74e6d3815aa43da08c428",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-21-gate-operation-model.md",
+      "target": ".agents/memory/meta/2026-09-21-gate-operation-model.md",
+      "sha256": "d79d292b9b706307d7dd4b8bcca05b1e0be923a9e5cfefa0c6c6a23f083b30df",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-09-21-spatial-filter-budget-guidance.md",
+      "target": ".agents/memory/meta/2026-09-21-spatial-filter-budget-guidance.md",
+      "sha256": "437d2b5898abac852604c9a598f3e155911d49b8d77af19665003e3c2284bb61",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-08-codex-transport-toggle.md",
+      "target": ".agents/memory/meta/2026-10-08-codex-transport-toggle.md",
+      "sha256": "ab2f390408c1da3d60039c9832b7d42105f7febb953cf66fe48a24e4a8db431e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-08-mcp-v3-self-observing.md",
+      "target": ".agents/memory/meta/2026-10-08-mcp-v3-self-observing.md",
+      "sha256": "05380b86761630193df695236cfc2c5f4b0b580b08d79b3f99c28f8d76586221",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-08-opencode-go-model-v41-flash.md",
+      "target": ".agents/memory/meta/2026-10-08-opencode-go-model-v41-flash.md",
+      "sha256": "108c05aa02897b8bd37f67009ee1194f1d666a660c77543e522cee97b9a84fc4",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-09-mcp-content-audit.md",
+      "target": ".agents/memory/meta/2026-10-09-mcp-content-audit.md",
+      "sha256": "c62e715e0c7e4b63d48351e78296bfc51c3d980393e451652895823a264dee0e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-09-policy-demotion-executed.md",
+      "target": ".agents/memory/meta/2026-10-09-policy-demotion-executed.md",
+      "sha256": "6db99b0bbb363ae7d3a6a99540b0130aec5cff9d9cd009940d3370fb867b3af3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-09-workspace-boundary.md",
+      "target": ".agents/memory/meta/2026-10-09-workspace-boundary.md",
+      "sha256": "d343622098418ee9ee172d90f2ff78525ac99b90f47e70c4ba020d91b8cb630b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-10-behavioral-reuse-criteria.md",
+      "target": ".agents/memory/meta/2026-10-10-behavioral-reuse-criteria.md",
+      "sha256": "d10a0bb3470488e50d3f57ee6659043a3d1aaf2a6de482ea32ba5bcb40aaf51a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-10-debug-layout-executed.md",
+      "target": ".agents/memory/meta/2026-10-10-debug-layout-executed.md",
+      "sha256": "1dfd907223383a5e32ca45470a9422f743d7361cea3b4fd616d28d5b41ad0108",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-10-feature-reuse-workflow.md",
+      "target": ".agents/memory/meta/2026-10-10-feature-reuse-workflow.md",
+      "sha256": "facffe303b375bd382debd55cbb5262c65f40f86e24641d04b268b4db6a37a3a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-10-gate-directory-deletion.md",
+      "target": ".agents/memory/meta/2026-10-10-gate-directory-deletion.md",
+      "sha256": "0f472fbbd442d3ce582604daa6ca453f9575c3abed48b08bd08c7eca4c2f49a3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-10-task-artifacts-lifecycle.md",
+      "target": ".agents/memory/meta/2026-10-10-task-artifacts-lifecycle.md",
+      "sha256": "91356dccf980087f1d23f29dd851aa0c540dbb8f1eb56e2e251f347a93444ae1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-10-unity-render-debug-skill.md",
+      "target": ".agents/memory/meta/2026-10-10-unity-render-debug-skill.md",
+      "sha256": "4ff29d6422c7af1bbafd50486969032df21f8dd432d57f8612dfda6417db1cff",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-12-debug-layout-retirement.md",
+      "target": ".agents/memory/meta/2026-10-12-debug-layout-retirement.md",
+      "sha256": "3046ab2ae5934c64c0585a77a02e0aeea8d282335605cec51eb7a3f49e138098",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-14-agent-skill-boundaries.md",
+      "target": ".agents/memory/meta/2026-10-14-agent-skill-boundaries.md",
+      "sha256": "d2e8c0635e2bd78fadb9eb1172ddc029f9140981ba57332217717d91bda04d76",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/2026-10-14-render-benchmark-skill.md",
+      "target": ".agents/memory/meta/2026-10-14-render-benchmark-skill.md",
+      "sha256": "624bc5b5a18b0400d23c729e581ce94b001fb9d210535994b5511c9846674e7f",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/README.md",
+      "target": ".agents/memory/meta/README.md",
+      "sha256": "7369db7151fa126aed45dc40e2321dde75b0dda58df7d5f93915c42fc829bb43",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/README.md",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/README.md",
+      "sha256": "a4a8d973e1f5645652b0e358070096a5be3d7c4c377ee9596a309d86bb68dae1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/cleanup-plan.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/cleanup-plan.json",
+      "sha256": "8162a9f7f0b34bf843fb78bbccafeb9ce0bd75138b982e8a6b44fc16faafd6a2",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/cleanup-plan.md",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/cleanup-plan.md",
+      "sha256": "f6b3263cc07083e6b30c9df3823591a1f9bac287fad5d53264f80717029773f3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/cleanup-preflight.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/evidence/cleanup-preflight.json",
+      "sha256": "e0ebac16e71233c8925d10d29b9a8b37d519d30ad5720c736704d8990931ed86",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/hash-archive-control-checks.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/evidence/hash-archive-control-checks.json",
+      "sha256": "91729b2fb7886351a1922773288b7548fc1476cf8aec54d84504e28fd7340c13",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/installed-dense-check.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/evidence/installed-dense-check.json",
+      "sha256": "d44cde2ca9a0dfd464b7be69d75da72f3506d965b0eb7e5c64bb0ca0759d022c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/installed-hash-check.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/evidence/installed-hash-check.json",
+      "sha256": "3b76f2e4e61b175a5072114512ad151809d05c5d97a10275004358c896867aaf",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/installed-validation.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/evidence/installed-validation.json",
+      "sha256": "df666374f6d431fe28202a36e8e113004234a1d627786f788b944401ee346c20",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/mcp-isolated-a93d002a970b/test_knowledge_paths.log",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/evidence/mcp-isolated-a93d002a970b/test_knowledge_paths.log",
+      "sha256": "c7ec091d29f2577d4d1b1dccceb3ab3d87354ecd7d1319b4f349e25243df34cc",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/mcp-isolated-a93d002a970b/test_recipes.log",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/evidence/mcp-isolated-a93d002a970b/test_recipes.log",
+      "sha256": "0f65e3cc4c5b35ea8254188ebe0728b307cd92e4ef3d329c66939a7944c2cab5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/runner-verification-run-all-stubs.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/evidence/runner-verification-run-all-stubs.json",
+      "sha256": "4e7fd14fa1aa7e6ac0c3d7ab02b11dd7dbe57c0b3b453eae211cd3e323dfe223",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/runner-verification.md",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/evidence/runner-verification.md",
+      "sha256": "9d1fd3014b6a8499b2b6300e8cd6c6fbc8a5a717b0b6c369295e9b53848c3dfb",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/execution-report.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/execution-report.json",
+      "sha256": "36ff7db4270a5ac795f19891c1741e8ebdd7420ab704eb55cf3cd828f998ee66",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/archive-candidates.md",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/inventory/archive-candidates.md",
+      "sha256": "dd4b4604d31d3d01b89982bb2ed9a4c1317e4c7478f66fb29fa4f5f2725df8e7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/delete-candidates.md",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/inventory/delete-candidates.md",
+      "sha256": "e9fe035001dd141be0418cb41ccacd73bad133148b48f8b5534de504f679b0cb",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/findings.md",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/inventory/findings.md",
+      "sha256": "e7d6542750ece50671da0ba237604cd7153e604baa8df8718258b93422c8594c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/inventory.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/inventory/inventory.json",
+      "sha256": "11f82411f788a986be098fe75356ed5fec0fb9ce7856b5aa997277f3a6137417",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/legacy-pbr-rerun.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/inventory/legacy-pbr-rerun.json",
+      "sha256": "8fb0c9c4d034103a88985b25a2f02bbc54bba29a03241cdbe383a92b2e24f954",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/shader-rename-check.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/inventory/shader-rename-check.json",
+      "sha256": "a3605940a4d3d3bdab46923391e3cd82d37b41e3d6bd2749711b09b16d25e598",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/legacy-source-map.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/legacy-source-map.json",
+      "sha256": "03eb0d50d04c1485c17bdf8cfe0c8b0d2cb22df86d5923570ff06786ef411e1a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/output/architecture/baseline-findings.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/output/architecture/baseline-findings.json",
+      "sha256": "b53aaa89191769ebd6be06d9a49bb31b57a7623dccbf4c4bf27af455106dd967",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/output/architecture-post-cleanup/baseline-findings.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/output/architecture-post-cleanup/baseline-findings.json",
+      "sha256": "b53aaa89191769ebd6be06d9a49bb31b57a7623dccbf4c4bf27af455106dd967",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/output/installed-dense/reference-self-check.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/output/installed-dense/reference-self-check.json",
+      "sha256": "ca128060cf1c333eb7af7b70787148a6820c511e9f20ab401a6eb18e888dcc2c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/output/installed-hash/current/final-validation-report.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/output/installed-hash/current/final-validation-report.json",
+      "sha256": "f957b221053ac807ba1ecad2c55b498b85596e8375c9481c8bda0c5783268fca",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/output/installed-hash/statistics/variant-statistics-report.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/output/installed-hash/statistics/variant-statistics-report.json",
+      "sha256": "eb87afc8734376d4d7651c5f6147fe32143bc1f5c35d3e78337fd913eea07f57",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/output/mcp-isolated-a93d002a970b/report.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/output/mcp-isolated-a93d002a970b/report.json",
+      "sha256": "0e024a58557bdf6bd0c89e215813e7bae3431a9fcb1c2bfa3ec751b2e0d46054",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/pending-edits.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/pending-edits.json",
+      "sha256": "6cb84fd0eac61be0093c5195f9cb390bb00340d32e0c5b329c65bc1fc41c5007",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/staging/execute_cleanup.py",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/staging/execute_cleanup.py",
+      "sha256": "707b273880411f96782bd3f60c83b135dff872a9fa5b9a27e68873b887dc8291",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/task-closure.json",
+      "target": ".agents/memory/meta/evidence/2026-10-10-lab-structure-audit/task-closure.json",
+      "sha256": "747dd3cae4e3d77fc56ba5ce56a6e340f5763233b2ff43209b3e54c0a437c0a2",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-agent-skill-boundaries/README.md",
+      "target": ".agents/memory/meta/evidence/2026-10-14-agent-skill-boundaries/README.md",
+      "sha256": "6108115d3cef8fcce0865144a90af19fe143b0289be5949d79bc1b5bf733e388",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-agent-skill-boundaries/migration.json",
+      "target": ".agents/memory/meta/evidence/2026-10-14-agent-skill-boundaries/migration.json",
+      "sha256": "94224776663ab2131448eff88d05b28b73e34152c67972ecd2be07f0cbe212ee",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-agent-skill-boundaries/validation.json",
+      "target": ".agents/memory/meta/evidence/2026-10-14-agent-skill-boundaries/validation.json",
+      "sha256": "2679044530ed469326770065299f5c4e21123556f5605e70e126d52362c4b86f",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-render-benchmark-skill/2026-10-14-forward-evaluation.md",
+      "target": ".agents/memory/meta/evidence/2026-10-14-render-benchmark-skill/2026-10-14-forward-evaluation.md",
+      "sha256": "3a322b4218a762f266296c86c0712a6f13cbdf75ee0b75a6960030a911269cbe",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-render-benchmark-skill/2026-10-14-mcp-isolated.json",
+      "target": ".agents/memory/meta/evidence/2026-10-14-render-benchmark-skill/2026-10-14-mcp-isolated.json",
+      "sha256": "2fec041aec5e9f38e9a1365c1d208731daf3e076d48dd1b4b73a20776e39ea79",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-render-benchmark-skill/README.md",
+      "target": ".agents/memory/meta/evidence/2026-10-14-render-benchmark-skill/README.md",
+      "sha256": "70b430d3cc5486edf813039d1d06bb6447aa85e201c61fc223c91ca45bf2a3ff",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-render-benchmark-skill/architecture-default.log",
+      "target": ".agents/memory/meta/evidence/2026-10-14-render-benchmark-skill/architecture-default.log",
+      "sha256": "ea0d1535b24ff26a702a9408da360dfd6331c2ad404d348b070211194784cca8",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-render-benchmark-skill/architecture-final-strict.log",
+      "target": ".agents/memory/meta/evidence/2026-10-14-render-benchmark-skill/architecture-final-strict.log",
+      "sha256": "0e47be41e836ecaea0a4c13a7db785a060bb20f6e92b4d1895a3f36ba4beb60a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-render-benchmark-skill/architecture-strict.log",
+      "target": ".agents/memory/meta/evidence/2026-10-14-render-benchmark-skill/architecture-strict.log",
+      "sha256": "0e47be41e836ecaea0a4c13a7db785a060bb20f6e92b4d1895a3f36ba4beb60a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/evidence/2026-10-14-render-benchmark-skill/skill-validation.log",
+      "target": ".agents/memory/meta/evidence/2026-10-14-render-benchmark-skill/skill-validation.log",
+      "sha256": "db349825903d66adffea3ecf1bd8e1803043e8a71cf1a051235dabc5371f5bb0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/memory/memory.md",
+      "target": ".agents/memory/meta/memory.md",
+      "sha256": "606df98efa2b82b50c18b0e0883c5dc2701ae7ef83f5ee4fb74150f1f7a6d683",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2025-06-15-safety-lessons.md",
+      "target": ".agents/memory/unity/2025-06-15-safety-lessons.md",
+      "sha256": "217bd83eab0670e656246ebcbc81b9246e8704b52e56dc54f74cd417b686e88f",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-07-24-pcss-integration.md",
+      "target": ".agents/memory/unity/2026-07-24-pcss-integration.md",
+      "sha256": "91c4800f39a0f2a9a5f23e4322486ba7c17b268e2cc2f47a8cc860c99b3cdb98",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-07-30-fgd-lut-baker.md",
+      "target": ".agents/memory/unity/2026-07-30-fgd-lut-baker.md",
+      "sha256": "dc3c83927e1dcb1f9b6d9e70a842412e6b395d30d63b49bbbc00453f5c12ad06",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-07-30-interaction-system.md",
+      "target": ".agents/memory/unity/2026-07-30-interaction-system.md",
+      "sha256": "e83501caf85ab0c27f013dcde0f9e4bce4acbafb6ca09027bc280c9c4e87af1a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-08-04-water-caustics-screen-independent.md",
+      "target": ".agents/memory/unity/2026-08-04-water-caustics-screen-independent.md",
+      "sha256": "307cf7489c62cef40f5fa3b7198fc1c30adc072365d726d351acec761adf69ff",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-08-06-poss-per-object-soft-shadow.md",
+      "target": ".agents/memory/unity/2026-08-06-poss-per-object-soft-shadow.md",
+      "sha256": "6a90d1578bdec8b12e08719e9e7634c2bdbbef5a5a3e50ed559b33af1a23ee1d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-08-07-ssr-dda-fisheye-w-sign-flip.md",
+      "target": ".agents/memory/unity/2026-08-07-ssr-dda-fisheye-w-sign-flip.md",
+      "sha256": "a4599b0869741b69c0b8f6dbb0c6306e178d87d09e75047fb03ad3865ef467f7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-08-25-feature-screen-debug.md",
+      "target": ".agents/memory/unity/2026-08-25-feature-screen-debug.md",
+      "sha256": "60ad4e591292a7b8aaba9165ef0b30eaf1887d64eb07e2ce172e486f2414b2f9",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-08-27-starrynight-angle-field.md",
+      "target": ".agents/memory/unity/2026-08-27-starrynight-angle-field.md",
+      "sha256": "8944b04b27d3a62d9851dc8fda3397b29ee7d3c65c41ced465b13a9ac02a659f",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-02-starrynight-wheat-bands.md",
+      "target": ".agents/memory/unity/2026-09-02-starrynight-wheat-bands.md",
+      "sha256": "d09492a10befa36da62cd834142fcf6c9603b02a3e0e7ca17f7b8a0f9b96a21d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-03-editor-window-family-ruling.md",
+      "target": ".agents/memory/unity/2026-09-03-editor-window-family-ruling.md",
+      "sha256": "046b25c22e185114b3c052c824d82a1a5914e38506f64de4f3231b9b107da300",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-03-generator-unification.md",
+      "target": ".agents/memory/unity/2026-09-03-generator-unification.md",
+      "sha256": "33c2ec62d2f83225494c8f4111d77399838dfe40adae24c6534fd2b5f100f1ad",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-03-render-hlsl-template-families.md",
+      "target": ".agents/memory/unity/2026-09-03-render-hlsl-template-families.md",
+      "sha256": "2485a4d1a36f4c15b1fa13643cebc328da4e63335dc6674c124a418a7d40eaea",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-03-standard-code-window-family.md",
+      "target": ".agents/memory/unity/2026-09-03-standard-code-window-family.md",
+      "sha256": "dd3565af1aac5359f8a201d84f4238f5349174d1428e7b85231c82e519b3d82a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-04-interior-mapping-archive.md",
+      "target": ".agents/memory/unity/2026-09-04-interior-mapping-archive.md",
+      "sha256": "f007251a245597aee6154373e8caaf7622c3dfe248c27ccac23747840598aa66",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-17-pbrtoon-urp17.md",
+      "target": ".agents/memory/unity/2026-09-17-pbrtoon-urp17.md",
+      "sha256": "7794c933356ebb4a7d67a7be4e148e397117a18bcbe8223f253b07a67b3fffa4",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-17-uv-aspect-anisotropy.md",
+      "target": ".agents/memory/unity/2026-09-17-uv-aspect-anisotropy.md",
+      "sha256": "c2a3e17a631adc987dcc46f497d10f92c2fe2c4b2c520ddc805175ca175d2636",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-18-parameter-range-policy.md",
+      "target": ".agents/memory/unity/2026-09-18-parameter-range-policy.md",
+      "sha256": "968be07f1d166c4f628711a403a0e4bd3d8a261a08a9cdd84df6c6693cb4a74b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-20-parameter-layering.md",
+      "target": ".agents/memory/unity/2026-09-20-parameter-layering.md",
+      "sha256": "6679575ae282e0125283127e129ec42ec009d3848bba5adc75549ae963b3e7d4",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-20-rt-readback-pitfalls.md",
+      "target": ".agents/memory/unity/2026-09-20-rt-readback-pitfalls.md",
+      "sha256": "cc47fde27150ae815f77812e7339981fb89ddd14969cd782fe706fda3fa05f65",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-20-snowy-wrapup.md",
+      "target": ".agents/memory/unity/2026-09-20-snowy-wrapup.md",
+      "sha256": "a64458afd81ebbcf9ddd1849b67ac43d129663989774abda730377394d508ce3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-20-temporal-accum-pcss.md",
+      "target": ".agents/memory/unity/2026-09-20-temporal-accum-pcss.md",
+      "sha256": "9e96a78a65f8b045c26a0fa5ac21899a0a59362ebe086b3b930069beb6b078cc",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-20-unityctl-tool-pitfalls.md",
+      "target": ".agents/memory/unity/2026-09-20-unityctl-tool-pitfalls.md",
+      "sha256": "682362fd122c215be118d0359e4674c26015f9ed3b675c85c7fc5ce64a930a83",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-21-diffusegi-ssgi-phase3.md",
+      "target": ".agents/memory/unity/2026-09-21-diffusegi-ssgi-phase3.md",
+      "sha256": "51744705caf91a0c13f6616a1e68c4f896283407bf4bb7b223b3177346fd378b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-21-opencode-era-ledger.md",
+      "target": ".agents/memory/unity/2026-09-21-opencode-era-ledger.md",
+      "sha256": "9ceb1f4de99b6f797dd03c0fa69314b10ea3524eb6b3567558933654ec4fcaf2",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-21-speculargi-unified-fallback.md",
+      "target": ".agents/memory/unity/2026-09-21-speculargi-unified-fallback.md",
+      "sha256": "d26fbd8a221e2468e6e02c6a5bab3a7f333e77c68a0ef8b2b67b04da980f7e51",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-21-ssgi-consolidation.md",
+      "target": ".agents/memory/unity/2026-09-21-ssgi-consolidation.md",
+      "sha256": "b1b127882ec8dcc64860a2dde966c04aa4b29091e0cbe1701b826c8dfa8283c7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-21-ssgi-phase4-ao.md",
+      "target": ".agents/memory/unity/2026-09-21-ssgi-phase4-ao.md",
+      "sha256": "ef72851e2ab4665e4637e7192b860e38c354c7139bc3ba372a2c2f22dbe6ede7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-09-28-ssgi-integration-and-archive.md",
+      "target": ".agents/memory/unity/2026-09-28-ssgi-integration-and-archive.md",
+      "sha256": "c7e01eac3651e8ab4857d9a7e46eba1fe95c68409aec6215bc92bdf7cb2cfcc5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-08-rimtoon-maskblur-pbrtoon.md",
+      "target": ".agents/memory/unity/2026-10-08-rimtoon-maskblur-pbrtoon.md",
+      "sha256": "bb7d1660808384929362cfc367b30ad26a0cd9a364a8481c648391a32d4391d0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-09-maskblur-stratified-darkspots.md",
+      "target": ".agents/memory/unity/2026-10-09-maskblur-stratified-darkspots.md",
+      "sha256": "27d7ee90988cf9d076c81efc4b84ed0b70761f6ea8f2f37cece39e50f26b4ce9",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-10-blur-jittered-unification.md",
+      "target": ".agents/memory/unity/2026-10-10-blur-jittered-unification.md",
+      "sha256": "4d2a73d94a9e143c92442ec2f73335cbffb84ff1b1c95e10927fff5561e15be9",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-10-debug-resource-migration.md",
+      "target": ".agents/memory/unity/2026-10-10-debug-resource-migration.md",
+      "sha256": "ca6a158083f792abbf8d635297352240e96974f78faceb3fb445361c3b381275",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-10-hash-function-extraction.md",
+      "target": ".agents/memory/unity/2026-10-10-hash-function-extraction.md",
+      "sha256": "dec0941751ce860e8d6665fed191c387e90dcdc4f967aa88a86d71406489cb6e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-10-postprocess-port-structure-pass.md",
+      "target": ".agents/memory/unity/2026-10-10-postprocess-port-structure-pass.md",
+      "sha256": "1bc29ff6243428841ad4b801aa7fddb02ffe850acbccfd4d2bbcc188a645a20c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-10-validation-artifact-archive.md",
+      "target": ".agents/memory/unity/2026-10-10-validation-artifact-archive.md",
+      "sha256": "1449ecc9302a9a4872ce93096cad8aa9394748fa622d81fc83b3600f2529b5bf",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-12-interior-screen-debug-retired.md",
+      "target": ".agents/memory/unity/2026-10-12-interior-screen-debug-retired.md",
+      "sha256": "06944cb229dc0541c4c01c72ee1be7e7e7f7e0e33907c659c0a9ed2279bd6c98",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-12-maskrbr-mainlight-phase.md",
+      "target": ".agents/memory/unity/2026-10-12-maskrbr-mainlight-phase.md",
+      "sha256": "72fc18975d167700bfbac18ac6835a0e8196edafb19f9db6612e44faa0f0008e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-12-maskrbr-v1.md",
+      "target": ".agents/memory/unity/2026-10-12-maskrbr-v1.md",
+      "sha256": "dd18b31d93e55733a35fa310df432f6b33812d4d52f2da50f7fca64c144a6e0c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-12-screen-trace-library.md",
+      "target": ".agents/memory/unity/2026-10-12-screen-trace-library.md",
+      "sha256": "88e578c37776e91d85597069f08251252929141541570aa76cba8b6bbfcb7861",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-12-ssgi-dda-integration.md",
+      "target": ".agents/memory/unity/2026-10-12-ssgi-dda-integration.md",
+      "sha256": "fed88e23e0efc3dc3877f6136c69839687d1c0703f3886f859232b7d679d8d9b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-13-diffuse-weak-temporal-diagnosis.md",
+      "target": ".agents/memory/unity/2026-10-13-diffuse-weak-temporal-diagnosis.md",
+      "sha256": "dd870f299bf88c66f1a034fd3d93dac3e8d63ab3384d89c097c568526de0876c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-13-shared-screen-mask.md",
+      "target": ".agents/memory/unity/2026-10-13-shared-screen-mask.md",
+      "sha256": "be62eff9b1a53409ecd093ca67870cd0b9e4454a66be7a63cf862c01f2a0e845",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-13-ssgi-dda-wall-timing.md",
+      "target": ".agents/memory/unity/2026-10-13-ssgi-dda-wall-timing.md",
+      "sha256": "11ba86357dd568c6fc81c646a620e24d3d5ba4de95e13d7f37b2edf620e4c167",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-13-ssgi-shared-spatial-reconstruction.md",
+      "target": ".agents/memory/unity/2026-10-13-ssgi-shared-spatial-reconstruction.md",
+      "sha256": "22a3223bcbbe0ced0ddc3020ce270f0b9a9048c57de7fc642e73be416885b649",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-13-ssr-framework-rebuild.md",
+      "target": ".agents/memory/unity/2026-10-13-ssr-framework-rebuild.md",
+      "sha256": "0d5cf75593c1fa1e70d990fa5b64780bea778f23d4140aaf1c020d04e750247b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/2026-10-14-diffuse-multiscale-reconstruction.md",
+      "target": ".agents/memory/unity/2026-10-14-diffuse-multiscale-reconstruction.md",
+      "sha256": "e9360453498dd134393474fefd68fe27c26a3e774e93d101f93052d069c3fb97",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/MEMORY.md",
+      "target": ".agents/memory/unity/MEMORY.md",
+      "sha256": "20a355c1f91cdd11362619106215979ab3fdacc727603c73110ff81f7a922bd0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/README.md",
+      "target": ".agents/memory/unity/README.md",
+      "sha256": "c2b9c418bf5c9bba11cfa611aa8878e20ca954e4daae544dd8adb6978d99b465",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/README.md",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/README.md",
+      "sha256": "05957613428e8f358bad51b544104a56c56dd3f52461c6196fb0d712fedaa590",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-before/PC_Renderer.asset",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-before/PC_Renderer.asset",
+      "sha256": "9afdbf86b83718de741ff37a52e9af7865e1957b275baaa1309ef9e2d77d90b0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-camera-preview.png",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-camera-preview.png",
+      "sha256": "594f3ec750be2bb09e0d4be19946fcd574eb5a8cc12b8e9a931b8e36c5103a97",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-camera-verify.cs",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-camera-verify.cs",
+      "sha256": "ce3754abbd44882012e1ecdd8285fa6526ccaf418d6501c2c08f866082c1f8b5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-flip-before/Snowy.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-flip-before/Snowy.shader",
+      "sha256": "331fba3e8ffaea995fbc8358853c3cf0628a1f90313a3f44452c97d3be37a898",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-flip-before/SnowyParticle.hlsl",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-flip-before/SnowyParticle.hlsl",
+      "sha256": "827e2250b66106cb2ff899829cccd3ce81310adcb20c2d1efa62bc547914d9a0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-grid-preview.png",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-grid-preview.png",
+      "sha256": "f9cb7670f1ac7f31ab764d97d3e24a139ce220c748d3701ec802f28881c0ef30",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-motion-before/Snowy.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-motion-before/Snowy.shader",
+      "sha256": "71b392b99d54ef32255517a4d1c178dfc0ac54c60b9b3b3a28370a8edb7fda16",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-motion-before/SnowyParticle.hlsl",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-motion-before/SnowyParticle.hlsl",
+      "sha256": "948106021ab4400f7834627f47d2ad130689dc1a0696f24fcb4744225ddc948b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-motion-before/Snowy_Grid.mat",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-motion-before/Snowy_Grid.mat",
+      "sha256": "e9a6f45acaa8cad313673525ae26dbb66c33e3b0e34ef614f715dd231fbd5c94",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-setup.cs",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-setup.cs",
+      "sha256": "5871e0639a59b90686aad6fef98f6578c1cc152d582dbf031722950a242c82ca",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-verify.cs",
+      "target": ".agents/memory/unity/evidence/2026-09-07-snowy-prototype/snowy-verify.cs",
+      "sha256": "1e5a86bf553dbbb616c49b85f4c93e3d4177c017fbb2b414955db12ec2b4951e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/README.md",
+      "target": ".agents/memory/unity/evidence/2026-09-17-plant-billboard/README.md",
+      "sha256": "98f502c589bd337a1897813b058161741d22cd6ee6cd06931cddb19f41ddc769",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plan.md",
+      "target": ".agents/memory/unity/evidence/2026-09-17-plant-billboard/plan.md",
+      "sha256": "ef5d5dfc8c99006cc4123a60c4a7ed934bc6f8097048221de9fe0e679ddf308e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-0.png",
+      "target": ".agents/memory/unity/evidence/2026-09-17-plant-billboard/plant-preview-0.png",
+      "sha256": "390f887df26e6f890bd9c83307a314da084bf218452da33c4722800406ff1321",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-1.png",
+      "target": ".agents/memory/unity/evidence/2026-09-17-plant-billboard/plant-preview-1.png",
+      "sha256": "bd2a51399d5026c04f5f1f33f8c35933df90a431942d5a2b80b5e7eb53ad92f1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-2.png",
+      "target": ".agents/memory/unity/evidence/2026-09-17-plant-billboard/plant-preview-2.png",
+      "sha256": "a108ec9d180f2988a8c2516d6278971e6d50c77eaea578af934316fefa1d81e2",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-3.png",
+      "target": ".agents/memory/unity/evidence/2026-09-17-plant-billboard/plant-preview-3.png",
+      "sha256": "da70650aa687eaccce9c9b90ce71d448ddc251bb7c8e092ad21888e060ad2d10",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-4.png",
+      "target": ".agents/memory/unity/evidence/2026-09-17-plant-billboard/plant-preview-4.png",
+      "sha256": "3de1980753722096db63b0f4a3d321473759b827a66fc307bf4ad59cd10bcfc7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/README.md",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/README.md",
+      "sha256": "7ae683ed8ee82e64c6722649db8caba3454469522dc21ddad552ddbf2a94c86a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/mapping.json",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/mapping.json",
+      "sha256": "3e1f2e844dbe3955346efb1ae3c5cfbc21eaf9e595d437418a13dff6707b9b5c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/Stars.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/Stars.shader",
+      "sha256": "58fb237ac51c6c15e19870873a1475912f39a5c700860903b31a589280da383f",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/StarsOutline.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/StarsOutline.shader",
+      "sha256": "5aeaeb6da5401c9cc5add8a5fe0f7b75f7f35bdbf0eb6b11513d6d6bcea7ad3b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "sha256": "8fcdc1663fbc38d4ed685d7d6e30bf9d10bf11a815b79bbc3c23f694d5c79401",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "sha256": "f4b43b22b125ea4cf3adfa24cbf52e2fdbd72befbe88c7d7dc52eca1702efc04",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/InstanceManager/Instance/Boid/BoidInstance.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/InstanceManager/Instance/Boid/BoidInstance.shader",
+      "sha256": "2ec388f98c0a1ba0cc373691209226ee9d9ba6189c56ff35e67d2d929e948904",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutBaker.cs",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutBaker.cs",
+      "sha256": "265686dfb35f9943e704ab714b8934e68ecc6937633987428af05ade41e8f7f6",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutPacker.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutPacker.shader",
+      "sha256": "51886f281a05f2942ce3d1b463af7f5c67bd4e8a9420fda2703e5f28234046f8",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/RimToon/RimToon.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/RimToon/RimToon.shader",
+      "sha256": "96a4f0f719fd87bf9e8b1fefdb387628ce8e3eac2e3d4583da95ff85a3c77e35",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "sha256": "63f2b991142561dbd667dcc74e3d8079f961993e9ebf895a94d57e8431203521",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "sha256": "050e75b01df418e60c5349e8eaa0df8311f16ecaa1d1a869ccfa76a0ed359e2d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "sha256": "6b16f8f63769707e0e5713c05b0519acfd5b86a9567a0bb0a434247f5fb1c8aa",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.shader",
+      "sha256": "991b6b80de7d5fd831c6899a634d0d1a8ae167faf910161668eaf7e2f5ac8868",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/Water/Water.shader",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/Water/Water.shader",
+      "sha256": "79dd587e7af4748fe6388f4ce82769f98c25efc71aea335b2d93b6a98287e766",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/verification.json",
+      "target": ".agents/memory/unity/evidence/2026-09-17-shader-rename/verification.json",
+      "sha256": "7add6cd40e56d8ae996c4c472bc7e593257fa67580ca05a587ba6f7307b5ca48",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/README.md",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/README.md",
+      "sha256": "c7071f2600933be6211c4304a02b8c5fdf056ca109b590c64ce97d5550152418",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/archive-members.json",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/archive-members.json",
+      "sha256": "17e598f5410c721e6b51941348ada7d8c4e33a71fba32330140be4fb4a4cf11e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/cleanup-manifest.md",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/cleanup-manifest.md",
+      "sha256": "5cf989466d73e43dea542dcc823af7eae331d7306886289051e6740d37cbf526",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/duplicate-aliases.json",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/duplicate-aliases.json",
+      "sha256": "2cfb1fe1765b2be6273148dcaa1946ae7b8e5d36bc170e198f301c5632f31b11",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify3.cs",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify3.cs",
+      "sha256": "22a3670ee481b3debc8d569d7bbd4b60cdd335f2a2bf1abd6bab6dca68546c19",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify4.cs",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify4.cs",
+      "sha256": "3d94fc882765c13077712f0a5df9061e529952e38c4f8a3f86fe03a8276e1489",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/rollback-2026-09-21-diffusegi-ao.tar.gz",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/rollback-2026-09-21-diffusegi-ao.tar.gz",
+      "sha256": "bcdb067c5eec3b24eddaf01cd302b2b318abe7b2761e4e64e471d5fd7a955138",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.bmp",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.bmp",
+      "sha256": "bc234553e74cd3e1c7c374cd1661e92bb40ce6f9828d3c87771189ac149f7071",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.png",
+      "sha256": "4b966f45d11b918400c53f699e4a10777008437c37cdcdd699b88dfac1a1ff77",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.bmp",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.bmp",
+      "sha256": "bd3e11f1d816c2b43c0779fe0d2a6c960aeaadd1f1876a34c97ebacc03f3ed47",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.png",
+      "sha256": "ce9f049559341790fbb2fc49c721ac76eb2d375acdb53b4081b44d681fe96e84",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.bmp",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.bmp",
+      "sha256": "f82232f6ab0ebed36ace13bfd431c4841991f8cd1d01e7adcaa7ef265fcb3254",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.png",
+      "sha256": "26f059d99f0a78087f4618d154dd29c66299f2e0d65dbd7cea46b6e777f219e1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.bmp",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.bmp",
+      "sha256": "42d479cfde6b9472259729dc809f6741e25e1c577d79bfd65d3f52786301fedb",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.png",
+      "sha256": "d9a355f6c4c490010d0c53a18162d62e66bf239d4502db64234e2a5c03fc9423",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.bmp",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.bmp",
+      "sha256": "f561b4335f055160b6ee01d624693a04f26c5547f6bbb91338e4535767e9fcbd",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.png",
+      "sha256": "aaac4946df8c1f58ffd57661cdf32962fb8fbcaf4e09907265051cffb9eb8c30",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.bmp",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.bmp",
+      "sha256": "2b6ada8bda8a720ab55c00093533d16cd32604a2456e14fb48a7046c2cda0e3d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.png",
+      "sha256": "fea65d26a4a34e74ed2d2dda1b32def6d15cd14b56157d7ca562824dd71364e7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.bmp",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.bmp",
+      "sha256": "4d313efb6159d629f80d341971c4b1858196d49365959cb8c7439b6f69a43dd0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.png",
+      "sha256": "1cf41ffb738b55ffc04a1bb8b306aca533cbaad8ec89394f6bbcaaf41419c02e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.bmp",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.bmp",
+      "sha256": "d8f40525507082be5d49968c0a214c13843c261df3860b2944d5d592961e4959",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.png",
+      "sha256": "1d711268e265fee714ad1ba0d958700c7ec73d05e277f236b688ba891fab3869",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_composite.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_composite.png",
+      "sha256": "42cee181b4b75b0ff1e531b6a165754998f16c95aa783bff6fe807180fa4ed8c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.bmp",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.bmp",
+      "sha256": "0d2419c8fc2c6c82bcf35fb4a4cd24add93bf2439a59ffe906fd6483b438012e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.png",
+      "target": ".agents/memory/unity/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.png",
+      "sha256": "0715dabce6d8648630bc665ad53673aeda201bf3e2b2417c49293b7eba89b34d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/README.md",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/README.md",
+      "sha256": "890ab2c2c518194b4d93eaf97e821d945222710085ca1f91902ca9f44db4dcc2",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/analyze_dense_reference.py",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/analyze_dense_reference.py",
+      "sha256": "464b46e386d3031659ffb3852a25f63bacddd00b48fef7f30a487f741e93e732",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "sha256": "751c2bf4b98a94744b0777b00e5ed97b30d1dde0f3075ffbe289ceeb59a843f5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one5-output.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one5-output.rgba",
+      "sha256": "bbec381836f98b81b3dd05100065ada4cb3834c4069b373bb075a954d069ad03",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-output.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-output.rgba",
+      "sha256": "53af233b13c073f07c4b9ead1689b8137196d7e842a483ba11a742daed85f129",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-source.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-source.rgba",
+      "sha256": "de6660382d2989d5afdc109f71e381706455a328588178042b73d5c0c6978fa0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_two9-output.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_two9-output.rgba",
+      "sha256": "c74e4b49bd453b6aa8b6453f8b19d7859da1c8cf888ce1ecb4e5443e20367c7c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-output.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-output.rgba",
+      "sha256": "d9a7e2d2839875d8fdd42ddb6f0e77983d187db5cb922389f9166b7fba67024c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-source.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-source.rgba",
+      "sha256": "0b123b74aaad0936caaf12987f6a9e229a1dcc824393fb01950b2b4bce8c0da9",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-output.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-output.rgba",
+      "sha256": "1025592708236b6c60e63860709de1be1a2e8b6d4286256e6e905b91171ccc5b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-source.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-source.rgba",
+      "sha256": "26f23a8545bbf9b3d94210342d3a1e083fddafcf2dbc8763426baa593793f605",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/uniform_one9-output.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/uniform_one9-output.rgba",
+      "sha256": "d2414bbff49f02aaa16fd45edc1d3d9f45dafce733596afd7a48afbe87445f32",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/uniform_one9-source.rgba",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/inputs/uniform_one9-source.rgba",
+      "sha256": "b97131ca1c054de0842c4ab8b6a40b90e5cc3aef9b9df2594817dd461b26da3d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/manifest.json",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/manifest.json",
+      "sha256": "375723e04d76a6aa1ab9c3797aabc676d72544191922a99263d0a77ff97a6ad7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/original-results/dense-reference-comparison.png",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/original-results/dense-reference-comparison.png",
+      "sha256": "c515d3e9976594064e0e6c50e6dca2855944472d946c24cfdc3dba4a71f5414d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/original-results/dense-reference-report.json",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/original-results/dense-reference-report.json",
+      "sha256": "a9dd87221a39cbabc87a3e3f18718005b69ecb0af3f951e703b2febf31387f53",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/verification.json",
+      "target": ".agents/memory/unity/evidence/2026-10-09-maskblur-darkspot/verification.json",
+      "sha256": "920c51a583bbdef2ccd52da233f7363f4468ba276613d5bba2b7eaf8e16eb2a7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/README.md",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/README.md",
+      "sha256": "cee83e97b412f97acf9cdc82965f2848ce6d8872a71ab5a0bcd10e20dc2bad81",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/README.md",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/README.md",
+      "sha256": "1b3c37667a367f5f28baa9e5cbff99f0744fce5fe9d43cb7e26f387a785b3397",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/VALIDATION.md",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/VALIDATION.md",
+      "sha256": "ca853c6e1c62467976b6f00bbe02e690d410dda83ba105b6904bf8fb0d807da3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/baseline.json",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/baseline.json",
+      "sha256": "75c2ea2d6e12ad4ddc56eeb582ade6ff01d2218f3059fda6601094bb3110820b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/script/WeatherFeature.cs",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/script/WeatherFeature.cs",
+      "sha256": "51aad14fb430f1b70be0b86868bc149e3b6fd52ec69462b50357962c9b6db49d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/script/WeatherProfile.cs",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/script/WeatherProfile.cs",
+      "sha256": "7baf9db67f01840b6ce68ed6ffaca2c5c39ac8e7fe9b142762b17499024b896b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/shader/Weather.shader",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/shader/Weather.shader",
+      "sha256": "8d986e2fce3a8e0f60ac6ad5c218a4f9a60cdbc21dbd456b1c480492972fca35",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/shader/WeatherCommon.hlsl",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/shader/WeatherCommon.hlsl",
+      "sha256": "d94c0a27f84d9686514232098abfdcfba24afcff944b6e2cb6deb14d475546b1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/shader/WeatherParticles.hlsl",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/shader/WeatherParticles.hlsl",
+      "sha256": "184f037418c728558e6cb42624f7b16c6921bb11f6c1b7333ddf656016ddb20b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/InstallFeature.cs",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/validation/InstallFeature.cs",
+      "sha256": "2a3c2f35992329257507025e99ea48364ce8ca5ce16193201b271e371b551e01",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/PC_Renderer.before.asset",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/validation/PC_Renderer.before.asset",
+      "sha256": "0da2dfe31681ccfd02fec9da7633683aa675ef358f1aa6bdf0aa0e7a3200fd60",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/PipelineChecks.cs",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/validation/PipelineChecks.cs",
+      "sha256": "b7c0172ded339de0d2881d1a606e4e7aa13eabcdf8b8f1ac7a1aca0c5ccce7df",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/RetireLegacyBindings.cs",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/validation/RetireLegacyBindings.cs",
+      "sha256": "31bf4540e896e82aa137879c5f6678e2c1fc6df4cf9323e90a22184e9e3dba14",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/legacy-guid-inventory.json",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/validation/legacy-guid-inventory.json",
+      "sha256": "8ee7b8a4b97986a4fe6f776baeb23c1bc507e1982748c60204bfab4d32fa63e6",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/renderer-weather-only.patch",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/validation/renderer-weather-only.patch",
+      "sha256": "2b45bbe483fe817893dbf4e4a25fb6932dd7b09bb0e888e5e44bb45498d59245",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/stage_renderer.py",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/validation/stage_renderer.py",
+      "sha256": "1b00faad3fa7c52ca88373137fae27fe711aba31517276e4f6a90acf6c557a53",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/user-particles.sha256",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/implementation/validation/user-particles.sha256",
+      "sha256": "989a04daf42baf047534dbefedc69b44254489bd54caf255f325c64355c91841",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/design.md",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/plan/design.md",
+      "sha256": "43c8f215f6b127cbe871f4b0687eecb697eab627c2ae2249bbe0498ebbd2a338",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/implementation-contract.md",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/plan/implementation-contract.md",
+      "sha256": "741c3c992d59ad37f61bc65a9b6b18e4a92eebbb57917105081ea1f78a2ee589",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/requirements.md",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/plan/requirements.md",
+      "sha256": "3bc92ced02970c1e01a3abfbbef4ca666e601645799144143b439eae24419097",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/tasks.md",
+      "target": ".agents/memory/unity/evidence/2026-10-09-weather-integration/plan/tasks.md",
+      "sha256": "27a769e89a5a5f981111ec895b3d1ff9938fcdf8bd98b21f590db87d086fb55d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/VARIANT_REVIEW.md",
+      "target": ".agents/memory/unity/evidence/2026-10-10-hash-function/VARIANT_REVIEW.md",
+      "sha256": "7d85320a6b13ac80de0a4868205d7621cade91cc36d1f7a950552cb100e5ea41",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/archive-control-checks.json",
+      "target": ".agents/memory/unity/evidence/2026-10-10-hash-function/archive-control-checks.json",
+      "sha256": "91729b2fb7886351a1922773288b7548fc1476cf8aec54d84504e28fd7340c13",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/current-contract-validation-report.json",
+      "target": ".agents/memory/unity/evidence/2026-10-10-hash-function/current-contract-validation-report.json",
+      "sha256": "38d9d787121e7f0064f9a0ced205171b5c9b148af818444658eaeca9e453054e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/final-validation-report.json",
+      "target": ".agents/memory/unity/evidence/2026-10-10-hash-function/final-validation-report.json",
+      "sha256": "5b6a0427a5a82e974d84eb485876c980369f961cbebe951a93b01db3a8d3f2f0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/historical-strict-snapshot-report.json",
+      "target": ".agents/memory/unity/evidence/2026-10-10-hash-function/historical-strict-snapshot-report.json",
+      "sha256": "b5bd83edbea36392d209d214a398c147cfe51bede7335b06c8780656c0b64dce",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/variant-statistics-report.json",
+      "target": ".agents/memory/unity/evidence/2026-10-10-hash-function/variant-statistics-report.json",
+      "sha256": "5a4572da88e731282c9b300f5925fa633bdd0883d6eacb61a2644d5e38567252",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/artifact-sha256.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/artifact-sha256.json",
+      "sha256": "c8088186200ccd7c4fbbb38325972d8dd185445ef4ccd6804f9fb3dc6fa410ea",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/asset-preservation.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/asset-preservation.json",
+      "sha256": "ea947a85517c6d7f514b309694e36da9638d14d4c4bce9c290118359b7b15f4c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/before-sha256.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/before-sha256.json",
+      "sha256": "29c732471957080d7e73dc0b589c8d99cf2aeab2a95e82b75b19faa5b5d7f50e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-baseline.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-baseline.png",
+      "sha256": "f4e2dde905ab9a92740a0ccb592ca1683d5829bf1a23e4ae193529b4c1c9ee23",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-composite.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-composite.png",
+      "sha256": "f6750b77290111f46c3ba45a231ed625f2bd42e6a7a0364ed569dec3c06be320",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-mask.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-mask.png",
+      "sha256": "5a3a1fab6ff07cb72c0199c08ffe51c6b8c0d445fab7e81c5e11d9b4ec3addb3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-rays.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-rays.png",
+      "sha256": "8483f3a2f9f71b5762a21fdc446aff36656d267910cb6fb646776aa4bb81b9c6",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/pipeline-results-archived.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/pipeline-results-archived.json",
+      "sha256": "32c34c1fe21086499b487a295bc62d517b7b5d2702bb3ba07e9c0f05750a27c0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/shader-results-archived.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/shader-results-archived.json",
+      "sha256": "3177364323813c85287f4818c43f3f111f98b31c6763bae88c01bb062cfa6970",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-mainlight-v2/source-sha256.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-mainlight-v2/source-sha256.json",
+      "sha256": "7f56620fbdacc8deef3785434cf73ed1f69b3d3e0862226727aaa9caf46f8256",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-v1/object-composite.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-v1/object-composite.png",
+      "sha256": "eda7422be81f63737c203e46d52c0156fd405e5bf3286cda71867ff7cee050b4",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-v1/object-mask.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-v1/object-mask.png",
+      "sha256": "5a3a1fab6ff07cb72c0199c08ffe51c6b8c0d445fab7e81c5e11d9b4ec3addb3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-v1/object-rays.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-v1/object-rays.png",
+      "sha256": "51e216609fd74b26278d9822f5b98fb15471eef136e6936fc6780e711423f0fc",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-v1/pipeline-results.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-v1/pipeline-results.json",
+      "sha256": "72feaeb2d511d63f1c6bc18f88515510f650fb5b422d08bc2ac4307c7eb450e1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-v1/shader-results.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-v1/shader-results.json",
+      "sha256": "e781bafd6affd062208fbf6bca05caf31d8a4fdd34f886c635c94cebbe344bb0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-maskrbr-v1/source-sha256.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-maskrbr-v1/source-sha256.json",
+      "sha256": "9a9959f6b3ab7f3aa293c3b2c79f18cf860c4c5ad1d3a856b2ffbceb92eb8b8f",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-screen-trace-library/metal-results.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-screen-trace-library/metal-results.json",
+      "sha256": "33ab58862e96b5fdcb33a7df30df71936a582756f083a5b01c5571b6a40ba3da",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-screen-trace-library/validation.md",
+      "target": ".agents/memory/unity/evidence/2026-10-12-screen-trace-library/validation.md",
+      "sha256": "581b2e1965cacd9f754cc2acdd8e21b5dabeddbdf0bb708a319c701dd6bbcbf5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-ssgi-dda-integration/diffuse-medium-DDA.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-ssgi-dda-integration/diffuse-medium-DDA.png",
+      "sha256": "5ed9102e63c8086f543ac3506f38833fa3ffb052a015f5ee8eaf688d3c947f13",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-ssgi-dda-integration/diffuse-medium-Ray.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-ssgi-dda-integration/diffuse-medium-Ray.png",
+      "sha256": "fc6e9055d1d5ca3da8e8e030647e87c0cb417f09fd62020e735163318a9d14e0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-ssgi-dda-integration/distance-negative-control.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-ssgi-dda-integration/distance-negative-control.json",
+      "sha256": "44bee8c0670d13410a0e35083a663e93d8dd9e7e05c3c325f46bbc8b997eb367",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-ssgi-dda-integration/history-negative-control.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-ssgi-dda-integration/history-negative-control.json",
+      "sha256": "4281a82a14dd7a221de1524935a8d3d86774354ec542f8a20f69e114f6e498c5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-ssgi-dda-integration/metal-camera-results.json",
+      "target": ".agents/memory/unity/evidence/2026-10-12-ssgi-dda-integration/metal-camera-results.json",
+      "sha256": "253af4f6d50a3d50cbdb305f932401701637c276f5d36b7869deb1f1a89e5255",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-ssgi-dda-integration/specular-medium-DDA.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-ssgi-dda-integration/specular-medium-DDA.png",
+      "sha256": "f6081baff42a1746b68178c928a839bb068c741c97ddf0a07fa247704e51686d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-12-ssgi-dda-integration/specular-medium-Ray.png",
+      "target": ".agents/memory/unity/evidence/2026-10-12-ssgi-dda-integration/specular-medium-Ray.png",
+      "sha256": "868cf199f8835078eb619bbb8b29b60dab260c564fc6c162883eae50e5663113",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-diffuse-weak-temporal/Probe.cs",
+      "target": ".agents/memory/unity/evidence/2026-10-13-diffuse-weak-temporal/Probe.cs",
+      "sha256": "e9460995493381c7719c392c4468d6e912dacc2b5b6f3fcc62f868767c3c857c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-diffuse-weak-temporal/README.md",
+      "target": ".agents/memory/unity/evidence/2026-10-13-diffuse-weak-temporal/README.md",
+      "sha256": "b57448b2c0e3632a40d3abca70795511f776e14e44490bb55ed835bd7e138397",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-diffuse-weak-temporal/jitter.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-diffuse-weak-temporal/jitter.json",
+      "sha256": "98fe5cb8d2977b3ae1914c6d8f4b6797236c10e7727707f6269fcd1c7c0fde1c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-diffuse-weak-temporal/live-config.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-diffuse-weak-temporal/live-config.json",
+      "sha256": "88252452cb508fb5398d4d29719ab758aeab28c2733227090f5cb98b09e66bd3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-diffuse-weak-temporal/live-final.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-diffuse-weak-temporal/live-final.json",
+      "sha256": "fa216f4383f1942189f327753235add79131824d9871a9bf08c9a5c7a0f0d22e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-diffuse-weak-temporal/probe-cli.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-diffuse-weak-temporal/probe-cli.json",
+      "sha256": "faff398545a5d503eb5c7833442ab6c3ce5971e6e73722cd7a18b1d677688d49",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-diffuse-weak-temporal/protected-before.sha1",
+      "target": ".agents/memory/unity/evidence/2026-10-13-diffuse-weak-temporal/protected-before.sha1",
+      "sha256": "f92d7f3c7a900cc062b8a2aa50a733790524032fae42d7d5dfaa15f888871da3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-shared-screen-mask/artifact-sha256.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-shared-screen-mask/artifact-sha256.json",
+      "sha256": "390cf7f8540e09192471baef336ffe06cb49539791e50707307dbb79380a3738",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-shared-screen-mask/asset-preservation.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-shared-screen-mask/asset-preservation.json",
+      "sha256": "97e9ad227a95241f04ecddb93882c4454ad421e2eb58b3d5ee7ee580c08583d7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-shared-screen-mask/baseline-input-sha256.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-shared-screen-mask/baseline-input-sha256.json",
+      "sha256": "b95d1bda607724d68e0e0e863d9b283254e89982ddc519d0d5e24e8c01a7e8b8",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-shared-screen-mask/baseline.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-shared-screen-mask/baseline.json",
+      "sha256": "9a82cd425db216c0b7c3931f498cf4e0a8305eb599217cc77299c5a3095912b6",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-shared-screen-mask/equivalence.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-shared-screen-mask/equivalence.json",
+      "sha256": "2ce2313baae57a5845ae8006ba987cc9ab91ac3c6ee75de62fdef20ab0fc3d1d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-shared-screen-mask/rbr-gpu.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-shared-screen-mask/rbr-gpu.json",
+      "sha256": "3177364323813c85287f4818c43f3f111f98b31c6763bae88c01bb062cfa6970",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-shared-screen-mask/rbr-pipeline.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-shared-screen-mask/rbr-pipeline.json",
+      "sha256": "b10c9bea6b291f7dafcb2b0b3bb9aa692c96bbbda8b500ca6f3033eac71ffb16",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-shared-screen-mask/shader-status.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-shared-screen-mask/shader-status.json",
+      "sha256": "744a07e39bfec29272509a3a806362d8375f49724b59b6bcb86c2582a685944c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-shared-screen-mask/source-sha256.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-shared-screen-mask/source-sha256.json",
+      "sha256": "d58d60c652abad73a8d708edcf7772e6319cba9c7a504e31da9fb9cf74dc66b2",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-dda-wall-timing/DDA256-DDA256-642x366.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-dda-wall-timing/DDA256-DDA256-642x366.png",
+      "sha256": "76339ee90dca35255cee7ee1ec81954dc6793491ba21801da2e92d25ecd319f1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-dda-wall-timing/DDA48-DDA64-642x366.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-dda-wall-timing/DDA48-DDA64-642x366.png",
+      "sha256": "8cdd5a103a675a55ed533242e183d5a3b35aaf68be624d8b1dcc5884bc4414ee",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-dda-wall-timing/Ray-Ray-642x366.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-dda-wall-timing/Ray-Ray-642x366.png",
+      "sha256": "0e7543f749c2cd2197409092b285fe3ef5f803ab7551f377b367ff6803622693",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-dda-wall-timing/current-config.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-dda-wall-timing/current-config.json",
+      "sha256": "60f51bf52be7b6a9247428d2ede603779a999b70cdfa2f901a3590a368c71add",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-dda-wall-timing/timing-prior-replay.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-dda-wall-timing/timing-prior-replay.json",
+      "sha256": "8ede6415fadc91ef34cd64d22725d9d4f0d53ed0afaa64896d425150750b64da",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-dda-wall-timing/timing.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-dda-wall-timing/timing.json",
+      "sha256": "3cc8164502510fdef46bd1a25dde9d65cf28a40f7e4d143885b9f84f9f48dd65",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/README.md",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/README.md",
+      "sha256": "f817fcd2eac970bd91e821f0958f366ee0abda4a92d64511fad01d6eb79789dc",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/diffuse-before.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/diffuse-before.png",
+      "sha256": "27228a9d4d5daf410781cf634953d24ba53631fb5689b4dd5ae80665e9f285df",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/diffuse-final.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/diffuse-final.png",
+      "sha256": "bcdbd1e307de11b0a2871bb054ce470104309f7dcc0923e29f0014cb9ad0b1a5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/diffuse-radius2.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/diffuse-radius2.png",
+      "sha256": "cf3091036be36a3b66d2bdb4a62f05316f2112e92006a710363bce3e78216158",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/distance-control.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/distance-control.json",
+      "sha256": "5be148d8434a1b25f6c5da4c4199ae5cc4cfffba42ccaae090bb7acd09a0b121",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/final-results.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/final-results.json",
+      "sha256": "1cc4f5f60a17631ddedee6c7a5e90f807294dfe23af230750f84902fa69414dc",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/gate-contract-report.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/gate-contract-report.json",
+      "sha256": "0983c0b00193e2bbef6432159eedfc363bf46976602dba09b45f752e1a59f4a5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/history-control.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/history-control.json",
+      "sha256": "4281a82a14dd7a221de1524935a8d3d86774354ec542f8a20f69e114f6e498c5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/live-final.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/live-final.json",
+      "sha256": "7973d9908a67ce834f553e884d1c50d464a074de2414b3336b0352a4d074fd21",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/noise-final.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/noise-final.json",
+      "sha256": "7277ffeaf7390ad13ceed4724a21f44268b284193ee513ef9026fcda775ff5d3",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/noise-radius2.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/noise-radius2.json",
+      "sha256": "098e12cc6e1ad3720682019dc40c3d143c5342aae261269ec0c2916efaf91906",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/protected-before.sha1",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/protected-before.sha1",
+      "sha256": "07dc2f51e904098c10258dfebd7cbbf3b248bb798a16a446812919e518e23cab",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssgi-shared-spatial/spatial-control.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssgi-shared-spatial/spatial-control.json",
+      "sha256": "dd3a5bcfaada31c77c8d5e9063392913284c0837d80620af6de7187b394e3f7a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/DDA48-DDA64-1920x1080.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/DDA48-DDA64-1920x1080.png",
+      "sha256": "2bfd8d8871ac324e1ad1d83824a9068be303ceb778bb343ede3a1e40a01660a9",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/DDA48-DDA64-642x366.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/DDA48-DDA64-642x366.png",
+      "sha256": "1e3220c58dca3da913a3548838eb25b3a054c205dff3721405d8cd296c05ec80",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/README.md",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/README.md",
+      "sha256": "27023297719d71230a48dac71ff074b7ba1806c423e02dd7afea07e9c7721ef7",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/Ray-Ray-1920x1080.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/Ray-Ray-1920x1080.png",
+      "sha256": "27a7ae3ed8d00a3d5a4ee07ce7c908bf047a4fff1fefdfbaab1dc01705cbbd3d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/Ray-Ray-642x366.png",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/Ray-Ray-642x366.png",
+      "sha256": "7706965ab958494c7de294f7427688eaf0a7564960c062c00c52d2f0b2d05f0b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/camera-accepted.log",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/camera-accepted.log",
+      "sha256": "56df985aa9faf8da9a3688b8f113e82b0466eb2b670b687fe5c1210fa1bf6139",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/camera-cli.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/camera-cli.json",
+      "sha256": "36ca800f1b2fdeeef0d6082252fb6bf7ecbee83efb2545165cdffbf82fa3a3d4",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/camera-distance-control.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/camera-distance-control.json",
+      "sha256": "62113c0ca43556034b957ec40770fe17b773e63e26f3d3c93c985392a520766c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/camera-history-control.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/camera-history-control.json",
+      "sha256": "4281a82a14dd7a221de1524935a8d3d86774354ec542f8a20f69e114f6e498c5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/camera-results.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/camera-results.json",
+      "sha256": "f759a38731210f7fdb33abc27df327cffac555cdbc26829d7460f003b0af0e72",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/checker-controls.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/checker-controls.json",
+      "sha256": "48621cbcf0c75f099918876c05e6dfc57cf7408d299ada6036da9f0ce53828cc",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/gate-contract-report.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/gate-contract-report.json",
+      "sha256": "b2aef08cd9640e5977bdce23a86c8fe8df89abd0dd206846a5d9d667720855d4",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/gate-contracts.log",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/gate-contracts.log",
+      "sha256": "a60e72ace2b539bb889bc695ef5f6d72b3622dfe3cf2187e0dc808cfd4da44ff",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/gate-report.log",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/gate-report.log",
+      "sha256": "48a78f3a9af1e09029de256285a75b449df6240c1e4229226ec8ca72bfa6e60d",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/library-accepted.log",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/library-accepted.log",
+      "sha256": "f7f2db809ce6aaccc74304d90c5cdad32dc8c6720bfea4fb0c1e0c28586aee45",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/library-cli.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/library-cli.json",
+      "sha256": "935b4b17e079fbda801fe4d53031b7c99246b2eb9c12c0b2ce48a78ae2b72763",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/library-distance-control.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/library-distance-control.json",
+      "sha256": "3126399958a108cc8197d1dce02b6c400da47dc2b81d53f328cb5feecce66ef9",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/library-results.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/library-results.json",
+      "sha256": "7bf86177e81071087c25b1562900b00b9517d4cef333dad9655b3720ded744b0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/live-final.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/live-final.json",
+      "sha256": "5532cde59f68c180ed55791251f1765328530c153fe6598b458102cca650ec5a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/protected-before.sha1",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/protected-before.sha1",
+      "sha256": "7b49ab511c25542592e2b149331f581dac43181a752c7bcf40c15e7a83dff07c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/timing-accepted.log",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/timing-accepted.log",
+      "sha256": "4baf32ab06b8cdfeec6145b9c33be3c63098c9fd8725e2be457601b436686863",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/timing-cli.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/timing-cli.json",
+      "sha256": "8f9f1eb1ec9aa1d67427287a63d2ff4f10761ee6f183bdc43be57876d3bf2730",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/timing-inputs.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/timing-inputs.json",
+      "sha256": "fbece0266397c2c4c219a98ce1e3a55c43b86ba96d251c9344a66dd63d12fcc1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/timing.json",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/timing.json",
+      "sha256": "2eb0be555f316a11d69092037984e7cbc0ba6f8e12ed39f4760736f2cb8c013a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/worker-doc-audit.md",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/worker-doc-audit.md",
+      "sha256": "f3fa7cd3046b5762eeafbe8d57bc719a740dcfee5acece615ac2fdf2b73efdea",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-13-ssr-framework-rebuild/worker-review.md",
+      "target": ".agents/memory/unity/evidence/2026-10-13-ssr-framework-rebuild/worker-review.md",
+      "sha256": "300806a363fcce3d6b86dbb6d889e46fffc94284a7bf3e89d483c576a52c2f1b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/BaselineDiffuseGIFeature.png",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/BaselineDiffuseGIFeature.png",
+      "sha256": "b948568b56a5b48bf4b866bb48fee30c4440b1e7fda85ccee1cd911ff1459e38",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/DiffuseGIFeature.png",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/DiffuseGIFeature.png",
+      "sha256": "c539778403e111c46d3af6fee49aa7bc2d64cee3c113450f01c6c667c72bc718",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/HistoryNegativeControl.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/HistoryNegativeControl.json",
+      "sha256": "f246491c2847f1f5a330f7badf05b324c5dd499ad48a5fe33798f368f9972119",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/Main.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/Main.json",
+      "sha256": "60689795a7b23cb3cd14e14b6931409e1ddb24acbceb4c6b724bf2debc5681a8",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/MultiscaleComparison.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/MultiscaleComparison.json",
+      "sha256": "d1131557e799847b7db4f5e31bd600cc2f34bb3cfa36f8d5b16d8da96149cf69",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/MultiscaleNegativeControl.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/MultiscaleNegativeControl.json",
+      "sha256": "f91e2bc3097bdf9c49806592b38d36226c63a0f2ee8046a65525d50b89d226f1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/NegativeControl.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/NegativeControl.json",
+      "sha256": "c67306ae7565680ae863498152d0abf05e5edac6e2e61aaa6d935dde6121e2aa",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/README.md",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/README.md",
+      "sha256": "a14c30fb90fd055c88a9ba19683df39b42f449f3faf4d8f06cd4649aceed8e86",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/SpatialNegativeControl.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/SpatialNegativeControl.json",
+      "sha256": "383e1ea2821b6131a520cd5a220f3f7879a704521f736f65a8638fbf00364814",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/accepted-editor-status.log",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/accepted-editor-status.log",
+      "sha256": "ee9be102cfcc8a2d7e7b914265fc9e673b6fe95f573378aa93ff20efdc3e6249",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/comparison.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/comparison.json",
+      "sha256": "281716ae8ed9c639c667b59ff08344299e33dd1de9d30ea2d0b372cc0da6ea05",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/compile.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/compile.json",
+      "sha256": "4965e512f8d0107095f5d395eaf98b79ffe997ba312589bb932f098abdd0ebbb",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/live-final.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/live-final.json",
+      "sha256": "bb6f0345e901c53a5711f01d54d965a8dd1a311e14a1d4c2fe492fdac1e36bd8",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/protected-after.sha1",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/protected-after.sha1",
+      "sha256": "b33cb95b860652e30cb8ec438bfefd5f1d982e130274ab098466d1890353e959",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/protected-before.sha1",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/protected-before.sha1",
+      "sha256": "8080fa21a89ff97ac38b97ef8d3cafc50434e11af21a88e563e08c53be576126",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/results.json",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/results.json",
+      "sha256": "b0a1b6adaf51df359a9450558520afea1919972ecb996056b1e41ae7e3cf6123",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/wrong-mask.log",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/wrong-mask.log",
+      "sha256": "5b69d56712ae319a96d13077b566ff368e72ad9ca89411e7573e9dc1001b66ed",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/wrong-noise.log",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/wrong-noise.log",
+      "sha256": "b0d88ec84d69440243df2282249ead621950c56b15abba555696b4ebebda9513",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/evidence/2026-10-14-diffuse-multiscale/wrong-time.log",
+      "target": ".agents/memory/unity/evidence/2026-10-14-diffuse-multiscale/wrong-time.log",
+      "sha256": "9559841cb699f27da90c11fafbce86245e3ea1f9391ea2feca56b2a0612de77a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/memory/sessions/FTS5_SETUP.sql",
+      "target": ".agents/memory/unity/sessions/FTS5_SETUP.sql",
+      "sha256": "4ca7436841ab12ec218c3d42e5632307f90d12a430a9a0339029c6cad00a137c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/README.md",
+      "target": ".agents/knowledge/meta/README.md",
+      "sha256": "f46bc532d331d566d7153a44ebdf6edd4e7aee0c502405750259161275ce5603",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/agent-template.md",
+      "target": ".agents/knowledge/meta/agent-template.md",
+      "sha256": "f497ab7d7fc519b9a625e5dca2e9e7cac73821354765445f4c6b3e2a128cecf1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/claude-code-structure.md",
+      "target": ".agents/knowledge/meta/claude-code-structure.md",
+      "sha256": "a698aea27f138a021bb0e84be9e698cbb7fd808457c2beb8b50ed4387a2aad5e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/cross-reference-rules.md",
+      "target": ".agents/knowledge/meta/cross-reference-rules.md",
+      "sha256": "102ec7ea6fc0b80d2d72a034e8a948f281638490229cadf6341d8e10b1aa6526",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/debug-resource-layout.md",
+      "target": ".agents/knowledge/meta/debug-resource-layout.md",
+      "sha256": "71be32cfa332f91dcc4bdda0b76cafd6f3cdcbefcce9cd80ba819b30ec58af2e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/enforcement-policy.md",
+      "target": ".agents/knowledge/meta/enforcement-policy.md",
+      "sha256": "9319a6f25bcc0847b7a99791d5b82c4ba6701751a2459aa3dd2fa0bbf22ab96a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/harness-patterns.md",
+      "target": ".agents/knowledge/meta/harness-patterns.md",
+      "sha256": "712c85817333aede6026e15534accf29c35ddb225797a10ef26bed2dfa01e374",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/hermes-agent-skills.md",
+      "target": ".agents/knowledge/meta/hermes-agent-skills.md",
+      "sha256": "8859218a5d7fe7553115e6449bd4efd7d791eb8674e3dafb8c98ffb5f99fa511",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/layer-conventions.md",
+      "target": ".agents/knowledge/meta/layer-conventions.md",
+      "sha256": "0d999ced232fbf778b495e151447812443c25a7f07c112246fb4d16e148b8fc1",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/manifest-spec.md",
+      "target": ".agents/knowledge/meta/manifest-spec.md",
+      "sha256": "853e5397d672c1007ac6696b52e5a268f76af4238932e783cab958a5bce658d0",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/meta-developer/references/template-conventions.md",
+      "target": ".agents/knowledge/meta/template-conventions.md",
+      "sha256": "a314392bcc4855ca6009dfd34ba4b993d59c4288d40f948cf4e6ef04a11aed9a",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/README.md",
+      "target": ".agents/knowledge/unity/README.md",
+      "sha256": "3d1d3bb343270a9390a93c18ab2df7530c5e4de7b0677dd61ce61dd4f3143a17",
+      "collision": true
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/csharp-dev/README.md",
+      "target": ".agents/knowledge/unity/csharp-dev/README.md",
+      "sha256": "8660b0346276063da24557e2e86c42b060f1dee58836aaab4cefbbeaf3fce88b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/csharp-dev/script-structure.md",
+      "target": ".agents/knowledge/unity/csharp-dev/script-structure.md",
+      "sha256": "950f6c6306d46dbfc85a6f95b86816a488ca50c9043cfa4ee8305be4cc14cc0c",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/mcp-gate-usage.md",
+      "target": ".agents/knowledge/unity/mcp-gate-usage.md",
+      "sha256": "6629b3741b341120703ab5abfe4334191342cc408cafcb53a5d7e83b734446bf",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/platform/metal-notes.md",
+      "target": ".agents/knowledge/unity/platform/metal-notes.md",
+      "sha256": "e443498b88937819cd6ee38bfea87bd06736149c18e464610da24044ed5f696e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/README.md",
+      "target": ".agents/knowledge/unity/shader/README.md",
+      "sha256": "913b871eae90fa0bd24dcf0d978ee6cde06049304098afded46d79a028637bac",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/postprocess/README.md",
+      "target": ".agents/knowledge/unity/shader/postprocess/README.md",
+      "sha256": "1c10e1bdcb2923c385bbb3ee88441cadceeb16a4e143cb0acfa9509b3c90af96",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/postprocess/blit-fullscreen.md",
+      "target": ".agents/knowledge/unity/shader/postprocess/blit-fullscreen.md",
+      "sha256": "649330a5b38b74b3817900ae6808dd1a6b82868bef1ab25e70da03dae1502d68",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/postprocess/blitter-api.md",
+      "target": ".agents/knowledge/unity/shader/postprocess/blitter-api.md",
+      "sha256": "d4a03742ab75bbc4b340e211d4b6476f61ef1a6d55edb62a6deb9393bacac357",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/postprocess/compute-shader.md",
+      "target": ".agents/knowledge/unity/shader/postprocess/compute-shader.md",
+      "sha256": "e444a7969bba306da6168ec058d1cfd374fc6b950503448cdd735d00fcb01b84",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/postprocess/feature-script-structure.md",
+      "target": ".agents/knowledge/unity/shader/postprocess/feature-script-structure.md",
+      "sha256": "93ac1a4735dc4d2c62e51dc91641303290ee3e0dfd958cef6b71cc7bed95bbe5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/postprocess/fullscreen-structure.md",
+      "target": ".agents/knowledge/unity/shader/postprocess/fullscreen-structure.md",
+      "sha256": "13468baf1a239ed57ca89b71dccf48a08e9825c733a0c7064a62400409fdba15",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/postprocess/postprocess-differences.md",
+      "target": ".agents/knowledge/unity/shader/postprocess/postprocess-differences.md",
+      "sha256": "e4d08ecb610fcffea846431d7ec0bd8104f98a6bca6cd8d637da497fd9874c3f",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/postprocess/spatial-filter-budget.md",
+      "target": ".agents/knowledge/unity/shader/postprocess/spatial-filter-budget.md",
+      "sha256": "4d469a97766e78b492c5fd0f42319cc2def12d4437db95df4d681a54a750f59e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/shader/postprocess/volume-component.md",
+      "target": ".agents/knowledge/unity/shader/postprocess/volume-component.md",
+      "sha256": "23734f169b89de6021b9e916656f05bf6a694f1d062209557b970040b6f8b3a5",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/README.md",
+      "target": ".agents/knowledge/unity/standard/README.md",
+      "sha256": "f9270990ef6fe81333ddd2342139c433f8f53ff3f5c305bdeba23be653607a01",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/compute/README.md",
+      "target": ".agents/knowledge/unity/standard/compute/README.md",
+      "sha256": "364d222c04979d2e0c2ad9509228c100cda602e8cc01a80e8c6d33042c732d99",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/compute/compute-shader-api.md",
+      "target": ".agents/knowledge/unity/standard/compute/compute-shader-api.md",
+      "sha256": "5bdd82f47dc5c88e1d98256138f0a3459492db83a129079a7323dec9189584fa",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/rendering/README.md",
+      "target": ".agents/knowledge/unity/standard/rendering/README.md",
+      "sha256": "093acba43696f77c617281d31078445b3843a8a3d6400b3671fa5996df3cf485",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/rendering/camera-capture.md",
+      "target": ".agents/knowledge/unity/standard/rendering/camera-capture.md",
+      "sha256": "9c2b6421548e8081c5523b15a821731f206b21ddc131f4fe6044e6cff5b77b08",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/rendering/render-benchmark.md",
+      "target": ".agents/knowledge/unity/standard/rendering/render-benchmark.md",
+      "sha256": "9e74a5b715ce7f4610ab564ff1ceb25a43e69cdd2e2a95b8d6a18f4f50f88ade",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/rendering/render-graph.md",
+      "target": ".agents/knowledge/unity/standard/rendering/render-graph.md",
+      "sha256": "7b82ed0f62d15b12d2cde88ba4dc5a9d331af70ed6005f3ab03a5cebc80b944f",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/rendering/rthandle-api.md",
+      "target": ".agents/knowledge/unity/standard/rendering/rthandle-api.md",
+      "sha256": "94c02ffea9505d7edfb767d17b3c7b1b55bdab530d4e1c85b323df608fb2eaaf",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/script/README.md",
+      "target": ".agents/knowledge/unity/standard/script/README.md",
+      "sha256": "9463642e4bf86e3fe309682c817811fc0fec751ad1ec0aa543492f25490c2e97",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/script/parameter-panel.md",
+      "target": ".agents/knowledge/unity/standard/script/parameter-panel.md",
+      "sha256": "098f86428283c9f7425f678729fa539fb662db73a4338ae5e21fce61628ca05e",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/script/script-structure.md",
+      "target": ".agents/knowledge/unity/standard/script/script-structure.md",
+      "sha256": "f6fadc87dc1e9df0f462c804e13d55285c07f008cb3b382cb76358c9f0bdcd92",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/shader/README.md",
+      "target": ".agents/knowledge/unity/standard/shader/README.md",
+      "sha256": "9bfb728f3cbf3967320a9ca731a1fbc045f4af8ca3ac3803dc34ca42106d0147",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/shader/hlsl-includes.md",
+      "target": ".agents/knowledge/unity/standard/shader/hlsl-includes.md",
+      "sha256": "6ac0a4e92742ba4ba7de725a4937f6cab8bab48e818b45e4ef3291365c838b50",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/standard/shader/shader-structure.md",
+      "target": ".agents/knowledge/unity/standard/shader/shader-structure.md",
+      "sha256": "d0af860172dfd1f38648a43132a58d615c0751536d7f51f23561895c199f817b",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/unity6-api/README.md",
+      "target": ".agents/knowledge/unity/unity6-api/README.md",
+      "sha256": "e4866ace20ae04c8e9367c8003d4897888b9e4a7e3b82d1859d323d68fe86d10",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/urp-shader-lib/README.md",
+      "target": ".agents/knowledge/unity/urp-shader-lib/README.md",
+      "sha256": "a359f17b009c41d597f2cb9d53cd8f1b1bd6cca66ed35c77ba109e822e8b7ea6",
+      "collision": false
+    },
+    {
+      "source": ".agents/agents/unity-developer/references/urp-shader-lib/shader-structure.md",
+      "target": ".agents/knowledge/unity/urp-shader-lib/shader-structure.md",
+      "sha256": "d45c6ca7a060147d35a76944b90928866df7ad5f62e25f8ce7ed12a1e38e368b",
+      "collision": false
+    },
+    {
+      "source": ".agents/rules/README.md",
+      "target": ".agents/knowledge/rules/README.md",
+      "sha256": "3ad6b83c71cf8b2841fd68484fab2aae7664df272dfae45b294ae4081b41a004",
+      "collision": false
+    },
+    {
+      "source": ".agents/rules/compute-shader.md",
+      "target": ".agents/knowledge/rules/compute-shader.md",
+      "sha256": "ed5479a5aff32f121aeda7b4f80ab1b0debb45a1f497693b68f54c6212307ecc",
+      "collision": false
+    },
+    {
+      "source": ".agents/rules/csharp-renderpass.md",
+      "target": ".agents/knowledge/rules/csharp-renderpass.md",
+      "sha256": "4ed77e72d64922afdc70da1dcf878dac9867038f9df452070b8364a4301be831",
+      "collision": false
+    },
+    {
+      "source": ".agents/rules/meta-architecture.md",
+      "target": ".agents/knowledge/rules/meta-architecture.md",
+      "sha256": "97c855737ae472f2a0838784f15910f154dacdccfe9ea9ef99fed0fa27447579",
+      "collision": false
+    },
+    {
+      "source": ".agents/rules/shader-development.md",
+      "target": ".agents/knowledge/rules/shader-development.md",
+      "sha256": "902ecfd03501727de4bf8802a659f004cabf7ddd91eba7eab7d113ed6010b6a8",
+      "collision": false
+    },
+    {
+      "source": ".agents/interfaces/README.md",
+      "target": ".agents/knowledge/meta/interfaces/README.md",
+      "sha256": "df739c349ca14156433a74e8299bb9e5689a331efafacc779b861b1d32d23012",
+      "collision": false
+    },
+    {
+      "source": ".agents/interfaces/agent-skill-boundary.md",
+      "target": ".agents/knowledge/meta/interfaces/agent-skill-boundary.md",
+      "sha256": "370860b3871fc193f8df02f91cf93f272afa7b19c1d45137d0693043d541dfbd",
+      "collision": false
+    },
+    {
+      "source": ".agents/interfaces/knowledge-paths.md",
+      "target": ".agents/knowledge/meta/interfaces/knowledge-paths.md",
+      "sha256": "1126199a1b247695bab3aba620a05e16d51ee7350dcac996d731f4dcb289d264",
+      "collision": false
+    },
+    {
+      "source": ".agents/interfaces/project-resources.md",
+      "target": ".agents/knowledge/meta/interfaces/project-resources.md",
+      "sha256": "994f98abca95b1c9ccee0606972884a4e827b85b1cc39a5087d04192a0aae1a7",
+      "collision": false
+    },
+    {
+      "source": ".agents/interfaces/project-structure.md",
+      "target": ".agents/knowledge/meta/interfaces/project-structure.md",
+      "sha256": "23ec877e0447037de8b5b25094bf0db25463e352769a1d02b654115323d59b63",
+      "collision": false
+    },
+    {
+      "source": ".agents/interfaces/task-artifacts.md",
+      "target": ".agents/knowledge/meta/interfaces/task-artifacts.md",
+      "sha256": "86c5451e510e4fc124bf742522728d8ea11fa80183b0e85936e61e5b89e8940f",
+      "collision": false
+    }
+  ],
+  "status": "executed from explicit current-session consolidation/removal instructions; all sources checked before mutation",
+  "extra_moves": [
+    {
+      "source": ".agents/agents/meta-developer/memory.md",
+      "target": ".agents/memory/meta/evidence/2026-10-14-library-consolidation/legacy-role-memory-index.md",
+      "sha256": "265934df38ebfae14ac42e8f38dc30baaa66b81694351cc2ebedbe3b9bf83286",
+      "purpose": "Preserve otherwise unique historical 2026-07/09 index; do not treat as current routing"
+    }
+  ],
+  "removed_plain_index": {
+    "path": ".agents/agents/unity-developer/scripts/README.md",
+    "sha256": "82b5c6008735b1bb14ee1aa6dff92ad22af077801284571aa5dcc9af2c8cf109",
+    "reason": "Prior-session legacy script routing duplicated the canonical skills list; original text preserved in staging/before.json"
+  },
+  "merged_documents": [
+    {
+      "source": ".agents/knowledge/meta/agent-template.md",
+      "target": ".agents/knowledge/meta/architecture.md",
+      "sha256": "51e4acc22a3b77634ae210d9c2a7b8cd7b04aee43eb70b12c92e136d4e039cbf",
+      "reason": "One architecture reference replaces six repeated format/ownership/topology/link guides"
+    },
+    {
+      "source": ".agents/knowledge/meta/manifest-spec.md",
+      "target": ".agents/knowledge/meta/architecture.md",
+      "sha256": "88ec37c980bde7497df796d26f8bf361ad05b1e223d46d687708ab8525c72122",
+      "reason": "One architecture reference replaces six repeated format/ownership/topology/link guides"
+    },
+    {
+      "source": ".agents/knowledge/meta/layer-conventions.md",
+      "target": ".agents/knowledge/meta/architecture.md",
+      "sha256": "36fd28c0cdc132cf52d6f0f9968485c5e8901a2e54af1a53479cafeced9c5a5c",
+      "reason": "One architecture reference replaces six repeated format/ownership/topology/link guides"
+    },
+    {
+      "source": ".agents/knowledge/meta/cross-reference-rules.md",
+      "target": ".agents/knowledge/meta/architecture.md",
+      "sha256": "01af6116e1a6de5109b61f21876872df15c84d8c9d3299477cfe4f89086476a9",
+      "reason": "One architecture reference replaces six repeated format/ownership/topology/link guides"
+    },
+    {
+      "source": ".agents/knowledge/meta/interfaces/agent-skill-boundary.md",
+      "target": ".agents/knowledge/meta/architecture.md",
+      "sha256": "370860b3871fc193f8df02f91cf93f272afa7b19c1d45137d0693043d541dfbd",
+      "reason": "One architecture reference replaces six repeated format/ownership/topology/link guides"
+    },
+    {
+      "source": ".agents/knowledge/meta/interfaces/project-structure.md",
+      "target": ".agents/knowledge/meta/architecture.md",
+      "sha256": "fb1b17981e48fa107c0b32646e2cb7e38f061aa08ff619c6cf09a234c48adfc8",
+      "reason": "One architecture reference replaces six repeated format/ownership/topology/link guides"
+    }
+  ]
+}

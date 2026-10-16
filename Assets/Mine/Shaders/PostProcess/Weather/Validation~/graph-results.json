@@ -1,0 +1,176 @@
+{
+  "status": "passed",
+  "passed": true,
+  "reason": "Measured normal-camera-frame RenderGraph budgets for all 8 cases.",
+  "caseCount": 8,
+  "expectedCaseCount": 8,
+  "camera": "Main Camera",
+  "graphSessionStatus": "created temporary local debug session",
+  "featureSettingsRestored": true,
+  "editorSettingsRestored": true,
+  "originalFeatureActive": false,
+  "originalRunInBackground": false,
+  "originalPaused": false,
+  "timeAtStart": 0.0199999921,
+  "timeAtEnd": 0.7381892,
+  "cases": [
+    {
+      "name": "Off/mask0",
+      "moduleMask": 0,
+      "debug": "Off",
+      "passed": true,
+      "frame": 3,
+      "graph": "URPRenderGraph",
+      "execution": "Main Camera",
+      "valid": true,
+      "totalPasses": 26,
+      "culledWeatherPasses": 0,
+      "weatherPassCount": 0,
+      "expectedWeatherPassCount": 0,
+      "executedWeatherPasses": [],
+      "expectedWeatherPasses": []
+    },
+    {
+      "name": "Off/mask1",
+      "moduleMask": 1,
+      "debug": "Off",
+      "passed": true,
+      "frame": 4,
+      "graph": "URPRenderGraph",
+      "execution": "Main Camera",
+      "valid": true,
+      "totalPasses": 28,
+      "culledWeatherPasses": 0,
+      "weatherPassCount": 1,
+      "expectedWeatherPassCount": 1,
+      "executedWeatherPasses": [
+        "Weather.Particles"
+      ],
+      "expectedWeatherPasses": [
+        "Weather.Particles"
+      ]
+    },
+    {
+      "name": "Off/mask14",
+      "moduleMask": 14,
+      "debug": "Off",
+      "passed": true,
+      "frame": 5,
+      "graph": "URPRenderGraph",
+      "execution": "Main Camera",
+      "valid": true,
+      "totalPasses": 28,
+      "culledWeatherPasses": 0,
+      "weatherPassCount": 1,
+      "expectedWeatherPassCount": 1,
+      "executedWeatherPasses": [
+        "Weather.Atmosphere"
+      ],
+      "expectedWeatherPasses": [
+        "Weather.Atmosphere"
+      ]
+    },
+    {
+      "name": "Off/mask15",
+      "moduleMask": 15,
+      "debug": "Off",
+      "passed": true,
+      "frame": 6,
+      "graph": "URPRenderGraph",
+      "execution": "Main Camera",
+      "valid": true,
+      "totalPasses": 29,
+      "culledWeatherPasses": 0,
+      "weatherPassCount": 2,
+      "expectedWeatherPassCount": 2,
+      "executedWeatherPasses": [
+        "Weather.Particles",
+        "Weather.Atmosphere"
+      ],
+      "expectedWeatherPasses": [
+        "Weather.Particles",
+        "Weather.Atmosphere"
+      ]
+    },
+    {
+      "name": "Debug/Particles",
+      "moduleMask": 15,
+      "debug": "Particles",
+      "passed": true,
+      "frame": 7,
+      "graph": "URPRenderGraph",
+      "execution": "Main Camera",
+      "valid": true,
+      "totalPasses": 28,
+      "culledWeatherPasses": 0,
+      "weatherPassCount": 1,
+      "expectedWeatherPassCount": 1,
+      "executedWeatherPasses": [
+        "Weather.Particles"
+      ],
+      "expectedWeatherPasses": [
+        "Weather.Particles"
+      ]
+    },
+    {
+      "name": "Debug/Refraction",
+      "moduleMask": 15,
+      "debug": "Refraction",
+      "passed": true,
+      "frame": 8,
+      "graph": "URPRenderGraph",
+      "execution": "Main Camera",
+      "valid": true,
+      "totalPasses": 28,
+      "culledWeatherPasses": 0,
+      "weatherPassCount": 1,
+      "expectedWeatherPassCount": 1,
+      "executedWeatherPasses": [
+        "Weather.Particles"
+      ],
+      "expectedWeatherPasses": [
+        "Weather.Particles"
+      ]
+    },
+    {
+      "name": "Debug/Lens",
+      "moduleMask": 15,
+      "debug": "Lens",
+      "passed": true,
+      "frame": 9,
+      "graph": "URPRenderGraph",
+      "execution": "Main Camera",
+      "valid": true,
+      "totalPasses": 28,
+      "culledWeatherPasses": 0,
+      "weatherPassCount": 1,
+      "expectedWeatherPassCount": 1,
+      "executedWeatherPasses": [
+        "Weather.Atmosphere"
+      ],
+      "expectedWeatherPasses": [
+        "Weather.Atmosphere"
+      ]
+    },
+    {
+      "name": "Debug/Fog",
+      "moduleMask": 15,
+      "debug": "Fog",
+      "passed": true,
+      "frame": 10,
+      "graph": "URPRenderGraph",
+      "execution": "Main Camera",
+      "valid": true,
+      "totalPasses": 28,
+      "culledWeatherPasses": 0,
+      "weatherPassCount": 1,
+      "expectedWeatherPassCount": 1,
+      "executedWeatherPasses": [
+        "Weather.Atmosphere"
+      ],
+      "expectedWeatherPasses": [
+        "Weather.Atmosphere"
+      ]
+    }
+  ]
+}

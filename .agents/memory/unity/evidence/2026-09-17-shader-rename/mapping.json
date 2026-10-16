@@ -1,0 +1,2080 @@
+{
+  "source": ".codex/tmp/shader-rename.json",
+  "source_sha256": "81f02f2a3f45be23aa56cf7c94d9d6e2fcaa8d266aa9791229828e3a3c8dbd0c",
+  "source_size_bytes": 8939211,
+  "repository_head_at_preparation": "f9b3ad8be467fa01e91fabd37fa4f05bb7b216cb",
+  "names": {
+    "Shader Graphs/Explosion2": "Explosion2/Explosion2",
+    "Shader Graphs/2DFire": "Fire1/2DFire",
+    "Shader Graphs/3DFire": "Fire2/3DFire",
+    "Stars": "Stars/Stars",
+    "StarsOutline": "Stars/StarsOutline",
+    "Custom/CustomRenderer": "CustomRenderer/Custom",
+    "Hidden/Mine/FGDPacker": "FGDLutBaker/FGDPacker",
+    "Custom/BoidInstance": "Boid/BoidInstance",
+    "Custom/FishInstance": "Fish/FishInstance",
+    "Custom/RainInstance": "Rain/RainInstance",
+    "Mine/Interaction/Debug": "InteractionManager/InteractionDebug",
+    "Mine/Interaction/InteractorObject": "InteractionManager/InteractorObject",
+    "Mine/Picker/OutlineComposite": "Picker/OutlineComposite",
+    "Mine/Picker/OutlineMask": "Picker/OutlineMask",
+    "Mine/Picker/Picker": "Picker/Picker",
+    "Hidden/Mine/SSSLutPacker": "SSSLutBaker/SSSLutPacker",
+    "Shader Graphs/CelToon": "Graph/CelToon",
+    "Shader Graphs/VolumeCloud": "Graph/VolumeCloud",
+    "Shader Graphs/Gate": "Graph/Gate",
+    "Shader Graphs/HeightCloud": "Graph/HeightCloud",
+    "Shader Graphs/Outline": "Graph/Outline",
+    "Shader Graphs/Scanner": "Graph/Scanner",
+    "Shader Graphs/SunShadow": "Graph/SunShadow",
+    "Shader Graphs/TreeLeaves": "Graph/TreeLeaves",
+    "Shader Graphs/Caustics": "Graph/Caustics",
+    "Shader Graphs/PBRWater": "Graph/PBRWater",
+    "Shader Graphs/Waterfall": "Graph/Waterfall",
+    "Shader Graphs/WaterWave": "Graph/WaterWave",
+    "Shader Graphs/WorldChange": "Graph/WorldChange",
+    "Custom/DDOF": "PostProcess/DDOF",
+    "Hidden/Mine/DebugOutput": "PostProcess/DebugOutput",
+    "Hidden/Mine/InteriorMappingScreenDebug": "PostProcess/InteriorMappingScreenDebug",
+    "Hidden/Kuwahara": "PostProcess/Kuwahara",
+    "Mine/PCSS/PCSSTemplate": "PostProcess/PCSSTemplate",
+    "Hidden/POSS/ShadowCaster": "PostProcess/POSSShadowCaster",
+    "Custom/RimToon": "PostProcess/RimToon",
+    "Hidden/RimToonScreen": "PostProcess/RimToonScreen",
+    "Custom/RimToonStylized": "PostProcess/RimToonStylized",
+    "Custom/RimToonStylizedBillboard": "PostProcess/RimToonStylizedBillboard",
+    "Shader Graphs/RimScreen": "Graph/RimScreen",
+    "Shader Graphs/RimToon": "Graph/RimToon",
+    "Custom/SNN": "PostProcess/SNN",
+    "Custom/SSC": "PostProcess/SSC",
+    "Hidden/CelToon/SSL": "PostProcess/SSL",
+    "Custom/SSO": "PostProcess/SSO",
+    "Hidden/CelToon/SSPR": "PostProcess/SSPR",
+    "Hidden/CelToon/SSR": "PostProcess/SSR",
+    "Hidden/SSSM": "PostProcess/SSSM",
+    "Mine/PostProcess/Snowy": "PostProcess/Snowy",
+    "Hidden/CelToon/StochasticSSR": "PostProcess/StochasticSSR",
+    "Error1": "Render/Error1",
+    "Error2": "Render/Error2",
+    "Custom/Fur/FinInstanced": "Render/FinInstanced",
+    "Custom/Fur/Shell": "Render/Shell",
+    "Custom/Fur/ShellInstanced": "Render/ShellInstanced",
+    "Mine/Render/HyperSpace": "Render/HyperSpace",
+    "Mine/Render/HyperTube": "Render/HyperTube",
+    "Mine/Render/InteriorMapping": "Render/InteriorMapping",
+    "Custom/PBRToon": "Render/PBRToon",
+    "PCGUI": "Render/PCGUI",
+    "Custom/Parallax/SimpleParallax": "Render/SimpleParallax",
+    "Mine/RainDrops": "Render/RainDrops",
+    "Mine/ObjInCard": "Render/ObjInCard",
+    "Mine/ShiningCard": "Render/ShiningCard",
+    "Custom/InteractorObject": "Render/InteractorObject",
+    "GrassInstance": "Render/GrassInstance",
+    "Unlit/Auroras": "Render/Auroras",
+    "Custom/Gradient": "Render/Gradient",
+    "Mine/VanGogh/TheStarryNight": "Render/TheStarryNight",
+    "Custom/Water": "Render/Water",
+    "Unlit/XR1": "Render/XR1",
+    "Unlit/XRay1": "Render/XRay1",
+    "Unlit/Checker": "Render/Checker",
+    "Unlit/NewUnlitShader": "Render/HiddenObj",
+    "Custom/Preparation": "PreparationRenderer/Preparation"
+  },
+  "changes": [
+    {
+      "path": "Assets/Mine/Effects/Explosion2/Explosion2.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "83764de870d7dca9a2a4ce60f4234755e9b1a4b9",
+        "sha256": "272d542dae0207731c54948707b11a2ffa55b22e6c405c78fb418e1c4ae153d6",
+        "size_bytes": 22803,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "4a2537f2beaba349bcb0a58c6deb1c7aa156fabd",
+        "sha256": "e836a0179706d0453c76631ec2d04a37de4c20566332ca34936e41f2bd21a6f0",
+        "size_bytes": 22800,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Effects/Fire1/2DFire.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "cb58033622b56b8304e981332fa194427d60b64e",
+        "sha256": "56f50514da7d6e2ea4a1d3f88c933b6240e4f54dbafe42ac219f1308c4fbd3e4",
+        "size_bytes": 216898,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "97ebe9e6b4800618909a007e37918b8c037a49e3",
+        "sha256": "b8138cdfa3f58ee185ac69de545b8b045ffacdf63cfded1957cd5cf32a09380c",
+        "size_bytes": 216890,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Effects/Fire2/3DFire.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "ddd7da2e22c0e6fd15172edb6dec312611e3cb79",
+        "sha256": "af8a7014b03ff241b6aeaa16b2588c7a96342cccc8d0ec208fe2029150f8df2f",
+        "size_bytes": 116540,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "0efc4ab9e7bada658e12973f40dcbc8abf6d0c58",
+        "sha256": "2a6723c6a0355676656355e6148132ae8f21f2f271e86183c830f001af56de01",
+        "size_bytes": 116532,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Effects/Stars/Stars.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "c5ee2bc2ec776d7defa1782221e53c72a57d3f81",
+        "sha256": "5951a21a27cc2a347e2aab1cc925cbc220583da1dc816cb20b1df500bad9c7a3",
+        "size_bytes": 79522,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "9385c071c15ec8ad482bd85e5d648ef5e532969b",
+        "sha256": "58fb237ac51c6c15e19870873a1475912f39a5c700860903b31a589280da383f",
+        "size_bytes": 79534,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/after/Assets/Mine/Effects/Stars/Stars.shader"
+      }
+    },
+    {
+      "path": "Assets/Mine/Effects/Stars/StarsOutline.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "a4beb6249f7ea08e79269ea0618b40f7e5741d5e",
+        "sha256": "6fe96e8d12c17185ccedc90bcecc359a3628514203201110e855959d3c701ada",
+        "size_bytes": 87011,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "bac14e7cb8b8c5d2d26ff530d5ed41d9ef2c59ff",
+        "sha256": "5aeaeb6da5401c9cc5add8a5fe0f7b75f7f35bdbf0eb6b11513d6d6bcea7ad3b",
+        "size_bytes": 87023,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/after/Assets/Mine/Effects/Stars/StarsOutline.shader"
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/CustomRenderer/Shaders/Custom.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "17d7a945f09635371e32d65d52d60d6f6d1e85f3",
+        "sha256": "af341037b15baf4a0b27642aaf56b61c55ee69cc59030b44437ab367a0baca96",
+        "size_bytes": 2222,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "484e89c2eeb75f23d3126cc2fb62ff0eaff3e171",
+        "sha256": "331e209573c0bfeb6f49ddf34fb802dc2aa851f8a44d265ffcbf33a3c510ccd6",
+        "size_bytes": 2222,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/FGDLutBaker/FGDPacker.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "9786b29c3ec9b26bd127eba3ec9c794fa4a2a233",
+        "sha256": "23b045d7dad99032f27383440488807f46c5adcd80db5753dc73fdac085e05ce",
+        "size_bytes": 2425,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "d1ffef629a6b3e74994863b9ce2f734a8b11287f",
+        "sha256": "8fb15f3a9c3e6ed6bcc1ccdacf8ffc6873e8cf3286a2c5a674e6eaa9b961ea83",
+        "size_bytes": 2425,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/InstanceManager/Instance/Boid/BoidInstance.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "c61d23471e7c0b7b459e27f75b5e58c4e74bc410",
+        "sha256": "2ec388f98c0a1ba0cc373691209226ee9d9ba6189c56ff35e67d2d929e948904",
+        "size_bytes": 3902,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/before/Assets/Mine/Scripts/InstanceManager/Instance/Boid/BoidInstance.shader"
+      },
+      "after": {
+        "git_blob_oid": "cf04ca201945d42478c2e83bef3a95af7117d5a4",
+        "sha256": "e4859fe831328d1f2ff0674acdcaeb6840507e1b1d87e85dc4ee55153e2a558d",
+        "size_bytes": 3900,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "a721db08b384659bfca284223b951db014770d03"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/InstanceManager/Instance/Fish/FishInstance.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "7b2910032ba07e089a82403c6b5a9c3d8a70d336",
+        "sha256": "4c7311b9cbf0d9599ca4a9c31bde30031b71521ad49ef68e6e1189ed1040b0e7",
+        "size_bytes": 3168,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "97a833c650b8cd658fbbe185a2e58d17e360ee07",
+        "sha256": "decce49bd8a86ee725ddcc98c20a041212f205c45142afd808e6f2a5df1bd0c1",
+        "size_bytes": 3166,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/InstanceManager/Instance/Rain/RainInstance.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "e96941bd647f7ae70cf84892f6e0a0bdd2d6a68a",
+        "sha256": "3e01c98642806f90f5d4868f15c675063a9c3bc6d15ba42bd5fcc148db5cb33c",
+        "size_bytes": 2372,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "2342836d390dfc0f8f33410bc9f546e433bbd79c",
+        "sha256": "7cf649d3cff7b1ab75ae74048eaaae253efa357035157bdf0201035a2a7c7bdb",
+        "size_bytes": 2370,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "0510f950bc1d1a10ad463e2d6288c68285ca1fc1"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/InteractionManager/Shaders/InteractionDebug.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "03be142526905d13f664cb21338570b4c63c4740",
+        "sha256": "1bc9d27aee8691743b9cb2f18a4f70980e7b1c9acbce5122bed21de66dd8424d",
+        "size_bytes": 4525,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "1dc30370655755db0611270906e725fbf5edd117",
+        "sha256": "da45779e7292ca66da6d0ca0ad4a30bd96d40a40e9cc0a16a211f8c224b94148",
+        "size_bytes": 4538,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/InteractionManager/Shaders/InteractorObject.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "cfca3cea7ccd52ad908d2d1c5eb345dc1d011e0c",
+        "sha256": "d82f0f682782a17e7ba69f8b6275d283ee1b8a87f671d0db88f1c4251a7f4715",
+        "size_bytes": 5040,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "85d1c74a15c60792cb51b204e08aba7ba4c7dc0f",
+        "sha256": "5b49381e299d327a90eb26e15e69407c48a86d4810fa2818ae4eac2d9fa906c2",
+        "size_bytes": 5042,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/Picker/OutlineComposite.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "aabdfb6e5f611639058a8fb3048c0349012a339b",
+        "sha256": "e4941ac849701b597e3a686d50d697063fd9b5de72173ad5cb48615738cd8ef9",
+        "size_bytes": 3308,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "c3a5d7c64e1bbbfe884c8d2dfdaeee9947ffc956",
+        "sha256": "ae996281973ba60f538e5e5951f77bdcf1f0c6dea3a8c86927787d2cbb6c6090",
+        "size_bytes": 3303,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/Picker/OutlineMask.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "88cba3d781310806d799d649ef47509f135c3192",
+        "sha256": "fe2af3d72d4ce9b621d2cf131d62d94d29867cac990b3f0c96f84aad675b3211",
+        "size_bytes": 1352,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "f51389b7ae59c604b434d36fc8b83fa2f4d272fe",
+        "sha256": "c74ffee19fd4cda60cbdb2002b5131a7bf05b4f056b2bf33ec5f841048cb2c4b",
+        "size_bytes": 1347,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/Picker/Picker.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "c8e7a500df897a3a55e282e91873f82baafe92aa",
+        "sha256": "fb16638676707c2d5df17cbb30234002a8915757c440f0b8ea33363f2924b541",
+        "size_bytes": 5123,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "b781fbce9ca4fee77151b5dd01a83aa2a461d125",
+        "sha256": "6923c94c702e3bfad96b2bfb313e8665e23298309f8c5b11462da0499321d29a",
+        "size_bytes": 5118,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/SSSLutBaker/SSSLutPacker.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "d40f15180178d8c7e50da9f1be30752d22878587",
+        "sha256": "51886f281a05f2942ce3d1b463af7f5c67bd4e8a9420fda2703e5f28234046f8",
+        "size_bytes": 2747,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutPacker.shader"
+      },
+      "after": {
+        "git_blob_oid": "2edc8c87db3a392951d03ff06f37b021a39302e7",
+        "sha256": "8521c95c4fa48d1152432ef2d4c149ea65e65e232c35e20397cce2341e5973b7",
+        "size_bytes": 2747,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/CelToon/CelToon.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "bdae18b772f44eb39cefacc0d18151f03c05173b",
+        "sha256": "83cea28379e3546f883b3f8928628242b2183af88304e054976ef994e44536e3",
+        "size_bytes": 130631,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "ee8db0d4022b214ba6a3a71a17c486953ed2589f",
+        "sha256": "2bd4a780529442f1fb1489e6968630241d89beee1b348bffcf92e1ca2619db9a",
+        "size_bytes": 130623,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/CubeSphereCloud/VolumeCloud.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "2bfaed446206d5827184531bcc8ac443c5543344",
+        "sha256": "049a148547e5b2bb956486ef28e4dc271b4b731442ed6af4acd1d1cef92eebf7",
+        "size_bytes": 100016,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "ab253b7f05cba9a22648191f2637b878fdb88bc5",
+        "sha256": "f835b4150f45512d405653044451547bf1d0e0558da3d76ee839289c3730dd8b",
+        "size_bytes": 100008,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/Gate/Gate.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "499f38c60f7852bc406b56617995b7b684ce3ce5",
+        "sha256": "bdb298063b560e47ee4877652d736994b70ab9a80e076b368082afa573d4a32f",
+        "size_bytes": 291364,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "1d814f93cecdb5877381f878a48bcf19437b4baf",
+        "sha256": "8674ee0ae087402a68fc547427356cdcf8bafcd3529132210e2a5d942f605f3d",
+        "size_bytes": 291356,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/HeightCloud/HeightCloud.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "27dbcf4c9c422b7f292c12017267664df7d79ac1",
+        "sha256": "25be2aab19d99c56e4b68b3bd90ad5c503e8ebe435deec65eccd1df1e2f39e46",
+        "size_bytes": 124669,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "d5a32f10ccecb73cb8c4a891d772462e4f2cb027",
+        "sha256": "3bc25b236f34b69b265ec2f9436c11c731d435a3c017568f4fc7126677b641ff",
+        "size_bytes": 124661,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/Outline/Outline.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "367065d121057f8fa8ac51a8df5edfb90ea40c89",
+        "sha256": "91ccc827f1c3c82a77fe450bda9e99c2f4d61ae6d4c1d01d21cc41b0866a3ed0",
+        "size_bytes": 58123,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "2029342810c60dc28347ed36e0e164a0a512b6d6",
+        "sha256": "bacbaf4084509a900ffd7276dba0288309cf7a3e24aa4c01a160ffb1e2e3eef1",
+        "size_bytes": 58115,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/Scan/Scanner.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "c631af15a6e3a3d3d5643bbc39a97f08dc896669",
+        "sha256": "4d4581b7be7d1e8a240a9feea153ab85aac57ca9a1fd81d6e326ae94079335f0",
+        "size_bytes": 72557,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "71d58d5240301a5ee5129ccd9337e214b062dde8",
+        "sha256": "e58df959661318a0704c5b735caca1fdde1f9d6c6c10cd1cf78ca2423d30b0b0",
+        "size_bytes": 72549,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/SunShadow/SunShadow.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "62d3c7af7c7fbf934ae38af266e491bd50b5c8cd",
+        "sha256": "3fc9b71fd0f06b2881be3b7e0ba47c3a26bcf821ce25ba9f8e777c3f4a95c3e4",
+        "size_bytes": 79556,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "3cf70824764027d899927385ec60108d58190980",
+        "sha256": "f37ce5b21e0ebc0e153d1279dfdd16c603e307b98d9ebfa4fd37d707564e9e34",
+        "size_bytes": 79548,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/TreeLeaves/TreeLeaves.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "612686da076246f613aab9688fdc6b443a0d97de",
+        "sha256": "6024a862022f498cd467e686ec85a72fa218a63e093a20b814801714d3228f60",
+        "size_bytes": 752587,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "ea48a2732e02c9689565275588403a3ca78263f8",
+        "sha256": "9040cd4e41eb02008e51cc129daabcd55b9168599734defd0e21cedfb38af3a1",
+        "size_bytes": 752579,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/WaterTotal/Caustics/Caustics.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "2c32ab02bb43c72bdcc2328c12249edb8449530a",
+        "sha256": "745d6aab869f6bfb64c50ad376a67e083c87c2beff288dc0f1114892cde7841d",
+        "size_bytes": 166576,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "79ed646e2334f3c96695e76705885f71d3a3e67a",
+        "sha256": "7c25996aa6f4369f00d997767dffa6f2ac2ae88e158884140313ea967af05d02",
+        "size_bytes": 166568,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/WaterTotal/Water/PBRWater.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "8ba3a47dd297aa3a275826291280e629a03daf98",
+        "sha256": "c543e2358470f7dd5dc92a5fba0b4b6069c43f663f9b0c1083de253425143ba1",
+        "size_bytes": 429619,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "2a6a77b6a4b38db1d267c49006032e58ee988a6e",
+        "sha256": "71e08cea281eaa263b4952506524c6efda0cc9b639e7da94e7f1fff4a034e876",
+        "size_bytes": 429611,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/WaterTotal/Waterfall/Waterfall.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "6e04341dc3fc11fd3e6d0fe6e401597ed4368d40",
+        "sha256": "ed4226c52d0202867ee5358e35f3cc6998c81d6f37698e1c7a3c496b20ab3452",
+        "size_bytes": 163547,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "5f1f20e7d401058ad52fb7601f5d169a6061914e",
+        "sha256": "db4f0f70608429fc0a8bc356774b8d26aed5f1175745aeea3849537e413cf241",
+        "size_bytes": 163539,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/WaterTotal/Waterwave/WaterWave.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "2c912e6b939f76bf09d8b56615d71aa22bcba94b",
+        "sha256": "59e18b4ebc092b8a0131f37d4041b70e1acf47bc0f8f12a9facd81d8567cb6bb",
+        "size_bytes": 138706,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "672c086b8e696275ba3ce172963a0bc9c26aec6d",
+        "sha256": "2205a0a2d570b939110067e04d21b027a660b82862c15b50c5ae2f8a84fadf56",
+        "size_bytes": 138698,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Graph/WorldChange/WorldChange.shadergraph",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "b7d5caa28ca8418bfbc3903da7f29740e3486064",
+        "sha256": "5173d9f9e9b29fdfde5f4f4cfff7eb66148d0118c0a0dad301379916a2282c06",
+        "size_bytes": 128320,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "c01b593fa89113c64c051dcff8b016e990b403cc",
+        "sha256": "9733a3a11de4fa61d732237067857fecf1ce3e445beb2ab21b8b914b052c06e2",
+        "size_bytes": 128312,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/DDOF/DDOF.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "46667ae247a9c6c8a8862c95b3867cbf4cbe0825",
+        "sha256": "a8981b591b241bfc74363e52cb48519f96ae15ac04fa7946b809352444e0d810",
+        "size_bytes": 3745,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "f51fe263588123ff37c0018249aef01444cb5991",
+        "sha256": "54f78dfae53487c54f97a4ab834a40fe2187a5b06ddb806c604d1b0c80761b43",
+        "size_bytes": 3750,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/Debug/DebugOutput.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "0dbb53b748d6913bf49f8d0ec3377cc63af65003",
+        "sha256": "27bc32ab9ba962e10d496fd025171a8aa0f5538817bd57f648093479d6a3b1e7",
+        "size_bytes": 4279,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "7f2d9a02877005c5f9d62e2ad71d5dcb1c08394e",
+        "sha256": "6ac250c481878a914c92c943b8d3f455f31d7186c9ebb7351de94909778bf685",
+        "size_bytes": 4279,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/Debug/InteriorMappingScreenDebug.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "1a27faeb915f7ae6f88dd647ca5d4be6156b0322",
+        "sha256": "20a903dcddda76219c1e41681271d94d9d371b070d390bc04031d0a4afa4dbc8",
+        "size_bytes": 2514,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "a5545ef99b60dbcb4eabfc484ed6682dd1975667",
+        "sha256": "2aa549691f1137a1ea39be4197f9ce9cbc358b7078052f785dc2ac1abdeeda5d",
+        "size_bytes": 2514,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/Kuwahara/Kuwahara.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "4a2f3eed8241963e4b011ebc44f5179a01822cec",
+        "sha256": "fdd736952c8b114b6f33c7ee7206b4c0d31d2656e8acf5abcfacf778ab42f7ba",
+        "size_bytes": 14581,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "e565a8e8472043fa811bb89f61564bfde25ecbbf",
+        "sha256": "920e93f0b28018e4d3e5a7df54a56c46bc6b09104a41f1d99953160b87b9cc87",
+        "size_bytes": 14586,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/PCSS/PCSSTemplate.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "39f2e767d39b5d072edc9414dd0dc7c5c885919a",
+        "sha256": "441d52626a4331275350abf5db05a810b7a10df4396ea60031b3a92e9e918b29",
+        "size_bytes": 3217,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "1574bc4dd7705eee50de64bdf8c7e9c6da7326ba",
+        "sha256": "cf977c34986d57cdb1a0f339b123a6fa54a17f2b57e162679aecff5001ad246d",
+        "size_bytes": 3219,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/POSS/POSSShadowCaster.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "5aa46d616f00615c3380acb00c2565d00a19fe5c",
+        "sha256": "ada0a4dd98520896c2e5fc5597b1ba070d1204908d4604f92360923db733815f",
+        "size_bytes": 1700,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "97a3f91c6460644be37d98007884a604c43b005c",
+        "sha256": "e33b0f91c46c65ee811f44eeba3f841e729f9b57db855d4d7d8a22ee8a45f928",
+        "size_bytes": 1704,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/RimToon/RimToon.shader",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "d600f11314b7f8f34a627e26ee4c20c183e5410b",
+        "sha256": "96a4f0f719fd87bf9e8b1fefdb387628ce8e3eac2e3d4583da95ff85a3c77e35",
+        "size_bytes": 8265,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/before/Assets/Mine/Shaders/PostProcess/RimToon/RimToon.shader"
+      },
+      "after": {
+        "git_blob_oid": "dbaf8dba63462294d412f76b9d9bfcb1a4050241",
+        "sha256": "377c57b9a707cc1da5f31d37320e685defbe156a983198d30eb1ca9396c685c3",
+        "size_bytes": 8270,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "0011167bfa7aee30d6f3a19260310a25a15aced0"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/RimToon/RimToonScreen.shader",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "3aeb5ebd2b0d240d26814ab0a907dec60cf2e760",
+        "sha256": "b52078d29c67701eb80f74bda0f2312b1c4e589aa252843f088cde91ae3acf27",
+        "size_bytes": 5160,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "89b166a12971675de8453e874d051b9d8856e6b7",
+        "sha256": "20bff54bc04c1a946195ec02a0fcee5d505b9ec49cf77ca881bf774134f2b18f",
+        "size_bytes": 5165,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "0011167bfa7aee30d6f3a19260310a25a15aced0"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/RimToon/RimToonStylized.shader",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "b71cfbb9b75ddb608c9f942ea45c206c87ae5bf7",
+        "sha256": "b37b33bda6d9aded870b70bef73e53eddd30898afd80df122d13bb948365f17a",
+        "size_bytes": 3016,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "0011167bfa7aee30d6f3a19260310a25a15aced0"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "0e5833a5d91fb05bee0b4a5e54c08fd79bff5c6f",
+        "sha256": "73781838de5b147b8997f6d139e78044e04033f308c069ded7c3e3007a3ad31c",
+        "size_bytes": 3021,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "0011167bfa7aee30d6f3a19260310a25a15aced0"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/RimToon/RimToonStylizedBillboard.shader",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "4346faff9e936deae1e24b9906372b594f7fb5fd",
+        "sha256": "750d0a5faf7bf760a99b063b38fa891c5654ee64aec0e7371a44fccabc1875e2",
+        "size_bytes": 3045,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "0011167bfa7aee30d6f3a19260310a25a15aced0"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "d5c2afa70da1d8f0d2b4b3697187b9bb373f96d5",
+        "sha256": "80ae9e9e132f6daa6048b3712c41b51f5cf75eb52a776511ce8a96495105e261",
+        "size_bytes": 3050,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "0011167bfa7aee30d6f3a19260310a25a15aced0"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/RimToon/ShaderGraph/RimScreen.shadergraph",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "af8c0c074987ada916336c86b2164c39fd28c95c",
+        "sha256": "a5120568a36653bf31cd727dd01f3bb65b398d478e75d5ae5bbd018a2a823435",
+        "size_bytes": 90962,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "a73326165f969d3d8053dc8e3cf65aa8adccd0e1",
+        "sha256": "25976b45a1310645914344541eed0e836aa9ac6b402ca66dd0cff0f33a5be397",
+        "size_bytes": 90954,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "0011167bfa7aee30d6f3a19260310a25a15aced0"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/RimToon/ShaderGraph/RimToon.shadergraph",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "a8c04475848e020f31a5a13b93cda1fbdf25c9c4",
+        "sha256": "528b3b3c9ed1faddd66f779561715f86ddd05b30a700840a99ab4b9786a8c9c6",
+        "size_bytes": 131807,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "f6effb18df14a61e596c391be391e268170abf9a",
+        "sha256": "8c03296471fd2df1624e54cd53d79a7dee526179ec4182c56efdcd1d04a1ea8c",
+        "size_bytes": 131799,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "0011167bfa7aee30d6f3a19260310a25a15aced0"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SNN/SNN.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "42b944604b67ecbe4b176fef0bf36c47c80eb16e",
+        "sha256": "f2e07b8a371952f3df9470c8cc75dca6d6ce5fd5ac895a01dac90a5c146812b1",
+        "size_bytes": 2003,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "6060c31b4394d69d0fa19b618e6752564a49ee8d",
+        "sha256": "005641e2cd693d9b44612d1f8d0e47712bde469ff66196b9c856e9866ab5c273",
+        "size_bytes": 2008,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSC/SSC.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "5132c1ed4c006d2a815edef536af8f0ea47621bb",
+        "sha256": "3e6905d6724e676fcf128cd2e2c31adc0e35bf4240d7fe621a43a1c2aa0739cf",
+        "size_bytes": 7971,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "e65dcf765e7772483cfeb52af52286f78da9994e",
+        "sha256": "efab883544b3468dc73c39caa11bf493fed6b3b40588391546f1ba748e817858",
+        "size_bytes": 7976,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "f6f4fec738e156894c3a96796984d6467ced82a4",
+        "sha256": "812cce6a5ac8cc1062872f598d8b3a527af6395578dd4f5979adf6b912bc97c7",
+        "size_bytes": 10654,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "cc49030c3b962d5989ea2653eb4c4a10d08b8f3e",
+        "sha256": "a4fb55eea0b65e3467913679f69a66d3ae26e7ca4b06ec629b28aacc3bc96a2a",
+        "size_bytes": 10651,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "e21dd44fb60c67151ecd7eab952c59e0f9e109e5",
+        "sha256": "d06c4f8ccea2f502b3d4258cbd5bb775fb0b5620ac647626064a2212123f21b9",
+        "size_bytes": 9581,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "2d2e339f3e3e62269ce905889c3f9dec92f5595e",
+        "sha256": "50f6c648f4bbbcd4325a24fffbe4f60e4fb5c22622756af6dc09f2bd585ee2eb",
+        "size_bytes": 9586,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSPR/SSPR.shader",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "1d3b06dd9ea1e36945e1f058a08b1badd4533fb5",
+        "sha256": "6a4960445d362467fff192c417d56c64cdbf4d537b04cd179f0b5177d02ae2c4",
+        "size_bytes": 8863,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "5714db0ce1bcf8c022c6de20d3bbbc8be3d4467b",
+        "sha256": "2933d381c2a6c2344cf312e85a8b25d424e9466de2f55bfb4e94e5c265ab9674",
+        "size_bytes": 8860,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "963c0fc406abbf3d0eb4ca1e7bc61a5857a294ba"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSR/SSR.shader",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "196f764365f96f214a18b47e1f9723f37a0fb3b5",
+        "sha256": "87d2f2a096fec4faed9eaaac0551f046e1db41322ea313d2ce990ee59bb564c8",
+        "size_bytes": 5860,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "11fe2f0e5696910a32f3d49d4fb4c7a08100799c",
+        "sha256": "691ff6528d077b09530bcb11907293166752baa439002981f9d0cfcac3abf22a",
+        "size_bytes": 5857,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "963c0fc406abbf3d0eb4ca1e7bc61a5857a294ba"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSSM/SSSM.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "d90d1982e7e5c8f30ab0c846edc13a7696c9c967",
+        "sha256": "881960bac7516e5c2bbc8c79ee138444f69bda2110f912888582e6513e904d86",
+        "size_bytes": 7394,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "b7fc62e2591e1cdf2e24841d95c41037959812b3",
+        "sha256": "30f507b108714d9b89e4916b16ea322fba7c6bac94e20ebe16171b74b9edd79c",
+        "size_bytes": 7399,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "6a2a0a459627bdbee49fbde6d37d1eb84c0d58b7",
+        "sha256": "63f2b991142561dbd667dcc74e3d8079f961993e9ebf895a94d57e8431203521",
+        "size_bytes": 4183,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/before/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader"
+      },
+      "after": {
+        "git_blob_oid": "6ce129b220a566fcc9064b5989e268e5daab1ca1",
+        "sha256": "8fcdc1663fbc38d4ed685d7d6e30bf9d10bf11a815b79bbc3c23f694d5c79401",
+        "size_bytes": 4178,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/after/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader"
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/StochasticSSR/StochasticSSR.shader",
+      "audit_state": "absent",
+      "before": {
+        "git_blob_oid": "ff1c85fabd4af3f2d5db61a2ad304bec9493be5f",
+        "sha256": "f93233b579a320f5bc4c926f14441aa81fab40ef20c980adb9e28484f7ea67ba",
+        "size_bytes": 12567,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "010d041127780f355fef6d53885062b3bc3c57f8",
+        "sha256": "3ba6850bf1bb6fad349452c3caf026c7667f9d380c8b7d5a4e316577cd27b083",
+        "size_bytes": 12564,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "963c0fc406abbf3d0eb4ca1e7bc61a5857a294ba"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/Error/Error1.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "8b2887fbda0a7c67431797ce7a74df3f390673b9",
+        "sha256": "bbcb66b1836c1b2c18ef3e417731ad602a7626f441086b255c25b4ec756168a1",
+        "size_bytes": 80214,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "8e5032b53b6bdcfc5a54c7a0c9bd77c993dd4638",
+        "sha256": "7f85c46dab864e2079946a85a06d6fe40094895d35c171f8ac38143c64d4c583",
+        "size_bytes": 80221,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/Error/Error2.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "36bfeba01f4c06a49cd5ee9b8c088e054a9053b7",
+        "sha256": "2f6f0f73d1f24769e58d30900d3fe9f1638701684534105882b6823bc11c36a7",
+        "size_bytes": 80524,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "258ec17cd8548808a7f8cbea552987af2b278258",
+        "sha256": "3add8d8eca72db2bbc0a83e291976060e38d9ff012901ddf7e7c5ebf3ad6c933",
+        "size_bytes": 80531,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/Fur/FinInstanced.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "d4b17230168cddf49c457c9975c0f6c495adb554",
+        "sha256": "1943394bdef198d71584e39498686a8551e9ce15597f4bdcb308028687c063db",
+        "size_bytes": 7142,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "b50e10db81b6eca3614d986dd7d52f8e1cc77ee0",
+        "sha256": "4581745f158d16b75f7c2821c4a4b118b500e83cf18fde58dc44d28102c2517e",
+        "size_bytes": 7138,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/Fur/Shell.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "5b875de6f6d2c2da38124971742dffc835c1c15d",
+        "sha256": "4cbda51dc43ba927bd1bf24287dcf438bc85f1e0e23a847b7749ff64268cd3b5",
+        "size_bytes": 4528,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "901249a30ebc5334e85393ce0f52ea8be7498fc6",
+        "sha256": "80f9fd5b1e98277e3663e9b25b7cdd04c98b60edb00d50bedc98902bcfe3d865",
+        "size_bytes": 4524,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/Fur/ShellInstanced.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "82e622278352e224a845488fecdf0927fd662417",
+        "sha256": "de5194461b818982866b4ed00e61015570cf5686ee7a734b991968f41887643e",
+        "size_bytes": 7702,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "74ce3e3828207aa4fd7a64f1deb908af82ddbd6b",
+        "sha256": "88f3741b93cde210be91a49317a4d61f2a76e7b096f43784388181d096a3dcc6",
+        "size_bytes": 7698,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/HyperSpace/HyperSpace.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "944d4e376fe0e1cb8579bdc0df8ddfeab065977a",
+        "sha256": "7ca5f5de0a99419f0e07e8f5cf63d86b7d606754eb3d9ad2edcdd18f07c5f45f",
+        "size_bytes": 3771,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "667424e1be3997c7e7381d1dbec7de18febebf2f",
+        "sha256": "34b94acd78237a6072d3ff0c86855e7f6ebf1d2a9c3f3f64ce5ba33f0f4474ca",
+        "size_bytes": 3766,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/HyperTube/HyperTube.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "ead211ec9fd6f9f8f1b9eae5c62101d334be85c9",
+        "sha256": "3d98dd248fab3c879d06a4662934161635ea42ed36d5a76463a7b1a6da78f15d",
+        "size_bytes": 3076,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "9c3910f32999606d654cb8034b2868b7a3d8a0ff",
+        "sha256": "0ae2795f58fb201a6fe501b6417748143fe12435a4414d0498f4fac18d04e5fa",
+        "size_bytes": 3071,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/InteriorMapping/InteriorMapping.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "bd916800170ad75e211d32a4d9fc253e4cac6a2b",
+        "sha256": "6e8f3dc9bea0b4fe6858c7c941410f7dde2af4c956fd55192f6d313938fb285d",
+        "size_bytes": 3076,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "f023f3cbc7d50447769a5b62e22cef3118b0db41",
+        "sha256": "a1ff4fcba90460dfc88e265c4393643a7216f05bbbd90d5df6d47eec64de7b90",
+        "size_bytes": 3071,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "75a8294768e161bcff3fc249848d470022f0b3aa",
+        "sha256": "050e75b01df418e60c5349e8eaa0df8311f16ecaa1d1a869ccfa76a0ed359e2d",
+        "size_bytes": 12496,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/before/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader"
+      },
+      "after": {
+        "git_blob_oid": "13563b13d6f17921721276008be65f20de59d805",
+        "sha256": "f4b43b22b125ea4cf3adfa24cbf52e2fdbd72befbe88c7d7dc52eca1702efc04",
+        "size_bytes": 12496,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/after/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader"
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/PCGUI/PCGUI.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "7332b218316f6194f69e0aeb2522f2b29f833cc4",
+        "sha256": "214c972f9a1261b43711fa554c616677b47015a06c8a9574cb6b758d3c54e0d0",
+        "size_bytes": 71964,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "160f6654ce251db15b16d9e0cd807b9f07c1d32d",
+        "sha256": "4a1a97ba3388d827f39beebda1aa74cae264f9b93e0b69af189eff54064d7ba2",
+        "size_bytes": 71971,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/Parallax/SimpleParallax.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "583b7272a0fd2b287f7cf3f4f6d8aefaa04ac58e",
+        "sha256": "385c67b518dca6cc7d06d3786756842556fd4842664a0681df0bc0f89de490ed",
+        "size_bytes": 6422,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "7fdca9a4faa2b6a61b1aea9ab79e158363c9faf2",
+        "sha256": "42ceb95481bd44f059e65c64f58a4f35f16809f254003cfa83deddba9698a56b",
+        "size_bytes": 6413,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "0ba387071138fec02548632c936ebecef8ac6297",
+        "sha256": "6b16f8f63769707e0e5713c05b0519acfd5b86a9567a0bb0a434247f5fb1c8aa",
+        "size_bytes": 5686,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/before/Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader"
+      },
+      "after": {
+        "git_blob_oid": "824a8209fdc3e09f621125c8eca662b7b21a2db4",
+        "sha256": "0ea77b8e65c4deb20f7320770e5d943485d41a0a8e2c3d2866193947b7f0e312",
+        "size_bytes": 5688,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/ShiningCard/ObjInCard.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "1b40717b8d868f72a3f8da452a7af3d534d0799b",
+        "sha256": "63a1c9cd86f173b9fd666e85415ddf38a26a61453a9ad29cb4b057dfca09d699",
+        "size_bytes": 2649,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "d86a866824e552f9881dda8cdc5103b9b59d0784",
+        "sha256": "a49e1d1207b6ad73a3b1588240fdb5cedbd421b8b6c637ee050ffa6fdc3bdecb",
+        "size_bytes": 2651,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/ShiningCard/ShiningCard.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "7f5fca1c2f7a004b5cb7fc6219b833dbda7be566",
+        "sha256": "f649a28eee7c9fbf1c31e8ade1c20a891910e388fee8a7dfb5a5e6f2301db7c9",
+        "size_bytes": 9247,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "e3f1215829f8e3a4e7a3c3a99871c0d3f7e7ae8e",
+        "sha256": "604279270148a143e6c626d1c534b00b6ed07f007ab8b7015b9f30fa32e10902",
+        "size_bytes": 9249,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/SimpleGrass/Interaction/InteractorObject.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "1c31c992a53abea0c8e306b0008701bb0e9ad27d",
+        "sha256": "0a175ec154a7782daa181aac6d7802c7d20c555194a50d3f7cbb23877dc92509",
+        "size_bytes": 2312,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "34a0f368d2b134a764cdf1a2c47e224eba25e70a",
+        "sha256": "8419a444d659c549ea202631f5695c48f05f35898b8e2526242bed09c279ce44",
+        "size_bytes": 2312,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "f4f94bda27d4c6ef055ed3f978abd7f8b542fc32",
+        "sha256": "991b6b80de7d5fd831c6899a634d0d1a8ae167faf910161668eaf7e2f5ac8868",
+        "size_bytes": 6078,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/before/Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.shader"
+      },
+      "after": {
+        "git_blob_oid": "5a298d15fe9f8a31cc97a6c52cc1d5e0a1b7f032",
+        "sha256": "ed39b858b85baf57eca2943e3882973b8590e525e2c9beae19eabf53a860404c",
+        "size_bytes": 6085,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/Sky/Auroras/Auroras.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "528a9689a4675cd5b44af6cdad3e97b4c90cddd4",
+        "sha256": "13243341536eaafec5f587acba7faf62271b59ec4bb4a907c2b777656adf0d32",
+        "size_bytes": 3994,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "84649dcbdc05867aeaab9510c3ce50df96920fc3",
+        "sha256": "73807a74b2a8480aafba076faf7db3c74d3f1068ea9e6ed14a27fd320d58ff87",
+        "size_bytes": 3995,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/TEST/Gradient.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "244cd2b1994cf18144dedd8a46974d353cbf6c23",
+        "sha256": "536ac169822b6ef5a6655627b10651401eb6af1420942538486311b767f493c8",
+        "size_bytes": 1407,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "b204fda086e1f5bf736ffc9d78df57b7dbd323a9",
+        "sha256": "700c0265d523ab61ce6675265664f33e69c00245b4160e5fcb63f050a089fb7d",
+        "size_bytes": 1407,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/VanGogh/TheStarryNight.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "cd980daf1eb43ee84fb5d9094e3eb45fbb554381",
+        "sha256": "c937c06f1e2955c66e6d4d0cbcd991258ee2a5e9883261ef1f4dec9cff373b20",
+        "size_bytes": 10084,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "53d13639bf2f600f629644c9f310f8fd8cec285c",
+        "sha256": "7fe941fc2c84ca5fe1b43b586c83d50ea1bbe443463557b171d175301f5f9ebb",
+        "size_bytes": 10078,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/Water/Water.shader",
+      "audit_state": "later-modified",
+      "before": {
+        "git_blob_oid": "108784cb3c4753c651ca133087b9e98b575ad5de",
+        "sha256": "79dd587e7af4748fe6388f4ce82769f98c25efc71aea335b2d93b6a98287e766",
+        "size_bytes": 11107,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/before/Assets/Mine/Shaders/Render/Water/Water.shader"
+      },
+      "after": {
+        "git_blob_oid": "f8978124a4ba75e147b3ebd0a81b3fbe693445b5",
+        "sha256": "b816f3f487e35905bac5f6b2514e7efbf4498d3eb441adff0eb652b6ebea46a1",
+        "size_bytes": 11107,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "4b864b8faca2bf92ce6cd2e6ee3c87730ff7bc9a"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/XRay1(Bad)/XR1.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "4375c19e1f090678548f5bf429b0f154d6700fe6",
+        "sha256": "cd608481eeaf2028cd2d8a66da2a4ecdb6b445025723691915da3ec167e1e597",
+        "size_bytes": 2324,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "a2f07931f9215cfa81f99dd19ce050452353acc1",
+        "sha256": "e3aeb176a2e3a840ff91f1e2c3ec36254128ada4b685005da961cd37846bd129",
+        "size_bytes": 2325,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/XRay1(Bad)/XRay1.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "08a3bd49cbb6e7b99be7472065e8b03c526cf48f",
+        "sha256": "2a338dcd10fe9a3a648fabdec92cc611d04cbb2e7b0bf9947b7ccc67c727aa44",
+        "size_bytes": 540,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "7b0de61efe20771e3be80bca3815af79693dc288",
+        "sha256": "4d17875fd01ad5bde7ac70b4c6c9819203ccd95ab6242266c0deaa56d31b30b9",
+        "size_bytes": 541,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/XRay2/Checker.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "9dd3232db115392b252145beab7eb2a08a99c4e3",
+        "sha256": "33fd9d826cba19cdc7039bfe28a55b9b4efcdd5ebd58fc09dce1e458094c6ddb",
+        "size_bytes": 1647,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "506a0b5b375255a6d48545bb0a4469832de93ec2",
+        "sha256": "3098f1444729f6c8d8e5a4d1527466044e4a351674ce887c553c81b573cebef5",
+        "size_bytes": 1648,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/XRay2/HiddenObj.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "84aa048337fc9a2b3972e62b0ef6883658f8115a",
+        "sha256": "4006446924c283ef4bb34312c336065e91699540492621e1b56cd32093865b39",
+        "size_bytes": 2109,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "968326b1c0b970d624456c837628a742bb4b4aaa",
+        "sha256": "f45b9f044e3071bdad4cfb754c732673b773369d50700d69580511b9a351e0ac",
+        "size_bytes": 2105,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Special/UniversalFunction/PreparationRenderer/Preparation.shader",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "384f475f490d982b03cf1349c701fdf0a7831bbf",
+        "sha256": "d79a86816b8c1c0cac2a00bffb3898ecf5912387b5c4869d28aec1cd4ae69149",
+        "size_bytes": 2247,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "1a9bc52041eeb9d88bfb80f4a8a92e026ff5c4be",
+        "sha256": "efa24b70ef0966a0f3bf8e0c2823fadf61893770f6a8452248fb2a836902efd3",
+        "size_bytes": 2260,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/POSS/POSSFeature.cs",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "2a3370c80e39556d42fc7a246f147a94af3570ff",
+        "sha256": "0dfd7b7663a4f722224478af2c5016a37809004883060b65dcf13825d9ba1c22",
+        "size_bytes": 21185,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "b7a7fefa1b47e61d5e6464923d92c9c3d1ddbf1a",
+        "sha256": "ea2939b07dcdfa394c86ddb9e46ac3644ea4353a54c3aa50b15a443cd84ce89e",
+        "size_bytes": 21189,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/HyperTube/HyperTube.md",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "f0c9722b0ae746599a382917ddf0f4e66c427588",
+        "sha256": "1694beb3d905173f7042bd71a6938e61008f8302ffa17194290e535f63aed2fb",
+        "size_bytes": 1920,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "a2c1d3d4c63df7d176860201d07622443ddfa77b",
+        "sha256": "92d6e38e3e6daff61feacc4b552539cfbb687f60b3762b463c632d7f2a13161d",
+        "size_bytes": 1915,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/HyperSpace/HyperSpace.md",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "d4a4cb75dafe83d7bb3e6668452804abb3a60590",
+        "sha256": "42e7676de040c1566f3e624212fb0e0422cc2d0f01cc4920ab5caea102d9c946",
+        "size_bytes": 1204,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "10d11fc1df582f05c9c4a015e7e627561876d742",
+        "sha256": "1b4f03cb6eda946bd08ddb60b13f594eb43b03b9319ce1e3ac3d0dbe3c638996",
+        "size_bytes": 1199,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/RainDrops/RainDrops.md",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "dec4c8baee4245181f80ba45d1a63f5efac5d6dd",
+        "sha256": "1c5ea587eb40e174ef0a2347cb69f85bfe89a1cd18727fb9893c7e434374d8b6",
+        "size_bytes": 10433,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "f3e8c2ee45980a0f1dd2f847e504bc8c9478614c",
+        "sha256": "315d8b4816e33c9df6bae7065b4cba500e790de8325033ee767501f6d4f2ab49",
+        "size_bytes": 10435,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/FGDLutBaker/FGDLutBaker.cs",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "310b2a84f1f4b2c2e6ba9deb78db0dd763122122",
+        "sha256": "90af660d97a42087d63299b8ae5b00ab9655ff9fa8492b1a20d3d97c931a41da",
+        "size_bytes": 7693,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "e70b238839b51f6ee062054f1bb88d2d0b12cee3",
+        "sha256": "912c3f9e60a9076be83d4460cfa4b4cb213c2c5cb4d455a7aeb6ef9813cb9f49",
+        "size_bytes": 7693,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/InteractionManager/README.md",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "eca2a8a767b9c60a5650724ec3b6c82bc0b8ad6f",
+        "sha256": "a4f5fb5bce9c9af89f7accdabdd5d48b9311a87a0e014b645459d83347ac1304",
+        "size_bytes": 3062,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "3257bd272bfd6c14a3427a4f1e3cdbfc5594438f",
+        "sha256": "11049d7799084798b8a099c52a772c480b5110b4b0c41444dc6d978d833240c9",
+        "size_bytes": 3077,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/SSSLutBaker/SSSLutBaker.cs",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "590bd5ae3f25cff0ff413712ce128f92ce8ca2bf",
+        "sha256": "265686dfb35f9943e704ab714b8934e68ecc6937633987428af05ade41e8f7f6",
+        "size_bytes": 5366,
+        "available_in_git_history": false,
+        "git_change_commits": [],
+        "snapshot": "snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutBaker.cs"
+      },
+      "after": {
+        "git_blob_oid": "249c678b87e67a2441820bb6eaa1bed7c5310dcd",
+        "sha256": "d768c038e9acabec6722d728c73f13e81372a44a3789d03c3937b732f8b6e97a",
+        "size_bytes": 5366,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/Picker/Picker.md",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "b4961bd238d385f50e477192ae34c5fa7e858837",
+        "sha256": "4883b28eb1be50827e65bf36e277f36d6b955f7d4fb24a79052a3525108231a5",
+        "size_bytes": 7957,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "258d2d1207aad1f320f672367ffce067a023b9e5",
+        "sha256": "5a7467e29f8a17bb924c71806c89378cb31e4ee4058427ff4db8f4ff5559f48d",
+        "size_bytes": 7932,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    },
+    {
+      "path": "Assets/Mine/Scripts/Picker/PickerFeature.cs",
+      "audit_state": "current-after",
+      "before": {
+        "git_blob_oid": "8294fb682ba6b96dd5b39a7fcb44a15d34cfdd6a",
+        "sha256": "3a43c52390c232dd07943cb3acade37dc8feb8a570b8af1876789cf88fe94cd4",
+        "size_bytes": 18138,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      },
+      "after": {
+        "git_blob_oid": "fad168615ac9869dd6f57e3cd43847410e31b58f",
+        "sha256": "89a4ff851682c4a036e11e50058a100743aa474e844abeb51999eba0a224a4e2",
+        "size_bytes": 18133,
+        "available_in_git_history": true,
+        "git_change_commits": [
+          "35a2fd6051e3771a9c47f271db81a484f821c20c"
+        ],
+        "snapshot": null
+      }
+    }
+  ],
+  "restoration": "Git-backed body: git cat-file blob <git_blob_oid>; unique body: read snapshot. Never overwrite current Assets as part of an evidence inspection.",
+  "unique_snapshot_counts": {
+    "after": 4,
+    "before": 9
+  }
+}

@@ -28,6 +28,12 @@ Shader "PostProcess/SpecularGI"
         float _DebugMode;
     CBUFFER_END
 
+    #define SCREEN_TRACE_LOAD_DEPTH(pixel) LOAD_TEXTURE2D_X(_CameraDepthTexture, pixel).r
+    #define SCREEN_TRACE_LOAD_PYRAMID(pixel, mip) 0.0
+    #include "Assets/Mine/Special/HLSL/RayStepFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl"
+    #undef SCREEN_TRACE_LOAD_DEPTH
+    #undef SCREEN_TRACE_LOAD_PYRAMID
     #include "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGITrace.hlsl"
@@ -132,9 +138,10 @@ Shader "PostProcess/SpecularGI"
         {
             Name "Trace"
             HLSLPROGRAM
-            #pragma target 3.5
+            #pragma target 4.5
             #pragma vertex Vert
             #pragma fragment Frag_Trace
+            #pragma multi_compile_local_fragment _ SSGI_TRACE_RAY
             ENDHLSL
         }
 

@@ -1,28 +1,5 @@
 name = "meta-developer"
-description = "Maintains the shared .agents system itself. Creates and modifies agents, skills, references, platforms. Verifies cross-reference integrity and architecture consistency. Activates on agent, skill, reference, .agents, 体系, 结构, manifest keywords."
+description = "按项目 agents 清单取用 meta-developer，仅负责范围、取用和记录。"
 developer_instructions = '''
-# Meta Developer Agent（Codex 运行时适配）
-
-> 维护 `.agents/` 共享体系本身的 agent。"建厨房的人"，不是"炒菜的厨子"。
-> 本 toml 是 Codex 平台的运行时角色适配，**不复制共享正文**。角色正文唯一权威源：`.agents/agents/meta-developer/AGENT.md`（设计原则 P1-P3、职责边界、工作流、体系诊断清单、会话收尾）。
-
-## 自举读取（每次会话必做）
-
-1. 项目根 `AGENTS.md` → `.agents/README.md`（SSOT 与所有权、读取顺序）。
-2. `.agents/agents/meta-developer/AGENT.md` — 本角色正文。
-3. `.agents/rules/meta-architecture.md` — 编辑 `.agents/`、`.claude/`、`.codex/` 或 `.mcp/` 下任何文件时强制遵守的体系规则。
-4. 按任务读取 `.agents/interfaces/`（knowledge-paths 等跨平台契约）与各角色 references/templates 索引；不要扫描整个共享目录。
-
-## 核心原则（详见共享正文）
-
-- P1: MD 做索引，文件做内容；P2: skill 引用 script，不包含 script；P3: 每次改动后精简去重。
-- 归属判定：skills/rules 按"机制"归顶层 `.agents/`；references/templates/memory 按"内容"归 `.agents/agents/<name>/`。
-- 链路保障：`.agents` ↔ `.claude`/`.codex` ↔ `.mcp` 改一侧必须同步另一侧；结构变更后 grep 残留引用零输出 + 跑 `.mcp/tests/`。
-
-## Codex 平台边界
-
-- 编辑对象：`.agents/` 共享层与 `.codex/` 平台层；`.claude/` 由 Claude 平台机制发现，不在本侧手工维护旧副本。
-- 历史 memory 文件是当时快照，引用旧路径不改；只更新活动文档。
-- 架构阶段独立提交并保留回退点；删除旧副本前输出精确清单并取得人工确认；禁止 `git stash --all`。
-- 本 agent 不维护 `~/.codex/` 全局文件（由全局 AGENTS.md 自更新规则驱动）。
+先读取 `.agents/agents/README.md` 清单，再读取 `.agents/agents/meta-developer/AGENT.md`，直接取用本任务需要的记忆、知识和技能。不在运行时适配复制职责或操作流程；平台工具/权限由当前会话和 `.codex/AGENTS.md` 提供。
 '''

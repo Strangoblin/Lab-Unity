@@ -1,0 +1,163 @@
+{
+  "date": "2026-10-10",
+  "scope": "CPU 重算固定历史核；不运行 Editor/GPU，不验证当前 Shader。",
+  "dependencies": {
+    "numpy": "2.3.5"
+  },
+  "self_check": "passed 5/9/13 tap kernels + bilinear tent integral",
+  "report_exact_equal": true,
+  "report_differences": [],
+  "reference_array_checks": [
+    {
+      "name": "disk_r16_one5-dense-reference.npy",
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32",
+      "max_abs_difference": 0.0,
+      "array_exact_equal": true,
+      "file_sha256_equal": true
+    },
+    {
+      "name": "disk_r16_one9-dense-reference.npy",
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32",
+      "max_abs_difference": 0.0,
+      "array_exact_equal": true,
+      "file_sha256_equal": true
+    },
+    {
+      "name": "disk_r16_two9-dense-reference.npy",
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32",
+      "max_abs_difference": 0.0,
+      "array_exact_equal": true,
+      "file_sha256_equal": true
+    },
+    {
+      "name": "disk_r3_one9-dense-reference.npy",
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32",
+      "max_abs_difference": 0.0,
+      "array_exact_equal": true,
+      "file_sha256_equal": true
+    },
+    {
+      "name": "disk_r80_one9-dense-reference.npy",
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32",
+      "max_abs_difference": 0.0,
+      "array_exact_equal": true,
+      "file_sha256_equal": true
+    },
+    {
+      "name": "uniform_one9-dense-reference.npy",
+      "shape": [
+        360,
+        640,
+        4
+      ],
+      "dtype": "float32",
+      "max_abs_difference": 0.0,
+      "array_exact_equal": true,
+      "file_sha256_equal": true
+    }
+  ],
+  "status": "passed",
+  "minimal_archive_self_check": {
+    "status": "passed",
+    "reference_files": [
+      {
+        "name": "uniform_one9-dense-reference.npy",
+        "sha256": "7b24bcb0b3cdc6ac9385ebd4b6be23329c72c6f28931c030a587faab57ca5db1",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r80_one9-dense-reference.npy",
+        "sha256": "8a6406e4abe89aa8b0bf312f294b53bbd2a0cea554fe4ea1b7d30ad754c8b29e",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r16_one9-dense-reference.npy",
+        "sha256": "a7bd4251dae97fd5e945b6daf4c678f81e71e83fcc42b729e6693b3fdf163c23",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r16_two9-dense-reference.npy",
+        "sha256": "4b8b49ef7bd2bc3a138f68cda933dc515b25c3bf0273466a958a2dca0cbd9b92",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r3_one9-dense-reference.npy",
+        "sha256": "cb348a18b45580fbc40e01c4d8f343865c5ca0a10e545af1d937dde433f9fe0f",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      },
+      {
+        "name": "disk_r16_one5-dense-reference.npy",
+        "sha256": "ed6e02c62713cac0958c6e1c614c2846d10c41345fdc0c2ec884165855346c4e",
+        "shape": [
+          360,
+          640,
+          4
+        ],
+        "dtype": "float32",
+        "matches_immutable_expected": true
+      }
+    ],
+    "report_values_exact_equal": true,
+    "scope": "Frozen CPU reference from saved RGBA; no Editor/GPU replay."
+  },
+  "archived_npy_arrays": 0,
+  "expected_reference_path": "expected-reference.json",
+  "proof_method": "Regenerated serialized NPY SHA256/shape/dtype equals immutable expected metadata; archived old NPY not read by runner.",
+  "archived_npy_sources_absent_during_final_rerun": true,
+  "legacy_original_npy_retained": 6
+}

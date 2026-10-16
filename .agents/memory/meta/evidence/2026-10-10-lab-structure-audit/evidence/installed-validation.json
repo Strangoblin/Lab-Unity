@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "path": "tmp/sessions/2026-10-10-lab-structure-audit/evidence/installed-hash-check.json",
+      "sha256": "aed3be53ccb4565dffc3e2d23bb50cb533275d3b5910906db150b6b2ead06033"
+    },
+    {
+      "path": "tmp/sessions/2026-10-10-lab-structure-audit/evidence/installed-dense-check.json",
+      "sha256": "41777ef2f5174de2b88aa96a3b17a67928fe88a2ba22e81f467e1c695c6329fb"
+    }
+  ],
+  "scope": "Installed Hash current contract/statistics and dense immutable CPU reference rerun. No Unity/Metal/GPU equivalence claim."
+}

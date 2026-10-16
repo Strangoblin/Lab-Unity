@@ -22,6 +22,20 @@ Validation (validation/)           ← script_library.py + norms.py + deletion.p
 
 三层解耦：**中心不在意门禁内容，配方不在意门禁实现，门禁只在意自身逻辑。**
 
+**v3 自观测与策略数据化（2026-10-08）**：v2 的判定与严格度都是代码常量，于是「框架该松还是紧」
+只能靠人判断，升级永远晚于 agent 能力。v3 拆成四层：
+
+```
+policy.json            ← 执行策略（数据）: check → block | warn | off
+judgement.py           ← 判定核（唯一实现）: write / delete / move + policy 应用 + 记账
+server.py / gate_cli.py← 传输薄壳: MCP 工具 与 统一 CLI 调同一判定核
+friction.jsonl         ← 传感器: 每次判定留一行信号
+friction_report.py     ← 聚合 + 提案: 调级 / 退役 / 修管线（人工确认后才改 policy.json）
+```
+
+动机、能力契约与控制律见 `.agents/knowledge/meta/enforcement-policy.md`。
+要点：**缺省 policy = v2 行为（零回归）**；策略只放宽不收紧；安全类检查标 `retirable: false` 不退役。
+
 **v2 收敛（2026-08-25）**：门禁从「流程仪式 + 自报告」收敛为「知识证据 + 内容后果验证」；g_knowledge 校验真实文件，write_gated 校验内容，Codex 经 check_norm.py 对等接入。
 
 **写删对称（2026-09-21）**：`delete_gated` 与 `write_gated` 共用同一道门禁（`can_write`）与同一套路径作用域（`validate_path`）。删除没有「内容」可查，所以后果验证改为判定**不可恢复性**（见下节）。
@@ -33,20 +47,25 @@ Validation (validation/)           ← script_library.py + norms.py + deletion.p
 | 工具 | 作用 |
 |------|------|
 | `gate_set_recipe(name)` | 声明模式: Production / Research / Experiment / Debug / Minimal / Quick |
+| `gate_set_workspace(path)` | 声明**本次任务的工作目录**（`Assets/Mine/**` 写/删/移的边界） |
+| `gate_request_workspace(path, reason)` | 申请扩展工作目录 —— **只登记，不授权**（批准是人工动作） |
 | `gate_pass(gate_id, **ctx)` | 通过 g_entry / g_knowledge |
 | `gate_status()` | 当前状态 + 写入 / 删除 / 移动审计 |
 | `gate_list()` | 列出所有门禁 + 配方（含退役标记） |
 | `gate_reset()` | 重置 |
 | `script_list()` | 列出 scripts/roslyn/ |
 | `write_gated(path, content, ...)` | 门禁 + 结构规范 + 文件落点检查通过才放行写入（注解非阻塞记录） |
-| `delete_gated(paths, reason)` | 门禁 + 不可恢复性检查通过才放行删除（批量，all-or-nothing） |
+| `delete_gated(paths, reason, recursive=?, dry_run=?)` | 门禁 + 结构/不可恢复性检查通过才放行删除；空目录默认可删，非空须 `recursive=True`（批量，all-or-nothing） |
 | `move_gated(moves, reason)` | 门禁 + 净效果检查通过才放行移动（批量，`.meta` 成对，保 GUID） |
 
-删除另有 Bash 通道 `validation/delete_gated.py`（同一道门禁），见下节。
+**三条操作都有 CLI 通道**（`validation/gate_cli.py` + 三个兼容入口 `write_gated.py` / `delete_gated.py` /
+`move_gated.py`），判定与记账全在 `judgement.py` —— 见下节。
 
 ## 配方
 
-Production / Research / Experiment / Debug / Minimal / Quick 均使用唯一链 `g_entry → g_knowledge`；配方只声明模式并用于审计。
+Production / Research / Experiment / Debug / Minimal / Quick 均使用唯一链 `g_entry → g_knowledge`，配方只声明模式。
+**该链是否阻断由 `policy.json` 的 `ceremony.recipe_gate` 决定**：当前为 `warn`（未过链可写 + warning + 记账，观察期），
+故配方现在只影响**审计与注解**（`recipe` 字段），不再挡写入。收紧回 `block` 即恢复硬闸。
 
 ## 门禁
 
@@ -60,10 +79,13 @@ Production / Research / Experiment / Debug / Minimal / Quick 均使用唯一链 
 | g_web_search / g_plan | 联网搜索 / 方案设计（退役） | — | 不在任何配方 |
 
 退役门禁调用返回 `GATE_NOT_IN_RECIPE`（带退役原因提示），出现在任何配方即测试回归。
+**退役条目不带 `module`** —— 它们永不进配方，`_load_gate` 到不了，对应模块文件已于 2026-10-09 删除；
+保留注册只为让 `gate_list` 能回答「这个名字退役了、该走哪条路」。要复活：写回 `gates/<name>.py` + 加回 `module` 与配方条目。
 
 ## 写入后果验证（validation/norms.py + project_paths.py）
 
-写入执行两类检查，合成一次判定（`NORM_VIOLATION`，看 `violations[].id` 区分来源）。error 级阻断，warning 级提示放行：
+写入执行两类检查，合成一次判定（`NORM_VIOLATION`，看 `violations[].id` 区分来源）。
+**表里的「级别」是检查自身的固有级别；实际生效级别取自 `policy.json`（只能放宽，不能收紧）。** error 级阻断，warning 级提示放行：
 
 | 规则 | 适用 | 级别 | 检测 |
 |------|------|------|------|
@@ -103,18 +125,35 @@ Production / Research / Experiment / Debug / Minimal / Quick 均使用唯一链 
 
 另有 Unity 专属检查：删 `.meta` 前用 `grep -rlF` 查其 GUID 是否仍被 `Assets/` 下其他文件引用，命中即硬拦（`guid-referenced`）。删资产却留下同名 `.meta`（或反之）只报 `orphan-meta` / `orphan-asset` 警告，不阻断——成对删除是调用方的责任，工具不擅自扩大删除范围。
 
+### 目录（2026-10-10 补齐）
+
+`delete_gated` 同时处理文件与目录，语义按「这次删除请求本身成不成立」和「内容删了回不回得来」分层：
+
+| 情形 | 处置 |
+|---|---|
+| 空目录 | 默认可删（`rmdir`，不承载内容） |
+| 非空目录 | 须 `recursive=True`（CLI `--recursive`）；否则 `directory-not-empty` 拦截 |
+| 目录子树 | 展开后**逐个子项**仍走 dirty / GUID 判定 —— `recursive` 只放开目录形状，不绕过不可恢复性 |
+| 软链（自身或祖先） | `symlink` 拒绝，不跟随；不会删到链接之外 |
+| 非普通文件（FIFO 等） | `unsupported-type` 拒绝 |
+| 作用域根（`Assets/Mine` / `tmp` / `roslyn`） | `protected-root` 拒绝 |
+
+执行前**整批复核**（inode / 内容 hash / 目录子项名），预检后出现的 `symlink` 替换、新增子项、同尺寸同 mtime 的内容替换都会被识破并**零改动**返回。删除用 `unlink`/`rmdir` 逐条进行，深层先删、同层文件先于目录，`rmdir` 天然拒绝预检后新增的子项。
+
+展开出的路径会计入同一次批量判定（`blocked` 一并列出），所以「父目录 + 子项」的重复请求不会重复删除，`recursive` 也不会把作用域边界撑大：**请求本身照旧先过工作目录检查**。
+
 整批 **all-or-nothing**：任一路径被拦则整批不执行，`blocked` 列出原因。
 
-**两个通道，同一道门禁**——判定同源（都走 `deletion.evaluate`），不允许各判一套：
+**两个通道，同一道门禁**——判定同源（都走 `deletion.evaluate` + `deletion.plan`），不允许各判一套：
 
 | 通道 | 入口 | 用途 |
 |---|---|---|
 | MCP | `mcp__unity-gate__delete_gated` | 会话内常规调用 |
-| Bash | `python3 .mcp/validation/delete_gated.py --reason "..." <paths...>` | MCP 工具表未刷新时、或脚本化批量删除 |
+| Bash | `python3 .mcp/validation/delete_gated.py --reason "..." [--recursive] [--dry-run] <paths...>` | MCP 工具表未刷新时、或脚本化批量删除（含目录） |
 
-CLI 的门禁状态读 `.mcp/state.json`（与 `can_write` 同语义）——**只消费已通过的链，不提供过门禁的入口**；`--reason` 必填，支持 `--dry-run`（判定可删但不执行）。退出码 `0` = 成功 / `1` = 被拦 / `2` = 用法错误。
+CLI 的门禁状态读 `.mcp/state.json`（与 `can_write` 同语义）——**只消费已通过的链，不提供过门禁的入口**；`--reason` 必填，`--recursive` 放开非空目录，`--dry-run` 只判定不执行。退出码 `0` = 成功 / `1` = 被拦或失败 / `2` = 用法错误。
 
-**删除审计落盘** `.mcp/deletes.jsonl`（JSONL，不入库，`gate_status` 另显最近 20 条）：写入有产物本身即记录，**删除没有——日志是唯一痕迹**。两个通道都追加，含 `channel` 字段区分，并记 `argv` 便于溯源。
+**删除审计落盘** `.mcp/deletes.jsonl`（JSONL，不入库，`gate_status` 另显最近 20 条）：写入有产物本身即记录，**删除没有——日志是唯一痕迹**。两个通道都追加，含 `channel` 字段区分，并记 `argv` 便于溯源。目录删除额外记 `requested_paths`（原始请求）/ `expanded_paths`（展开后全量）/ `recursive` —— 删掉一棵树的痕迹只此一份。
 
 > 存在的理由：`Assets/Mine/` 的直接 `Write`/`Edit` 被 settings deny（逼写入走 `write_gated`），而 Claude Code 的路径规则会**连带命中 Bash**——`rm`/`mv` 即便在 allow 列表里也被拦。MCP 调用与 Python 子进程都不经该路径匹配，故这一对通道是 `Assets/Mine/` 下可用的删除路径。
 
@@ -167,43 +206,93 @@ CLI 的门禁状态读 `.mcp/state.json`（与 `can_write` 同语义）——**�
 工具却调不到，需 `/mcp` 重连。删除通道当初就是为此补的，移动同理。CLI 的路径必须成对给出
 （`源 目标 源 目标 …`），支持 `--dry-run`；退出码 `0`=成功 / `1`=被拦 / `2`=用法错误。
 
-## Codex 对等
+## 传输无关的判定核（v3）
+
+**判定只有一份实现**：`validation/judgement.py`。MCP 工具与 CLI 都是薄壳，策略只在核内应用，
+信号只在核内落账 —— 通道自己不许判级别、不许记账（否则口径分叉）。
+
+| 操作 | MCP 工具 | CLI（Bash 通道） |
+|---|---|---|
+| write | `write_gated` | `write_gated.py --path <p> --from <file>` / `gate_cli.py write` |
+| delete | `delete_gated` | `delete_gated.py --reason R [--recursive] <paths...>` |
+| move | `move_gated` | `move_gated.py --reason R <from> <to> ...` |
+
+**为什么三条都要 CLI**：Claude Code 的 MCP 工具表按会话冻结——服务器跑新代码，工具调不到，
+须 `/mcp` 重连。v2 为此给删除、移动各补了 CLI，而**写入没有**，于是写入成了唯一会因冻结而断掉的
+操作，Codex 也就没有等价通道。v3 补齐后，三条操作在两个传输上等价（`PATH_NOT_ALLOWED` 等错误码逐码一致）。
+
+**会话门禁状态**：CLI 只**消费** `.mcp/state.json`（与 `can_write` 同语义），不提供过门禁的入口 ——
+先用 MCP `gate_set_recipe` + `gate_pass` 过链。policy 把 `ceremony.recipe_gate` 降为 warn 时，
+CLI 的 `state_gate_from_file` 同步放宽（同一策略，不各判一套）。
+
+**Codex 对等**：Codex 无 MCP 工具，走上面同一条 CLI 通道（同一判定核、同一错误码）；
+只读单文件自查用 `check_norm.py`（不写盘）。
+
+## 工作目录边界（任务级）
+
+基础作用域（`validate_path`）回答「框架允许写哪里」；**工作目录**回答「这次任务只许动哪里」——
+是**收窄**，不是放宽：`gate_set_workspace(path)` 的 path 必须先落在基础作用域内。
+
+| 情形 | 结果 |
+|---|---|
+| 目标在 `workspace.applies_to`（默认 `Assets/Mine/`）之外，如 `tmp/` | 不受边界约束（暂存区） |
+| 未声明工作目录 + `workspace.required=true` | `WORKSPACE_NOT_SET` |
+| 目标不在已授权 roots 内 | `WORKSPACE_VIOLATION`（`violations[].id` = `workspace-root`） |
+| 工作目录本身越出基础作用域 | `WORKSPACE_NOT_ALLOWED` |
+| 移动 | **两端**都要在边界内（搬进/搬出都改了边界外内容） |
+
+**多工作区 = agent 提出、人工批准**，机制上分权:
+
+| 角色 | 能做什么 | 做不了什么 |
+|---|---|---|
+| agent | `gate_request_workspace(path, reason)` 登记请求 | 不能批准 —— 该工具**不授权**，且 `gate_cli.py workspace approve/reject` 被平台 hook（C3）对 agent 封闭 |
+| 用户 | `gate_cli.py workspace approve <id>` / `reject <id>` | —— |
+
+批准走 CLI（磁盘），MCP server 进程经 `workspace_view()` 合并磁盘 roots，**批准后立即对运行中的会话生效**（不合并就会「批了仍被拒」）。请求 / 批准 / 拒绝都落 `friction.jsonl` 审计。
+
+## 摩擦账本与策略（v3）
+
+- **传感器** `telemetry.py` → `.mcp/friction.jsonl`：每次判定一行（`ok` / `denied` / `warn` / `dry_run` / `error`），
+  含 `channel` / `op` / `signal` / `check` / `level`。删除/移动的**审计**（`deletes.jsonl` / `moves.jsonl`）仍按 v2 落盘，二者互补：
+  审计记「做了什么」，账本记「判定结果如何」。
+- **提案** `friction_report.py`：聚合出仪式开销比、拒绝 Top、从未命中的检查，产出 `demote` / `retire-or-demote` /
+  `safety-healthy` / `fix-plumbing` 提案。**它不自动改策略** —— 改 `policy.json` 须 meta-developer 复核 + 人工确认。
+- **策略** `policy.json`：每条检查的 `level`（`block`/`warn`/`off`）与 `retirable`；另有 `workspace` 段
+  （`required` / `applies_to`）控制工作目录边界的开关与作用区。缺省条目 = 检查自身固有级别（= v2 行为）。
+  策略**只放宽不收紧**（收紧是检查实现的事，不是数据的事）。
+
+**当前档位（2026-10-09 首批调级，人工批准）**：`ceremony.recipe_gate` 与 `ceremony.knowledge_high_priority`
+由 `block` 降为 `warn` —— 未过配方链也能写（携带 `ceremony.recipe_gate` warning、`recipe` 记 `null`），
+属 agent 自主性档位，**观察一个完整任务周期**，质量下滑即回 `block`（不必等样本）。
+硬闸未变：作用域 / 工作目录 / 结构规范 / 落点（新文件）/ 删除与移动安全 / **编造文件名**。
+未随降级放宽的项及理由见 `policy.json` 的 `_history`；档位表见
+`.agents/knowledge/unity/mcp-gate-usage.md` §当前档位。
 
 ```bash
-python .mcp/validation/check_norm.py <file>   # exit 0 = 通过; exit 1 = 有 error 违规
+python3 .mcp/validation/gate_cli.py workspace set Assets/Mine/Scripts    # 声明工作目录
+python3 .mcp/validation/gate_cli.py workspace approve ws-1a2b3c4d         # 人工批准（agent 被 hook 拦）
+python3 .mcp/validation/gate_cli.py status           # 配方 + 工作目录 + 策略级别 + 落盘状态
+python3 .mcp/validation/gate_cli.py report           # 摩擦报告（lint 风格: exit 1 = 有 review 级提案待办）
+python3 .mcp/validation/gate_cli.py report --json --since 7
 ```
-
-## 模板 API 核验（validation/check_api_refs.py）
-
-**不属门禁链**——模板写入不经 `write_gated`，本 CLI 是 meta-developer 维护 `templates/` 时的自查工具，
-与 `check_norm.py`（业务产出）对称。查的是「模板里写下的 API 确实存在且没过时」，不是「模板能编译」：
-模板是给人拷贝的参考实现，本就有占位符，`.shader`/`.hlsl` 也无从用编译器验。
-
-```bash
-python3 .mcp/validation/check_api_refs.py .agents/agents/unity-developer/templates   # 词法 + 过时 API
-python3 .mcp/validation/check_api_refs.py --compile <自足骨架.cs>                     # 追加真编译
-```
-
-（以上为仓库根执行；本节其余示例沿用 `.mcp/` 内执行的旧写法。）
-判据、边界与控制组要求见 `.agents/agents/meta-developer/references/template-conventions.md`。
 
 ## 使用
 
 ```bash
-# 测试
-uv run python tests/test_recipes.py
+# 测试（从仓库根运行，默认使用 .mcp/.venv/bin/python）
+python3 .mcp/tests/run_isolated.py --task-dir tmp/sessions/<date-task-id>
 
-# 规范检查 CLI（Codex 对等通道）
-python validation/check_norm.py Assets/Mine/Shaders/Render/Xxx/Xxx.shader
+# 门禁 CLI（统一入口 —— write/delete/move 与 MCP 工具同一判定核）
+python3 .mcp/validation/gate_cli.py write  --path <项目相对路径> --from <本地文件>
+python3 .mcp/validation/gate_cli.py delete --reason "<原因>" [--recursive] <文件或目录...>
+python3 .mcp/validation/gate_cli.py move   --reason "<原因>" <from> <to> ...
+python3 .mcp/validation/gate_cli.py workspace set|request|approve|reject|show ...
+python3 .mcp/validation/gate_cli.py status | report
+# 以上任一加 --dry-run = 只判定不执行（delete 的 dry_run 返回展开后的 deletable 清单）；
+# 兼容入口 write_gated.py / delete_gated.py / move_gated.py 等价
 
-# 删除门禁 CLI（Bash 通道，与 MCP delete_gated 同一道门禁）
-python3 .mcp/validation/delete_gated.py --reason "<原因>" <路径...>
-python3 .mcp/validation/delete_gated.py --reason "<原因>" --dry-run <路径...>   # 只判定不执行
-
-# 移动门禁 CLI（Bash 通道，与 MCP move_gated 同一道门禁、同一套执行）
-python3 .mcp/validation/move_gated.py --reason "<原因>" <from> <to> [<from> <to> ...]
-python3 .mcp/validation/move_gated.py --reason "<原因>" --dry-run <from> <to> ...
-
-# 模板 API 核验（meta 层，仓库根执行）
-python3 .mcp/validation/check_api_refs.py .agents/agents/unity-developer/templates
+# 单文件规范自查（Codex 对等通道，不写盘）
+python3 .mcp/validation/check_norm.py Assets/Mine/Shaders/Render/Xxx/Xxx.shader
 ```
+
+MCP 契约套件会 reset 状态，默认通过 `tests/run_isolated.py` 在独立项目/Git/TMPDIR 执行；不要直接对生产项目跑套件。runner 前后核对生产 state 与审计哈希，fixture 随运行清理；缺依赖用 `--python` 指定已有环境，失败可显式 `--retain-on-failure`。日志/报告留在任务 output/evidence，规则见 [会话产物规范](../.agents/knowledge/meta/interfaces/task-artifacts.md)。

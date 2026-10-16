@@ -1,0 +1,12 @@
+Asset refresh completed (no compilation needed)
+report: tmp/sessions/2026-10-13-ssgi-timing-bb48b7a0/output/timing.json
+metric: GPU-synchronized render-request wall milliseconds; not GPU timestamps
+642x366 DDA48-DDA64       median=3.712ms P95=4.829ms blocks=[4.27, 3.637, 3.557]
+642x366 DDA48-Ray         median=3.587ms P95=4.328ms blocks=[3.619, 3.553, 3.562]
+642x366 Ray-DDA64         median=3.776ms P95=4.641ms blocks=[3.955, 3.792, 3.648]
+642x366 Ray-Ray           median=3.837ms P95=7.202ms blocks=[5.484, 3.78, 3.666]
+1920x1080 DDA48-DDA64       median=9.190ms P95=10.020ms blocks=[9.277, 9.237, 9.048]
+1920x1080 DDA48-Ray         median=9.341ms P95=11.562ms blocks=[9.255, 9.62, 9.336]
+1920x1080 Ray-DDA64         median=9.320ms P95=10.139ms blocks=[9.256, 9.326, 9.397]
+1920x1080 Ray-Ray           median=9.290ms P95=10.274ms blocks=[9.117, 9.307, 9.346]
+Timing CLI report: /Users/xiaokangji/Unity/Lab/tmp/sessions/2026-10-13-ssgi-timing-run-In41CDrJ/output/timing-cli.json

@@ -1,0 +1,11 @@
+{
+  "unchangedFromTaskStart": {
+    "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBR.shader.meta": true,
+    "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRMask.shader": true,
+    "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRMask.shader.meta": true,
+    "Assets/Mine/Shaders/PostProcess/MaskRBR/MaskRBRFeature.cs.meta": true,
+    "Assets/Mine/Shaders/PostProcess/MaskRBR/README.md.meta": true,
+    "Assets/Settings/PC_Renderer.asset": true,
+    "Assets/Scenes/SampleScene.unity": true
+  }
+}

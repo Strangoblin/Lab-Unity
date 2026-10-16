@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "archivedReports": 2,
+  "archiveHashes": 52,
+  "reconstructedInputs": 4,
+  "rejectedControls": [
+    "first:wrong divisor",
+    "first:wrong extent",
+    "first:wrong ray budget",
+    "first:empty timings",
+    "first:wrong Shader",
+    "first:wrong ray frame",
+    "first:forged reduction",
+    "first:no history",
+    "first:no restoration",
+    "first:no repeat",
+    "repeat:wrong divisor",
+    "repeat:wrong extent",
+    "repeat:wrong ray budget",
+    "repeat:empty timings",
+    "repeat:wrong Shader",
+    "repeat:wrong ray frame",
+    "repeat:forged reduction",
+    "repeat:no history",
+    "repeat:no restoration",
+    "repeat:no repeat"
+  ],
+  "validationAst": true
+}

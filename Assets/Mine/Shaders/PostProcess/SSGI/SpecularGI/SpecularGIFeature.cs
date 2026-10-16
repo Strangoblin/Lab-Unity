@@ -23,6 +23,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
         public Cubemap skyCubemap;
 
         [Header("Technical")]
+        public SSGITraceBackend traceBackend = SSGITraceBackend.DDA;
         [Range(1f, 200f)] public float maxDistance = 50f;
         [Range(0.001f, 0.5f)] public float thickness = 0.05f;
         [Range(0f, 0.2f)] public float normalBias = 0.03f;
@@ -71,6 +72,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
             public float spatialRadius;
             public float frameIndex;
             public Cubemap skyCubemap;
+            public SSGITraceBackend backend;
         }
 
         sealed class CompositeData
@@ -109,7 +111,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
             _temporal.BeginFrame(frameData);
             TextureHandle spatial = RecordSpatial(graph, frameData,
                 TextureHandle.nullHandle, _temporal.FrameIndex,
-                _controls.performance, _settings.roughness, out TextureHandle trace);
+                _controls.performance, _settings.roughness, out TextureHandle trace, out var historyKey);
             if (!spatial.IsValid())
             {
                 _temporal.CompleteFrame(graph, frameData);
@@ -117,30 +119,34 @@ public class SpecularGIFeature : ScriptableRendererFeature
             }
 
             TextureHandle temporal = _temporal.Resolve(graph, frameData, spatial,
-                SSGITemporalFilter.Signal.SpecularGI, _controls.temporalBlend);
+                SSGITemporalFilter.Signal.SpecularGI, _controls.temporalBlend, historyKey);
             _temporal.CompleteFrame(graph, frameData);
             RecordComposite(graph, frameData, trace, spatial, temporal,
                 _controls.intensity, _settings.roughness, _controls.debug);
         }
 
         public TextureHandle RecordIntegrated(RenderGraph graph, ContextContainer frameData,
-            TextureHandle source, int frameIndex, SSGIQuality performance, float roughness)
+            TextureHandle source, int frameIndex, SSGIQuality performance, float roughness,
+            out SSGITemporalFilter.HistoryKey historyKey)
         {
             return RecordSpatial(graph, frameData, source, frameIndex,
-                performance, roughness, out _);
+                performance, roughness, out _, out historyKey);
         }
 
         TextureHandle RecordSpatial(RenderGraph graph, ContextContainer frameData,
             TextureHandle inputSource, int frameIndex, SSGIQuality performance,
-            float roughness, out TextureHandle traceOutput)
+            float roughness, out TextureHandle traceOutput, out SSGITemporalFilter.HistoryKey historyKey)
         {
             traceOutput = TextureHandle.nullHandle;
+            historyKey = default;
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             UniversalCameraData camera = frameData.Get<UniversalCameraData>();
             TextureHandle source = inputSource.IsValid() ? inputSource : resources.activeColorTexture;
             if (!source.IsValid() || _material == null || camera.camera == null)
                 return TextureHandle.nullHandle;
 
+            SSGITraceBackend backend = _settings.traceBackend == SSGITraceBackend.Ray
+                ? SSGITraceBackend.Ray : SSGITraceBackend.DDA;
             GetQuality(performance, out int downsample,
                 out int stepCount, out float spatialRadius);
             RenderTextureDescriptor descriptor = camera.cameraTargetDescriptor;
@@ -175,7 +181,11 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 data.spatialRadius = spatialRadius;
                 data.frameIndex = frameIndex;
                 data.skyCubemap = _settings.skyCubemap;
-
+                data.backend = backend;
+                historyKey = new SSGITemporalFilter.HistoryKey(backend, data.traceParams,
+                    new Vector4(data.roughness, data.skyMaxMip, data.spatialRadius, downsample),
+                    Vector4.zero, _material.shader.GetInstanceID(),
+                    data.skyCubemap != null ? data.skyCubemap.GetInstanceID() : 0);
 
                 builder.UseTexture(source, AccessFlags.Read);
                 builder.UseTexture(trace, AccessFlags.ReadWrite);
@@ -186,6 +196,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 builder.UseAllGlobalTextures(true);
                 builder.SetRenderFunc((TraceData pass, UnsafeGraphContext context) =>
                 {
+                    CoreUtils.SetKeyword(pass.material, "SSGI_TRACE_RAY", pass.backend == SSGITraceBackend.Ray);
                     pass.material.SetVector(Settings.TraceParamsID, pass.traceParams);
                     pass.material.SetFloat(Settings.RoughnessID, pass.roughness);
                     pass.material.SetFloat(Settings.SkyMaxMipID, pass.skyMaxMip);

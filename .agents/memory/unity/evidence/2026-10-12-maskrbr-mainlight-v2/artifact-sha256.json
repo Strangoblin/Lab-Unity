@@ -1,0 +1,11 @@
+{
+  "asset-preservation.json": "ea947a85517c6d7f514b309694e36da9638d14d4c4bce9c290118359b7b15f4c",
+  "before-sha256.json": "29c732471957080d7e73dc0b589c8d99cf2aeab2a95e82b75b19faa5b5d7f50e",
+  "maskrbr-baseline.png": "f4e2dde905ab9a92740a0ccb592ca1683d5829bf1a23e4ae193529b4c1c9ee23",
+  "maskrbr-composite.png": "f6750b77290111f46c3ba45a231ed625f2bd42e6a7a0364ed569dec3c06be320",
+  "maskrbr-mask.png": "5a3a1fab6ff07cb72c0199c08ffe51c6b8c0d445fab7e81c5e11d9b4ec3addb3",
+  "maskrbr-rays.png": "8483f3a2f9f71b5762a21fdc446aff36656d267910cb6fb646776aa4bb81b9c6",
+  "pipeline-results-archived.json": "32c34c1fe21086499b487a295bc62d517b7b5d2702bb3ba07e9c0f05750a27c0",
+  "shader-results-archived.json": "3177364323813c85287f4818c43f3f111f98b31c6763bae88c01bb062cfa6970",
+  "source-sha256.json": "7f56620fbdacc8deef3785434cf73ed1f69b3d3e0862226727aaa9caf46f8256"
+}

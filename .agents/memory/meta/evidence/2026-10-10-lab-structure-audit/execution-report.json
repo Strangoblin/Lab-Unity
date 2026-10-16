@@ -1,0 +1,3330 @@
+{
+  "status": "COMPLETE",
+  "authorization": "User: 无误，可进行",
+  "plan_sha256": "8162a9f7f0b34bf843fb78bbccafeb9ce0bd75138b982e8a6b44fc16faafd6a2",
+  "installations": [
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/verify_hash.py",
+      "sha256": "6c239b76724d9fbe7f5fe2d57c6a118424f26464be87269c73104e4306eab279",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/verify_hash_final.py",
+      "sha256": "b54591e11bea215bb117fd8ee6c9d0cde37160ef89f488f51ccfe9d8ced8b1e2",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/analyze_variants.py",
+      "sha256": "4be777134d98363eaa2a5abe4e02a5318a549c440a2861f6c5f6349febff6742",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/fixtures/before.json",
+      "sha256": "32c209892b3f9a27e2fa048c4c183fda17e671d651b2419caeb2f62bb3b411d5",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/fixtures/final-stage-before.json",
+      "sha256": "02af0bb9dd12dcc617f7b86f35911e0b5e7accd081df2cfe0c123d1e7e7e11b1",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/final-validation-report.json",
+      "sha256": "5b6a0427a5a82e974d84eb485876c980369f961cbebe951a93b01db3a8d3f2f0",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/VARIANT_REVIEW.md",
+      "sha256": "7d85320a6b13ac80de0a4868205d7621cade91cc36d1f7a950552cb100e5ea41",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/variant-statistics-report.json",
+      "sha256": "5a4572da88e731282c9b300f5925fa633bdd0883d6eacb61a2644d5e38567252",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/README.md",
+      "sha256": "75d6d034944c642f46ecb19ff341181c878c82486b8cc73168aca821f239363b",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/current-contract-validation-report.json",
+      "sha256": "38d9d787121e7f0064f9a0ced205171b5c9b148af818444658eaeca9e453054e",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/historical-strict-snapshot-report.json",
+      "sha256": "b5bd83edbea36392d209d214a398c147cfe51bede7335b06c8780656c0b64dce",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/archive-control-checks.json",
+      "sha256": "91729b2fb7886351a1922773288b7548fc1476cf8aec54d84504e28fd7340c13",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/source-map.json",
+      "sha256": "5bd8d5b681db7d54fe6ae06ecbe0523dc54a1e9d7696264055c6e43e94fed4f7",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/Stars.shader",
+      "sha256": "58fb237ac51c6c15e19870873a1475912f39a5c700860903b31a589280da383f",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/StarsOutline.shader",
+      "sha256": "5aeaeb6da5401c9cc5add8a5fe0f7b75f7f35bdbf0eb6b11513d6d6bcea7ad3b",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/InstanceManager/Instance/Boid/BoidInstance.shader",
+      "sha256": "2ec388f98c0a1ba0cc373691209226ee9d9ba6189c56ff35e67d2d929e948904",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutPacker.shader",
+      "sha256": "51886f281a05f2942ce3d1b463af7f5c67bd4e8a9420fda2703e5f28234046f8",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/RimToon/RimToon.shader",
+      "sha256": "96a4f0f719fd87bf9e8b1fefdb387628ce8e3eac2e3d4583da95ff85a3c77e35",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "sha256": "63f2b991142561dbd667dcc74e3d8079f961993e9ebf895a94d57e8431203521",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "sha256": "8fcdc1663fbc38d4ed685d7d6e30bf9d10bf11a815b79bbc3c23f694d5c79401",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "sha256": "050e75b01df418e60c5349e8eaa0df8311f16ecaa1d1a869ccfa76a0ed359e2d",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "sha256": "f4b43b22b125ea4cf3adfa24cbf52e2fdbd72befbe88c7d7dc52eca1702efc04",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "sha256": "6b16f8f63769707e0e5713c05b0519acfd5b86a9567a0bb0a434247f5fb1c8aa",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.shader",
+      "sha256": "991b6b80de7d5fd831c6899a634d0d1a8ae167faf910161668eaf7e2f5ac8868",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/Water/Water.shader",
+      "sha256": "79dd587e7af4748fe6388f4ce82769f98c25efc71aea335b2d93b6a98287e766",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutBaker.cs",
+      "sha256": "265686dfb35f9943e704ab714b8934e68ecc6937633987428af05ade41e8f7f6",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/mapping.json",
+      "sha256": "3e1f2e844dbe3955346efb1ae3c5cfbc21eaf9e595d437418a13dff6707b9b5c",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/README.md",
+      "sha256": "1b3c37667a367f5f28baa9e5cbff99f0744fce5fe9d43cb7e26f387a785b3397",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/VALIDATION.md",
+      "sha256": "ca853c6e1c62467976b6f00bbe02e690d410dda83ba105b6904bf8fb0d807da3",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/baseline.json",
+      "sha256": "75c2ea2d6e12ad4ddc56eeb582ade6ff01d2218f3059fda6601094bb3110820b",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/script/WeatherFeature.cs",
+      "sha256": "51aad14fb430f1b70be0b86868bc149e3b6fd52ec69462b50357962c9b6db49d",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/script/WeatherProfile.cs",
+      "sha256": "7baf9db67f01840b6ce68ed6ffaca2c5c39ac8e7fe9b142762b17499024b896b",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/shader/Weather.shader",
+      "sha256": "8d986e2fce3a8e0f60ac6ad5c218a4f9a60cdbc21dbd456b1c480492972fca35",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/shader/WeatherCommon.hlsl",
+      "sha256": "d94c0a27f84d9686514232098abfdcfba24afcff944b6e2cb6deb14d475546b1",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/shader/WeatherParticles.hlsl",
+      "sha256": "184f037418c728558e6cb42624f7b16c6921bb11f6c1b7333ddf656016ddb20b",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/InstallFeature.cs",
+      "sha256": "2a3c2f35992329257507025e99ea48364ce8ca5ce16193201b271e371b551e01",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/PC_Renderer.before.asset",
+      "sha256": "0da2dfe31681ccfd02fec9da7633683aa675ef358f1aa6bdf0aa0e7a3200fd60",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/PipelineChecks.cs",
+      "sha256": "b7c0172ded339de0d2881d1a606e4e7aa13eabcdf8b8f1ac7a1aca0c5ccce7df",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/RetireLegacyBindings.cs",
+      "sha256": "31bf4540e896e82aa137879c5f6678e2c1fc6df4cf9323e90a22184e9e3dba14",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/legacy-guid-inventory.json",
+      "sha256": "8ee7b8a4b97986a4fe6f776baeb23c1bc507e1982748c60204bfab4d32fa63e6",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/renderer-weather-only.patch",
+      "sha256": "2b45bbe483fe817893dbf4e4a25fb6932dd7b09bb0e888e5e44bb45498d59245",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/stage_renderer.py",
+      "sha256": "1b00faad3fa7c52ca88373137fae27fe711aba31517276e4f6a90acf6c557a53",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/user-particles.sha256",
+      "sha256": "989a04daf42baf047534dbefedc69b44254489bd54caf255f325c64355c91841",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/design.md",
+      "sha256": "43c8f215f6b127cbe871f4b0687eecb697eab627c2ae2249bbe0498ebbd2a338",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/implementation-contract.md",
+      "sha256": "741c3c992d59ad37f61bc65a9b6b18e4a92eebbb57917105081ea1f78a2ee589",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/requirements.md",
+      "sha256": "3bc92ced02970c1e01a3abfbbef4ca666e601645799144143b439eae24419097",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/tasks.md",
+      "sha256": "27a769e89a5a5f981111ec895b3d1ff9938fcdf8bd98b21f590db87d086fb55d",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-before/PC_Renderer.asset",
+      "sha256": "9afdbf86b83718de741ff37a52e9af7865e1957b275baaa1309ef9e2d77d90b0",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-camera-preview.png",
+      "sha256": "594f3ec750be2bb09e0d4be19946fcd574eb5a8cc12b8e9a931b8e36c5103a97",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-camera-verify.cs",
+      "sha256": "ce3754abbd44882012e1ecdd8285fa6526ccaf418d6501c2c08f866082c1f8b5",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-flip-before/Snowy.shader",
+      "sha256": "331fba3e8ffaea995fbc8358853c3cf0628a1f90313a3f44452c97d3be37a898",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-flip-before/SnowyParticle.hlsl",
+      "sha256": "827e2250b66106cb2ff899829cccd3ce81310adcb20c2d1efa62bc547914d9a0",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-grid-preview.png",
+      "sha256": "f9cb7670f1ac7f31ab764d97d3e24a139ce220c748d3701ec802f28881c0ef30",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-motion-before/Snowy.shader",
+      "sha256": "71b392b99d54ef32255517a4d1c178dfc0ac54c60b9b3b3a28370a8edb7fda16",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-motion-before/SnowyParticle.hlsl",
+      "sha256": "948106021ab4400f7834627f47d2ad130689dc1a0696f24fcb4744225ddc948b",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-motion-before/Snowy_Grid.mat",
+      "sha256": "e9a6f45acaa8cad313673525ae26dbb66c33e3b0e34ef614f715dd231fbd5c94",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-setup.cs",
+      "sha256": "5871e0639a59b90686aad6fef98f6578c1cc152d582dbf031722950a242c82ca",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-verify.cs",
+      "sha256": "1e5a86bf553dbbb616c49b85f4c93e3d4177c017fbb2b414955db12ec2b4951e",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plan.md",
+      "sha256": "ef5d5dfc8c99006cc4123a60c4a7ed934bc6f8097048221de9fe0e679ddf308e",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-0.png",
+      "sha256": "390f887df26e6f890bd9c83307a314da084bf218452da33c4722800406ff1321",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-1.png",
+      "sha256": "bd2a51399d5026c04f5f1f33f8c35933df90a431942d5a2b80b5e7eb53ad92f1",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-2.png",
+      "sha256": "a108ec9d180f2988a8c2516d6278971e6d50c77eaea578af934316fefa1d81e2",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-3.png",
+      "sha256": "da70650aa687eaccce9c9b90ce71d448ddc251bb7c8e092ad21888e060ad2d10",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-4.png",
+      "sha256": "3de1980753722096db63b0f4a3d321473759b827a66fc307bf4ad59cd10bcfc7",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/rollback-2026-09-21-diffusegi-ao.tar.gz",
+      "sha256": "bcdb067c5eec3b24eddaf01cd302b2b318abe7b2761e4e64e471d5fd7a955138",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/cleanup-manifest.md",
+      "sha256": "5cf989466d73e43dea542dcc823af7eae331d7306886289051e6740d37cbf526",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify4.cs",
+      "sha256": "3d94fc882765c13077712f0a5df9061e529952e38c4f8a3f86fe03a8276e1489",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify3.cs",
+      "sha256": "22a3670ee481b3debc8d569d7bbd4b60cdd335f2a2bf1abd6bab6dca68546c19",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.bmp",
+      "sha256": "bc234553e74cd3e1c7c374cd1661e92bb40ce6f9828d3c87771189ac149f7071",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.png",
+      "sha256": "4b966f45d11b918400c53f699e4a10777008437c37cdcdd699b88dfac1a1ff77",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.bmp",
+      "sha256": "bd3e11f1d816c2b43c0779fe0d2a6c960aeaadd1f1876a34c97ebacc03f3ed47",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.png",
+      "sha256": "ce9f049559341790fbb2fc49c721ac76eb2d375acdb53b4081b44d681fe96e84",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.bmp",
+      "sha256": "f82232f6ab0ebed36ace13bfd431c4841991f8cd1d01e7adcaa7ef265fcb3254",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.png",
+      "sha256": "26f059d99f0a78087f4618d154dd29c66299f2e0d65dbd7cea46b6e777f219e1",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.bmp",
+      "sha256": "42d479cfde6b9472259729dc809f6741e25e1c577d79bfd65d3f52786301fedb",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.png",
+      "sha256": "d9a355f6c4c490010d0c53a18162d62e66bf239d4502db64234e2a5c03fc9423",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.bmp",
+      "sha256": "f561b4335f055160b6ee01d624693a04f26c5547f6bbb91338e4535767e9fcbd",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.png",
+      "sha256": "aaac4946df8c1f58ffd57661cdf32962fb8fbcaf4e09907265051cffb9eb8c30",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.bmp",
+      "sha256": "2b6ada8bda8a720ab55c00093533d16cd32604a2456e14fb48a7046c2cda0e3d",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.png",
+      "sha256": "fea65d26a4a34e74ed2d2dda1b32def6d15cd14b56157d7ca562824dd71364e7",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.bmp",
+      "sha256": "4d313efb6159d629f80d341971c4b1858196d49365959cb8c7439b6f69a43dd0",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.png",
+      "sha256": "1cf41ffb738b55ffc04a1bb8b306aca533cbaad8ec89394f6bbcaaf41419c02e",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.bmp",
+      "sha256": "d8f40525507082be5d49968c0a214c13843c261df3860b2944d5d592961e4959",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.png",
+      "sha256": "1d711268e265fee714ad1ba0d958700c7ec73d05e277f236b688ba891fab3869",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_composite.png",
+      "sha256": "42cee181b4b75b0ff1e531b6a165754998f16c95aa783bff6fe807180fa4ed8c",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.bmp",
+      "sha256": "0d2419c8fc2c6c82bcf35fb4a4cd24add93bf2439a59ffe906fd6483b438012e",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.png",
+      "sha256": "0715dabce6d8648630bc665ad53673aeda201bf3e2b2417c49293b7eba89b34d",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/uniform_one9-source.rgba",
+      "sha256": "b97131ca1c054de0842c4ab8b6a40b90e5cc3aef9b9df2594817dd461b26da3d",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/uniform_one9-output.rgba",
+      "sha256": "d2414bbff49f02aaa16fd45edc1d3d9f45dafce733596afd7a48afbe87445f32",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-source.rgba",
+      "sha256": "26f23a8545bbf9b3d94210342d3a1e083fddafcf2dbc8763426baa593793f605",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-output.rgba",
+      "sha256": "1025592708236b6c60e63860709de1be1a2e8b6d4286256e6e905b91171ccc5b",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-source.rgba",
+      "sha256": "de6660382d2989d5afdc109f71e381706455a328588178042b73d5c0c6978fa0",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-output.rgba",
+      "sha256": "53af233b13c073f07c4b9ead1689b8137196d7e842a483ba11a742daed85f129",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_two9-output.rgba",
+      "sha256": "c74e4b49bd453b6aa8b6453f8b19d7859da1c8cf888ce1ecb4e5443e20367c7c",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-source.rgba",
+      "sha256": "0b123b74aaad0936caaf12987f6a9e229a1dcc824393fb01950b2b4bce8c0da9",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-output.rgba",
+      "sha256": "d9a7e2d2839875d8fdd42ddb6f0e77983d187db5cb922389f9166b7fba67024c",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one5-output.rgba",
+      "sha256": "bbec381836f98b81b3dd05100065ada4cb3834c4069b373bb075a954d069ad03",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/manifest.json",
+      "sha256": "375723e04d76a6aa1ab9c3797aabc676d72544191922a99263d0a77ff97a6ad7",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/analyze_dense_reference.py",
+      "sha256": "464b46e386d3031659ffb3852a25f63bacddd00b48fef7f30a487f741e93e732",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/original-results/dense-reference-comparison.png",
+      "sha256": "c515d3e9976594064e0e6c50e6dca2855944472d946c24cfdc3dba4a71f5414d",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/original-results/dense-reference-report.json",
+      "sha256": "a9dd87221a39cbabc87a3e3f18718005b69ecb0af3f951e703b2febf31387f53",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/README.md",
+      "sha256": "05957613428e8f358bad51b544104a56c56dd3f52461c6196fb0d712fedaa590",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/README.md",
+      "sha256": "98f502c589bd337a1897813b058161741d22cd6ee6cd06931cddb19f41ddc769",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/README.md",
+      "sha256": "7ae683ed8ee82e64c6722649db8caba3454469522dc21ddad552ddbf2a94c86a",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/verification.json",
+      "sha256": "7add6cd40e56d8ae996c4c472bc7e593257fa67580ca05a587ba6f7307b5ca48",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/README.md",
+      "sha256": "c7071f2600933be6211c4304a02b8c5fdf056ca109b590c64ce97d5550152418",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/archive-members.json",
+      "sha256": "17e598f5410c721e6b51941348ada7d8c4e33a71fba32330140be4fb4a4cf11e",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/duplicate-aliases.json",
+      "sha256": "2cfb1fe1765b2be6273148dcaa1946ae7b8e5d36bc170e198f301c5632f31b11",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/README.md",
+      "sha256": "8786b6b408d2bc1621be831448cb2a16edbd7c6c66002cb635e17a039e867f64",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/verification.json",
+      "sha256": "920c51a583bbdef2ccd52da233f7363f4468ba276613d5bba2b7eaf8e16eb2a7",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/README.md",
+      "sha256": "cee83e97b412f97acf9cdc82965f2848ce6d8872a71ab5a0bcd10e20dc2bad81",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "sha256": "751c2bf4b98a94744b0777b00e5ed97b30d1dde0f3075ffbe289ceeb59a843f5",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/legacy-source-map.json",
+      "sha256": "03eb0d50d04c1485c17bdf8cfe0c8b0d2cb22df86d5923570ff06786ef411e1a",
+      "status": "installed"
+    }
+  ],
+  "documents": [
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSGI/AO/AO.md",
+      "sha256": "033b43a8af20399b10cf51bb0ae2c15b0036995ed46e10bb9e7f44feb4ee08ae",
+      "status": "applied"
+    },
+    {
+      "path": ".agents/agents/unity-developer/scripts/README.md",
+      "sha256": "8c543d84e799f54cc687d894ecdc66db0c471ced4770c6918e7ffb7c998325a9",
+      "status": "applied"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/2026-10-10-validation-artifact-archive.md",
+      "sha256": "1449ecc9302a9a4872ce93096cad8aa9394748fa622d81fc83b3600f2529b5bf",
+      "status": "applied"
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/MEMORY.md",
+      "sha256": "79215fd71b32263777013aface33c13e66e3d40883be905a5a9599669dd247cc",
+      "status": "applied"
+    }
+  ],
+  "source_actions": [
+    {
+      "path": ".DS_Store",
+      "action": "proposed_delete",
+      "bytes": 10244,
+      "original_sha256": "6603fdff782c4c6ed5648a937380902aa530ecf5650325f43937e57cf8684e11",
+      "status": "removed"
+    },
+    {
+      "path": ".claude/.DS_Store",
+      "action": "proposed_delete",
+      "bytes": 6148,
+      "original_sha256": "e25c09d05e9fe59b8ae9cfc14a0a0b95557d58b0b9e948b38d2a1f543bd098e5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/01_smoke/run.log",
+      "action": "proposed_delete",
+      "bytes": 2085,
+      "original_sha256": "a8170d9f53ffb53b3982a55922bc9f3df61ae31237231c1f29d34dee462f7df9",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/02_readonly/run.log",
+      "action": "proposed_delete",
+      "bytes": 31898,
+      "original_sha256": "8bdb5ea627012214be1f24c35dccf5da12fcc3e4575299b5c7850e3bf1fa6023",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/03_write/output/HelloWorld.cs",
+      "action": "proposed_delete",
+      "bytes": 113,
+      "original_sha256": "ab64a6c87d1446d39c822dec4cb309a6619aaa8044d56c2052e8cc4cf16c5876",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/03_write/run.log",
+      "action": "proposed_delete",
+      "bytes": 63046,
+      "original_sha256": "02e0893fd005902e730e4e0c3abefa66022d894c874ac3394252af8fb29dd900",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/04_batch/output/Alpha.cs",
+      "action": "proposed_delete",
+      "bytes": 87,
+      "original_sha256": "b17e8898f148de81e99685d30497480b614c1f946a46e5c46173c4e02685da75",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/04_batch/output/Beta.cs",
+      "action": "proposed_delete",
+      "bytes": 85,
+      "original_sha256": "6f049dfc5eb887fefff52277a10aac791a95856875062a6aa429fbb40e395eea",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/04_batch/output/Gamma.cs",
+      "action": "proposed_delete",
+      "bytes": 87,
+      "original_sha256": "cbb3dd3e280c2c27596044f5650f0e863038e5fb05009c73e19135dc76869b87",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/04_batch/run.log",
+      "action": "proposed_delete",
+      "bytes": 58469,
+      "original_sha256": "e0930b7351df4c6fb7b66ff370234cdb489950eb39f1c798f72922ea09b524ff",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/05_spec/output/PathUtils.cs",
+      "action": "proposed_delete",
+      "bytes": 152,
+      "original_sha256": "92104145f7904c9c63c491b319a6db654834509c6a4f2534bb1c6490b749c74d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/05_spec/output/USAGE.md",
+      "action": "proposed_delete",
+      "bytes": 94,
+      "original_sha256": "60b9d1a33b906fdfa61d6b779a22825ba1e35d9fd799f33da3a33bd714560aee",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/05_spec/run.log",
+      "action": "proposed_delete",
+      "bytes": 30406,
+      "original_sha256": "461f9f6cff82092b567d2c64c742e092905eb5a9fdd3beb35cf2f567a81a4833",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/06_architecture/output/baseline-findings.json",
+      "action": "proposed_delete",
+      "bytes": 619,
+      "original_sha256": "b53aaa89191769ebd6be06d9a49bb31b57a7623dccbf4c4bf27af455106dd967",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tests/06_architecture/output/migration-inventory.json",
+      "action": "proposed_delete",
+      "bytes": 405865,
+      "original_sha256": "9df1260511ec5ad7e7790b57f145521058436971d6c239480bd0aaf6e1e6fc07",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/HashFunction.fault-control.hlsl",
+      "action": "proposed_delete",
+      "bytes": 3431,
+      "original_sha256": "228d2c4e1bc942fcbdb13c762d93ec865271085b1dc920f2e2cd5eb6220b0927",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/before.json",
+      "action": "proposed_archive",
+      "bytes": 133471,
+      "original_sha256": "32c209892b3f9a27e2fa048c4c183fda17e671d651b2419caeb2f62bb3b411d5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/final-stage-before.json",
+      "action": "proposed_archive",
+      "bytes": 160674,
+      "original_sha256": "02af0bb9dd12dcc617f7b86f35911e0b5e7accd081df2cfe0c123d1e7e7e11b1",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/final-validation-report.json",
+      "action": "proposed_archive",
+      "bytes": 5974,
+      "original_sha256": "5b6a0427a5a82e974d84eb485876c980369f961cbebe951a93b01db3a8d3f2f0",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/final_float_20.spv",
+      "action": "proposed_delete",
+      "bytes": 1764,
+      "original_sha256": "ebffce89fbb6bdf34f469da22b231211f8d8680bd1e6c5e860a43b7ac9391286",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/final_float_35.spv",
+      "action": "proposed_delete",
+      "bytes": 1764,
+      "original_sha256": "ebffce89fbb6bdf34f469da22b231211f8d8680bd1e6c5e860a43b7ac9391286",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/final_float_50.spv",
+      "action": "proposed_delete",
+      "bytes": 1764,
+      "original_sha256": "ebffce89fbb6bdf34f469da22b231211f8d8680bd1e6c5e860a43b7ac9391286",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/final_uint_35.spv",
+      "action": "proposed_delete",
+      "bytes": 1240,
+      "original_sha256": "41eb98623e709b355386c901c0840f67a0d3b75fdd9d6399672ac69d9973c914",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/final_uint_50.spv",
+      "action": "proposed_delete",
+      "bytes": 1240,
+      "original_sha256": "41eb98623e709b355386c901c0840f67a0d3b75fdd9d6399672ac69d9973c914",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/float_20.spv",
+      "action": "proposed_delete",
+      "bytes": 1216,
+      "original_sha256": "c6818a9d0f5e58889269099a8668dabde18b87567e92f7bf1898bf25a200dd82",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/float_35.spv",
+      "action": "proposed_delete",
+      "bytes": 1216,
+      "original_sha256": "c6818a9d0f5e58889269099a8668dabde18b87567e92f7bf1898bf25a200dd82",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/float_50.spv",
+      "action": "proposed_delete",
+      "bytes": 1216,
+      "original_sha256": "c6818a9d0f5e58889269099a8668dabde18b87567e92f7bf1898bf25a200dd82",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_cpu",
+      "action": "proposed_delete",
+      "bytes": 68488,
+      "original_sha256": "e11661e0fe64d7e3db43273cae6873707e5b405f4addb67ede0cb66f5031f123",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_cpu.cpp",
+      "action": "proposed_delete",
+      "bytes": 132153,
+      "original_sha256": "e223038cf115c78e184df00e546e973a72e2a0c7b3bed3997743115c0816c208",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_cpu_fault",
+      "action": "proposed_delete",
+      "bytes": 68496,
+      "original_sha256": "8ceb0992bc54f27fb39f8f1d1ede950584ad09112e48e92d43f5c9410de5d947",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_cpu_fault.cpp",
+      "action": "proposed_delete",
+      "bytes": 132153,
+      "original_sha256": "c28e7988ec973732c9a5cdca78c7663d5865fd3014f36fcba481c4f7f9057145",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_final_cpu",
+      "action": "proposed_delete",
+      "bytes": 102640,
+      "original_sha256": "8e9be063a57c1bfed344fb8d5cb057e65f2fa24ae25567d9d56015a46eea44df",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_final_cpu.cpp",
+      "action": "proposed_delete",
+      "bytes": 202333,
+      "original_sha256": "1ffc760304997e1a4fda65549674d26b00da35db956e7e254a3e3e96d3dc60b5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_final_fault_FracGrid22",
+      "action": "proposed_delete",
+      "bytes": 102648,
+      "original_sha256": "a3bb77bafa9742ab9fdacc6f76d3c9e0e2865f8571fa14396469622d8e0a79ed",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_final_fault_FracGrid22.cpp",
+      "action": "proposed_delete",
+      "bytes": 202333,
+      "original_sha256": "3f9b2abf6cc1f74a429a468fde1c7a3e108437bec7cfe1e936f438ec8770276b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_final_fault_Sine21",
+      "action": "proposed_delete",
+      "bytes": 102648,
+      "original_sha256": "2353c0e5536889a8e4f5010f79b93613f979c61119c3695165dca0727a1e6da1",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_final_fault_Sine21.cpp",
+      "action": "proposed_delete",
+      "bytes": 202333,
+      "original_sha256": "78b9c9f44d60de0bdc83391291d8cd06c0f29607c209a20b71cc92a0fa81c010",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_final_float.frag.hlsl",
+      "action": "proposed_delete",
+      "bytes": 305,
+      "original_sha256": "e3a9822763356bb802ae385665b4004e95ecab148f0cfd543ff7f1991fda0c8f",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_final_uint.comp.hlsl",
+      "action": "proposed_delete",
+      "bytes": 281,
+      "original_sha256": "0dbd312bd7431d80d8f82757d0337e9251a38baed12c90f97b873e22d26bbb0a",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_float.frag.hlsl",
+      "action": "proposed_delete",
+      "bytes": 259,
+      "original_sha256": "b9f7f2a0e753a27793a1d5558724afb84ab39ef034a2bdf0395f4ea2d4f7260d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/hash_uint.comp.hlsl",
+      "action": "proposed_delete",
+      "bytes": 285,
+      "original_sha256": "bddd157f500f4d7be4158a1c202225aba813beed7ed348e65d064296f6761bf7",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/README.md",
+      "action": "proposed_delete",
+      "bytes": 1985,
+      "original_sha256": "a4133aabd9cd22ce4929922a8c3d3583aa9565f1514438a496c64c812998d8ce",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/memory/2026-08-04-water-caustics-screen-independent.md",
+      "action": "proposed_delete",
+      "bytes": 2993,
+      "original_sha256": "307cf7489c62cef40f5fa3b7198fc1c30adc072365d726d351acec761adf69ff",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/memory/2026-09-17-uv-aspect-anisotropy.md",
+      "action": "proposed_delete",
+      "bytes": 7442,
+      "original_sha256": "c2a3e17a631adc987dcc46f497d10f92c2fe2c4b2c520ddc805175ca175d2636",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/memory/2026-09-20-parameter-layering.md",
+      "action": "proposed_delete",
+      "bytes": 11276,
+      "original_sha256": "6679575ae282e0125283127e129ec42ec009d3848bba5adc75549ae963b3e7d4",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/memory/2026-09-20-rt-readback-pitfalls.md",
+      "action": "proposed_delete",
+      "bytes": 6971,
+      "original_sha256": "cc47fde27150ae815f77812e7339981fb89ddd14969cd782fe706fda3fa05f65",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/memory/2026-09-20-unityctl-tool-pitfalls.md",
+      "action": "proposed_delete",
+      "bytes": 5992,
+      "original_sha256": "682362fd122c215be118d0359e4674c26015f9ed3b675c85c7fc5ce64a930a83",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/README.md",
+      "action": "proposed_delete",
+      "bytes": 780,
+      "original_sha256": "3d1d3bb343270a9390a93c18ab2df7530c5e4de7b0677dd61ce61dd4f3143a17",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/csharp-dev/README.md",
+      "action": "proposed_delete",
+      "bytes": 74,
+      "original_sha256": "8660b0346276063da24557e2e86c42b060f1dee58836aaab4cefbbeaf3fce88b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/csharp-dev/script-structure.md",
+      "action": "proposed_delete",
+      "bytes": 279,
+      "original_sha256": "950f6c6306d46dbfc85a6f95b86816a488ca50c9043cfa4ee8305be4cc14cc0c",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/mcp-gate-usage.md",
+      "action": "proposed_delete",
+      "bytes": 6345,
+      "original_sha256": "af93f6628a127effcd3474367785ed1f79f1835eb3a94ebf195c1dc09faf1e27",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/platform/metal-notes.md",
+      "action": "proposed_delete",
+      "bytes": 2549,
+      "original_sha256": "e443498b88937819cd6ee38bfea87bd06736149c18e464610da24044ed5f696e",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/README.md",
+      "action": "proposed_delete",
+      "bytes": 232,
+      "original_sha256": "913b871eae90fa0bd24dcf0d978ee6cde06049304098afded46d79a028637bac",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess/README.md",
+      "action": "proposed_delete",
+      "bytes": 775,
+      "original_sha256": "1c10e1bdcb2923c385bbb3ee88441cadceeb16a4e143cb0acfa9509b3c90af96",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess/blit-fullscreen.md",
+      "action": "proposed_delete",
+      "bytes": 1492,
+      "original_sha256": "649330a5b38b74b3817900ae6808dd1a6b82868bef1ab25e70da03dae1502d68",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess/blitter-api.md",
+      "action": "proposed_delete",
+      "bytes": 1224,
+      "original_sha256": "d4a03742ab75bbc4b340e211d4b6476f61ef1a6d55edb62a6deb9393bacac357",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess/compute-shader.md",
+      "action": "proposed_delete",
+      "bytes": 3277,
+      "original_sha256": "e444a7969bba306da6168ec058d1cfd374fc6b950503448cdd735d00fcb01b84",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess/feature-script-structure.md",
+      "action": "proposed_delete",
+      "bytes": 4966,
+      "original_sha256": "4c44c824441d8ea7947c0cb7ba6a81e2e40fa0800ed25f4e31b7e9a98ffd98b6",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess/fullscreen-structure.md",
+      "action": "proposed_delete",
+      "bytes": 9686,
+      "original_sha256": "888ee9b6cfa35cc9324c78a731e1444a04d40459361a64af8f1b009111d48a5d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess/postprocess-differences.md",
+      "action": "proposed_delete",
+      "bytes": 10583,
+      "original_sha256": "e4d08ecb610fcffea846431d7ec0bd8104f98a6bca6cd8d637da497fd9874c3f",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess/spatial-filter-budget.md",
+      "action": "proposed_delete",
+      "bytes": 2244,
+      "original_sha256": "e3d75e7a9cab3dbb0d54a6a6f7473e44b993d58da031159f979d33c10ee60f9f",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess/volume-component.md",
+      "action": "proposed_delete",
+      "bytes": 6115,
+      "original_sha256": "23734f169b89de6021b9e916656f05bf6a694f1d062209557b970040b6f8b3a5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/README.md",
+      "action": "proposed_delete",
+      "bytes": 190,
+      "original_sha256": "f9270990ef6fe81333ddd2342139c433f8f53ff3f5c305bdeba23be653607a01",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/compute/README.md",
+      "action": "proposed_delete",
+      "bytes": 225,
+      "original_sha256": "364d222c04979d2e0c2ad9509228c100cda602e8cc01a80e8c6d33042c732d99",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/compute/compute-shader-api.md",
+      "action": "proposed_delete",
+      "bytes": 2331,
+      "original_sha256": "5bdd82f47dc5c88e1d98256138f0a3459492db83a129079a7323dec9189584fa",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/rendering/README.md",
+      "action": "proposed_delete",
+      "bytes": 170,
+      "original_sha256": "31095c0acf1f1d57a5309e8dc4c8f018396296f00258a46e076747fcc55656b4",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/rendering/render-graph.md",
+      "action": "proposed_delete",
+      "bytes": 1330,
+      "original_sha256": "7b82ed0f62d15b12d2cde88ba4dc5a9d331af70ed6005f3ab03a5cebc80b944f",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/rendering/rthandle-api.md",
+      "action": "proposed_delete",
+      "bytes": 1577,
+      "original_sha256": "94c02ffea9505d7edfb767d17b3c7b1b55bdab530d4e1c85b323df608fb2eaaf",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/script/README.md",
+      "action": "proposed_delete",
+      "bytes": 337,
+      "original_sha256": "9463642e4bf86e3fe309682c817811fc0fec751ad1ec0aa543492f25490c2e97",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/script/parameter-panel.md",
+      "action": "proposed_delete",
+      "bytes": 4193,
+      "original_sha256": "feb18623ccd94e6fad32374bd64707818a8588ca558050381582fc55ea1fc987",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/script/script-structure.md",
+      "action": "proposed_delete",
+      "bytes": 8420,
+      "original_sha256": "d2dcc705a79656ac27dc6bdbe5d9c38510e33fd1b2e04c2a1247425ffa7b7cf5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/shader/README.md",
+      "action": "proposed_delete",
+      "bytes": 354,
+      "original_sha256": "9bfb728f3cbf3967320a9ca731a1fbc045f4af8ca3ac3803dc34ca42106d0147",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/shader/hlsl-includes.md",
+      "action": "proposed_delete",
+      "bytes": 2390,
+      "original_sha256": "6ac0a4e92742ba4ba7de725a4937f6cab8bab48e818b45e4ef3291365c838b50",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/shader/shader-structure.md",
+      "action": "proposed_delete",
+      "bytes": 9031,
+      "original_sha256": "284400adbf12fded9559a8448220a6f9f9e72ef65290407a64c6ec028f025a01",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/unity6-api/README.md",
+      "action": "proposed_delete",
+      "bytes": 110,
+      "original_sha256": "e4866ace20ae04c8e9367c8003d4897888b9e4a7e3b82d1859d323d68fe86d10",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/urp-shader-lib/README.md",
+      "action": "proposed_delete",
+      "bytes": 124,
+      "original_sha256": "a359f17b009c41d597f2cb9d53cd8f1b1bd6cca66ed35c77ba109e822e8b7ea6",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/urp-shader-lib/shader-structure.md",
+      "action": "proposed_delete",
+      "bytes": 208,
+      "original_sha256": "d45c6ca7a060147d35a76944b90928866df7ad5f62e25f8ce7ed12a1e38e368b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/scripts/roslyn/pipeline-check.cs",
+      "action": "proposed_delete",
+      "bytes": 446,
+      "original_sha256": "50a5d90c36525d953acff47c823747ffa12647133abecbe14cf543fc3f3d0b85",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/scripts/roslyn/scan-temp-objects.cs",
+      "action": "proposed_delete",
+      "bytes": 851,
+      "original_sha256": "9754b53d5e8bf542392781311b6fe4d7a5112ed082034f83b7d01f98d24cc0b2",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/scripts/roslyn/scene-organize.cs",
+      "action": "proposed_delete",
+      "bytes": 3316,
+      "original_sha256": "01f4af9b6b9a71f64af1aaecb9232482788e51ca081281ec69bb9393c23e1b36",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/scripts/roslyn/scene-query.cs",
+      "action": "proposed_delete",
+      "bytes": 753,
+      "original_sha256": "0e911097166c4fad8298fe2fc8b97fcb50087139dbe4afcaec30c826c179923f",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/README.md",
+      "action": "proposed_delete",
+      "bytes": 1225,
+      "original_sha256": "8b12ad4261984078e565e0f038484df26ff41f07ed2a785fe8e3cff2c2a80c23",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/baker/README.md",
+      "action": "proposed_delete",
+      "bytes": 1697,
+      "original_sha256": "c68c7d7d0fd4b1f0adbcb9ec4895f7f25a10d6ee587509ad8e4e3817357cb555",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/baker/baker-service.cs",
+      "action": "proposed_delete",
+      "bytes": 6207,
+      "original_sha256": "436603cad8ee22da7924ee0e7e0eac4591d5aa4dbaf4d9a058248939814d78fc",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/controller/README.md",
+      "action": "proposed_delete",
+      "bytes": 1650,
+      "original_sha256": "710aeae5adf8acbebfe12c654c23e3d8ff926a7a30e663df068e6511ac5c211a",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/controller/controller-processor.cs",
+      "action": "proposed_delete",
+      "bytes": 5202,
+      "original_sha256": "0e5ec6f3a61c8522d341fadeb7bde4db9b996121136a2c0f30e7120226eec44c",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/generator/README.md",
+      "action": "proposed_delete",
+      "bytes": 1891,
+      "original_sha256": "8e50e2b1636828460f480034e9f798b2fd4ef9c720e7e51b2d34d3ce938ee96d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/generator/generator-facade.cs",
+      "action": "proposed_delete",
+      "bytes": 5096,
+      "original_sha256": "f32673a368a2d59fca046ce9cf172fe6be17187e13d246368da150dff871789a",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/manager/README.md",
+      "action": "proposed_delete",
+      "bytes": 1958,
+      "original_sha256": "6c6dc5b6187a5b1f2a466d291e060bbdfa6e554f874d1314b16815a1d51291f7",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/manager/runtime-manager.cs",
+      "action": "proposed_delete",
+      "bytes": 6710,
+      "original_sha256": "f7db030e6a7b73555f0c086c1a52af82fed82b8de1074260958686cab38675e9",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/window/README.md",
+      "action": "proposed_delete",
+      "bytes": 2571,
+      "original_sha256": "5e688be6867a37c096dc8801f4817ad39b2908d7bfc5413471f79cb44fb22dca",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/window/editor-window.cs",
+      "action": "proposed_delete",
+      "bytes": 9389,
+      "original_sha256": "815615cca249ceab05c62403b3f54f2a4037a21284c0eed2543ecd3bf6498db8",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/README.md",
+      "action": "proposed_delete",
+      "bytes": 744,
+      "original_sha256": "6e5b15bba45bbac0b49477ad78b94ae51af8cc750a1f886a1a39d0799677cbef",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/hlsl/README.md",
+      "action": "proposed_delete",
+      "bytes": 6350,
+      "original_sha256": "daa5f118ce857022af597cbc1c9d534f317f4da0036df192c8dbe56c2163b64d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/hlsl/function-lib.hlsl",
+      "action": "proposed_delete",
+      "bytes": 4957,
+      "original_sha256": "f02e22ab9943faeb59c08799e0dcaf3994a4361f2f869786498bfee2eb7b2e74",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/particle/README.md",
+      "action": "proposed_delete",
+      "bytes": 73,
+      "original_sha256": "ec6a26528280160f1c083f15af1fa34d53913f563b746fd3cdd3dbbf23749bf7",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/postprocess/README.md",
+      "action": "proposed_delete",
+      "bytes": 2498,
+      "original_sha256": "c8ed082af6e54d4cfb17ee5511683e531a26b33273a800f29ea7e412caf12990",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/postprocess/compute-template.compute",
+      "action": "proposed_delete",
+      "bytes": 1910,
+      "original_sha256": "2407e6f2eb47bbd1760f7cd70733fea82bf001e38425974d1c9851d05c8e1ec1",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/postprocess/fullscreen-postprocess.shader",
+      "action": "proposed_delete",
+      "bytes": 3874,
+      "original_sha256": "82824695dd7971be77ddc2caa793d0c0ceb707b5792936b7bea919cf71f25459",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/postprocess/spatial-filter-budget.hlsl",
+      "action": "proposed_delete",
+      "bytes": 1424,
+      "original_sha256": "20a2c43adc9fc10caaf228035d7ad7d70388721a44e2efbaf32c9d85ce292b97",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/postprocess/urp-renderpass.cs",
+      "action": "proposed_delete",
+      "bytes": 4507,
+      "original_sha256": "86a6b14a8257391a388e5eaf278c187ba06b8d3e97ae795631b3692c31220850",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/postprocess/volume-template.cs",
+      "action": "proposed_delete",
+      "bytes": 1710,
+      "original_sha256": "59d923e88f71fd508751c47e068daa8aff634f926f4e68a4cdc052a3019ac847",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/render/README.md",
+      "action": "proposed_delete",
+      "bytes": 3434,
+      "original_sha256": "f83f72e6628fc585b4a09945e32320af0d8cf92c2534361aa6ec6eb4100afa8a",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/render/direct-effect.shader",
+      "action": "proposed_delete",
+      "bytes": 6138,
+      "original_sha256": "0c4697d4a9939db3d9280963a557c805d9f3dc21df3a80358a8dbf2af76ccdde",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/render/effect-function.hlsl",
+      "action": "proposed_delete",
+      "bytes": 4427,
+      "original_sha256": "bf98c6ebbb4ca10099be343eed7e62f5b28bdf5dcc820070534e1d3f0cbc0c5b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/render/effect-shader.shader",
+      "action": "proposed_delete",
+      "bytes": 6826,
+      "original_sha256": "45707effb7725e7555375d6c713a7c5a2fb6ebb0424ee1110cd6707582abe4d0",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/standard/script/parameter-panel.cs",
+      "action": "proposed_delete",
+      "bytes": 5897,
+      "original_sha256": "f277eaa360df4018ce869000bebaca0461101d85bfc007422204ba8891cf8991",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/standard/shader/README.md",
+      "action": "proposed_delete",
+      "bytes": 3138,
+      "original_sha256": "33e9c805331f287cfb3c4318e0b5bfcf18435966b5611f717e8fb5dc80ef82dd",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/standard/shader/shader-doc-template.md",
+      "action": "proposed_delete",
+      "bytes": 1195,
+      "original_sha256": "7d892f5ceb3bb1e6692fda5659f2bd55a3c66bed49556d6b74863b16cf27d454",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/standard/shader/standard-shader.shader",
+      "action": "proposed_delete",
+      "bytes": 11012,
+      "original_sha256": "a818486382a2ed71419baecbfed82a34dd56ae99ddd7faa7d938eb437f675df2",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/rules/README.md",
+      "action": "proposed_delete",
+      "bytes": 521,
+      "original_sha256": "3ad6b83c71cf8b2841fd68484fab2aae7664df272dfae45b294ae4081b41a004",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/rules/compute-shader.md",
+      "action": "proposed_delete",
+      "bytes": 1102,
+      "original_sha256": "ed5479a5aff32f121aeda7b4f80ab1b0debb45a1f497693b68f54c6212307ecc",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/rules/csharp-renderpass.md",
+      "action": "proposed_delete",
+      "bytes": 2406,
+      "original_sha256": "7d7233b750b0e6fe8e101361a7bf4c3eebf22656cca9dc450f58bfd18c257134",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/rules/meta-architecture.md",
+      "action": "proposed_delete",
+      "bytes": 4750,
+      "original_sha256": "e02678c28d01d6b5953ff52574674d7c994e1834ccd13b5fc99ea848c217c4b6",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/rules/shader-development.md",
+      "action": "proposed_delete",
+      "bytes": 6567,
+      "original_sha256": "902ecfd03501727de4bf8802a659f004cabf7ddd91eba7eab7d113ed6010b6a8",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/skills/auto-manager/capabilities/script-decision.md",
+      "action": "proposed_delete",
+      "bytes": 2149,
+      "original_sha256": "13c517e31becdd970e5f277880330113de96c58e0f35a9de1c3352ec8ec2862d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/skills/auto-manager/capabilities/shader-validation.md",
+      "action": "proposed_delete",
+      "bytes": 4164,
+      "original_sha256": "051fc9ec9e048e013610b8c448cee9c8a2cdf01602f27221a4ec3fa63fe3c9eb",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.codex/AGENTS.md",
+      "action": "proposed_delete",
+      "bytes": 5528,
+      "original_sha256": "f87d9a382357acb03c001a9d5d2ef9639d06fc43a72827919e9c069ec46a07ca",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.codex/INTERFACE.md",
+      "action": "proposed_delete",
+      "bytes": 8405,
+      "original_sha256": "ef02909131c72dcc3b556e0753c85338d58fe9b714ad94195eaf994d0746d523",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/HEAD",
+      "action": "proposed_delete",
+      "bytes": 21,
+      "original_sha256": "28d25bf82af4c0e2b72f50959b2beb859e3e60b9630a5e8c603dad4ddb2b6e80",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/config",
+      "action": "proposed_delete",
+      "bytes": 137,
+      "original_sha256": "cae33efdb02cf774435c1ff9cb16bcc1014606908530c6e1dc727615fe3e8cda",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/description",
+      "action": "proposed_delete",
+      "bytes": 73,
+      "original_sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/applypatch-msg.sample",
+      "action": "proposed_delete",
+      "bytes": 478,
+      "original_sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/commit-msg.sample",
+      "action": "proposed_delete",
+      "bytes": 896,
+      "original_sha256": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/fsmonitor-watchman.sample",
+      "action": "proposed_delete",
+      "bytes": 4726,
+      "original_sha256": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/post-update.sample",
+      "action": "proposed_delete",
+      "bytes": 189,
+      "original_sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/pre-applypatch.sample",
+      "action": "proposed_delete",
+      "bytes": 424,
+      "original_sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/pre-commit.sample",
+      "action": "proposed_delete",
+      "bytes": 1643,
+      "original_sha256": "f9af7d95eb1231ecf2eba9770fedfa8d4797a12b02d7240e98d568201251244a",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/pre-merge-commit.sample",
+      "action": "proposed_delete",
+      "bytes": 416,
+      "original_sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/pre-push.sample",
+      "action": "proposed_delete",
+      "bytes": 1374,
+      "original_sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/pre-rebase.sample",
+      "action": "proposed_delete",
+      "bytes": 4898,
+      "original_sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/pre-receive.sample",
+      "action": "proposed_delete",
+      "bytes": 544,
+      "original_sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/prepare-commit-msg.sample",
+      "action": "proposed_delete",
+      "bytes": 1492,
+      "original_sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/push-to-checkout.sample",
+      "action": "proposed_delete",
+      "bytes": 2783,
+      "original_sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks/update.sample",
+      "action": "proposed_delete",
+      "bytes": 3650,
+      "original_sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/info/exclude",
+      "action": "proposed_delete",
+      "bytes": 240,
+      "original_sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/deletes.jsonl",
+      "action": "proposed_delete",
+      "bytes": 812,
+      "original_sha256": "0fd2e936f890e713831bd20e30c0c37874349f717bda70cd01e9f06925424ab2",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/gate_center.py",
+      "action": "proposed_delete",
+      "bytes": 18880,
+      "original_sha256": "630fa7e4391a9456f5d678b3eae6bbd03b150c988eaf154150905fbe5c054faa",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/gates/__init__.py",
+      "action": "proposed_delete",
+      "bytes": 251,
+      "original_sha256": "ba3d1711c0ef93f747e51bc8ef8bc715bafe9684b562f514a58c36d9dbd55b22",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/gates/g_entry.py",
+      "action": "proposed_delete",
+      "bytes": 474,
+      "original_sha256": "061a01a63d2d6e3c0d05db4a33ca68a4a99f9871b77c648b00137f0105960321",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/gates/g_knowledge.py",
+      "action": "proposed_delete",
+      "bytes": 3702,
+      "original_sha256": "db8e01b87bdaaf0668970a6aea6f9578df6bc82c6fa1b892f39dda050ca08d16",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/moves.jsonl",
+      "action": "proposed_delete",
+      "bytes": 770,
+      "original_sha256": "9862290901ca43e9189a66196d6f9f9caa1c4ad8fa24d47409a47ab2eafd3660",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/policy.json",
+      "action": "proposed_delete",
+      "bytes": 4027,
+      "original_sha256": "0978b55eb70faa1d9566d98cde73554869578fb690dcccef0ea9ea0761c48735",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/pyproject.toml",
+      "action": "proposed_delete",
+      "bytes": 184,
+      "original_sha256": "980ad9ef9c51b5f7d67627d854c2edbef26e4059ac848da4aeeeff88ebad5f87",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/server.py",
+      "action": "proposed_delete",
+      "bytes": 11606,
+      "original_sha256": "a77573c1e500b28932bb1fda50d0db3c9a1c10c5d498f6a46e848bb2e5b12b58",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/telemetry.py",
+      "action": "proposed_delete",
+      "bytes": 4092,
+      "original_sha256": "2a4f73529b9769b18f9b487de6fcb2899a392c543917ffdec3da73682f4e61c2",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/tests/test_knowledge_paths.py",
+      "action": "proposed_delete",
+      "bytes": 4214,
+      "original_sha256": "fadb9c6405e19c6eed5dae1f771bb075ef5d42ff6af10a82f497fe79da10bb98",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/tests/test_recipes.py",
+      "action": "proposed_delete",
+      "bytes": 63448,
+      "original_sha256": "91d0dcb8d411322f0aaf33048b4735f3809767a571403444f6a8070894c324ca",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/__init__.py",
+      "action": "proposed_delete",
+      "bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/atomic_io.py",
+      "action": "proposed_delete",
+      "bytes": 1215,
+      "original_sha256": "550eecd97fee25b97a9c4f91ffe2a9325ed3cdf57376677859ba2a349b5815f0",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/check_norm.py",
+      "action": "proposed_delete",
+      "bytes": 1730,
+      "original_sha256": "41f3b60b4c3ef6afce7ac79c25012d71ecc64dc76058ff593d89a978dde2ae0f",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/delete_gated.py",
+      "action": "proposed_delete",
+      "bytes": 564,
+      "original_sha256": "dc6cf61821db460c9fe57c9e80a2d20eabd3fddf9be634c4f354d56144c932cc",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/deletion.py",
+      "action": "proposed_delete",
+      "bytes": 7973,
+      "original_sha256": "149cf9fd8ee83971cfee56be4fd1763b3c55bd518e95b80df48a4a447e72db2d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/friction_report.py",
+      "action": "proposed_delete",
+      "bytes": 9625,
+      "original_sha256": "447d50e283f8b80486b6fddfdd38f66ba594e4200b767a368abe0005b645a41b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/gate_cli.py",
+      "action": "proposed_delete",
+      "bytes": 8994,
+      "original_sha256": "bc3c897822569916277ac25cadb432c08ee0ef0deb23656b21f4f8be4e42180e",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/judgement.py",
+      "action": "proposed_delete",
+      "bytes": 22020,
+      "original_sha256": "d25b291254c9416df582194c98f82c5c5698147fb53341b71ffbdd149f6e1f2f",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/knowledge_paths.py",
+      "action": "proposed_delete",
+      "bytes": 4953,
+      "original_sha256": "5030344ccd0c7883ef25ddfe8644b4351daf16ecdb2da572a65b9b9c9e372664",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/move_gated.py",
+      "action": "proposed_delete",
+      "bytes": 568,
+      "original_sha256": "05264b87768c83bd5919dad4229ebc61bf767b1e7b98259aa5eff22151cc17e9",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/moving.py",
+      "action": "proposed_delete",
+      "bytes": 9908,
+      "original_sha256": "608f8644dccea704148103c6d5fc572395e3fec13e162babc732c88f311b6696",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/norms.py",
+      "action": "proposed_delete",
+      "bytes": 5050,
+      "original_sha256": "9e4065f97aac3a9f2576f5d82dbb777705da849c2e891caa0c2b8ce72f973590",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/policy.py",
+      "action": "proposed_delete",
+      "bytes": 4778,
+      "original_sha256": "c53f892cf8132eea9e9cd8c610dcc575164246d9089bc2d8b30aecc3a4c4fde5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/project_paths.py",
+      "action": "proposed_delete",
+      "bytes": 8659,
+      "original_sha256": "3b3ca4c248c77a60c92c8149a87f8d7c5e518c181daa030e929e9e1fe5bc3a8a",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/script_library.py",
+      "action": "proposed_delete",
+      "bytes": 5134,
+      "original_sha256": "d6690841c97926cc5e4062e665cc491103e5b72647ee54b22c838a9f14daa6e2",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation/write_gated.py",
+      "action": "proposed_delete",
+      "bytes": 739,
+      "original_sha256": "c3f585f6abdd3d2f06067e460111a456de911bd1ba7d93bb4bd523ea65506312",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/AGENTS.md",
+      "action": "proposed_delete",
+      "bytes": 1939,
+      "original_sha256": "4e5a34dd228b482b1ee67ad4e1cba1672664bc80753984ac8ab8438b38cdc23d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Scripts/CamController/CamController.cs",
+      "action": "proposed_delete",
+      "bytes": 10316,
+      "original_sha256": "a7ab4614f0493e3fa8941889f683d256e0864044d8d2f4b85422144a9db49d2d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Scripts/Debug/DebugOutputFeature.md",
+      "action": "proposed_delete",
+      "bytes": 1743,
+      "original_sha256": "a09e972f411e5915193ffe471efebdee8c6709420126edf31103953ab9f674a0",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/PostProcess/SSL/SSL.md",
+      "action": "proposed_delete",
+      "bytes": 4710,
+      "original_sha256": "8841f6c3742931161f1e3152f30273ee54007b779c50d67634eb59f4944e2010",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+      "action": "proposed_delete",
+      "bytes": 9546,
+      "original_sha256": "53b66f5f943320227cfc843786b69b136291973738c0c9f6f03c1eaffbef0f72",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/PostProcess/SSO/SSOFeature.cs",
+      "action": "proposed_delete",
+      "bytes": 8805,
+      "original_sha256": "beb11cc725a7b591a5c67e56edb146b4bfe6b6725a81a171451f17fed5763866",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/PostProcess/SSSM/SSSM.shader",
+      "action": "proposed_delete",
+      "bytes": 7416,
+      "original_sha256": "e60ee1919c6cd2635ad50d351d595250e8940cbde1533b0ba2c97a6b2dbacf88",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/PostProcess/SSSM/SSSMFeature.cs",
+      "action": "proposed_delete",
+      "bytes": 6883,
+      "original_sha256": "e55633a4da58772cfb26e46161cc690ec5a0c89bf28d2e5d823b99d881383787",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "action": "proposed_delete",
+      "bytes": 19431,
+      "original_sha256": "fe53913d08d732d2d29d1c34ec46200db95908c1405e033e055eec769bb527cd",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl",
+      "action": "proposed_delete",
+      "bytes": 4848,
+      "original_sha256": "1a446f4ba9c355dd5fd4671d11712f25059c3d860f497ef8f360f78341c1c236",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl.meta",
+      "action": "proposed_delete",
+      "bytes": 161,
+      "original_sha256": "c605143dc392082b78f3e1b4e93605745a146a1ef9170169a5c51346a801ad7d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/RainDrops/RainDrops.mat",
+      "action": "proposed_delete",
+      "bytes": 1544,
+      "original_sha256": "4697afa20db71ef06632b566441234282555f6191060a033c4de15b772ffc130",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/RainDrops/RainDrops.mat.meta",
+      "action": "proposed_delete",
+      "bytes": 188,
+      "original_sha256": "f46aa57cdb534a41b3931ffe6dd6ec1f70719c70e42c268583d3c0864f5111ad",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/RainDrops/RainDrops.md",
+      "action": "proposed_delete",
+      "bytes": 10435,
+      "original_sha256": "315d8b4816e33c9df6bae7065b4cba500e790de8325033ee767501f6d4f2ab49",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/RainDrops/RainDrops.md.meta",
+      "action": "proposed_delete",
+      "bytes": 158,
+      "original_sha256": "27606e5919b543589e3b9bd84947b181669490eb59a4a632847fe69041660a95",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "action": "proposed_delete",
+      "bytes": 5688,
+      "original_sha256": "0ea77b8e65c4deb20f7320770e5d943485d41a0a8e2c3d2866193947b7f0e312",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader.meta",
+      "action": "proposed_delete",
+      "bytes": 204,
+      "original_sha256": "bed2e849710df2b2ab560d190fad27903252b8116183c2fc914719a272d7942b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Special/HLSL/HashFunction.md",
+      "action": "proposed_delete",
+      "bytes": 5332,
+      "original_sha256": "9211ec1d2ef65f43c6981b242da3bbe965e39cf2a86d3725b72b33722be9b44c",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/environment-tmp/mcp-policy-strict.json",
+      "action": "proposed_delete",
+      "bytes": 230,
+      "original_sha256": "d806e2ae2d6b5e0dcdc426740a5f7ce01571728c1cbb697b9fce59bde6cf3a53",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/test_knowledge_paths.log",
+      "action": "proposed_delete",
+      "bytes": 47,
+      "original_sha256": "c7ec091d29f2577d4d1b1dccceb3ab3d87354ecd7d1319b4f349e25243df34cc",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/test_recipes.log",
+      "action": "proposed_delete",
+      "bytes": 4797,
+      "original_sha256": "0f65e3cc4c5b35ea8254188ebe0728b307cd92e4ef3d329c66939a7944c2cab5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-report.json",
+      "action": "proposed_delete",
+      "bytes": 3381,
+      "original_sha256": "c2b148d29673d6342dcb33669b475606485762f295bf9f2cabcc5db6b7429e69",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/uint_35.spv",
+      "action": "proposed_delete",
+      "bytes": 1240,
+      "original_sha256": "41eb98623e709b355386c901c0840f67a0d3b75fdd9d6399672ac69d9973c914",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/uint_50.spv",
+      "action": "proposed_delete",
+      "bytes": 1240,
+      "original_sha256": "41eb98623e709b355386c901c0840f67a0d3b75fdd9d6399672ac69d9973c914",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/verify_hash.py",
+      "action": "proposed_archive",
+      "bytes": 17544,
+      "original_sha256": "a59d27fef3dbfd21e442d697d12fc870148d31299f86dc0dadc95f42baa50246",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/verify_hash_final.py",
+      "action": "proposed_archive",
+      "bytes": 19209,
+      "original_sha256": "d522f61bfe4694201132d67afdb9194a146910eece9f0d559fc5185091672d84",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/verify_mcp_isolated.py",
+      "action": "proposed_delete",
+      "bytes": 5491,
+      "original_sha256": "3cc1ab1e418f6b69cee681028b561fbb2a9a4bea4d578d30b2b2389481f8f350",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-variant-consolidation/REPORT.md",
+      "action": "proposed_archive",
+      "bytes": 7287,
+      "original_sha256": "f846464131a600bda86f347c7998db318e6fde988fb6a3323c16c0a4b8c798f7",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-variant-consolidation/analyze_variants.py",
+      "action": "proposed_archive",
+      "bytes": 10755,
+      "original_sha256": "5f8cbe133e830ec0a066c2ba15a5a1506c3d3fc542592cef95f27a000fe998d7",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/hash-variant-consolidation/report.json",
+      "action": "proposed_archive",
+      "bytes": 54437,
+      "original_sha256": "e95bd0b80809a16e9d767fce5d78fa1c2a6dab9c309bd39b985faab3f4973a90",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/plant-billboard-plan.md",
+      "action": "proposed_archive",
+      "bytes": 2537,
+      "original_sha256": "ef5d5dfc8c99006cc4123a60c4a7ed934bc6f8097048221de9fe0e679ddf308e",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/shader-rename.json",
+      "action": "proposed_archive",
+      "bytes": 8939211,
+      "original_sha256": "81f02f2a3f45be23aa56cf7c94d9d6e2fcaa8d266aa9791229828e3a3c8dbd0c",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-before/PC_Renderer.asset",
+      "action": "proposed_archive",
+      "bytes": 9108,
+      "original_sha256": "9afdbf86b83718de741ff37a52e9af7865e1957b275baaa1309ef9e2d77d90b0",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-camera-preview.png",
+      "action": "proposed_archive",
+      "bytes": 339656,
+      "original_sha256": "594f3ec750be2bb09e0d4be19946fcd574eb5a8cc12b8e9a931b8e36c5103a97",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-camera-verify.cs",
+      "action": "proposed_archive",
+      "bytes": 3361,
+      "original_sha256": "ce3754abbd44882012e1ecdd8285fa6526ccaf418d6501c2c08f866082c1f8b5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-flip-before/Snowy.shader",
+      "action": "proposed_archive",
+      "bytes": 4787,
+      "original_sha256": "331fba3e8ffaea995fbc8358853c3cf0628a1f90313a3f44452c97d3be37a898",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-flip-before/SnowyParticle.hlsl",
+      "action": "proposed_archive",
+      "bytes": 4925,
+      "original_sha256": "827e2250b66106cb2ff899829cccd3ce81310adcb20c2d1efa62bc547914d9a0",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-grid-preview.png",
+      "action": "proposed_archive",
+      "bytes": 32677,
+      "original_sha256": "f9cb7670f1ac7f31ab764d97d3e24a139ce220c748d3701ec802f28881c0ef30",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-motion-before/Snowy.shader",
+      "action": "proposed_archive",
+      "bytes": 4011,
+      "original_sha256": "71b392b99d54ef32255517a4d1c178dfc0ac54c60b9b3b3a28370a8edb7fda16",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-motion-before/SnowyParticle.hlsl",
+      "action": "proposed_archive",
+      "bytes": 3132,
+      "original_sha256": "948106021ab4400f7834627f47d2ad130689dc1a0696f24fcb4744225ddc948b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-motion-before/Snowy_Grid.mat",
+      "action": "proposed_archive",
+      "bytes": 1295,
+      "original_sha256": "e9a6f45acaa8cad313673525ae26dbb66c33e3b0e34ef614f715dd231fbd5c94",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-setup.cs",
+      "action": "proposed_archive",
+      "bytes": 4658,
+      "original_sha256": "5871e0639a59b90686aad6fef98f6578c1cc152d582dbf031722950a242c82ca",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/snowy-verify.cs",
+      "action": "proposed_archive",
+      "bytes": 11017,
+      "original_sha256": "1e5a86bf553dbbb616c49b85f4c93e3d4177c017fbb2b414955db12ec2b4951e",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/README.md",
+      "action": "proposed_archive",
+      "bytes": 4711,
+      "original_sha256": "1b3c37667a367f5f28baa9e5cbff99f0744fce5fe9d43cb7e26f387a785b3397",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/VALIDATION.md",
+      "action": "proposed_archive",
+      "bytes": 4099,
+      "original_sha256": "ca853c6e1c62467976b6f00bbe02e690d410dda83ba105b6904bf8fb0d807da3",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/baseline.json",
+      "action": "proposed_archive",
+      "bytes": 2560,
+      "original_sha256": "75c2ea2d6e12ad4ddc56eeb582ade6ff01d2218f3059fda6601094bb3110820b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/script/WeatherFeature.cs",
+      "action": "proposed_archive",
+      "bytes": 20166,
+      "original_sha256": "51aad14fb430f1b70be0b86868bc149e3b6fd52ec69462b50357962c9b6db49d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/script/WeatherProfile.cs",
+      "action": "proposed_archive",
+      "bytes": 12533,
+      "original_sha256": "7baf9db67f01840b6ce68ed6ffaca2c5c39ac8e7fe9b142762b17499024b896b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/shader/Weather.shader",
+      "action": "proposed_archive",
+      "bytes": 5613,
+      "original_sha256": "8d986e2fce3a8e0f60ac6ad5c218a4f9a60cdbc21dbd456b1c480492972fca35",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/shader/WeatherAtmosphere.hlsl",
+      "action": "proposed_delete",
+      "bytes": 10359,
+      "original_sha256": "c67efa8a769cce36d81a55147077c91af650becf8de0426bb45a6f3e5a7321b3",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/shader/WeatherCommon.hlsl",
+      "action": "proposed_archive",
+      "bytes": 3710,
+      "original_sha256": "d94c0a27f84d9686514232098abfdcfba24afcff944b6e2cb6deb14d475546b1",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/shader/WeatherParticles.hlsl",
+      "action": "proposed_archive",
+      "bytes": 8284,
+      "original_sha256": "184f037418c728558e6cb42624f7b16c6921bb11f6c1b7333ddf656016ddb20b",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/FeatureChecks.cs",
+      "action": "proposed_delete",
+      "bytes": 19086,
+      "original_sha256": "980824ea0d2426ce7bfd74750d3a7f9e14849fca877f800787f47668a029484a",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/GraphBudgetChecks.cs",
+      "action": "proposed_delete",
+      "bytes": 21858,
+      "original_sha256": "9006906a2cb6d44f2d73d2efe7698aea2147163376601de8d560bcb9e89f747d",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/InstallFeature.cs",
+      "action": "proposed_archive",
+      "bytes": 2160,
+      "original_sha256": "2a3c2f35992329257507025e99ea48364ce8ca5ce16193201b271e371b551e01",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/PC_Renderer.before.asset",
+      "action": "proposed_archive",
+      "bytes": 7542,
+      "original_sha256": "0da2dfe31681ccfd02fec9da7633683aa675ef358f1aa6bdf0aa0e7a3200fd60",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/PipelineChecks.cs",
+      "action": "proposed_archive",
+      "bytes": 33054,
+      "original_sha256": "b7c0172ded339de0d2881d1a606e4e7aa13eabcdf8b8f1ac7a1aca0c5ccce7df",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/ProfileChecks.cs",
+      "action": "proposed_delete",
+      "bytes": 13911,
+      "original_sha256": "2834b4d87ee04e55a32a4fb310680c64739a65b408d29e3b46b8b885230b2ed5",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/RetireLegacyBindings.cs",
+      "action": "proposed_archive",
+      "bytes": 2252,
+      "original_sha256": "31bf4540e896e82aa137879c5f6678e2c1fc6df4cf9323e90a22184e9e3dba14",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/ShaderChecks.cs",
+      "action": "proposed_delete",
+      "bytes": 30074,
+      "original_sha256": "fb3b5abff2d911f334c5e0abef4808f515cb1f121a18ff671385dc26eb8c9995",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/graph-results.json",
+      "action": "proposed_delete",
+      "bytes": 4332,
+      "original_sha256": "5f00092962bd80b975587fcb174ce849e25b3a9d5b80a5decf6f15325b4a8963",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/legacy-guid-inventory.json",
+      "action": "proposed_archive",
+      "bytes": 1160,
+      "original_sha256": "8ee7b8a4b97986a4fe6f776baeb23c1bc507e1982748c60204bfab4d32fa63e6",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/pipeline-results.json",
+      "action": "proposed_delete",
+      "bytes": 64134,
+      "original_sha256": "b5e7c4a21552320bec66507f613b3c6fd0a25acc19795eaf0e540ace552fc413",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/renderer-weather-only.patch",
+      "action": "proposed_archive",
+      "bytes": 2119,
+      "original_sha256": "2b45bbe483fe817893dbf4e4a25fb6932dd7b09bb0e888e5e44bb45498d59245",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/shader-results.json",
+      "action": "proposed_delete",
+      "bytes": 57470,
+      "original_sha256": "cbad2e1bd676b6520da6cb44ce2c5254d1cdb8c6c893c7b4e249aecb398cc84e",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/shader-tuned-results.json",
+      "action": "proposed_delete",
+      "bytes": 57830,
+      "original_sha256": "4d6a4e3b0f0f24cadffd68ac769c918a72be3c5f94f2ab30a6af0c18289467b7",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/stage_renderer.py",
+      "action": "proposed_archive",
+      "bytes": 1842,
+      "original_sha256": "1b00faad3fa7c52ca88373137fae27fe711aba31517276e4f6a90acf6c557a53",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation/user-particles.sha256",
+      "action": "proposed_archive",
+      "bytes": 64,
+      "original_sha256": "989a04daf42baf047534dbefedc69b44254489bd54caf255f325c64355c91841",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/ParticleTransformPipelineChecks.cs",
+      "action": "proposed_delete",
+      "bytes": 35812,
+      "original_sha256": "4e271498633100d784809b7a82a890a559aad9c3eb00ec7f065f31125338a253",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/pipeline-transform-results.json",
+      "action": "proposed_delete",
+      "bytes": 70369,
+      "original_sha256": "994a95b55f40dfd31091fad0bd7a99b99ec5fb77052eebfd1f7370999ff288bf",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/work/Presets/Rain.asset",
+      "action": "proposed_delete",
+      "bytes": 811,
+      "original_sha256": "81df16e67075d88e7dd194041a97307790d05f7d315d665ebe8d723d69514971",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/work/Presets/Sand.asset",
+      "action": "proposed_delete",
+      "bytes": 798,
+      "original_sha256": "a33679928a4cf236371af31648ac50632185b4260882e4bab5005d890da40b63",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/work/Presets/Snow.asset",
+      "action": "proposed_delete",
+      "bytes": 815,
+      "original_sha256": "bddf9d5872218cc87ad118c09deb4cf3fe5a596f8b533b4e6d6794f61a4b73ea",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/work/WeatherFeature.cs",
+      "action": "proposed_delete",
+      "bytes": 20581,
+      "original_sha256": "866c724c6b930cb66c24be29eb75d49d073ef14259274f2c58097f988a5a5aa2",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/work/WeatherParticles.hlsl",
+      "action": "proposed_delete",
+      "bytes": 8312,
+      "original_sha256": "b26d0b1863174e1131f57469d893f35a713f7e558068f399a7a12f7fb3512bf2",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/work/WeatherProfile.cs",
+      "action": "proposed_delete",
+      "bytes": 14613,
+      "original_sha256": "5763529a90020e17e93cf42434158e5c1d62dc6fe2ed4de0dc51ef391611e895",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-plan/design.md",
+      "action": "proposed_archive",
+      "bytes": 25561,
+      "original_sha256": "43c8f215f6b127cbe871f4b0687eecb697eab627c2ae2249bbe0498ebbd2a338",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-plan/implementation-contract.md",
+      "action": "proposed_archive",
+      "bytes": 4474,
+      "original_sha256": "741c3c992d59ad37f61bc65a9b6b18e4a92eebbb57917105081ea1f78a2ee589",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-plan/requirements.md",
+      "action": "proposed_archive",
+      "bytes": 6905,
+      "original_sha256": "3bc92ced02970c1e01a3abfbbef4ca666e601645799144143b439eae24419097",
+      "status": "removed"
+    },
+    {
+      "path": ".codex/tmp/weather-plan/tasks.md",
+      "action": "proposed_archive",
+      "bytes": 12617,
+      "original_sha256": "27a769e89a5a5f981111ec895b3d1ff9938fcdf8bd98b21f590db87d086fb55d",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/.DS_Store",
+      "action": "proposed_delete",
+      "bytes": 10244,
+      "original_sha256": "d43b21ff1b2adcb70a96e086e3b99b38e3233ded6ce5e8f16f4119331722811e",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/.DS_Store",
+      "action": "proposed_delete",
+      "bytes": 6148,
+      "original_sha256": "33c8cbe199ea1f117b4219fbb2221ac4ecb66627ad23cbbd2f30ddbc263d259b",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSC/.backup_v1_pre_unity6/SSC.shader",
+      "action": "proposed_delete",
+      "bytes": 8239,
+      "original_sha256": "434d90e42520642d7059cc23ded023d438eb14270e10fc660006b5078f93d36e",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSC/.backup_v1_pre_unity6/SSCFeature.cs",
+      "action": "proposed_delete",
+      "bytes": 6654,
+      "original_sha256": "5cf52c5551143125710d0f428bb708729a70201515993589380e2d644b168c4c",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/Mine/Shaders/Render/.DS_Store",
+      "action": "proposed_delete",
+      "bytes": 6148,
+      "original_sha256": "aba52e244dacff4861f84f78d953251bedf48f0132493f1f43cafd7bf283201d",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/Readme.asset",
+      "action": "proposed_delete",
+      "bytes": 1144,
+      "original_sha256": "6d098604e909b6a0e64fe5910c2719704864d49678bcf5413bd47b67e5490107",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/Readme.asset.meta",
+      "action": "proposed_delete",
+      "bytes": 182,
+      "original_sha256": "46c6b89ac1d47bd0c0d1a8b141ae3e32cd95d3e74c49381f0d9f942488c254ce",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo.meta",
+      "action": "proposed_delete",
+      "bytes": 172,
+      "original_sha256": "07f022e5932c833d026e020b27d73452ebd781993b616d76003494af1e140946",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Icons.meta",
+      "action": "proposed_delete",
+      "bytes": 193,
+      "original_sha256": "546e7d7af6b4d5e17d284c8f1188d05472e681911b8359905ee9b9e20769a106",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Icons/URP.png",
+      "action": "proposed_delete",
+      "bytes": 24069,
+      "original_sha256": "1d17a9ff3537859abe2c008603d29d90cf43191ae77aa386167cc65e53ba03d9",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Icons/URP.png.meta",
+      "action": "proposed_delete",
+      "bytes": 3156,
+      "original_sha256": "b330f1fcfc4e6ceccc95fc34a38434141603469b135633e1c4e8a03c19f9fdbc",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Layout.wlt",
+      "action": "proposed_delete",
+      "bytes": 15479,
+      "original_sha256": "0a18bf035aa7ce914f19f7ce6b60a5a2d33e2371af6f492a8ea7a1bc78755b8b",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Layout.wlt.meta",
+      "action": "proposed_delete",
+      "bytes": 176,
+      "original_sha256": "b8745a251df078ffa75dbaac0c4c6debecb61ab306b5b119a490ce6c635a11d8",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Scripts.meta",
+      "action": "proposed_delete",
+      "bytes": 193,
+      "original_sha256": "930d0c8276cea1559a3e315f8500ea6ca8b58d980eee3b44aaa1d461742c47e0",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Scripts/Editor.meta",
+      "action": "proposed_delete",
+      "bytes": 193,
+      "original_sha256": "7036bdbc8af05799b5fd508484343b35c28a68b390198da4673d34357d7d667f",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Scripts/Editor/ReadmeEditor.cs",
+      "action": "proposed_delete",
+      "bytes": 6677,
+      "original_sha256": "d2023934bc2be23af69cd930ade85eff41c5db0a6f6666b05324b975befdb5b5",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Scripts/Editor/ReadmeEditor.cs.meta",
+      "action": "proposed_delete",
+      "bytes": 264,
+      "original_sha256": "f59080b424c16fa13edd105bf006fdbad98c11fce0c921043e63c8877f144cd9",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Scripts/Readme.cs",
+      "action": "proposed_delete",
+      "bytes": 302,
+      "original_sha256": "c09c93844f93eb252a6fb39c222d169c63a63e96008fd040b9e7628c3e7ccc2e",
+      "status": "removed"
+    },
+    {
+      "path": "Assets/TutorialInfo/Scripts/Readme.cs.meta",
+      "action": "proposed_delete",
+      "bytes": 317,
+      "original_sha256": "80a3df9969fab6e656583ee9bbca884d0507e2b7de3417f6ea3118fba901cd60",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/hb_baseline.bmp",
+      "action": "proposed_archive",
+      "bytes": 1340634,
+      "original_sha256": "bc234553e74cd3e1c7c374cd1661e92bb40ce6f9828d3c87771189ac149f7071",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/hb_baseline.png",
+      "action": "proposed_archive",
+      "bytes": 220559,
+      "original_sha256": "4b966f45d11b918400c53f699e4a10777008437c37cdcdd699b88dfac1a1ff77",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/hb_composite.bmp",
+      "action": "proposed_archive",
+      "bytes": 1340634,
+      "original_sha256": "bd3e11f1d816c2b43c0779fe0d2a6c960aeaadd1f1876a34c97ebacc03f3ed47",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/hb_composite.png",
+      "action": "proposed_archive",
+      "bytes": 227954,
+      "original_sha256": "ce9f049559341790fbb2fc49c721ac76eb2d375acdb53b4081b44d681fe96e84",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/hb_visibility.bmp",
+      "action": "proposed_archive",
+      "bytes": 1340634,
+      "original_sha256": "f82232f6ab0ebed36ace13bfd431c4841991f8cd1d01e7adcaa7ef265fcb3254",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/hb_visibility.png",
+      "action": "proposed_archive",
+      "bytes": 58413,
+      "original_sha256": "26f059d99f0a78087f4618d154dd29c66299f2e0d65dbd7cea46b6e777f219e1",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_hb_base.bmp",
+      "action": "proposed_archive",
+      "bytes": 1340634,
+      "original_sha256": "42d479cfde6b9472259729dc809f6741e25e1c577d79bfd65d3f52786301fedb",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_hb_base.png",
+      "action": "proposed_archive",
+      "bytes": 206307,
+      "original_sha256": "d9a355f6c4c490010d0c53a18162d62e66bf239d4502db64234e2a5c03fc9423",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_hb_comp.bmp",
+      "action": "proposed_archive",
+      "bytes": 1340634,
+      "original_sha256": "f561b4335f055160b6ee01d624693a04f26c5547f6bbb91338e4535767e9fcbd",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_hb_comp.png",
+      "action": "proposed_archive",
+      "bytes": 218036,
+      "original_sha256": "aaac4946df8c1f58ffd57661cdf32962fb8fbcaf4e09907265051cffb9eb8c30",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_hb_vis.bmp",
+      "action": "proposed_archive",
+      "bytes": 1340634,
+      "original_sha256": "2b6ada8bda8a720ab55c00093533d16cd32604a2456e14fb48a7046c2cda0e3d",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_hb_vis.png",
+      "action": "proposed_archive",
+      "bytes": 52049,
+      "original_sha256": "fea65d26a4a34e74ed2d2dda1b32def6d15cd14b56157d7ca562824dd71364e7",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_ss_base.bmp",
+      "action": "proposed_delete",
+      "bytes": 1340634,
+      "original_sha256": "42d479cfde6b9472259729dc809f6741e25e1c577d79bfd65d3f52786301fedb",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_ss_base.png",
+      "action": "proposed_delete",
+      "bytes": 206307,
+      "original_sha256": "d9a355f6c4c490010d0c53a18162d62e66bf239d4502db64234e2a5c03fc9423",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_ss_comp.bmp",
+      "action": "proposed_archive",
+      "bytes": 1340634,
+      "original_sha256": "4d313efb6159d629f80d341971c4b1858196d49365959cb8c7439b6f69a43dd0",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_ss_comp.png",
+      "action": "proposed_archive",
+      "bytes": 210019,
+      "original_sha256": "1cf41ffb738b55ffc04a1bb8b306aca533cbaad8ec89394f6bbcaaf41419c02e",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_ss_vis.bmp",
+      "action": "proposed_archive",
+      "bytes": 1340634,
+      "original_sha256": "d8f40525507082be5d49968c0a214c13843c261df3860b2944d5d592961e4959",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/raw_ss_vis.png",
+      "action": "proposed_archive",
+      "bytes": 43675,
+      "original_sha256": "1d711268e265fee714ad1ba0d958700c7ec73d05e277f236b688ba891fab3869",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/ss_baseline.png",
+      "action": "proposed_delete",
+      "bytes": 220559,
+      "original_sha256": "4b966f45d11b918400c53f699e4a10777008437c37cdcdd699b88dfac1a1ff77",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/ss_composite.png",
+      "action": "proposed_archive",
+      "bytes": 223891,
+      "original_sha256": "42cee181b4b75b0ff1e531b6a165754998f16c95aa783bff6fe807180fa4ed8c",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/ss_visibility.bmp",
+      "action": "proposed_archive",
+      "bytes": 1340634,
+      "original_sha256": "0d2419c8fc2c6c82bcf35fb4a4cd24add93bf2439a59ffe906fd6483b438012e",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/ao-probe/ss_visibility.png",
+      "action": "proposed_archive",
+      "bytes": 55301,
+      "original_sha256": "0715dabce6d8648630bc665ad53673aeda201bf3e2b2417c49293b7eba89b34d",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/screenshot_2026-07-03_15-25-53.png",
+      "action": "proposed_delete",
+      "bytes": 135511,
+      "original_sha256": "c7b383ed23c126742f5481bf9df97861169641b4c30dd34c718da751dfb93223",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/screenshot_2026-07-09_18-28-39.png",
+      "action": "proposed_delete",
+      "bytes": 25800,
+      "original_sha256": "fe4e9b0ba8cd6633ea0068a49acf619c235229476a7d03efaf527f99dc356ff7",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/screenshot_2026-07-10_11-11-02.png",
+      "action": "proposed_delete",
+      "bytes": 32859,
+      "original_sha256": "c21cca1bc1c58a76cf927215a09a8d30287b82b6823b7a6945c141a22bb6f2e8",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/screenshot_2026-07-10_14-33-25.png",
+      "action": "proposed_delete",
+      "bytes": 34670,
+      "original_sha256": "fbc7dce6618098db393df837eb082c1e0818adb6c51edf8122d46d1f4d19bc82",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/screenshot_2026-07-10_14-36-38.png",
+      "action": "proposed_delete",
+      "bytes": 34670,
+      "original_sha256": "fbc7dce6618098db393df837eb082c1e0818adb6c51edf8122d46d1f4d19bc82",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/screenshot_2026-07-14_11-29-18.png",
+      "action": "proposed_delete",
+      "bytes": 36819,
+      "original_sha256": "2afbbc7d352f1b4efc25fccbe3bf65572af4c44f7fc333a933315a4d95840f38",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/screenshot_2026-07-14_15-35-25.png",
+      "action": "proposed_delete",
+      "bytes": 3849,
+      "original_sha256": "c62957bf1a042cfcad498f624b1b25f9424611a752987f30ed709438cd23756f",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/screenshot_2026-07-14_15-36-28.png",
+      "action": "proposed_delete",
+      "bytes": 3849,
+      "original_sha256": "c62957bf1a042cfcad498f624b1b25f9424611a752987f30ed709438cd23756f",
+      "status": "removed"
+    },
+    {
+      "path": "Screenshots/screenshot_2026-07-14_15-47-48.png",
+      "action": "proposed_delete",
+      "bytes": 3849,
+      "original_sha256": "c62957bf1a042cfcad498f624b1b25f9424611a752987f30ed709438cd23756f",
+      "status": "removed"
+    },
+    {
+      "path": "mono_crash.0.0.json",
+      "action": "proposed_delete",
+      "bytes": 17650,
+      "original_sha256": "b6ca27a560f13edafcf2024170c0a87951a6972cf5a552ce01438f4dc99ec615",
+      "status": "removed"
+    },
+    {
+      "path": "mono_crash.0.1.json",
+      "action": "proposed_delete",
+      "bytes": 17650,
+      "original_sha256": "7b0f0ba92f85eaf73514eeb83ba462698bc66c3719cb213427a9f48e5bda16aa",
+      "status": "removed"
+    },
+    {
+      "path": "mono_crash.2ecc0826c4.0.json",
+      "action": "proposed_delete",
+      "bytes": 147541,
+      "original_sha256": "a540300ba7d922fd87805dd743512f659188ef49265ec298ce98a22efd0839b7",
+      "status": "removed"
+    },
+    {
+      "path": "mono_crash.8d55ac588.0.json",
+      "action": "proposed_delete",
+      "bytes": 140577,
+      "original_sha256": "4ea5d0d554fa7aeb0144763b8059d56c5ea81485968c6fb86e515f67592e4c29",
+      "status": "removed"
+    },
+    {
+      "path": "run.log",
+      "action": "proposed_delete",
+      "bytes": 3714,
+      "original_sha256": "4ed0f087169f63325bb8888638f88033c991f861028a85473187fddf04b06693",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/SSSLutBakerWindow.cs",
+      "action": "proposed_delete",
+      "bytes": 8641,
+      "original_sha256": "83611c840e02f00b89adb4ad6c017e95e2db9ebb19abe4b02898af0d8ac5f0f2",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/cleanup-manifest.md",
+      "action": "proposed_archive",
+      "bytes": 19058,
+      "original_sha256": "5cf989466d73e43dea542dcc823af7eae331d7306886289051e6740d37cbf526",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-dense/dense-reference-comparison.png",
+      "action": "proposed_archive",
+      "bytes": 170816,
+      "original_sha256": "c515d3e9976594064e0e6c50e6dca2855944472d946c24cfdc3dba4a71f5414d",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-dense/dense-reference-report.json",
+      "action": "proposed_archive",
+      "bytes": 10758,
+      "original_sha256": "a9dd87221a39cbabc87a3e3f18718005b69ecb0af3f951e703b2febf31387f53",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-dense/disk_r16_one5-dense-reference.npy",
+      "action": "proposed_delete",
+      "bytes": 3686528,
+      "original_sha256": "ed6e02c62713cac0958c6e1c614c2846d10c41345fdc0c2ec884165855346c4e",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-dense/disk_r16_one9-dense-reference.npy",
+      "action": "proposed_delete",
+      "bytes": 3686528,
+      "original_sha256": "a7bd4251dae97fd5e945b6daf4c678f81e71e83fcc42b729e6693b3fdf163c23",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-dense/disk_r16_two9-dense-reference.npy",
+      "action": "proposed_delete",
+      "bytes": 3686528,
+      "original_sha256": "4b8b49ef7bd2bc3a138f68cda933dc515b25c3bf0273466a958a2dca0cbd9b92",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-dense/disk_r3_one9-dense-reference.npy",
+      "action": "proposed_delete",
+      "bytes": 3686528,
+      "original_sha256": "cb348a18b45580fbc40e01c4d8f343865c5ca0a10e545af1d937dde433f9fe0f",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-dense/disk_r80_one9-dense-reference.npy",
+      "action": "proposed_delete",
+      "bytes": 3686528,
+      "original_sha256": "8a6406e4abe89aa8b0bf312f294b53bbd2a0cea554fe4ea1b7d30ad754c8b29e",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-dense/uniform_one9-dense-reference.npy",
+      "action": "proposed_delete",
+      "bytes": 3686528,
+      "original_sha256": "7b24bcb0b3cdc6ac9385ebd4b6be23329c72c6f28931c030a587faab57ca5db1",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-manifest.json",
+      "action": "proposed_archive",
+      "bytes": 3324,
+      "original_sha256": "41199cbc5a4fba26fc3efd9ece416945f5a4ce19ea0e262114003a99b096bf3b",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/maskblur-dense-reference.py",
+      "action": "proposed_archive",
+      "bytes": 11836,
+      "original_sha256": "21f0e90d4513706762bea7af9f40883d40edf749dc1df08d8fe3febb112b5d83",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/pbr-btdf-check",
+      "action": "proposed_delete",
+      "bytes": 37488,
+      "original_sha256": "fae6e638dd5cd42d93e9fd43de850f03d763ffcb65c7961ad7e09755b76c000e",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/pbr-organize-check",
+      "action": "proposed_delete",
+      "bytes": 37936,
+      "original_sha256": "92c73826e21f67e0573dbcde85c05f1650a70275e213c17f766665f17c0b4a87",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/plant-preview-0.png",
+      "action": "proposed_archive",
+      "bytes": 22135,
+      "original_sha256": "390f887df26e6f890bd9c83307a314da084bf218452da33c4722800406ff1321",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/plant-preview-1.png",
+      "action": "proposed_archive",
+      "bytes": 22498,
+      "original_sha256": "bd2a51399d5026c04f5f1f33f8c35933df90a431942d5a2b80b5e7eb53ad92f1",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/plant-preview-2.png",
+      "action": "proposed_archive",
+      "bytes": 22136,
+      "original_sha256": "a108ec9d180f2988a8c2516d6278971e6d50c77eaea578af934316fefa1d81e2",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/plant-preview-3.png",
+      "action": "proposed_archive",
+      "bytes": 24507,
+      "original_sha256": "da70650aa687eaccce9c9b90ce71d448ddc251bb7c8e092ad21888e060ad2d10",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/plant-preview-4.png",
+      "action": "proposed_archive",
+      "bytes": 21606,
+      "original_sha256": "3de1980753722096db63b0f4a3d321473759b827a66fc307bf4ad59cd10bcfc7",
+      "status": "removed"
+    },
+    {
+      "path": "tmp/rollback-2026-09-21-diffusegi-ao.tar.gz",
+      "action": "proposed_archive",
+      "bytes": 27938403,
+      "original_sha256": "bcdb067c5eec3b24eddaf01cd302b2b318abe7b2761e4e64e471d5fd7a955138",
+      "status": "removed"
+    }
+  ],
+  "empty_directories": [
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader/postprocess",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/compute",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/rendering",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/script",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard/shader",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/baker",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/controller",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/generator",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/manager",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script/window",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/hlsl",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/particle",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/postprocess",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader/render",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/standard/script",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/standard/shader",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/csharp-dev",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/platform",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/shader",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/standard",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/unity6-api",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references/urp-shader-lib",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/scripts/roslyn",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/script",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/shader",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates/standard",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/PostProcess/SSL",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/PostProcess/SSO",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/PostProcess/SSSM",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/PBRToon",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render/RainDrops",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/memory",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/references",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/scripts",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer/templates",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/skills/auto-manager/capabilities",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Scripts/CamController",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Scripts/Debug",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/PostProcess",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders/Render",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Special/HLSL",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents/unity-developer",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/skills/auto-manager",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Scripts",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Shaders",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine/Special",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/agents",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/rules",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents/skills",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/hooks",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git/info",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/gates",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/tests",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp/validation",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets/Mine",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSC/.backup_v1_pre_unity6",
+      "status": "retained_empty_gate_supports_files_only"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.agents",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.codex",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.git",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/.mcp",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/Assets",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk/environment-tmp",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/work/Presets",
+      "status": "removed_empty"
+    },
+    {
+      "path": "Assets/Mine/Shaders/PostProcess/SSC",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tests/03_write/output",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tests/04_batch/output",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tests/05_spec/output",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tests/06_architecture/output",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification/mcp-isolated-n2ha1rbk",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/script",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/shader",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation/validation",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv/work",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": "Assets/TutorialInfo/Scripts/Editor",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tests/01_smoke",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tests/02_readonly",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tests/03_write",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tests/04_batch",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tests/05_spec",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tests/06_architecture",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tmp/hash-unification",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tmp/hash-variant-consolidation",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/snowy-before",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/snowy-flip-before",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/snowy-motion-before",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/weather-implementation",
+      "status": "removed_empty"
+    },
+    {
+      "path": ".codex/tmp/weather-localuv",
+      "status": "retained_nonempty"
+    },
+    {
+      "path": ".codex/tmp/weather-plan",
+      "status": "removed_empty"
+    },
+    {
+      "path": "Assets/TutorialInfo/Icons",
+      "status": "removed_empty"
+    },
+    {
+      "path": "Assets/TutorialInfo/Scripts",
+      "status": "removed_empty"
+    },
+    {
+      "path": "Assets/TutorialInfo",
+      "status": "removed_empty"
+    },
+    {
+      "path": "Screenshots/ao-probe",
+      "status": "removed_empty"
+    },
+    {
+      "path": "tmp/maskblur-darkspot-dense",
+      "status": "removed_empty"
+    }
+  ],
+  "audit_preservation": [
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/cleanup-plan.md",
+      "sha256": "f6b3263cc07083e6b30c9df3823591a1f9bac287fad5d53264f80717029773f3",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/cleanup-plan.json",
+      "sha256": "8162a9f7f0b34bf843fb78bbccafeb9ce0bd75138b982e8a6b44fc16faafd6a2",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/pending-edits.json",
+      "sha256": "6cb84fd0eac61be0093c5195f9cb390bb00340d32e0c5b329c65bc1fc41c5007",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/inventory.json",
+      "sha256": "11f82411f788a986be098fe75356ed5fec0fb9ce7856b5aa997277f3a6137417",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/findings.md",
+      "sha256": "e7d6542750ece50671da0ba237604cd7153e604baa8df8718258b93422c8594c",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/delete-candidates.md",
+      "sha256": "e9fe035001dd141be0418cb41ccacd73bad133148b48f8b5534de504f679b0cb",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/archive-candidates.md",
+      "sha256": "dd4b4604d31d3d01b89982bb2ed9a4c1317e4c7478f66fb29fa4f5f2725df8e7",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/legacy-pbr-rerun.json",
+      "sha256": "8fb0c9c4d034103a88985b25a2f02bbc54bba29a03241cdbe383a92b2e24f954",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/inventory/shader-rename-check.json",
+      "sha256": "a3605940a4d3d3bdab46923391e3cd82d37b41e3d6bd2749711b09b16d25e598",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/evidence/cleanup-preflight.json",
+      "sha256": "e0ebac16e71233c8925d10d29b9a8b37d519d30ad5720c736704d8990931ed86",
+      "status": "installed"
+    },
+    {
+      "path": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/output/architecture/baseline-findings.json",
+      "sha256": "b53aaa89191769ebd6be06d9a49bb31b57a7623dccbf4c4bf27af455106dd967",
+      "status": "installed"
+    }
+  ],
+  "updated_at": "2026-10-10T08:25:18.341824+00:00",
+  "installation_complete": true,
+  "ao_gate_result": "{\"status\": \"OK\", \"written\": \"Assets/Mine/Shaders/PostProcess/SSGI/AO/AO.md\", \"bytes\": 14308, \"recipe\": \"Production\", \"passed\": [\"g_entry\", \"g_knowledge\"], \"annotations\": {\"mode\": \"Production\"}}\n",
+  "mine_delete_gate_result": "{\"status\": \"OK\", \"deleted\": [{\"path\": \"Assets/Mine/Shaders/PostProcess/.DS_Store\", \"state\": \"untracked\", \"recoverable\": false}, {\"path\": \"Assets/Mine/Shaders/PostProcess/SSC/.backup_v1_pre_unity6/SSC.shader\", \"state\": \"tracked-clean\", \"recoverable\": true}, {\"path\": \"Assets/Mine/Shaders/PostProcess/SSC/.backup_v1_pre_unity6/SSCFeature.cs\", \"state\": \"tracked-clean\", \"recoverable\": true}, {\"path\": \"Assets/Mine/Shaders/Render/.DS_Store\", \"state\": \"untracked\", \"recoverable\": false}], \"count\": 4, \"recipe\": \"Production\", \"passed\": [\"g_entry\", \"g_knowledge\"], \"reason\": \"执行用户已批准的 Lab 清理清单；SHA256 核对通过，归档及正式入口复跑通过。\"}\n",
+  "verification": {
+    "status": "PASS",
+    "installations": 113,
+    "old_sources": 319,
+    "retained_files_checked": 322,
+    "runtime_state_preserved": [
+      {
+        "path": ".mcp/deletes.jsonl",
+        "inventory_sha256": "89802d59846bfc8ea3bb08962f06148e0bb28dd254654d92fb02051cc85688cb",
+        "current_sha256": "e1b82eef3377996c310d0051f185b1ff56511656c2ef8d757096d54a07eed106",
+        "reason": "Production gate state/audit retained; expected updates from authorized gate operations."
+      },
+      {
+        "path": ".mcp/friction.jsonl",
+        "inventory_sha256": "bb4d69cf658419a6216fbe6369f9ebc25e36732bd8b5faa74e96fe3d92682d4a",
+        "current_sha256": "e23960b209d1b7dbccfdb1d69557c4c7f0a53d9b05dd14de816d24d42165a3ff",
+        "reason": "Production gate state/audit retained; expected updates from authorized gate operations."
+      },
+      {
+        "path": ".mcp/moves.jsonl",
+        "inventory_sha256": "02e8e562126060b2e4f1eb194f7c73fdf335a83a26413b1bb2cd1455d3cb0b1e",
+        "current_sha256": "02e8e562126060b2e4f1eb194f7c73fdf335a83a26413b1bb2cd1455d3cb0b1e",
+        "reason": "Production gate state/audit retained; expected updates from authorized gate operations."
+      },
+      {
+        "path": ".mcp/state.json",
+        "inventory_sha256": "0307818d1ad3ec79c329a6a61f98aa93a632f5b54d265641a41a777df2738ee5",
+        "current_sha256": "182bc803d4681a52abedb1b6726782467772cb55a2a2bf77122bc523b1957a34",
+        "reason": "Production gate state/audit retained; expected updates from authorized gate operations."
+      }
+    ],
+    "errors": []
+  },
+  "closure_document_updates": [
+    {
+      "path": ".agents/agents/unity-developer/scripts/validation/hash/README.md",
+      "installed_sha256": "75d6d034944c642f46ecb19ff341181c878c82486b8cc73168aca821f239363b",
+      "final_sha256": "90cc16cf8976175a995eb48c3e36c8162d76803dcc3df878d2a9a090a9024745",
+      "reason": "Replace prepared/pending status with verified installed and executed status; algorithm/immutable fixtures unchanged."
+    },
+    {
+      "path": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/README.md",
+      "installed_sha256": "8786b6b408d2bc1621be831448cb2a16edbd7c6c66002cb635e17a039e867f64",
+      "final_sha256": "890ab2c2c518194b4d93eaf97e821d945222710085ca1f91902ca9f44db4dcc2",
+      "reason": "Replace prepared/pending status with verified installed and executed status; algorithm/immutable fixtures unchanged."
+    }
+  ],
+  "unity_validation": {
+    "status": "PASS",
+    "command": "unityctl asset refresh",
+    "exit_code": 0,
+    "output": "Asset refresh completed (compilation succeeded)",
+    "scope": "Project import/script compilation after cleanup; no rendered-image or GPU equivalence validation."
+  },
+  "limitations": [
+    "Assets/Mine/Shaders/PostProcess/SSC/.backup_v1_pre_unity6 retained empty: current gate deletion API supports files only.",
+    "247 active/uncertain historical files retained; their existence is not a garbage classification.",
+    "No Unity/Metal/GPU equivalence validation for archived Hash/dense references."
+  ],
+  "follow_up": {
+    "date": "2026-10-10",
+    "change": "delete_gated / gate_cli delete / delete_gated.py 支持目录：空目录默认可删，非空须 recursive，展开子项逐个判定，软链与作用域根拒绝",
+    "action": "Assets/Mine/Shaders/PostProcess/SSC/.backup_v1_pre_unity6 已由 Unity 删除门禁删除（channel=cli，gate recipe=Production）",
+    "evidence": ".agents/agents/meta-developer/memory/2026-10-10-gate-directory-deletion.md",
+    "note": "本报告的 prune_empty_only 字段保留当时判定（retained_empty_gate_supports_files_only），不回溯改写。"
+  }
+}

@@ -1,22 +1,5 @@
 name = "unity-developer"
-description = "Unity 6 URP 17+ Shader and rendering development. Handles HLSL shaders, compute shaders, C# RenderGraph API, post-processing effects, and Metal platform optimization. Activates on Shader, HLSL, Compute, RenderGraph, URP, Material, Blit keywords."
+description = "按项目 agents 清单取用 unity-developer，仅负责范围、取用和记录。"
 developer_instructions = '''
-# Unity Developer Agent（Codex 运行时适配）
-
-> 本 toml 是 Codex 平台的运行时角色适配，**不复制共享正文**。角色正文唯一权威源：`.agents/agents/unity-developer/AGENT.md`（宪法 C1-C7、模式选择、完整性门禁、退出条件、会话收尾 E1-E4）。
-
-## 自举读取（每次会话必做）
-
-1. 项目根 `AGENTS.md` → `.agents/README.md`（SSOT 与所有权、读取顺序）。
-2. `.agents/agents/unity-developer/AGENT.md` — 本角色正文（宪法/模式/门禁/退出条件）。
-3. 任务相关 `.agents/rules/`（shader-development / csharp-renderpass / compute-shader）与 `.agents/agents/unity-developer/` 下 `references/`（知识库索引）、`templates/`、`cli/`、`memory/`（MEMORY.md 索引 + dated 文件）。
-4. 读取后输出上下文摘要（角色规范要点、相关 rules、活跃 memory），再进入任务。
-
-## Codex 平台边界（共享正文未覆盖部分）
-
-- **门禁**：Codex 无 MCP write_gated 通道。`Assets/Mine/` 改动经 Claude review + 门禁链合入，不自行绕过；合入前自查规范：`python3 .mcp/validation/check_norm.py <file>`（exit 0 = 通过，与 Claude write_gated 同一检查）。
-- **模式声明**：按共享 AGENT.md 的模式选择逻辑输出声明；本平台无 gate_set_recipe 工具，模式仅作结构化记录。
-- **临时产物**：新生成的 `.cs`、`.md`、`.json` 等先写入 `.codex/tmp/`；不直接写共享层。
-- **Editor**：`unityctl status`；`unityctl bridge start`（幂等）→ `unityctl editor run`。命令参考 `.agents/agents/unity-developer/cli/unityctl.md`。
-- **体系边界**：编辑 `.agents/`、`.claude/`、`.mcp/` 或平台边界相关文件前，先读 `.agents/rules/meta-architecture.md`（链路保障：改一侧必须同步另一侧）。
+先读取 `.agents/agents/README.md` 清单，再读取 `.agents/agents/unity-developer/AGENT.md`，直接取用本任务需要的记忆、知识和技能。不在运行时适配复制职责或操作流程；平台工具/权限由当前会话和 `.codex/AGENTS.md` 提供。
 '''

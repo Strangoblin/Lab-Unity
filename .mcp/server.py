@@ -1,41 +1,49 @@
-"""Unity Gate MCP Server — 后果验证门禁系统 (v2).
+"""Unity Gate MCP Server — 后果验证门禁系统 (v3).
 
-链统一为 [g_entry, g_knowledge] — 门禁只保留「知识证据」实质校验:
-  g_knowledge 校验声明条目命中真实知识文件（防编造）
-  write_gated 对内容执行结构规范检查（后果验证，新增行 diff）
+本文件是**传输薄壳**：三个写/删/移工具把参数交给 ``validation/judgement.py`` 的判定核，
+策略只在那里应用、信号只在那里落账。判定逻辑不写在这里 —— 否则 CLI 通道会各自分叉
+（v2 的 write 就因此长期没有 CLI 通道）。
 
-模式（recipe）经 gate_set_recipe 声明；脚本决策/文件分类降级为 write_gated 注解（记录不阻塞）。
+链统一为 [g_entry, g_knowledge]；模式（recipe）经 gate_set_recipe 声明；脚本决策/文件分类
+降级为 write_gated 注解（记录不阻塞）。
 delete_gated 是 write_gated 的对称面 —— 删除无内容可查，后果验证落在「不可恢复性」上。
 move_gated 是两者的**复合面** —— 移动 = 写新 + 删旧，验的是净效果：内容是否只是换了位置
 （连同 .meta 的 GUID）。单独看删除，tracked-dirty 硬拦是对的；在移动里就成了误拦。
-Bash 通道: python .mcp/validation/delete_gated.py --reason "..." <paths...>（同一道门禁）
-Codex 对等通道: python .mcp/validation/check_norm.py <file>
+
+传输对等 v3: 三条操作都有 CLI 等价入口 ``.mcp/validation/gate_cli.py {write,delete,move}``
+（同一判定核、同一错误码）。策略（``.mcp/policy.json``）与摩擦账本（``.mcp/friction.jsonl``）
+是 v3 的两个新面 —— 严格度可调、每次判定留痕，见
+``.agents/knowledge/meta/enforcement-policy.md``。
 
 工具:
   gate_set_recipe(name)              — 选择配方 (模式声明)
+  gate_set_workspace(path)            — 声明本次任务的工作目录（写入边界）
+  gate_request_workspace(path, reason) — 申请扩展工作目录（人工批准，agent 不得自批）
   gate_pass(gate_id, **context)      — 通过指定门禁
   gate_status()                       — 查看当前状态
   gate_list()                         — 列出所有门禁 + 配方
   gate_reset()                        — 重置
   script_list()                       — 列出脚本库
   write_gated(path, content, ...)     — 门禁 + 规范检查后写入
-  delete_gated(paths, reason)         — 门禁 + 不可恢复性检查后删除
+  delete_gated(paths, reason, recursive, dry_run) — 门禁 + 结构/不可恢复性检查后删除（含目录）
   move_gated(moves, reason)           — 门禁 + 净效果检查后移动（.meta 成对，保 GUID）
 """
 
-import json, os, asyncio
+import json, asyncio
 from mcp.server import MCPServer
 
 from gate_center import state, GATE_REGISTRY, RECIPES
-from validation.script_library import list_scripts, validate_decision
-from validation.project_paths import validate_path, check_placement, PROJECT_ROOT
-from validation.norms import check_content, _existing_lines
-from validation.deletion import evaluate, append_audit, orphan_meta_warnings, classify
-from validation.moving import (plan as plan_moves, execute as execute_moves,
-                               append_audit as append_move_audit)
-from validation.atomic_io import atomic_write
+from validation.script_library import list_scripts
+from validation import judgement
 
-server = MCPServer(name="unity-gate", version="0.6.0")
+server = MCPServer(name="unity-gate", version="0.7.0")
+
+
+def _append_audit(lst: list, rec: dict, cap: int = 100) -> None:
+    """会话内审计（最近 cap 条）。落盘的持久审计在 validation/judgement.py。"""
+    lst.append(rec)
+    if len(lst) > cap:
+        del lst[:-cap]
 
 
 # ═══ gate_set_recipe — 选择配方 ═══
@@ -48,6 +56,36 @@ async def gate_set_recipe(name: str) -> str:
         name: "Production" | "Research" | "Experiment" | "Debug" | "Minimal" | "Quick"
     """
     return json.dumps(state.set_recipe(name), ensure_ascii=False)
+
+
+# ═══ gate_set_workspace / gate_request_workspace — 任务边界 ═══
+
+@server.tool()
+async def gate_set_workspace(path: str) -> str:
+    """声明本次任务的工作目录（写入边界）。任务开始第一步之一。
+
+    作用域: `Assets/Mine/**` 下的写入 / 删除 / 移动必须落在该目录内；`tmp/` 等
+    非工程资产区不受边界约束。**边界只能收窄** —— path 必须先落在基础作用域内。
+    需要多工作区时用 gate_request_workspace 登记请求，由人工批准后扩展。
+
+    Args:
+        path: 项目相对目录，如 "Assets/Mine/Scripts"
+    """
+    return json.dumps(state.set_workspace(path), ensure_ascii=False)
+
+
+@server.tool()
+async def gate_request_workspace(path: str, reason: str) -> str:
+    """申请扩展工作目录 —— **只登记待批请求，不授权**。
+
+    批准是人工动作（`gate_cli.py workspace approve <request_id>`），agent 不得自行批准。
+    在批准前，边界外的操作仍然 DENIED。
+
+    Args:
+        path: 想扩展到的项目相对目录
+        reason: 为什么需要（进审计，供人裁决）
+    """
+    return json.dumps(state.request_workspace(path, reason), ensure_ascii=False)
 
 
 # ═══ gate_pass — 通过指定门禁 ═══
@@ -82,6 +120,7 @@ async def gate_status() -> str:
     """查看当前配方、门禁通过状态与写入审计."""
     return json.dumps({
         "recipe": state.recipe,
+        "workspace": state.workspace_view(),
         "passed": sorted(state.passed),
         "remaining": state.remaining,
         "contexts": {k: v for k, v in state.contexts.items()},
@@ -136,71 +175,21 @@ async def write_gated(path: str, content: str, mode: str = "", script_decision: 
         script_decision: 脚本决策注解，如 "USE scene-query.cs" | "NONE"
         file_type / category / effect: 文件分类注解
     """
-    path_check = validate_path(path)
-    if path_check["status"] != "OK":
-        return json.dumps(path_check, ensure_ascii=False)
 
-    gate_check = state.can_write()
-    if gate_check["status"] != "OK":
-        return json.dumps(gate_check, ensure_ascii=False)
-
-    full_path = path_check.get("full_path", path)
-
-    # ── 后果验证: 结构规范（新增行 diff）+ 文件落点 ──
-    # 两者合成一次判定：都是「这次写入的后果」，调用方看 violations[].id 区分来源
-    existing = _existing_lines(full_path)
-    is_new = not os.path.isfile(full_path)
-    norm = check_content(path, content, existing=existing)
-    place = check_placement(path, is_new=is_new, category=category)
-    violations = norm["errors"] + place["errors"]
-    if violations:
-        return json.dumps({
-            "status": "DENIED", "error": "NORM_VIOLATION",
-            "violations": violations,
-            "hint": "违反写入规范（结构规范或文件落点，来源见 violations[].id / .source）。"
-                    "修正后重试；确属规范不适用再提交 review。",
-        }, ensure_ascii=False)
-
-    # ── 注解（非阻塞，记录审计）──
-    annotations: dict = {"mode": mode or state.recipe}
-    if script_decision:
-        annotations["script_decision"] = validate_decision(script_decision)
-    if file_type:
-        annotations["file_type"] = file_type
-    if category:
-        annotations["category"] = category
-    if effect:
-        annotations["effect"] = effect
-
-    # ── 原子写（见 validation/atomic_io.py）──
-    try:
-        atomic_write(full_path, content)
-    except Exception as e:
-        return json.dumps({"status": "ERROR", "error": str(e),
-                           "hint": "文件写入失败。"})
-
-    record = {"path": path, "bytes": len(content.encode("utf-8")),
-              "recipe": state.recipe, "annotations": annotations}
-    state.writes.append(record)
-    if len(state.writes) > 100:
-        state.writes = state.writes[-100:]
-    response = {
-        "status": "OK", "written": path,
-        "bytes": len(content.encode("utf-8")),
-        "recipe": state.recipe, "passed": sorted(state.passed),
-        "annotations": annotations,
-    }
-    warnings = norm["warnings"] + place["warnings"]
-    if warnings:
-        response["warnings"] = warnings   # 提示不阻断
-    return json.dumps(response, ensure_ascii=False)
+    return json.dumps(judgement.write(
+        path, content, channel="mcp", tool="write_gated", gate=state,
+        workspace=state.workspace_view(),
+        mode=mode, script_decision=script_decision, file_type=file_type,
+        category=category, effect=effect,
+        on_record=lambda rec: _append_audit(state.writes, rec)), ensure_ascii=False)
 
 
 # ═══ delete_gated — 带门禁删除（不可恢复性验证）═══
 
 @server.tool()
-async def delete_gated(paths: list[str], reason: str) -> str:
-    """门禁校验后删除文件 —— write_gated 的对称面。
+async def delete_gated(paths: list[str], reason: str, recursive: bool = False,
+                       dry_run: bool = False) -> str:
+    """门禁校验后删除文件或目录 —— write_gated 的对称面。
 
     门禁: 与 write_gated 同一道闸（配方门禁全过）+ 同一套路径作用域。
     后果验证（validation/deletion.py）—— 删除无内容可查，验的是**不可恢复性**:
@@ -208,77 +197,21 @@ async def delete_gated(paths: list[str], reason: str) -> str:
       tracked-dirty → 硬拦：删了只剩历史版本
       untracked     → 放行，结果标注不可恢复
       .meta 的 GUID 仍被 Assets/ 引用 → 硬拦
-    整批 all-or-nothing: 任一路径被拦则整批不执行。
+    空目录默认可删；非空目录须 recursive=True。展开子项后整批预检，
+    任一路径被拦则整批不执行；不跟随软链，不删除基础作用域根。
 
     Args:
-        paths: 待删文件路径列表（项目相对，作用域同 write_gated）
+        paths: 待删文件或目录列表（项目相对，作用域同 write_gated）
         reason: 删除原因（必填，进审计）
+        recursive: 显式允许删除非空目录及经过验证的子项
+        dry_run: 仅预检并返回展开清单，不执行文件系统删除
     """
-    if not reason or not reason.strip():
-        return json.dumps({"status": "DENIED", "error": "MISSING_REASON",
-                           "hint": "reason 必填 —— 删除必须留下可追溯的原因。"},
-                          ensure_ascii=False)
-    if not paths:
-        return json.dumps({"status": "DENIED", "error": "EMPTY_PATHS",
-                           "hint": "paths 为空。"}, ensure_ascii=False)
 
-    # ── 作用域校验（与 write_gated 同一函数）──
-    checked: list[tuple] = []
-    for p in paths:
-        path_check = validate_path(p)
-        if path_check["status"] != "OK":
-            return json.dumps({**path_check, "offending_path": p}, ensure_ascii=False)
-        checked.append((p, path_check["full_path"]))
-
-    # ── 门禁（与 write_gated 同一道闸）──
-    gate_check = state.can_write()
-    if gate_check["status"] != "OK":
-        return json.dumps(gate_check, ensure_ascii=False)
-
-    # ── 后果验证: 不可恢复性 + .meta GUID 引用（与 CLI 同源: deletion.evaluate）──
-    ev = evaluate(PROJECT_ROOT, checked)
-    status, blocked = ev["status"], ev["blocked"]
-    if blocked:
-        return json.dumps({
-            "status": "DENIED", "error": "DELETION_UNSAFE", "blocked": blocked,
-            "hint": "整批未执行。tracked-dirty 先提交或还原；guid-referenced 先解除引用。",
-        }, ensure_ascii=False)
-
-    # ── 执行（missing 跳过 —— 批量清单可重复执行）──
-    deleted, failed = [], []
-    for p, full in checked:
-        info = status[p]
-        if info["state"] == "missing":
-            continue
-        try:
-            os.remove(full)
-            deleted.append({"path": p, "state": info["state"],
-                            "recoverable": info["recoverable"]})
-        except OSError as e:
-            failed.append({"path": p, "error": str(e)})
-
-    deleted_paths = [d["path"] for d in deleted]
-    record = {
-        "channel": "mcp", "paths": deleted_paths, "count": len(deleted),
-        "reason": reason.strip(), "recipe": state.recipe,
-        "unrecoverable": [d["path"] for d in deleted if not d["recoverable"]],
-    }
-    state.deletes.append(record)
-    if len(state.deletes) > 100:
-        state.deletes = state.deletes[-100:]
-    append_audit(PROJECT_ROOT, record)   # 落盘 —— 删除不留产物，日志是唯一痕迹
-
-    response = {
-        "status": "OK", "deleted": deleted, "count": len(deleted),
-        "recipe": state.recipe, "passed": sorted(state.passed),
-        "reason": reason.strip(),
-    }
-    if failed:
-        response["failed"] = failed
-    warnings = orphan_meta_warnings(PROJECT_ROOT, deleted_paths)
-    if warnings:
-        response["warnings"] = warnings   # 提示不阻断
-    return json.dumps(response, ensure_ascii=False)
+    return json.dumps(judgement.delete(
+        paths, reason, channel="mcp", tool="delete_gated", gate=state,
+        workspace=state.workspace_view(),
+        recursive=recursive, dry_run=dry_run,
+        on_record=lambda rec: _append_audit(state.deletes, rec)), ensure_ascii=False)
 
 
 # ═══ move_gated — 带门禁移动（净效果验证）═══
@@ -306,81 +239,11 @@ async def move_gated(moves: list[dict], reason: str) -> str:
         moves: [{"from": "<项目相对源路径>", "to": "<项目相对目标路径>"}, ...]
         reason: 移动原因（必填，进审计）
     """
-    if not reason or not reason.strip():
-        return json.dumps({"status": "DENIED", "error": "MISSING_REASON",
-                           "hint": "reason 必填 —— 移动必须留下可追溯的原因。"},
-                          ensure_ascii=False)
-    if not moves:
-        return json.dumps({"status": "DENIED", "error": "EMPTY_MOVES",
-                           "hint": "moves 为空。"}, ensure_ascii=False)
 
-    # ── 入参整形：moves 是 [{"from","to"}]，缺键/空值当场指出，不猜 ──
-    pairs: list[tuple] = []
-    for i, m in enumerate(moves):
-        if not isinstance(m, dict):
-            return json.dumps({"status": "DENIED", "error": "BAD_MOVE_SHAPE",
-                               "hint": f"moves[{i}] 应为对象 {{\"from\": ..., \"to\": ...}}。"},
-                              ensure_ascii=False)
-        src, dst = str(m.get("from", "")).strip(), str(m.get("to", "")).strip()
-        if not src or not dst:
-            return json.dumps({"status": "DENIED", "error": "BAD_MOVE_SHAPE",
-                               "hint": f"moves[{i}] 的 from/to 都不能为空。"},
-                              ensure_ascii=False)
-        # ── 作用域校验：源与目标都要在作用域内（同一个 validate_path）──
-        for p in (src, dst):
-            path_check = validate_path(p)
-            if path_check["status"] != "OK":
-                return json.dumps({**path_check, "offending_path": p}, ensure_ascii=False)
-        pairs.append((src, dst))
-
-    # ── 门禁（与 write_gated / delete_gated 同一道闸）──
-    gate_check = state.can_write()
-    if gate_check["status"] != "OK":
-        return json.dumps(gate_check, ensure_ascii=False)
-
-    # ── 后果验证：预检（零改动）──
-    planned = plan_moves(PROJECT_ROOT, pairs)
-    if planned["blocked"]:
-        return json.dumps({
-            "status": "DENIED", "error": "MOVE_UNSAFE", "blocked": planned["blocked"],
-            "hint": "整批未执行。TARGET_EXISTS 要替换请走 write_gated；"
-                    "GUID_TAKEN 先解除占用；CHAINED_MOVE 拆成两批。",
-        }, ensure_ascii=False)
-    plan_pairs = planned["pairs"]
-
-    # ── 执行（write-all → delete-all）——与 CLI 通道共用同一个 execute ──
-    result = execute_moves(PROJECT_ROOT, plan_pairs)
-    if result["status"] != "OK":
-        return json.dumps({"status": "ERROR", "error": f"写阶段失败，已回滚: {result['error']}",
-                           "rolled_back": result["rolled_back"],
-                           "hint": result["hint"]}, ensure_ascii=False)
-
-    moved, removed, failed = result["moved"], result["removed"], result["failed"]
-
-    # 记录搬走的源里有哪些带着未提交改动 —— 移动放行它们正是本工具存在的理由，
-    # 但「带走了未提交内容」这件事必须在审计里留痕（一次 classify，不随文件数增长）
-    src_states = classify(PROJECT_ROOT, [m["from"] for m in moved])
-
-    record = {
-        "channel": "mcp", "kind": "move", "moves": moved, "count": len(moved),
-        "removed": removed, "reason": reason.strip(), "recipe": state.recipe,
-        "carried_dirty": [p for p, info in src_states.items()
-                          if info["state"] == "tracked-dirty"],
-    }
-    state.moves.append(record)
-    if len(state.moves) > 100:
-        state.moves = state.moves[-100:]
-    append_move_audit(PROJECT_ROOT, record)   # 落盘 —— 丢失的是「哪个变成了哪个」
-
-    response = {
-        "status": "OK", "moved": moved, "count": len(moved),
-        "recipe": state.recipe, "passed": sorted(state.passed),
-        "reason": reason.strip(),
-    }
-    if failed:
-        response["failed"] = failed
-        response["hint"] = "新位置已写好；旧副本删除失败，内容没有丢失。"
-    return json.dumps(response, ensure_ascii=False)
+    return json.dumps(judgement.move(
+        moves, reason, channel="mcp", tool="move_gated", gate=state,
+        workspace=state.workspace_view(),
+        on_record=lambda rec: _append_audit(state.moves, rec)), ensure_ascii=False)
 
 
 # ═══ main ═══

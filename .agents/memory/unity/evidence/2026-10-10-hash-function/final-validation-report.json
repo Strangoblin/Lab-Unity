@@ -1,0 +1,134 @@
+{
+  "scope": "Final-stage canonical algorithm + caller contract checks; intentional sequence changes are not old-output equality claims.",
+  "source_preservation": {
+    "files": [
+      "Assets/Mine/Special/HLSL/BlurFunction.hlsl",
+      "Assets/Mine/Shaders/PostProcess/Weather/WeatherCommon.hlsl",
+      "Assets/Mine/Shaders/PostProcess/Weather/Weather.shader",
+      "Assets/Mine/Shaders/PostProcess/SSSM/SSSM.shader",
+      "Assets/Mine/Shaders/PostProcess/SSC/SSC.shader",
+      "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader",
+      "Assets/Mine/Shaders/PostProcess/PCSS/PCSSFunction.hlsl",
+      "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+      "Assets/Mine/Shaders/Render/Fur/FinInstanced.shader",
+      "Assets/Mine/Shaders/PostProcess/MaskBlur/MaskBlur.shader",
+      "Assets/Mine/Shaders/PostProcess/Kuwahara/Kuwahara.shader",
+      "Assets/Mine/Shaders/PostProcess/DDOF/DDOF.shader",
+      "Assets/Mine/Special/HLSL/HashFunction.hlsl",
+      "Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl",
+      "Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl",
+      "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGI.shader",
+      "Assets/Mine/Shaders/Render/VanGogh/TheStarryNightSDF.hlsl",
+      "Assets/Mine/Shaders/Render/VanGogh/TheStarryNight.shader"
+    ],
+    "allowed_function_replacements": {
+      "Assets/Mine/Special/HLSL/HashFunction.hlsl": [],
+      "Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl": [
+        "Hash2D"
+      ],
+      "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl": [
+        "SpecularGI_Hash22"
+      ],
+      "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader": [
+        "hash21"
+      ],
+      "Assets/Mine/Shaders/Render/VanGogh/TheStarryNightSDF.hlsl": [
+        "Hash",
+        "Hash2"
+      ]
+    },
+    "allowed_added_function": "Hash_FracGrid22"
+  },
+  "actual_shader_entry_include_order": [
+    "Assets/Mine/Shaders/PostProcess/DDOF/DDOF.shader",
+    "Assets/Mine/Shaders/PostProcess/Kuwahara/Kuwahara.shader",
+    "Assets/Mine/Shaders/PostProcess/MaskBlur/MaskBlur.shader",
+    "Assets/Mine/Shaders/PostProcess/PCSS/PCSS.compute",
+    "Assets/Mine/Shaders/PostProcess/SSC/SSC.shader",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGI.shader",
+    "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader",
+    "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+    "Assets/Mine/Shaders/PostProcess/SSSM/SSSM.shader",
+    "Assets/Mine/Shaders/PostProcess/Weather/Weather.shader",
+    "Assets/Mine/Shaders/Render/Fur/FinInstanced.shader",
+    "Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+    "Assets/Mine/Shaders/Render/VanGogh/TheStarryNight.shader"
+  ],
+  "include_audit_hidden_entry_exclusions": [
+    "Assets/Mine/Shaders/PostProcess/DDOF/.backup_v1_pre_unity6/DDOF.shader",
+    "Assets/Mine/Shaders/PostProcess/SNN/.backup_v1_pre_unity6/SNN.shader",
+    "Assets/Mine/Shaders/PostProcess/SSC/.backup_v1_pre_unity6/SSC.shader",
+    "Assets/Mine/Shaders/PostProcess/SSL/.backup_v1_pre_unity6/SSL.shader",
+    "Assets/Mine/Shaders/PostProcess/Weather/Validation~/Legacy/Rainy/Rainy.shader",
+    "Assets/Mine/Shaders/PostProcess/Weather/Validation~/Legacy/Sandy/Sandy.shader",
+    "Assets/Mine/Shaders/PostProcess/Weather/Validation~/Legacy/Snowy/Snowy.shader"
+  ],
+  "native_hlsl_spirv": [
+    {
+      "SHADER_TARGET": 20,
+      "float_fragment": "compiled + SPIR-V validated, all four float APIs called",
+      "uint_compute": "expected compile rejection; uint Hash API hidden"
+    },
+    {
+      "SHADER_TARGET": 35,
+      "float_fragment": "compiled + SPIR-V validated, all four float APIs called",
+      "uint_compute": "compiled + SPIR-V validated"
+    },
+    {
+      "SHADER_TARGET": 50,
+      "float_fragment": "compiled + SPIR-V validated, all four float APIs called",
+      "uint_compute": "compiled + SPIR-V validated"
+    }
+  ],
+  "cpu": {
+    "float2_keys": 3017,
+    "representative_input_categories": {
+      "normalized_uv": 289,
+      "sso_uv_neighbor": 867,
+      "fur_uv_seed": 243,
+      "raindrop_cells_columns": 774,
+      "specgi_pixel_frame": 20,
+      "vangogh_row_column_ring_sector": 60,
+      "ssl_uv_time_phase": 243
+    },
+    "weather_indices": 138,
+    "uint32_tuples": 2320,
+    "result": "CPU comparisons=63212 bit_mismatches=0 range_checks=54161 observed_intentional_changes=12018/12068",
+    "preserved_sequences": [
+      "A/PCSS/SSSM/SSC/SSL primary",
+      "Frac22/Fur scalar/vector/SSO signed",
+      "Weather index + 1",
+      "Blur uint32 high24",
+      "SpecGI",
+      "VanGogh scalar"
+    ],
+    "intentional_sequences": [
+      "RainDrop",
+      "SSL radial",
+      "VanGogh 2D"
+    ],
+    "canonical_reference": "actual pre-consolidation SpecularGI_Hash22 body from final-stage-before.json"
+  },
+  "fault_controls": [
+    {
+      "algorithm": "Sine21",
+      "generated_copy_change": "12.9898 -> 13.9898",
+      "bit_mismatches": 14735
+    },
+    {
+      "algorithm": "FracGrid22",
+      "generated_copy_change": "0.1030 -> 0.1130",
+      "bit_mismatches": 22492
+    }
+  ],
+  "status": "PASS",
+  "evidence_limits": [
+    "No Unity Editor, Metal compiler, GPU execution or image comparison.",
+    "SHADER_TARGET 20/35/50 checks macro exposure and native HLSL syntax, not Unity shader-model hardware capability.",
+    "CPU same-host float equality cannot establish GPU cross-platform determinism. Range checks cover sampled fixed/domain keys, not a proof of distribution quality.",
+    "Sequence-change counts document sampled differences; no claim of old random output preservation for authorized changed functions.",
+    "Representatives cover input categories with fixed plausible values; actual material ranges and runtime frame/camera values can vary."
+  ],
+  "source_include_audit_rerun": "Source/include checks repeated with file-relative private includes supported; unchanged implementation CPU/compiler results retained."
+}

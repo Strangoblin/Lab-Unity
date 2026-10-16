@@ -1,0 +1,16 @@
+{
+  "contract": "SSR-framework incremental DDA; no retired-grid control shaders",
+  "quality": "Medium",
+  "entryPoint": "TimingIsolatedSSGI",
+  "expectedDiffuseSamples": 48,
+  "expectedSpecularSamples": 64,
+  "sourceSha256": {
+    "Assets/Mine/Special/HLSL/RayStepFunction.hlsl": "e0d471aeb3cad99949f1a2d32fadb040843086e3c4af75be9f3d60dc5b0f0d7c",
+    "Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl": "a8fa01e9ee1dc1232a889eb3135d4db5d52b07fe4e1eb89b829f9a7bf2a58556",
+    "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl": "4528bd4e7ef52008ab9c97e5fe75186ccde72330eb706e0ae189853d1276b4a2",
+    "Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGI.shader": "380642abbaf6a4f4855459619824404bdfea0c05e02e4a9cfd6090243414ce2f",
+    "Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGIFeature.cs": "a6dd4ddb744968022bd236189b6c810a402118c4cfeebfd171cfb5655961312f",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGI.shader": "ed1d66e9815e2370c6bcc64fb75617bf769909cfa5ccb1c5de3dd861488e33f5",
+    "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGIFeature.cs": "313cda9e2d2d4708344ea1807a3d42f422b13da3de67d554d3e79d64705e06da"
+  }
+}

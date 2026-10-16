@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-16",
+  "authorization": "User requested moving Assets/Mine/Scripts/ProductionTools into agent content.",
+  "moves": [
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/Editor/AssetFileUtility.cs",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools/Editor/AssetFileUtility.cs",
+      "sha256": "14f0ea10cece48327e07d6a112ad15b4005d75ce510c10175c934fb181626735",
+      "git_blob": "24b0e55d73c7f7ad12757add2dc3874c05b3f55d"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/Editor/AssetFileUtility.cs.meta",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools/Editor/AssetFileUtility.cs.meta",
+      "sha256": "1a804db6feae484a25d30f7d5fb477e068422ddf6ed6d08f9976904a59aa4b77",
+      "git_blob": "9db2ccd448bf39c308d151e3d4e49d2da77a85c2"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/Editor/ProductionToolPaths.cs",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools/Editor/ProductionToolPaths.cs",
+      "sha256": "4fb81cee6fa2f1f20c3a0fe1636dcadf4601ef101a36a9fd925ca9272ebef43f",
+      "git_blob": "32a0b4298c8242a8961a2b862c4e6ca759c27ba7"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/Editor/ProductionToolPaths.cs.meta",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools/Editor/ProductionToolPaths.cs.meta",
+      "sha256": "0badc0235aff033cb8303adfb77f4b02e06b67047cd4f74561ca9e1053349a70",
+      "git_blob": "b1f8ba36e4d8d4a4e6328415a361908b3bb8e217"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/Editor/ProductionToolWindow.cs",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools/Editor/ProductionToolWindow.cs",
+      "sha256": "94cdf186fc7cac5da7db3178364b81c814fd034d966b6df9e0db342d32dee696",
+      "git_blob": "8caa1859128c405c0969a1f41c3374c6f1d50107"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/Editor/ProductionToolWindow.cs.meta",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools/Editor/ProductionToolWindow.cs.meta",
+      "sha256": "686b5283da2a48efda497775f9746e56f6fbf280797a6862f0cb294bbe074c19",
+      "git_blob": "ef0ae1ed3f82b497557395f824d932b868f7020d"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/Editor.meta",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools/Editor.meta",
+      "sha256": "24e4fdfc1462f330dced98489a312b8162dfa7491450322585ca73b0f5746a7c",
+      "git_blob": "c238c2ff340f760c83c320427c38853e8145517d"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/README.md",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools/README.md",
+      "sha256": "d5e2828aa6d54f362b829a1f813fed4fff4407d3819168689c99f04437334367",
+      "git_blob": "76779099cee3efee8c0ab28452365d53683d938e"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/README.md.meta",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools/README.md.meta",
+      "sha256": "4d11ab37256d94725f5aa1689f59afcbf131335bd97c517af8ebf1018bd750e3",
+      "git_blob": "84337240281c882cf27998cb5a8418c5187fe54e"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/Validation~/ProductionToolChecks.cs",
+      "target": ".agents/skills/auto-manager/project-adapters/production-tools/ProductionToolChecks.cs",
+      "sha256": "9ef760b59e6b4f743be91408ce714900698fb51c0818c10863836c2238bd6e3e",
+      "git_blob": "468c90ea8cd76e49c6324ed97e160c2470c364a8"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools/Validation~/README.md",
+      "target": ".agents/skills/auto-manager/project-adapters/production-tools/README.md",
+      "sha256": "59274beef07a13874c741fe32476290189fac5507aded362813724280fcb72ca",
+      "git_blob": "4c14b9878f6209ff0dbd057410989351cd0f5221"
+    },
+    {
+      "source": "Assets/Mine/Scripts/ProductionTools.meta",
+      "target": ".agents/memory/meta/evidence/2026-10-16-production-tools-relocation/source/ProductionTools.meta",
+      "sha256": "e39cd60dbf405398aa6dbdf948e96f61ec4588ae401d9f31d8f5c380518e3abe",
+      "git_blob": "7e9ba8a22d694dd9c92bb2c57d90c59ecd7ca881"
+    }
+  ],
+  "consumer_inputs": [
+    {
+      "source": "Assets/Mine/Scripts/CurveGenerator/Editor/CurveGeneratorWindow.cs",
+      "sha256": "539541b0c38217d5756a1c9c393e9bb17d749e1ff55b3fefc29617a9a8b5af9c",
+      "git_blob": "c212b48840705afdb4287b013f5456dedcd7c255"
+    },
+    {
+      "source": "Assets/Mine/Scripts/FGDLutBaker/Editor/FGDLutBakerWindow.cs",
+      "sha256": "5e09fb025ce3574f08b523a1c185faaf9a269d78373737467c3bff679d600518",
+      "git_blob": "7936d1d5c785f9d8557816c759632a4d33c73dc4"
+    },
+    {
+      "source": "Assets/Mine/Scripts/InteriorMapBaker/Editor/InteriorMapBakerWindow.cs",
+      "sha256": "0177e06a5b03c44d4779ba387aa5abe7f9fefde9b1d4099ff408f4f7e342696c",
+      "git_blob": "a4c2c176d19d845110aba91c35c98616e512b584"
+    },
+    {
+      "source": "Assets/Mine/Scripts/NoiseGenerator/Editor/NoiseGeneratorWindow.cs",
+      "sha256": "ba238ce1cd2e306a64fea0bbf40da8b32e6fcb2307c1af47303255cec2de5d66",
+      "git_blob": "5bbee3131ef6b6606cb019652e4edc9a3b0fd2c4"
+    },
+    {
+      "source": "Assets/Mine/Scripts/SSSLutBaker/Editor/SSSLutBakerWindow.cs",
+      "sha256": "4582fd7a5884cd85a981ba294fd14c93493acb307afafe360f4995bf544644d2",
+      "git_blob": "472bbb0d1ccf2eaa732a5ac15b81e526c124a3dc"
+    }
+  ],
+  "current_template": ".agents/skills/auto-manager/templates/script/production-tool/production-tool-window.cs",
+  "note": "Original framework sources are immutable provenance; the current skill contains one complete standalone EditorWindow template."
+}

@@ -79,14 +79,15 @@ FGDLutBaker.LogDiagnostics(lut);
 | 控件 | 说明 |
 |------|------|
 | Resolution / Sample Count | 烘焙参数 |
-| Save Path | 保存 .asset 路径 |
-| Load Path | 载入已保存的 LUT 路径 |
+| Asset Path | Save / Load 共用 .asset 路径，默认 `Assets/Textures/FGD_LUT.asset` |
 | Bake | GPU 烘焙新 LUT |
-| Load | 从 Load Path 载入 |
-| Save | 保存到 Save Path |
+| Load | 从 Asset Path 载入纹理，不恢复烘焙参数 |
+| Save | 保存到 Asset Path；覆盖其他同类型资产前确认，原位更新保留 GUID |
 | Preview | 当前纹理预览 |
 
 ---
+
+窗口独立继承 `EditorWindow`，在本工具内持有 Asset Path、Bake / Load / Save 与资产所有权，只对目标调用 `SaveAssetIfDirty`。
 
 ## ENVFunction 集成
 

@@ -1,0 +1,14 @@
+{
+  "76c1fd2739c740b1a1491fed2298d28c": "Assets/Mine/Shaders/PostProcess/Rainy/Rainy.shader.meta",
+  "2dd7b3269a27471b9103ff40dcab50b0": "Assets/Mine/Shaders/PostProcess/Rainy/README.md.meta",
+  "a0e0f32d18734f31a515686a5f6ef445": "Assets/Mine/Shaders/PostProcess/Rainy/Mine_PostProcess_Rainy.mat.meta",
+  "b29e92fee032469dbb16c7d820fcb7cf": "Assets/Mine/Shaders/PostProcess/Rainy.meta",
+  "70405813d7cd74e7f9a09f0eabf75f89": "Assets/Mine/Shaders/PostProcess/Sandy/Sandy.shader.meta",
+  "0c8fe852eedd74ea197790eb34c0413d": "Assets/Mine/Shaders/PostProcess/Sandy/Mine_PostProcess_Sandy.mat.meta",
+  "0939c8e31470142719e90367a9d94cb8": "Assets/Mine/Shaders/PostProcess/Sandy/README.md.meta",
+  "498c2362ce01040d095677b3b818fb21": "Assets/Mine/Shaders/PostProcess/Sandy.meta",
+  "d0ec342ac28694d0da782da25c1d3c21": "Assets/Mine/Shaders/PostProcess/Snowy/Mine_PostProcess_Snowy.mat.meta",
+  "dea6b9a78142240deb2a05a75d2ef63c": "Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader.meta",
+  "5ac61652eec124d2da9ad7cf6796ecd5": "Assets/Mine/Shaders/PostProcess/Snowy/README.md.meta",
+  "312164131a7d94d87bec529d564986d8": "Assets/Mine/Shaders/PostProcess/Snowy.meta"
+}

@@ -143,6 +143,7 @@ def resolve_entry(
 
 def default_kb_roots(project_root: Path) -> list[tuple[str, Path]]:
     return [
-        ("unity", project_root / ".agents" / "agents" / "unity-developer" / "references"),
-        ("rules", project_root / ".agents" / "rules"),
+        ("unity", project_root / ".agents" / "knowledge" / "unity"),
+        ("meta", project_root / ".agents" / "knowledge" / "meta"),
+        ("rules", project_root / ".agents" / "knowledge" / "rules"),
     ]

@@ -1,0 +1,2963 @@
+{
+  "prepared_only": true,
+  "old_sources_untouched": true,
+  "records": [
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[3].content",
+      "source_sha256": "58fb237ac51c6c15e19870873a1475912f39a5c700860903b31a589280da383f",
+      "source_size_bytes": 79534,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/Stars.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/Stars.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/Stars.shader",
+      "prepared_sha256": "58fb237ac51c6c15e19870873a1475912f39a5c700860903b31a589280da383f",
+      "prepared_size_bytes": 79534,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[4].content",
+      "source_sha256": "5aeaeb6da5401c9cc5add8a5fe0f7b75f7f35bdbf0eb6b11513d6d6bcea7ad3b",
+      "source_size_bytes": 87023,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/StarsOutline.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/StarsOutline.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Effects/Stars/StarsOutline.shader",
+      "prepared_sha256": "5aeaeb6da5401c9cc5add8a5fe0f7b75f7f35bdbf0eb6b11513d6d6bcea7ad3b",
+      "prepared_size_bytes": 87023,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[7].before",
+      "source_sha256": "2ec388f98c0a1ba0cc373691209226ee9d9ba6189c56ff35e67d2d929e948904",
+      "source_size_bytes": 3902,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/InstanceManager/Instance/Boid/BoidInstance.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/InstanceManager/Instance/Boid/BoidInstance.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/InstanceManager/Instance/Boid/BoidInstance.shader",
+      "prepared_sha256": "2ec388f98c0a1ba0cc373691209226ee9d9ba6189c56ff35e67d2d929e948904",
+      "prepared_size_bytes": 3902,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[15].before",
+      "source_sha256": "51886f281a05f2942ce3d1b463af7f5c67bd4e8a9420fda2703e5f28234046f8",
+      "source_size_bytes": 2747,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutPacker.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutPacker.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutPacker.shader",
+      "prepared_sha256": "51886f281a05f2942ce3d1b463af7f5c67bd4e8a9420fda2703e5f28234046f8",
+      "prepared_size_bytes": 2747,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[35].before",
+      "source_sha256": "96a4f0f719fd87bf9e8b1fefdb387628ce8e3eac2e3d4583da95ff85a3c77e35",
+      "source_size_bytes": 8265,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/RimToon/RimToon.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/RimToon/RimToon.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/RimToon/RimToon.shader",
+      "prepared_sha256": "96a4f0f719fd87bf9e8b1fefdb387628ce8e3eac2e3d4583da95ff85a3c77e35",
+      "prepared_size_bytes": 8265,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[48].before",
+      "source_sha256": "63f2b991142561dbd667dcc74e3d8079f961993e9ebf895a94d57e8431203521",
+      "source_size_bytes": 4183,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "prepared_sha256": "63f2b991142561dbd667dcc74e3d8079f961993e9ebf895a94d57e8431203521",
+      "prepared_size_bytes": 4183,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[48].content",
+      "source_sha256": "8fcdc1663fbc38d4ed685d7d6e30bf9d10bf11a815b79bbc3c23f694d5c79401",
+      "source_size_bytes": 4178,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/PostProcess/Snowy/Snowy.shader",
+      "prepared_sha256": "8fcdc1663fbc38d4ed685d7d6e30bf9d10bf11a815b79bbc3c23f694d5c79401",
+      "prepared_size_bytes": 4178,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[58].before",
+      "source_sha256": "050e75b01df418e60c5349e8eaa0df8311f16ecaa1d1a869ccfa76a0ed359e2d",
+      "source_size_bytes": 12496,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "prepared_sha256": "050e75b01df418e60c5349e8eaa0df8311f16ecaa1d1a869ccfa76a0ed359e2d",
+      "prepared_size_bytes": 12496,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[58].content",
+      "source_sha256": "f4b43b22b125ea4cf3adfa24cbf52e2fdbd72befbe88c7d7dc52eca1702efc04",
+      "source_size_bytes": 12496,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/after/Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader",
+      "prepared_sha256": "f4b43b22b125ea4cf3adfa24cbf52e2fdbd72befbe88c7d7dc52eca1702efc04",
+      "prepared_size_bytes": 12496,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[61].before",
+      "source_sha256": "6b16f8f63769707e0e5713c05b0519acfd5b86a9567a0bb0a434247f5fb1c8aa",
+      "source_size_bytes": 5686,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/RainDrops/RainDrops.shader",
+      "prepared_sha256": "6b16f8f63769707e0e5713c05b0519acfd5b86a9567a0bb0a434247f5fb1c8aa",
+      "prepared_size_bytes": 5686,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[65].before",
+      "source_sha256": "991b6b80de7d5fd831c6899a634d0d1a8ae167faf910161668eaf7e2f5ac8868",
+      "source_size_bytes": 6078,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.shader",
+      "prepared_sha256": "991b6b80de7d5fd831c6899a634d0d1a8ae167faf910161668eaf7e2f5ac8868",
+      "prepared_size_bytes": 6078,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[69].before",
+      "source_sha256": "79dd587e7af4748fe6388f4ce82769f98c25efc71aea335b2d93b6a98287e766",
+      "source_size_bytes": 11107,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/Water/Water.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/Water/Water.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Shaders/Render/Water/Water.shader",
+      "prepared_sha256": "79dd587e7af4748fe6388f4ce82769f98c25efc71aea335b2d93b6a98287e766",
+      "prepared_size_bytes": 11107,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json#changes[81].before",
+      "source_sha256": "265686dfb35f9943e704ab714b8934e68ecc6937633987428af05ade41e8f7f6",
+      "source_size_bytes": 5366,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutBaker.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutBaker.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/snapshots/before/Assets/Mine/Scripts/SSSLutBaker/SSSLutBaker.cs",
+      "prepared_sha256": "265686dfb35f9943e704ab714b8934e68ecc6937633987428af05ade41e8f7f6",
+      "prepared_size_bytes": 5366,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "原改名计划中的唯一正文，Git 没有此 blob；仅作历史快照。"
+    },
+    {
+      "source": ".codex/tmp/shader-rename.json",
+      "source_sha256": "81f02f2a3f45be23aa56cf7c94d9d6e2fcaa8d266aa9791229828e3a3c8dbd0c",
+      "source_size_bytes": 8939211,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/mapping.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/mapping.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/mapping.json",
+      "prepared_sha256": "3e1f2e844dbe3955346efb1ae3c5cfbc21eaf9e595d437418a13dff6707b9b5c",
+      "prepared_size_bytes": 77005,
+      "transformed": true,
+      "adapted": true,
+      "delete_source_after_verified_archive": true,
+      "reason": "完整保存 84 项 before/after 的路径、校验、Git blob/commit 与所有菜单名映射；13 份唯一正文独立保留。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/README.md",
+      "source_sha256": "1b3c37667a367f5f28baa9e5cbff99f0744fce5fe9d43cb7e26f387a785b3397",
+      "source_size_bytes": 4711,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/README.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/README.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/README.md",
+      "prepared_sha256": "1b3c37667a367f5f28baa9e5cbff99f0744fce5fe9d43cb7e26f387a785b3397",
+      "prepared_size_bytes": 4711,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/VALIDATION.md",
+      "source_sha256": "ca853c6e1c62467976b6f00bbe02e690d410dda83ba105b6904bf8fb0d807da3",
+      "source_size_bytes": 4099,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/VALIDATION.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/VALIDATION.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/VALIDATION.md",
+      "prepared_sha256": "ca853c6e1c62467976b6f00bbe02e690d410dda83ba105b6904bf8fb0d807da3",
+      "prepared_size_bytes": 4099,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/baseline.json",
+      "source_sha256": "75c2ea2d6e12ad4ddc56eeb582ade6ff01d2218f3059fda6601094bb3110820b",
+      "source_size_bytes": 2560,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/baseline.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/baseline.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/baseline.json",
+      "prepared_sha256": "75c2ea2d6e12ad4ddc56eeb582ade6ff01d2218f3059fda6601094bb3110820b",
+      "prepared_size_bytes": 2560,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/script/WeatherFeature.cs",
+      "source_sha256": "51aad14fb430f1b70be0b86868bc149e3b6fd52ec69462b50357962c9b6db49d",
+      "source_size_bytes": 20166,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/script/WeatherFeature.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/script/WeatherFeature.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/script/WeatherFeature.cs",
+      "prepared_sha256": "51aad14fb430f1b70be0b86868bc149e3b6fd52ec69462b50357962c9b6db49d",
+      "prepared_size_bytes": 20166,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/script/WeatherProfile.cs",
+      "source_sha256": "7baf9db67f01840b6ce68ed6ffaca2c5c39ac8e7fe9b142762b17499024b896b",
+      "source_size_bytes": 12533,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/script/WeatherProfile.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/script/WeatherProfile.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/script/WeatherProfile.cs",
+      "prepared_sha256": "7baf9db67f01840b6ce68ed6ffaca2c5c39ac8e7fe9b142762b17499024b896b",
+      "prepared_size_bytes": 12533,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/shader/Weather.shader",
+      "source_sha256": "8d986e2fce3a8e0f60ac6ad5c218a4f9a60cdbc21dbd456b1c480492972fca35",
+      "source_size_bytes": 5613,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/shader/Weather.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/shader/Weather.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/shader/Weather.shader",
+      "prepared_sha256": "8d986e2fce3a8e0f60ac6ad5c218a4f9a60cdbc21dbd456b1c480492972fca35",
+      "prepared_size_bytes": 5613,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/shader/WeatherCommon.hlsl",
+      "source_sha256": "d94c0a27f84d9686514232098abfdcfba24afcff944b6e2cb6deb14d475546b1",
+      "source_size_bytes": 3710,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/shader/WeatherCommon.hlsl",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/shader/WeatherCommon.hlsl",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/shader/WeatherCommon.hlsl",
+      "prepared_sha256": "d94c0a27f84d9686514232098abfdcfba24afcff944b6e2cb6deb14d475546b1",
+      "prepared_size_bytes": 3710,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/shader/WeatherParticles.hlsl",
+      "source_sha256": "184f037418c728558e6cb42624f7b16c6921bb11f6c1b7333ddf656016ddb20b",
+      "source_size_bytes": 8284,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/shader/WeatherParticles.hlsl",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/shader/WeatherParticles.hlsl",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/shader/WeatherParticles.hlsl",
+      "prepared_sha256": "184f037418c728558e6cb42624f7b16c6921bb11f6c1b7333ddf656016ddb20b",
+      "prepared_size_bytes": 8284,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/validation/InstallFeature.cs",
+      "source_sha256": "2a3c2f35992329257507025e99ea48364ce8ca5ce16193201b271e371b551e01",
+      "source_size_bytes": 2160,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/InstallFeature.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/InstallFeature.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/InstallFeature.cs",
+      "prepared_sha256": "2a3c2f35992329257507025e99ea48364ce8ca5ce16193201b271e371b551e01",
+      "prepared_size_bytes": 2160,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/validation/PC_Renderer.before.asset",
+      "source_sha256": "0da2dfe31681ccfd02fec9da7633683aa675ef358f1aa6bdf0aa0e7a3200fd60",
+      "source_size_bytes": 7542,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/PC_Renderer.before.asset",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/PC_Renderer.before.asset",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/PC_Renderer.before.asset",
+      "prepared_sha256": "0da2dfe31681ccfd02fec9da7633683aa675ef358f1aa6bdf0aa0e7a3200fd60",
+      "prepared_size_bytes": 7542,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/validation/PipelineChecks.cs",
+      "source_sha256": "b7c0172ded339de0d2881d1a606e4e7aa13eabcdf8b8f1ac7a1aca0c5ccce7df",
+      "source_size_bytes": 33054,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/PipelineChecks.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/PipelineChecks.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/PipelineChecks.cs",
+      "prepared_sha256": "b7c0172ded339de0d2881d1a606e4e7aa13eabcdf8b8f1ac7a1aca0c5ccce7df",
+      "prepared_size_bytes": 33054,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/validation/RetireLegacyBindings.cs",
+      "source_sha256": "31bf4540e896e82aa137879c5f6678e2c1fc6df4cf9323e90a22184e9e3dba14",
+      "source_size_bytes": 2252,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/RetireLegacyBindings.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/RetireLegacyBindings.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/RetireLegacyBindings.cs",
+      "prepared_sha256": "31bf4540e896e82aa137879c5f6678e2c1fc6df4cf9323e90a22184e9e3dba14",
+      "prepared_size_bytes": 2252,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/validation/legacy-guid-inventory.json",
+      "source_sha256": "8ee7b8a4b97986a4fe6f776baeb23c1bc507e1982748c60204bfab4d32fa63e6",
+      "source_size_bytes": 1160,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/legacy-guid-inventory.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/legacy-guid-inventory.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/legacy-guid-inventory.json",
+      "prepared_sha256": "8ee7b8a4b97986a4fe6f776baeb23c1bc507e1982748c60204bfab4d32fa63e6",
+      "prepared_size_bytes": 1160,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/validation/renderer-weather-only.patch",
+      "source_sha256": "2b45bbe483fe817893dbf4e4a25fb6932dd7b09bb0e888e5e44bb45498d59245",
+      "source_size_bytes": 2119,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/renderer-weather-only.patch",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/renderer-weather-only.patch",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/renderer-weather-only.patch",
+      "prepared_sha256": "2b45bbe483fe817893dbf4e4a25fb6932dd7b09bb0e888e5e44bb45498d59245",
+      "prepared_size_bytes": 2119,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/validation/stage_renderer.py",
+      "source_sha256": "1b00faad3fa7c52ca88373137fae27fe711aba31517276e4f6a90acf6c557a53",
+      "source_size_bytes": 1842,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/stage_renderer.py",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/stage_renderer.py",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/stage_renderer.py",
+      "prepared_sha256": "1b00faad3fa7c52ca88373137fae27fe711aba31517276e4f6a90acf6c557a53",
+      "prepared_size_bytes": 1842,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-implementation/validation/user-particles.sha256",
+      "source_sha256": "989a04daf42baf047534dbefedc69b44254489bd54caf255f325c64355c91841",
+      "source_size_bytes": 64,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/user-particles.sha256",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/implementation/validation/user-particles.sha256",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/implementation/validation/user-particles.sha256",
+      "prepared_sha256": "989a04daf42baf047534dbefedc69b44254489bd54caf255f325c64355c91841",
+      "prepared_size_bytes": 64,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-08～10-09 已完成整合阶段的独有暂存版本与记录；当前正式功能/Validation 是执行入口。"
+    },
+    {
+      "source": ".codex/tmp/weather-plan/design.md",
+      "source_sha256": "43c8f215f6b127cbe871f4b0687eecb697eab627c2ae2249bbe0498ebbd2a338",
+      "source_size_bytes": 25561,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/plan/design.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/plan/design.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/design.md",
+      "prepared_sha256": "43c8f215f6b127cbe871f4b0687eecb697eab627c2ae2249bbe0498ebbd2a338",
+      "prepared_size_bytes": 25561,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "已实施整合任务的原始需求/设计/阶段清单，保留当时措辞和未勾选状态供追溯。"
+    },
+    {
+      "source": ".codex/tmp/weather-plan/implementation-contract.md",
+      "source_sha256": "741c3c992d59ad37f61bc65a9b6b18e4a92eebbb57917105081ea1f78a2ee589",
+      "source_size_bytes": 4474,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/plan/implementation-contract.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/plan/implementation-contract.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/implementation-contract.md",
+      "prepared_sha256": "741c3c992d59ad37f61bc65a9b6b18e4a92eebbb57917105081ea1f78a2ee589",
+      "prepared_size_bytes": 4474,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "已实施整合任务的原始需求/设计/阶段清单，保留当时措辞和未勾选状态供追溯。"
+    },
+    {
+      "source": ".codex/tmp/weather-plan/requirements.md",
+      "source_sha256": "3bc92ced02970c1e01a3abfbbef4ca666e601645799144143b439eae24419097",
+      "source_size_bytes": 6905,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/plan/requirements.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/plan/requirements.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/requirements.md",
+      "prepared_sha256": "3bc92ced02970c1e01a3abfbbef4ca666e601645799144143b439eae24419097",
+      "prepared_size_bytes": 6905,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "已实施整合任务的原始需求/设计/阶段清单，保留当时措辞和未勾选状态供追溯。"
+    },
+    {
+      "source": ".codex/tmp/weather-plan/tasks.md",
+      "source_sha256": "27a769e89a5a5f981111ec895b3d1ff9938fcdf8bd98b21f590db87d086fb55d",
+      "source_size_bytes": 12617,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/plan/tasks.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/plan/tasks.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/plan/tasks.md",
+      "prepared_sha256": "27a769e89a5a5f981111ec895b3d1ff9938fcdf8bd98b21f590db87d086fb55d",
+      "prepared_size_bytes": 12617,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "已实施整合任务的原始需求/设计/阶段清单，保留当时措辞和未勾选状态供追溯。"
+    },
+    {
+      "source": ".codex/tmp/snowy-before/PC_Renderer.asset",
+      "source_sha256": "9afdbf86b83718de741ff37a52e9af7865e1957b275baaa1309ef9e2d77d90b0",
+      "source_size_bytes": 9108,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-before/PC_Renderer.asset",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-before/PC_Renderer.asset",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-before/PC_Renderer.asset",
+      "prepared_sha256": "9afdbf86b83718de741ff37a52e9af7865e1957b275baaa1309ef9e2d77d90b0",
+      "prepared_size_bytes": 9108,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-camera-preview.png",
+      "source_sha256": "594f3ec750be2bb09e0d4be19946fcd574eb5a8cc12b8e9a931b8e36c5103a97",
+      "source_size_bytes": 339656,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-camera-preview.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-camera-preview.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-camera-preview.png",
+      "prepared_sha256": "594f3ec750be2bb09e0d4be19946fcd574eb5a8cc12b8e9a931b8e36c5103a97",
+      "prepared_size_bytes": 339656,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-camera-verify.cs",
+      "source_sha256": "ce3754abbd44882012e1ecdd8285fa6526ccaf418d6501c2c08f866082c1f8b5",
+      "source_size_bytes": 3361,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-camera-verify.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-camera-verify.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-camera-verify.cs",
+      "prepared_sha256": "ce3754abbd44882012e1ecdd8285fa6526ccaf418d6501c2c08f866082c1f8b5",
+      "prepared_size_bytes": 3361,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-flip-before/Snowy.shader",
+      "source_sha256": "331fba3e8ffaea995fbc8358853c3cf0628a1f90313a3f44452c97d3be37a898",
+      "source_size_bytes": 4787,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-flip-before/Snowy.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-flip-before/Snowy.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-flip-before/Snowy.shader",
+      "prepared_sha256": "331fba3e8ffaea995fbc8358853c3cf0628a1f90313a3f44452c97d3be37a898",
+      "prepared_size_bytes": 4787,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-flip-before/SnowyParticle.hlsl",
+      "source_sha256": "827e2250b66106cb2ff899829cccd3ce81310adcb20c2d1efa62bc547914d9a0",
+      "source_size_bytes": 4925,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-flip-before/SnowyParticle.hlsl",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-flip-before/SnowyParticle.hlsl",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-flip-before/SnowyParticle.hlsl",
+      "prepared_sha256": "827e2250b66106cb2ff899829cccd3ce81310adcb20c2d1efa62bc547914d9a0",
+      "prepared_size_bytes": 4925,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-grid-preview.png",
+      "source_sha256": "f9cb7670f1ac7f31ab764d97d3e24a139ce220c748d3701ec802f28881c0ef30",
+      "source_size_bytes": 32677,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-grid-preview.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-grid-preview.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-grid-preview.png",
+      "prepared_sha256": "f9cb7670f1ac7f31ab764d97d3e24a139ce220c748d3701ec802f28881c0ef30",
+      "prepared_size_bytes": 32677,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-motion-before/Snowy.shader",
+      "source_sha256": "71b392b99d54ef32255517a4d1c178dfc0ac54c60b9b3b3a28370a8edb7fda16",
+      "source_size_bytes": 4011,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-motion-before/Snowy.shader",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-motion-before/Snowy.shader",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-motion-before/Snowy.shader",
+      "prepared_sha256": "71b392b99d54ef32255517a4d1c178dfc0ac54c60b9b3b3a28370a8edb7fda16",
+      "prepared_size_bytes": 4011,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-motion-before/SnowyParticle.hlsl",
+      "source_sha256": "948106021ab4400f7834627f47d2ad130689dc1a0696f24fcb4744225ddc948b",
+      "source_size_bytes": 3132,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-motion-before/SnowyParticle.hlsl",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-motion-before/SnowyParticle.hlsl",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-motion-before/SnowyParticle.hlsl",
+      "prepared_sha256": "948106021ab4400f7834627f47d2ad130689dc1a0696f24fcb4744225ddc948b",
+      "prepared_size_bytes": 3132,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-motion-before/Snowy_Grid.mat",
+      "source_sha256": "e9a6f45acaa8cad313673525ae26dbb66c33e3b0e34ef614f715dd231fbd5c94",
+      "source_size_bytes": 1295,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-motion-before/Snowy_Grid.mat",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-motion-before/Snowy_Grid.mat",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-motion-before/Snowy_Grid.mat",
+      "prepared_sha256": "e9a6f45acaa8cad313673525ae26dbb66c33e3b0e34ef614f715dd231fbd5c94",
+      "prepared_size_bytes": 1295,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-setup.cs",
+      "source_sha256": "5871e0639a59b90686aad6fef98f6578c1cc152d582dbf031722950a242c82ca",
+      "source_size_bytes": 4658,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-setup.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-setup.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-setup.cs",
+      "prepared_sha256": "5871e0639a59b90686aad6fef98f6578c1cc152d582dbf031722950a242c82ca",
+      "prepared_size_bytes": 4658,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/snowy-verify.cs",
+      "source_sha256": "1e5a86bf553dbbb616c49b85f4c93e3d4177c017fbb2b414955db12ec2b4951e",
+      "source_size_bytes": 11017,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-verify.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/snowy-verify.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/snowy-verify.cs",
+      "prepared_sha256": "1e5a86bf553dbbb616c49b85f4c93e3d4177c017fbb2b414955db12ec2b4951e",
+      "prepared_size_bytes": 11017,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Snowy 已退役原型的独有预览/检查源码/阶段基线；后续收尾与 Weather 取代关系已明确。"
+    },
+    {
+      "source": ".codex/tmp/plant-billboard-plan.md",
+      "source_sha256": "ef5d5dfc8c99006cc4123a60c4a7ed934bc6f8097048221de9fe0e679ddf308e",
+      "source_size_bytes": 2537,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plan.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plan.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plan.md",
+      "prepared_sha256": "ef5d5dfc8c99006cc4123a60c4a7ed934bc6f8097048221de9fe0e679ddf308e",
+      "prepared_size_bytes": 2537,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Plant 已交付，原始移植方案保留来源和阶段范围。"
+    },
+    {
+      "source": "tmp/plant-preview-0.png",
+      "source_sha256": "390f887df26e6f890bd9c83307a314da084bf218452da33c4722800406ff1321",
+      "source_size_bytes": 22135,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-0.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-0.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-0.png",
+      "prepared_sha256": "390f887df26e6f890bd9c83307a314da084bf218452da33c4722800406ff1321",
+      "prepared_size_bytes": 22135,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Plant 历史五组预览；正式 README 已记录验证与后续风场扩展。"
+    },
+    {
+      "source": "tmp/plant-preview-1.png",
+      "source_sha256": "bd2a51399d5026c04f5f1f33f8c35933df90a431942d5a2b80b5e7eb53ad92f1",
+      "source_size_bytes": 22498,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-1.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-1.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-1.png",
+      "prepared_sha256": "bd2a51399d5026c04f5f1f33f8c35933df90a431942d5a2b80b5e7eb53ad92f1",
+      "prepared_size_bytes": 22498,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Plant 历史五组预览；正式 README 已记录验证与后续风场扩展。"
+    },
+    {
+      "source": "tmp/plant-preview-2.png",
+      "source_sha256": "a108ec9d180f2988a8c2516d6278971e6d50c77eaea578af934316fefa1d81e2",
+      "source_size_bytes": 22136,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-2.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-2.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-2.png",
+      "prepared_sha256": "a108ec9d180f2988a8c2516d6278971e6d50c77eaea578af934316fefa1d81e2",
+      "prepared_size_bytes": 22136,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Plant 历史五组预览；正式 README 已记录验证与后续风场扩展。"
+    },
+    {
+      "source": "tmp/plant-preview-3.png",
+      "source_sha256": "da70650aa687eaccce9c9b90ce71d448ddc251bb7c8e092ad21888e060ad2d10",
+      "source_size_bytes": 24507,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-3.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-3.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-3.png",
+      "prepared_sha256": "da70650aa687eaccce9c9b90ce71d448ddc251bb7c8e092ad21888e060ad2d10",
+      "prepared_size_bytes": 24507,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Plant 历史五组预览；正式 README 已记录验证与后续风场扩展。"
+    },
+    {
+      "source": "tmp/plant-preview-4.png",
+      "source_sha256": "3de1980753722096db63b0f4a3d321473759b827a66fc307bf4ad59cd10bcfc7",
+      "source_size_bytes": 21606,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-4.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/plant-preview-4.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/plant-preview-4.png",
+      "prepared_sha256": "3de1980753722096db63b0f4a3d321473759b827a66fc307bf4ad59cd10bcfc7",
+      "prepared_size_bytes": 21606,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "Plant 历史五组预览；正式 README 已记录验证与后续风场扩展。"
+    },
+    {
+      "source": "tmp/rollback-2026-09-21-diffusegi-ao.tar.gz",
+      "source_sha256": "bcdb067c5eec3b24eddaf01cd302b2b318abe7b2761e4e64e471d5fd7a955138",
+      "source_size_bytes": 27938403,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/rollback-2026-09-21-diffusegi-ao.tar.gz",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/rollback-2026-09-21-diffusegi-ao.tar.gz",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/rollback-2026-09-21-diffusegi-ao.tar.gz",
+      "prepared_sha256": "bcdb067c5eec3b24eddaf01cd302b2b318abe7b2761e4e64e471d5fd7a955138",
+      "prepared_size_bytes": 27938403,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "既有 memory 引用的历史回退包，原样保留；本任务不新建压缩包。"
+    },
+    {
+      "source": "tmp/cleanup-manifest.md",
+      "source_sha256": "5cf989466d73e43dea542dcc823af7eae331d7306886289051e6740d37cbf526",
+      "source_size_bytes": 19058,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/cleanup-manifest.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/cleanup-manifest.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/cleanup-manifest.md",
+      "prepared_sha256": "5cf989466d73e43dea542dcc823af7eae331d7306886289051e6740d37cbf526",
+      "prepared_size_bytes": 19058,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "配套原始清理清单；实际执行状态由 09-21 台账解释。"
+    },
+    {
+      "source": "tmp/rollback-2026-09-21-diffusegi-ao.tar.gz#.codex/tmp/ao/verify4.cs",
+      "source_sha256": "3d94fc882765c13077712f0a5df9061e529952e38c4f8a3f86fe03a8276e1489",
+      "source_size_bytes": 7141,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/historical-source/verify4.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/historical-source/verify4.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify4.cs",
+      "prepared_sha256": "3d94fc882765c13077712f0a5df9061e529952e38c4f8a3f86fe03a8276e1489",
+      "prepared_size_bytes": 7141,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "从旧回退包恢复的原始 AO 验证脚本，补缺失历史证据引用；不声称适配当前 AO。"
+    },
+    {
+      "source": "tmp/rollback-2026-09-21-diffusegi-ao.tar.gz#.codex/tmp/ao/verify3.cs",
+      "source_sha256": "22a3670ee481b3debc8d569d7bbd4b60cdd335f2a2bf1abd6bab6dca68546c19",
+      "source_size_bytes": 7108,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/historical-source/verify3.cs",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/historical-source/verify3.cs",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify3.cs",
+      "prepared_sha256": "22a3670ee481b3debc8d569d7bbd4b60cdd335f2a2bf1abd6bab6dca68546c19",
+      "prepared_size_bytes": 7108,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "从旧回退包恢复的原始 AO 验证脚本，补缺失历史证据引用；不声称适配当前 AO。"
+    },
+    {
+      "source": "Screenshots/ao-probe/hb_baseline.bmp",
+      "source_sha256": "bc234553e74cd3e1c7c374cd1661e92bb40ce6f9828d3c87771189ac149f7071",
+      "source_size_bytes": 1340634,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.bmp",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.bmp",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.bmp",
+      "prepared_sha256": "bc234553e74cd3e1c7c374cd1661e92bb40ce6f9828d3c87771189ac149f7071",
+      "prepared_size_bytes": 1340634,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/hb_baseline.png",
+      "source_sha256": "4b966f45d11b918400c53f699e4a10777008437c37cdcdd699b88dfac1a1ff77",
+      "source_size_bytes": 220559,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_baseline.png",
+      "prepared_sha256": "4b966f45d11b918400c53f699e4a10777008437c37cdcdd699b88dfac1a1ff77",
+      "prepared_size_bytes": 220559,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/hb_composite.bmp",
+      "source_sha256": "bd3e11f1d816c2b43c0779fe0d2a6c960aeaadd1f1876a34c97ebacc03f3ed47",
+      "source_size_bytes": 1340634,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.bmp",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.bmp",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.bmp",
+      "prepared_sha256": "bd3e11f1d816c2b43c0779fe0d2a6c960aeaadd1f1876a34c97ebacc03f3ed47",
+      "prepared_size_bytes": 1340634,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/hb_composite.png",
+      "source_sha256": "ce9f049559341790fbb2fc49c721ac76eb2d375acdb53b4081b44d681fe96e84",
+      "source_size_bytes": 227954,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_composite.png",
+      "prepared_sha256": "ce9f049559341790fbb2fc49c721ac76eb2d375acdb53b4081b44d681fe96e84",
+      "prepared_size_bytes": 227954,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/hb_visibility.bmp",
+      "source_sha256": "f82232f6ab0ebed36ace13bfd431c4841991f8cd1d01e7adcaa7ef265fcb3254",
+      "source_size_bytes": 1340634,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.bmp",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.bmp",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.bmp",
+      "prepared_sha256": "f82232f6ab0ebed36ace13bfd431c4841991f8cd1d01e7adcaa7ef265fcb3254",
+      "prepared_size_bytes": 1340634,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/hb_visibility.png",
+      "source_sha256": "26f059d99f0a78087f4618d154dd29c66299f2e0d65dbd7cea46b6e777f219e1",
+      "source_size_bytes": 58413,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/hb_visibility.png",
+      "prepared_sha256": "26f059d99f0a78087f4618d154dd29c66299f2e0d65dbd7cea46b6e777f219e1",
+      "prepared_size_bytes": 58413,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_hb_base.bmp",
+      "source_sha256": "42d479cfde6b9472259729dc809f6741e25e1c577d79bfd65d3f52786301fedb",
+      "source_size_bytes": 1340634,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.bmp",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.bmp",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.bmp",
+      "prepared_sha256": "42d479cfde6b9472259729dc809f6741e25e1c577d79bfd65d3f52786301fedb",
+      "prepared_size_bytes": 1340634,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_hb_base.png",
+      "source_sha256": "d9a355f6c4c490010d0c53a18162d62e66bf239d4502db64234e2a5c03fc9423",
+      "source_size_bytes": 206307,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_base.png",
+      "prepared_sha256": "d9a355f6c4c490010d0c53a18162d62e66bf239d4502db64234e2a5c03fc9423",
+      "prepared_size_bytes": 206307,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_hb_comp.bmp",
+      "source_sha256": "f561b4335f055160b6ee01d624693a04f26c5547f6bbb91338e4535767e9fcbd",
+      "source_size_bytes": 1340634,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.bmp",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.bmp",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.bmp",
+      "prepared_sha256": "f561b4335f055160b6ee01d624693a04f26c5547f6bbb91338e4535767e9fcbd",
+      "prepared_size_bytes": 1340634,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_hb_comp.png",
+      "source_sha256": "aaac4946df8c1f58ffd57661cdf32962fb8fbcaf4e09907265051cffb9eb8c30",
+      "source_size_bytes": 218036,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_comp.png",
+      "prepared_sha256": "aaac4946df8c1f58ffd57661cdf32962fb8fbcaf4e09907265051cffb9eb8c30",
+      "prepared_size_bytes": 218036,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_hb_vis.bmp",
+      "source_sha256": "2b6ada8bda8a720ab55c00093533d16cd32604a2456e14fb48a7046c2cda0e3d",
+      "source_size_bytes": 1340634,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.bmp",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.bmp",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.bmp",
+      "prepared_sha256": "2b6ada8bda8a720ab55c00093533d16cd32604a2456e14fb48a7046c2cda0e3d",
+      "prepared_size_bytes": 1340634,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_hb_vis.png",
+      "source_sha256": "fea65d26a4a34e74ed2d2dda1b32def6d15cd14b56157d7ca562824dd71364e7",
+      "source_size_bytes": 52049,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_hb_vis.png",
+      "prepared_sha256": "fea65d26a4a34e74ed2d2dda1b32def6d15cd14b56157d7ca562824dd71364e7",
+      "prepared_size_bytes": 52049,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_ss_comp.bmp",
+      "source_sha256": "4d313efb6159d629f80d341971c4b1858196d49365959cb8c7439b6f69a43dd0",
+      "source_size_bytes": 1340634,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.bmp",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.bmp",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.bmp",
+      "prepared_sha256": "4d313efb6159d629f80d341971c4b1858196d49365959cb8c7439b6f69a43dd0",
+      "prepared_size_bytes": 1340634,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_ss_comp.png",
+      "source_sha256": "1cf41ffb738b55ffc04a1bb8b306aca533cbaad8ec89394f6bbcaaf41419c02e",
+      "source_size_bytes": 210019,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_comp.png",
+      "prepared_sha256": "1cf41ffb738b55ffc04a1bb8b306aca533cbaad8ec89394f6bbcaaf41419c02e",
+      "prepared_size_bytes": 210019,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_ss_vis.bmp",
+      "source_sha256": "d8f40525507082be5d49968c0a214c13843c261df3860b2944d5d592961e4959",
+      "source_size_bytes": 1340634,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.bmp",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.bmp",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.bmp",
+      "prepared_sha256": "d8f40525507082be5d49968c0a214c13843c261df3860b2944d5d592961e4959",
+      "prepared_size_bytes": 1340634,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/raw_ss_vis.png",
+      "source_sha256": "1d711268e265fee714ad1ba0d958700c7ec73d05e277f236b688ba891fab3869",
+      "source_size_bytes": 43675,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/raw_ss_vis.png",
+      "prepared_sha256": "1d711268e265fee714ad1ba0d958700c7ec73d05e277f236b688ba891fab3869",
+      "prepared_size_bytes": 43675,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/ss_composite.png",
+      "source_sha256": "42cee181b4b75b0ff1e531b6a165754998f16c95aa783bff6fe807180fa4ed8c",
+      "source_size_bytes": 223891,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_composite.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_composite.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_composite.png",
+      "prepared_sha256": "42cee181b4b75b0ff1e531b6a165754998f16c95aa783bff6fe807180fa4ed8c",
+      "prepared_size_bytes": 223891,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/ss_visibility.bmp",
+      "source_sha256": "0d2419c8fc2c6c82bcf35fb4a4cd24add93bf2439a59ffe906fd6483b438012e",
+      "source_size_bytes": 1340634,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.bmp",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.bmp",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.bmp",
+      "prepared_sha256": "0d2419c8fc2c6c82bcf35fb4a4cd24add93bf2439a59ffe906fd6483b438012e",
+      "prepared_size_bytes": 1340634,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "Screenshots/ao-probe/ss_visibility.png",
+      "source_sha256": "0715dabce6d8648630bc665ad53673aeda201bf3e2b2417c49293b7eba89b34d",
+      "source_size_bytes": 55301,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/screenshots/ss_visibility.png",
+      "prepared_sha256": "0715dabce6d8648630bc665ad53673aeda201bf3e2b2417c49293b7eba89b34d",
+      "prepared_size_bytes": 55301,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "09-21 AO 两模式/合成/原可见度对照，吻合当日 memory 的历史采集；保留不同编码。"
+    },
+    {
+      "source": "external_capture:uniform_one9-source.rgba",
+      "source_sha256": "b97131ca1c054de0842c4ab8b6a40b90e5cc3aef9b9df2594817dd461b26da3d",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/uniform_one9-source.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/uniform_one9-source.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/uniform_one9-source.rgba",
+      "prepared_sha256": "b97131ca1c054de0842c4ab8b6a40b90e5cc3aef9b9df2594817dd461b26da3d",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[0].source"
+    },
+    {
+      "source": "external_capture:uniform_one9-output.rgba",
+      "source_sha256": "d2414bbff49f02aaa16fd45edc1d3d9f45dafce733596afd7a48afbe87445f32",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/uniform_one9-output.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/uniform_one9-output.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/uniform_one9-output.rgba",
+      "prepared_sha256": "d2414bbff49f02aaa16fd45edc1d3d9f45dafce733596afd7a48afbe87445f32",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[0].output"
+    },
+    {
+      "source": "external_capture:disk_r80_one9-source.rgba",
+      "source_sha256": "26f23a8545bbf9b3d94210342d3a1e083fddafcf2dbc8763426baa593793f605",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-source.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-source.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-source.rgba",
+      "prepared_sha256": "26f23a8545bbf9b3d94210342d3a1e083fddafcf2dbc8763426baa593793f605",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[1].source"
+    },
+    {
+      "source": "external_capture:disk_r80_one9-output.rgba",
+      "source_sha256": "1025592708236b6c60e63860709de1be1a2e8b6d4286256e6e905b91171ccc5b",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-output.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-output.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r80_one9-output.rgba",
+      "prepared_sha256": "1025592708236b6c60e63860709de1be1a2e8b6d4286256e6e905b91171ccc5b",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[1].output"
+    },
+    {
+      "source": "external_capture:disk_r16_one9-source.rgba",
+      "source_sha256": "de6660382d2989d5afdc109f71e381706455a328588178042b73d5c0c6978fa0",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-source.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-source.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-source.rgba",
+      "prepared_sha256": "de6660382d2989d5afdc109f71e381706455a328588178042b73d5c0c6978fa0",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[2].source"
+    },
+    {
+      "source": "external_capture:disk_r16_one9-output.rgba",
+      "source_sha256": "53af233b13c073f07c4b9ead1689b8137196d7e842a483ba11a742daed85f129",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-output.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-output.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one9-output.rgba",
+      "prepared_sha256": "53af233b13c073f07c4b9ead1689b8137196d7e842a483ba11a742daed85f129",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[2].output"
+    },
+    {
+      "source": "external_capture:disk_r16_two9-output.rgba",
+      "source_sha256": "c74e4b49bd453b6aa8b6453f8b19d7859da1c8cf888ce1ecb4e5443e20367c7c",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r16_two9-output.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r16_two9-output.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_two9-output.rgba",
+      "prepared_sha256": "c74e4b49bd453b6aa8b6453f8b19d7859da1c8cf888ce1ecb4e5443e20367c7c",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[3].output"
+    },
+    {
+      "source": "external_capture:disk_r3_one9-source.rgba",
+      "source_sha256": "0b123b74aaad0936caaf12987f6a9e229a1dcc824393fb01950b2b4bce8c0da9",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-source.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-source.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-source.rgba",
+      "prepared_sha256": "0b123b74aaad0936caaf12987f6a9e229a1dcc824393fb01950b2b4bce8c0da9",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[4].source"
+    },
+    {
+      "source": "external_capture:disk_r3_one9-output.rgba",
+      "source_sha256": "d9a7e2d2839875d8fdd42ddb6f0e77983d187db5cb922389f9166b7fba67024c",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-output.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-output.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r3_one9-output.rgba",
+      "prepared_sha256": "d9a7e2d2839875d8fdd42ddb6f0e77983d187db5cb922389f9166b7fba67024c",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[4].output"
+    },
+    {
+      "source": "external_capture:disk_r16_one5-output.rgba",
+      "source_sha256": "bbec381836f98b81b3dd05100065ada4cb3834c4069b373bb075a954d069ad03",
+      "source_size_bytes": 3686400,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r16_one5-output.rgba",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/inputs/disk_r16_one5-output.rgba",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/inputs/disk_r16_one5-output.rgba",
+      "prepared_sha256": "bbec381836f98b81b3dd05100065ada4cb3834c4069b373bb075a954d069ad03",
+      "prepared_size_bytes": 3686400,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": false,
+      "reason": "密集参考的必要线性 RGBAFloat 原始输入/实际 GPU 回读；只复制，外部源不列入删除。",
+      "source_locator": "tmp/maskblur-darkspot-manifest.json cases[5].output"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-manifest.json",
+      "source_sha256": "41199cbc5a4fba26fc3efd9ece416945f5a4ce19ea0e262114003a99b096bf3b",
+      "source_size_bytes": 3324,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/manifest.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/manifest.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/manifest.json",
+      "prepared_sha256": "375723e04d76a6aa1ab9c3797aabc676d72544191922a99263d0a77ff97a6ad7",
+      "prepared_size_bytes": 1745,
+      "transformed": true,
+      "adapted": true,
+      "delete_source_after_verified_archive": true,
+      "reason": "原始参数不变，输入改为归档内相对路径；同字节输入去重。"
+    },
+    {
+      "source": "tmp/maskblur-dense-reference.py",
+      "source_sha256": "21f0e90d4513706762bea7af9f40883d40edf749dc1df08d8fe3febb112b5d83",
+      "source_size_bytes": 11836,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/analyze_dense_reference.py",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/analyze_dense_reference.py",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/analyze_dense_reference.py",
+      "prepared_sha256": "464b46e386d3031659ffb3852a25f63bacddd00b48fef7f30a487f741e93e732",
+      "prepared_size_bytes": 13823,
+      "transformed": true,
+      "adapted": true,
+      "delete_source_after_verified_archive": true,
+      "reason": "冻结历史CPU参考工具；修正相对路径/输出注入，并让完整--self-check按不可变SHA/shape/dtype检查重生成数组及原报告值，不加载旧数组。"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-dense/dense-reference-comparison.png",
+      "source_sha256": "c515d3e9976594064e0e6c50e6dca2855944472d946c24cfdc3dba4a71f5414d",
+      "source_size_bytes": 170816,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/original-results/dense-reference-comparison.png",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/original-results/dense-reference-comparison.png",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/original-results/dense-reference-comparison.png",
+      "prepared_sha256": "c515d3e9976594064e0e6c50e6dca2855944472d946c24cfdc3dba4a71f5414d",
+      "prepared_size_bytes": 170816,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-09 暗点控制的已记录密集参考证据；保留历史结果并准备同输入 CPU 复跑。"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-dense/dense-reference-report.json",
+      "source_sha256": "a9dd87221a39cbabc87a3e3f18718005b69ecb0af3f951e703b2febf31387f53",
+      "source_size_bytes": 10758,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/original-results/dense-reference-report.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/original-results/dense-reference-report.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/original-results/dense-reference-report.json",
+      "prepared_sha256": "a9dd87221a39cbabc87a3e3f18718005b69ecb0af3f951e703b2febf31387f53",
+      "prepared_size_bytes": 10758,
+      "transformed": false,
+      "adapted": false,
+      "delete_source_after_verified_archive": true,
+      "reason": "10-09 暗点控制的已记录密集参考证据；保留历史结果并准备同输入 CPU 复跑。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/README.md",
+      "source_sha256": "05957613428e8f358bad51b544104a56c56dd3f52461c6196fb0d712fedaa590",
+      "source_size_bytes": 710,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/README.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-07-snowy-prototype/README.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-07-snowy-prototype/README.md",
+      "prepared_sha256": "05957613428e8f358bad51b544104a56c56dd3f52461c6196fb0d712fedaa590",
+      "prepared_size_bytes": 710,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/README.md",
+      "source_sha256": "98f502c589bd337a1897813b058161741d22cd6ee6cd06931cddb19f41ddc769",
+      "source_size_bytes": 657,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/README.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-plant-billboard/README.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-plant-billboard/README.md",
+      "prepared_sha256": "98f502c589bd337a1897813b058161741d22cd6ee6cd06931cddb19f41ddc769",
+      "prepared_size_bytes": 657,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/README.md",
+      "source_sha256": "7ae683ed8ee82e64c6722649db8caba3454469522dc21ddad552ddbf2a94c86a",
+      "source_size_bytes": 1032,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/README.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/README.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/README.md",
+      "prepared_sha256": "7ae683ed8ee82e64c6722649db8caba3454469522dc21ddad552ddbf2a94c86a",
+      "prepared_size_bytes": 1032,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/verification.json",
+      "source_sha256": "7add6cd40e56d8ae996c4c472bc7e593257fa67580ca05a587ba6f7307b5ca48",
+      "source_size_bytes": 439,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/verification.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-17-shader-rename/verification.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-17-shader-rename/verification.json",
+      "prepared_sha256": "7add6cd40e56d8ae996c4c472bc7e593257fa67580ca05a587ba6f7307b5ca48",
+      "prepared_size_bytes": 439,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/README.md",
+      "source_sha256": "c7071f2600933be6211c4304a02b8c5fdf056ca109b590c64ce97d5550152418",
+      "source_size_bytes": 1505,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/README.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/README.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/README.md",
+      "prepared_sha256": "c7071f2600933be6211c4304a02b8c5fdf056ca109b590c64ce97d5550152418",
+      "prepared_size_bytes": 1505,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/archive-members.json",
+      "source_sha256": "17e598f5410c721e6b51941348ada7d8c4e33a71fba32330140be4fb4a4cf11e",
+      "source_size_bytes": 60722,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/archive-members.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/archive-members.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/archive-members.json",
+      "prepared_sha256": "17e598f5410c721e6b51941348ada7d8c4e33a71fba32330140be4fb4a4cf11e",
+      "prepared_size_bytes": 60722,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/duplicate-aliases.json",
+      "source_sha256": "2cfb1fe1765b2be6273148dcaa1946ae7b8e5d36bc170e198f301c5632f31b11",
+      "source_size_bytes": 783,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/duplicate-aliases.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-09-21-diffusegi-ao-cleanup/duplicate-aliases.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/duplicate-aliases.json",
+      "prepared_sha256": "2cfb1fe1765b2be6273148dcaa1946ae7b8e5d36bc170e198f301c5632f31b11",
+      "prepared_size_bytes": 783,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/README.md",
+      "source_sha256": "8786b6b408d2bc1621be831448cb2a16edbd7c6c66002cb635e17a039e867f64",
+      "source_size_bytes": 1535,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/README.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/README.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/README.md",
+      "prepared_sha256": "8786b6b408d2bc1621be831448cb2a16edbd7c6c66002cb635e17a039e867f64",
+      "prepared_size_bytes": 1535,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/verification.json",
+      "source_sha256": "920c51a583bbdef2ccd52da233f7363f4468ba276613d5bba2b7eaf8e16eb2a7",
+      "source_size_bytes": 4165,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/verification.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/verification.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/verification.json",
+      "prepared_sha256": "920c51a583bbdef2ccd52da233f7363f4468ba276613d5bba2b7eaf8e16eb2a7",
+      "prepared_size_bytes": 4165,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/README.md",
+      "source_sha256": "cee83e97b412f97acf9cdc82965f2848ce6d8872a71ab5a0bcd10e20dc2bad81",
+      "source_size_bytes": 1012,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/README.md",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-weather-integration/README.md",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-weather-integration/README.md",
+      "prepared_sha256": "cee83e97b412f97acf9cdc82965f2848ce6d8872a71ab5a0bcd10e20dc2bad81",
+      "prepared_size_bytes": 1012,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "归档说明、成员/别名索引或本轮只读/CPU 复核结果；新建任务文件。"
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "source_sha256": "751c2bf4b98a94744b0777b00e5ed97b30d1dde0f3075ffbe289ceeb59a843f5",
+      "source_size_bytes": 1935,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "prepared_path": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "target": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "prepared_sha256": "751c2bf4b98a94744b0777b00e5ed97b30d1dde0f3075ffbe289ceeb59a843f5",
+      "prepared_size_bytes": 1935,
+      "transformed": false,
+      "adapted": false,
+      "generated": true,
+      "delete_source_after_verified_archive": false,
+      "reason": "冻结六份历史生成数组的SHA256/shape/dtype和原报告校验，替代永久收纳可重建数组。"
+    }
+  ],
+  "keep_pending": [
+    {
+      "source": ".codex/tmp/weather-localuv/TransformChecks.cs",
+      "action": "keep_pending",
+      "sha256": "244a5fffd1eecb52e2ca1937aceaff0cb4b53df31db6e86685f558b84f8c06e3",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/Presets/Rain.asset",
+      "action": "keep_pending",
+      "sha256": "deed0f3e4073be3954fea78b15858221ce90334138f45ea81a2559718bdbb86c",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/Presets/Sand.asset",
+      "action": "keep_pending",
+      "sha256": "5e1623fd749f6b79ceebcd2ac90d3be80287d0ee3b8ece562b853d237595fc47",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/Presets/Snow.asset",
+      "action": "keep_pending",
+      "sha256": "999d8236de9d26a7c2ccc4b8d97a5645e5778fad259bb86e046a8d1501b5077d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/README.md",
+      "action": "keep_pending",
+      "sha256": "9fd37e2e41db7f5aed5e4b32f716159aa7537ba34f275226557bbcf04fd1a34a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/Validation~/ProfileChecks.cs",
+      "action": "keep_pending",
+      "sha256": "2834b4d87ee04e55a32a4fb310680c64739a65b408d29e3b46b8b885230b2ed5",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/Weather.shader",
+      "action": "keep_pending",
+      "sha256": "8d986e2fce3a8e0f60ac6ad5c218a4f9a60cdbc21dbd456b1c480492972fca35",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/WeatherFeature.cs",
+      "action": "keep_pending",
+      "sha256": "51aad14fb430f1b70be0b86868bc149e3b6fd52ec69462b50357962c9b6db49d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/WeatherParticles.hlsl",
+      "action": "keep_pending",
+      "sha256": "938e9796c40a0a6dac2545ea030b4102c69b083d8a3e29009d78fa35f93815ba",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/WeatherProfile.cs",
+      "action": "keep_pending",
+      "sha256": "7baf9db67f01840b6ce68ed6ffaca2c5c39ac8e7fe9b142762b17499024b896b",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/before/hashes.json",
+      "action": "keep_pending",
+      "sha256": "a2a94a7313366fef6cfcd24345556e764114624508ad6247e020bc2991a79d26",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/editor-asset-hashes.json",
+      "action": "keep_pending",
+      "sha256": "5df764a87de1f4db173387b2f3b1d4aa8a2bd3b340fc173e201bec5359245dfa",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/pipeline-run.txt",
+      "action": "keep_pending",
+      "sha256": "a15edf961bbae35dad48ad1a54873a9f8cdc0da2a314056489419f432ee91f66",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/work/README.md",
+      "action": "keep_pending",
+      "sha256": "04abf3657f57041fbac3662846881f4bf8d71558c5016c2eb004134d0fcc26df",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": ".codex/tmp/weather-localuv/work/Weather.shader",
+      "action": "keep_pending",
+      "sha256": "e85c187ea3591136aaba8a743bf3856f1fcaf688d639c5df660d3ad526492745",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/diffuse-baseline.png",
+      "action": "keep_pending",
+      "sha256": "eb25785562b3059a16a9cbfccf99ba8d57339eaceaeb64229c74a2f80e69b432",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-06-26_17-18-59.png",
+      "action": "keep_pending",
+      "sha256": "50ce39da9ee61421862be14be7d017efe63e9e26c0abecbd4424580eafba810b",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-06-26_18-29-23.png",
+      "action": "keep_pending",
+      "sha256": "da61b725bd0e11c05ecd5a85e21fdc34010de3ba0d2a4ab932ac7f6dcf90f1fa",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-01_18-57-37.png",
+      "action": "keep_pending",
+      "sha256": "bbcc5a9ea6ea58f4e7807ae5e485c591f366969bc59147ef0f4c0e4ddde40e28",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-01_19-00-25.png",
+      "action": "keep_pending",
+      "sha256": "8b217fa30a54fc47062812a7ebf159464a69782db93df6e2dd8f06f609cf954d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-01_19-05-29.png",
+      "action": "keep_pending",
+      "sha256": "af54c18a9278aa22589dd4e015db390c517a856cc97a05bdec837dcfe5aecb9f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-02_17-28-52.png",
+      "action": "keep_pending",
+      "sha256": "d5ea178443bf84959fc63e50bb6d3c16f2c13598ca268fc1c515bdb0554d2b39",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-03_11-36-46.png",
+      "action": "keep_pending",
+      "sha256": "587f5bb1e73603ba4d4d203b1d3060e02660f850790dde46c36ed4e8f3875919",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-03_15-25-15.png",
+      "action": "keep_pending",
+      "sha256": "c7b383ed23c126742f5481bf9df97861169641b4c30dd34c718da751dfb93223",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-03_16-06-06.png",
+      "action": "keep_pending",
+      "sha256": "143c464144e3216e411d5dfb919bd7eae0d6e69ba1964fe1f383403abc0d061f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-03_16-11-04.png",
+      "action": "keep_pending",
+      "sha256": "84a70131bc7086358f8e39458b2736bc612731550a22f4f604ab0f6d26d1e4b7",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-03_16-29-30.png",
+      "action": "keep_pending",
+      "sha256": "6a557152839e3139b3cc12995c7ff388d32aa7711372e0762fd91df96e001169",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-03_16-49-58.png",
+      "action": "keep_pending",
+      "sha256": "7b02f5d9bdbc8344ece6c6ae9cbc2d771b8c386eb86d5691086177e3e482f8cf",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-14-38.png",
+      "action": "keep_pending",
+      "sha256": "b5b847fb97d9dadad953237d56b6a8f84ab39c9c1ff11412f8b1b64571b491e2",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-18-50.png",
+      "action": "keep_pending",
+      "sha256": "6f38d2be026b636a80431474b7b556cf2f4ac1e33f294317ffd418b9e4fcebb8",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-21-21.png",
+      "action": "keep_pending",
+      "sha256": "045472ad61361f33cb2d7d9c7fc5380f29c3e5d1ad7dcb45e6a420458d4259b9",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-26-11.png",
+      "action": "keep_pending",
+      "sha256": "66d89f7d18aba3f4995c3f45769f6d9e8e9f83facd643182bf03c79bbc6bdaba",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-27-38.png",
+      "action": "keep_pending",
+      "sha256": "53aa4c848b71698f3ced7f2dde7f9ed6ca6a9459f7a43eae780dc0db3c4a0fd1",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-30-49.png",
+      "action": "keep_pending",
+      "sha256": "3deb64d8b6158b9c314c375410e916a97717218a647db091556308252c699bc9",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-37-01.png",
+      "action": "keep_pending",
+      "sha256": "53890cf767be1514055a7e31f5e7edbb7b3c5ca0baaf3af45c236cccc0c4b26e",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-45-46.png",
+      "action": "keep_pending",
+      "sha256": "cc0675a57753beaf64dbf5c4f82ec55fdc2ee444873041b9057e1dbcb2c9b247",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-46-50.png",
+      "action": "keep_pending",
+      "sha256": "a33742a2d1881cd84a8722cfe7f2651bb04cb4821c7d436bffa10a2b0ff8ba70",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_10-51-32.png",
+      "action": "keep_pending",
+      "sha256": "60cd67277e5258c47d5d34574d45d8c8229230284243230a0087c04cddd3cb90",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_11-01-02.png",
+      "action": "keep_pending",
+      "sha256": "9314abc686467a0b3a901156b297ca48abe2688582cdd7421c35bb4cdabe83d9",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_11-03-00.png",
+      "action": "keep_pending",
+      "sha256": "2c088044b7e3f68c47714ee7061241dcb9e975a22f1ca01d7c05a408d44b2e56",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_11-04-01.png",
+      "action": "keep_pending",
+      "sha256": "e76622860c5c0dcfa89c0ee56d82d7107944296cbb42265eb6fdce11e242fdc4",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_11-06-13.png",
+      "action": "keep_pending",
+      "sha256": "6cc7678d91d8101c374af3b3cdbb9f8efb44357ddca145f7c5138ccf473d77ca",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_11-07-50.png",
+      "action": "keep_pending",
+      "sha256": "b68adc1ba506c9ea0002d19d716b7be82dc34b9ec7ded51935726f2d0153eaba",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_11-11-00.png",
+      "action": "keep_pending",
+      "sha256": "9410e7c1c60e479497996f393451f44953644e526ff0e563b85f7f1c94215ed7",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_11-16-16.png",
+      "action": "keep_pending",
+      "sha256": "b259a6dd1aa95a4cf34e16e99b74b71da8bc191b05eef0575bbbca65429058e7",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_11-20-36.png",
+      "action": "keep_pending",
+      "sha256": "998ceb29432a8830c06cc33591c3780c39b803479ddea46609507c75e86c1bb1",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_11-22-03.png",
+      "action": "keep_pending",
+      "sha256": "1b436b3fb39a7cee9dbe93e4169984abd5762aa7081cf7f41b1a6a4a80d4dfaf",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_15-15-47.png",
+      "action": "keep_pending",
+      "sha256": "a29858f0da90d6bc63059a9d62de367367bd7dc4a0b27cf83f5db717a7534a7e",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_15-35-29.png",
+      "action": "keep_pending",
+      "sha256": "cbe81e1b7e7a259856943cc6a81cf41590cc38f490f907b83fed4de6974a417f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_15-42-20.png",
+      "action": "keep_pending",
+      "sha256": "73e317c619469dfa87f5a3a240d6167b952b4f38f71d258a2b83a26160de74d2",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_15-45-33.png",
+      "action": "keep_pending",
+      "sha256": "2ada1fa07a6541629f5b685e5392a127bd8e8b38b6448f8e0d438011add068a1",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_15-51-14.png",
+      "action": "keep_pending",
+      "sha256": "c4fb4f392882c40e5b4a4512f244e9b2d723145feee3ee3d433e688a45cc51e1",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_15-52-09.png",
+      "action": "keep_pending",
+      "sha256": "dc4bfd860e7b17f53adb33435fb2d2328a83675285a60fd2c31167e7631cedb5",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_15-56-11.png",
+      "action": "keep_pending",
+      "sha256": "290b979b8b4e98151117d46df43d83b3b4343696aee6f6d81198941da632ff44",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_15-59-51.png",
+      "action": "keep_pending",
+      "sha256": "ee782cece2788a54167690dd4135880308775d15465a5ba5fb4461aa3ac9fa7a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-03-42.png",
+      "action": "keep_pending",
+      "sha256": "e8180611c1a6210d4852794f3c0531f54e48c62247494c05397cbee90aea3874",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-06-16.png",
+      "action": "keep_pending",
+      "sha256": "6b443aa78f3447be9e206ff67369fcca03c9ef787dba2c6cf2380511c6d9c3a3",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-07-13.png",
+      "action": "keep_pending",
+      "sha256": "6862e2c6e7261b8bd802297d6969da2336e7d4e7628eff4c89f70313d5e974dc",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-08-19.png",
+      "action": "keep_pending",
+      "sha256": "190f6408893e87a0043ae412c480f1c9da5a4db27d72e934e7b646a1ccb107e1",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-10-02.png",
+      "action": "keep_pending",
+      "sha256": "74283b8a48cab7f882210a545bc5c38bd6ba8b727a9a6b027e1d2167855d8f5c",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-13-21.png",
+      "action": "keep_pending",
+      "sha256": "20492aad21c83432f495600949a3a107e3ad5568060cfc39ab6c4236ec9df7e8",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-15-20.png",
+      "action": "keep_pending",
+      "sha256": "dff9d5903d222c0e9df769a0cb405726d993837026cf6f357ff56705a2120c39",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-17-08.png",
+      "action": "keep_pending",
+      "sha256": "74fba8dc362b3e9417ad443e6529446db3764f1e5e5d1d4dd58720dc63b95020",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-18-42.png",
+      "action": "keep_pending",
+      "sha256": "8eef13604638b3d83f02a3561b4920543c6eb8d2cbee1d90dd383f3d6dd33034",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-22-17.png",
+      "action": "keep_pending",
+      "sha256": "a0f41caa42b4c39b0a8590bf959e04a3d87e9ff0d3ac43659626b10b6cee711d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-24-22.png",
+      "action": "keep_pending",
+      "sha256": "be077f49ee027e9e4c235b006409333a9043da7347aa6db24ea1a3f11acd876f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-26-55.png",
+      "action": "keep_pending",
+      "sha256": "485a5f14006828be73071d1061287f3da949b4a1bf4c781a9ea444d9341a2576",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-28-23.png",
+      "action": "keep_pending",
+      "sha256": "f3edab806adc963edb4aaab8fd8e25a1b0ba983ad621112af632c37fe588f4bf",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-31-11.png",
+      "action": "keep_pending",
+      "sha256": "edb564282724f3056a6954593478f08bcaeb1655c47c3d9edec658a40f03520d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-35-04.png",
+      "action": "keep_pending",
+      "sha256": "a91d48ff3024d97ef3195474a5edd685c7cc080547bb43267da3404956f806a1",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-36-43.png",
+      "action": "keep_pending",
+      "sha256": "8d8b4849a47dfae55d08c1917107101873864eb95e5e004c001aeff1590a93a9",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-38-16.png",
+      "action": "keep_pending",
+      "sha256": "830972303b996aad1ede9759f75b223617d37d956e4a1615672b7a8b70bca10a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-40-42.png",
+      "action": "keep_pending",
+      "sha256": "df4359c7dcec0dad519c9c9e3182dc4ffa89bbe9600710101b344884ad111e8c",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-42-18.png",
+      "action": "keep_pending",
+      "sha256": "496936879e393136f8f9c46d110381d4d8cf5f8dbf3fc8208b96490aee78cdaa",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-46-28.png",
+      "action": "keep_pending",
+      "sha256": "9466256343e26d81735db9177e147d7403650a0934c26b2715521e9d05d8096c",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-51-09.png",
+      "action": "keep_pending",
+      "sha256": "edcdc5c6622a853c08cf35e2e0d8127581a123c4cf11b05e908352ad74ad72b0",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-53-54.png",
+      "action": "keep_pending",
+      "sha256": "63f6d4a17b79f3f368f75f0773a44426e2e6f33fa3f67d713a9634fc60e804dd",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-56-06.png",
+      "action": "keep_pending",
+      "sha256": "a3b5983e2c5774040d06ca05b748717518cfa04cbc42d49affec16ccef7b67cb",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_16-58-56.png",
+      "action": "keep_pending",
+      "sha256": "80a41ba3fa1f660a0c3e018f6541f2e250a4365e1c523cc9815a6ffe76086deb",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_17-03-25.png",
+      "action": "keep_pending",
+      "sha256": "f329ccf20130adf5e243841cbac08228d70d5154e377548acfebbfdcb8c6488b",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_17-06-51.png",
+      "action": "keep_pending",
+      "sha256": "664257c50805e69e4486e324a8258c95ccc641f286747a87f952369bbff54570",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_17-08-45.png",
+      "action": "keep_pending",
+      "sha256": "31e8495f0548be37acc9459922118d6490bd08b2b5153047f0a8f84d4895bee8",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_17-16-54.png",
+      "action": "keep_pending",
+      "sha256": "ae1f8cdea0d6554e8553792fe770cba529c001ed93c2177d0c485d783ea08f34",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_17-22-53.png",
+      "action": "keep_pending",
+      "sha256": "78d7b8b78fdc55683a7d294513987cde25be2085a1277943d899b29a036cb8b7",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_17-38-26.png",
+      "action": "keep_pending",
+      "sha256": "c0a635249bcca91b86169ec3a8acf314fdac8eee3d524009d2e28d33364f2416",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_18-11-48.png",
+      "action": "keep_pending",
+      "sha256": "4020e46c9d327bb3a5684ed14f2ce286538f094234b7c23fe61a49f590891ff9",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_18-39-17.png",
+      "action": "keep_pending",
+      "sha256": "eb529a765e1d27b77e5e742224cb4aca1e2d710aa63a3196081aad295ae4648e",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_18-50-05.png",
+      "action": "keep_pending",
+      "sha256": "c4182889d2a65d6a507e23f45bebf1a7dcf1c57501acf2ca55fd049d0f560c00",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_18-58-41.png",
+      "action": "keep_pending",
+      "sha256": "1a96e0652c7c7935228e9c2c1b8809e991d86f386809891b0f7da305a24194ee",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-06_19-01-46.png",
+      "action": "keep_pending",
+      "sha256": "e7190e80239afc7b7bcb52ed9d6b592564b22d6c150228be94a2b2ca61aaeb2f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-07_10-21-28.png",
+      "action": "keep_pending",
+      "sha256": "a4cf4423051952d8d05c61b180a201d28ff30610088535adc99ab5fb5021b4fc",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-07_10-45-31.png",
+      "action": "keep_pending",
+      "sha256": "431846ca4fa470a8f04eb37957707066e371efcd071b3387453bf577f873eec0",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-07_11-17-23.png",
+      "action": "keep_pending",
+      "sha256": "69d8357dbfc74717327d90c268eab072a86e30c3ab15c35b11647b144adf3cef",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-07_12-06-54.png",
+      "action": "keep_pending",
+      "sha256": "c8d1479e3ada033aa887dac12e003e0cf6aa8bb3349a3e6ca5c4a6536b9d1ed5",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-07_15-11-20.png",
+      "action": "keep_pending",
+      "sha256": "18c1c1cca2ad87fc5db2031adb9d219c2bb78ea063be78788a3c96fa62294d4a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-07_15-18-17.png",
+      "action": "keep_pending",
+      "sha256": "14636477f6ccbb4735648ed9823c1f56abe73c6fd67a070507bb2f1233feb5a7",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-07_15-21-30.png",
+      "action": "keep_pending",
+      "sha256": "776357805543b4c1d4ff5703e5774e92997b43dbae5652280e21a7fc1d3edf80",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-08_15-25-02.png",
+      "action": "keep_pending",
+      "sha256": "36c83c620b472b18ca3d52fb39af2b9b7e8f1ce6636a650045cb5fe81c7cbd8f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-08_15-33-50.png",
+      "action": "keep_pending",
+      "sha256": "f5964bc22d41450e962bd6079228e5953aa751238b78ae80e3b2090f5e3b6525",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-08_15-47-30.png",
+      "action": "keep_pending",
+      "sha256": "2b8bb16e45e1a19050f8314f28f0db5e8b987e04bffe64127daa07d1b11ee873",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-09_17-12-49.png",
+      "action": "keep_pending",
+      "sha256": "9f0126b72c074bffab2e88876101fbe2059e97858b7af3083a5ad6c6d1887089",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-09_17-20-57.png",
+      "action": "keep_pending",
+      "sha256": "34e9f38baba54678e16ee325cc468b46555654e9582d9854fe05a2693c004892",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-09_17-59-44.png",
+      "action": "keep_pending",
+      "sha256": "f14909645ac491a741115576f4b639dcfc35021ae068c08a02ab717ba1885975",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-09_18-16-01.png",
+      "action": "keep_pending",
+      "sha256": "750f3d6e75e0ba3979de4ce16562002ae70d8a9da671bff4482329bf0ad64fcb",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-09_18-21-36.png",
+      "action": "keep_pending",
+      "sha256": "fe4e9b0ba8cd6633ea0068a49acf619c235229476a7d03efaf527f99dc356ff7",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-09_18-38-53.png",
+      "action": "keep_pending",
+      "sha256": "db921bf0490b6b1df336d06c54ac84d21b161e9b83db7f4016d0665f1879d202",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-09_19-02-15.png",
+      "action": "keep_pending",
+      "sha256": "89b098e1e16111730d49e68b673aff99a961a8ada1795fa3ee45f329fbd7eff4",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-09_19-04-17.png",
+      "action": "keep_pending",
+      "sha256": "601b0c36d15fc6044f35fcc1a15ae6afa77ff84327ed49d6a13fd9254b87cd6c",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_10-43-31.png",
+      "action": "keep_pending",
+      "sha256": "4c62f7a12352985b8eceeff77d3e9c17a660ab68e37f06a83d3fb8d514ce7978",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_10-58-36.png",
+      "action": "keep_pending",
+      "sha256": "c21cca1bc1c58a76cf927215a09a8d30287b82b6823b7a6945c141a22bb6f2e8",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_11-17-20.png",
+      "action": "keep_pending",
+      "sha256": "6b0d55a5940ecfc7854f710003515e60ee8c17c95b871c28af7fab25320e522f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_11-31-38.png",
+      "action": "keep_pending",
+      "sha256": "f655675f4b061cea34b800ff2ffaf4fac61d83e576859b935d452f42d881c4af",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_11-32-41.png",
+      "action": "keep_pending",
+      "sha256": "fbc7dce6618098db393df837eb082c1e0818adb6c51edf8122d46d1f4d19bc82",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_14-59-37.png",
+      "action": "keep_pending",
+      "sha256": "ecc4ad8b69798a44ea064230dabe21dcd5ca553f0a11e2f943c2409d5a597fd5",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_15-00-37.png",
+      "action": "keep_pending",
+      "sha256": "513a6c24536f9869f4e28fb44b95126891cc8957140b50dbde8491cab7fbda0b",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_15-10-49.png",
+      "action": "keep_pending",
+      "sha256": "5ddc31994f24cee7ce8fcbd830f5f904cd2ac5e2ab79b2a561a791eb951a76bb",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_15-29-35.png",
+      "action": "keep_pending",
+      "sha256": "b95b4ce0d2b22c891a12770f0a1d7dd6e0f8dfc99daec0fef463374b0a0e232a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_15-34-51.png",
+      "action": "keep_pending",
+      "sha256": "a82ed65cca6476fe952d9753f25c725c7d645c225c01c74cd66a76b2014b5105",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_15-42-47.png",
+      "action": "keep_pending",
+      "sha256": "18d11b67c17a6c1e64df7fd1f11a532580d010e642c7bdcf4ce9a65a2015feca",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_15-52-35.png",
+      "action": "keep_pending",
+      "sha256": "5d457b5e442686afde9efd040870e7648c4fecaa80dd31970b76c6681ef34403",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_16-02-11.png",
+      "action": "keep_pending",
+      "sha256": "bb3df91899e1863f99e8ccc5621d15c355ff47a14ebec1a18759ddc78af816ef",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_16-06-26.png",
+      "action": "keep_pending",
+      "sha256": "680659348e05ca29becdbcf74c37ea47e959f73438bb810adc9e53e69419b19a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_16-18-01.png",
+      "action": "keep_pending",
+      "sha256": "9e7a0ad23eb96583bd379cc4fb3631688d15253170a7c927a1c697bb868fc991",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_16-26-58.png",
+      "action": "keep_pending",
+      "sha256": "e51d2aadc4283e9f929b2a308781a41239c1d5cc39b23dba3e7a8773cafc2635",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_16-35-47.png",
+      "action": "keep_pending",
+      "sha256": "1648b6d62660699b264d4042757f98ffb42a93ccd98c8b715e70a55b4f282adc",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_16-49-30.png",
+      "action": "keep_pending",
+      "sha256": "ea1fb5e94caecaa8c349781d8e9d7082acab563be1ba7b54c34468c069dcb775",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_16-56-09.png",
+      "action": "keep_pending",
+      "sha256": "a994128c0aa6f0001cab72f45bb00dab8330e72b83891bfa45cf46b2e9cbb67d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_17-07-15.png",
+      "action": "keep_pending",
+      "sha256": "e404ad24ebda31d07f3a353b55fd68e5a9aedabf6954485c3dcbd4fcd0ceea59",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-10_17-09-46.png",
+      "action": "keep_pending",
+      "sha256": "4541d4a126aaec1680b8d49e1c312f4234af8dbc4719d16b5c781446ae93fe30",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-14_11-24-42.png",
+      "action": "keep_pending",
+      "sha256": "2afbbc7d352f1b4efc25fccbe3bf65572af4c44f7fc333a933315a4d95840f38",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-14_11-31-59.png",
+      "action": "keep_pending",
+      "sha256": "ded519e1e3c7abfefb01d6255eaca6eaf9c9a71c8ffa09125e64eed55eb657d2",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-14_14-45-21.png",
+      "action": "keep_pending",
+      "sha256": "38edd8026605d22fea217248a0137537566d2c3812e6bd93a22d9bf171be56e6",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-14_14-47-04.png",
+      "action": "keep_pending",
+      "sha256": "ffde05038f24d0008626fcef263bc8097be2f81438abb722747d0045d5c6af8b",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-14_14-59-58.png",
+      "action": "keep_pending",
+      "sha256": "561cbec2037b550292328d198b2ca7c26dd25799e0561da4c75f04623523f83b",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-14_15-34-30.png",
+      "action": "keep_pending",
+      "sha256": "c62957bf1a042cfcad498f624b1b25f9424611a752987f30ed709438cd23756f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-14_15-53-29.png",
+      "action": "keep_pending",
+      "sha256": "ba87c5ae37ed0e5b3861f353e067990192bf47f5bd47041c81ef2edd70265bdc",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-15_16-45-46.png",
+      "action": "keep_pending",
+      "sha256": "63476ce068faeb2e367181d353627c28cd298f49205391338b327dc0fc1f3b7d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-15_17-08-28.png",
+      "action": "keep_pending",
+      "sha256": "372679883e74aa19abed2916bda3eaca3fb8f890fb2f122b7aca2dc99e26755d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-15_17-16-58.png",
+      "action": "keep_pending",
+      "sha256": "3e5e873250b9c7ffafa09eb0a9267d91f1d6936eb7b1f632ece01a28ba5a0f03",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-15_17-31-13.png",
+      "action": "keep_pending",
+      "sha256": "7078ac5faf01929e0e3bf26c081e3be3177fa416eb986e1ed143e25ea9b79f42",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-17_11-26-21.png",
+      "action": "keep_pending",
+      "sha256": "cc50c6f6123a70a7ef4277cd590a1773808140f876fe102638b00cf2fc5f11d5",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-23_14-28-03.png",
+      "action": "keep_pending",
+      "sha256": "2d1f76e0edb7442cdfe6a9aa91b9839a34608da7ecc3b1b985124622e5291516",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-24_11-08-05.png",
+      "action": "keep_pending",
+      "sha256": "1d67ff9855894e4f90cfa9eff0cc9cae71397e91f41fdb31e31016b8997ad4b3",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-07-24_12-30-11.png",
+      "action": "keep_pending",
+      "sha256": "127926eea14be1473bb0dc1e97939b4246346bee038e49cf712105cef2e830c2",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/screenshot_2026-08-24_16-50-47.png",
+      "action": "keep_pending",
+      "sha256": "a8c8f07b41891a4a0b776bba19506823fb42df36b39795da79b31668bf436935",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "Screenshots/ssgi-integrated.png",
+      "action": "keep_pending",
+      "sha256": "b3828a59a3ed726efaa5d530b36d4d16c7c0017426e627145f7b3a277f5281b7",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/.reusable/query_framedebugger.cs",
+      "action": "keep_pending",
+      "sha256": "216ab2471adc3785e68dd9a1b6723dd22b886f32c67134b7bdc8a1216bf0ccee",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/PBRFunction.hlsl",
+      "action": "keep_pending",
+      "sha256": "0449022a386b7bda18f54b5223052f500e9165141bc96601bb2da0e45f4377df",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/PBRToon-before.shader",
+      "action": "keep_pending",
+      "sha256": "5aea853bc3568a68acba1d21e065a3c14efafe54be4d0b1496598fd11de62339",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/SSSLutBaker.cs",
+      "action": "keep_pending",
+      "sha256": "265686dfb35f9943e704ab714b8934e68ecc6937633987428af05ade41e8f7f6",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/SSSLutBaker.md",
+      "action": "keep_pending",
+      "sha256": "b5cb3afe079805442e2f64ef7f1b39436a1a8d49d3f417e8b612e387f4627aa4",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/SSSLutBakerWindow.cs",
+      "action": "keep_pending",
+      "sha256": "83611c840e02f00b89adb4ad6c017e95e2db9ebb19abe4b02898af0d8ac5f0f2",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/SSSLutPacker.shader",
+      "action": "keep_pending",
+      "sha256": "7f8b5525d5f0ae3a598cdf480a0e1bd32bc79e61c2cd6f42f5fc1ee612788ca6",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/SSSLutTest.shader",
+      "action": "keep_pending",
+      "sha256": "64b6c82d5925d6528299a4363af638d2de39a45590145df5626f92a6a54d0c30",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/__pycache__/maskblur-dense-reference.cpython-312.pyc",
+      "action": "keep_pending",
+      "sha256": "0051aa0bd269060911699bca9806cf64b61e2114e0531f2c3b8e113810e322f2",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/__pycache__/maskblur-metrics.cpython-312.pyc",
+      "action": "keep_pending",
+      "sha256": "207f79b280b4e906a9334aeacfca2ff2822cecd6ebc4065251f032fc7b755aa6",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/add-sss-modes.py",
+      "action": "keep_pending",
+      "sha256": "82f50263288cc9b36d77fb8b7bfaab1532e47e55639e05564c931b3a9349d96d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/blur-function-before-unify.hlsl",
+      "action": "keep_pending",
+      "sha256": "74e8635230bc2ac1c6fc9cca7ceab3b136660108c82a7b3420225bda334245b1",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/bsdf-unified-f.py",
+      "action": "keep_pending",
+      "sha256": "8f9e169efc64ad75d86a51199016783b1611d4e8302c1acdad71342234b33fd0",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/check-blur-unified.py",
+      "action": "keep_pending",
+      "sha256": "3d2e0324692f0364bf4c4e1d58dd61f67d27246d48cc035a1b6f8077d85e7e5b",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/check-material-depth.cs",
+      "action": "keep_pending",
+      "sha256": "d5a0bdac02424a3652bede666b00abd4070cb9c8daebc513d96e27a894e4e4dc",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/check-material-templates.cs",
+      "action": "keep_pending",
+      "sha256": "3bee97e7defe89c85d74141a30f195f54fbd21a404e38f770aa77ff310b14e21",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/check-pbrtoon.cs",
+      "action": "keep_pending",
+      "sha256": "5f170ca1f20cb866b7ec113a769fb37d8f8ccd674ad73978b8cdde4d1ba32838",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/create-bsdf-test.py",
+      "action": "keep_pending",
+      "sha256": "17e46e3e57ed64eb4dc035e5d7ddc7af2abb7fc8c0c4b861ea538261c4ea3396",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/extract-bsdf-library.py",
+      "action": "keep_pending",
+      "sha256": "d9c924c3a109d1231579e83383e2df095c945331710e8f8f523f96464b14843d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/extract-sss-library.py",
+      "action": "keep_pending",
+      "sha256": "99801f11cf55ea541406dc0aa683bc516b0b337485022b9b1044bb96392f531d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/feature_screen_debug.json",
+      "action": "keep_pending",
+      "sha256": "60973f9940f0ceb025bd928cc306b9b2a47ce13a0cc3fe31783b7a73b9063a78",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage1-far.png",
+      "action": "keep_pending",
+      "sha256": "336402e386cc957d9e053745c1e29da3168dcadea8852b2b2001f580a5dba4dc",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage1-near.png",
+      "action": "keep_pending",
+      "sha256": "e87d7cf4c70bc68a0f02fc0f71d3cb7c7017e3324083578af0d6411181f25d27",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage1-summary.json",
+      "action": "keep_pending",
+      "sha256": "6cfbef3936701045618cf82752e35c3c4be1b013c48ea2c4261e58c7993a0dd3",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage2-far-high-shape.json",
+      "action": "keep_pending",
+      "sha256": "f88130a518d06859d20b099308a1d4c43c77fd1db84444df72621cbd4d62dadc",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage2-far.png",
+      "action": "keep_pending",
+      "sha256": "a350d5ae1e46e8992bea3c24f0d2f0bfb843e4bf8c6f24c1dba2947af8ac008e",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage2-near.png",
+      "action": "keep_pending",
+      "sha256": "a32aa8d1f529c5e09421fad2892f69bd6e32d343f7846d6331267414d9c6e78d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage2-summary.json",
+      "action": "keep_pending",
+      "sha256": "c59acdef1c0f3b53e632ce054ac1792f9b115c646b43905690d21a37c269fd4a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage2b-far-high-shape.json",
+      "action": "keep_pending",
+      "sha256": "6d1113bcf6ab8941ec5582feab216997e4cb45a499fecdfbdb0d3f49a73f2981",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage2b-far.png",
+      "action": "keep_pending",
+      "sha256": "d35290f972c75dcbc8bd4228d05cea616da69c8dabff7a6c05d53adc6fcfc8d5",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage2b-near.png",
+      "action": "keep_pending",
+      "sha256": "7d71c7e77224831444e3ef82008856f339e10c3222b40bd72a087daaadfb527a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage2b-summary.json",
+      "action": "keep_pending",
+      "sha256": "7566c0d39f6ba472aa42a0ff2ace440af5fb2e8d9e2cc0007613761fd93166b8",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage3-summary.json",
+      "action": "keep_pending",
+      "sha256": "9437a4a9a543e3a46ca03aa66e4b94419ce8c4536dddafee4959ece6ea4bfe20",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage4-summary.json",
+      "action": "keep_pending",
+      "sha256": "17f3d2e3ad22c113dc210ab6f2219935c02a4c0981ec2cf70dd838e55dcd2b51",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-audit-stage4.py",
+      "action": "keep_pending",
+      "sha256": "e321dda1eefec358f2443956006f367e421c1018c8ef0c3a09e654b2a1a477e0",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-center-mask-diagnostics.json",
+      "action": "keep_pending",
+      "sha256": "2bdebe3f8c1e2b1f1e5cf4ef15471a83fb0796a5dcff1b4036d40ba8b9d8c3c7",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-analysis.py",
+      "action": "keep_pending",
+      "sha256": "2aab4f23399cab6309979ae67ba88de09e22f27590a0c12301b109404c7c28b8",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-validation.cs",
+      "action": "keep_pending",
+      "sha256": "66030625c14d1b865618c518834608b7fc4f0c02d9a2527a97a33d2d63f3e51e",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-extract-validation.cs",
+      "action": "keep_pending",
+      "sha256": "21f3951183580d36838db968d5475edb904f3edae0aac1e369304c3977c12d2f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-feature-validation.cs",
+      "action": "keep_pending",
+      "sha256": "27aa704cb41db56ee07804cdf8f56bd1c92650286ba26dd8f4b65d98b447d875",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-jitter-check.cs",
+      "action": "keep_pending",
+      "sha256": "7b05a4893473b9d99b0e4eae9205b7ef9e533d83b679d429b532a24d4a171833",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-metrics-far-high.json",
+      "action": "keep_pending",
+      "sha256": "361589014fbe78123b034713392bcabee68bd8afd3e835f84a8be96a2731efa6",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-metrics-far-medium.json",
+      "action": "keep_pending",
+      "sha256": "7638dfc78b7f09b198755727d96860448c6443349b18314b0fce0a34cd8a35d4",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-metrics.py",
+      "action": "keep_pending",
+      "sha256": "488163f7944805ef9db4cb7a377da05fd37ac1945092fa12157c0e69535ff066",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-offscreen-capture.cs",
+      "action": "keep_pending",
+      "sha256": "0fb672246037ecce85ff6da265e3bc1707a2b1e1fe9ee9c4aa08a13c61730d58",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-opt-before/BlurFunction.hlsl",
+      "action": "keep_pending",
+      "sha256": "fe92839cf59f820da598a6074196d291ce30034860b1b02f6b50371e2a2fd2f2",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-opt-before/BlurFunction.md",
+      "action": "keep_pending",
+      "sha256": "fe81780ef789a1a1c70b17cfba59483de217efcee08d98afb412aae461876bf9",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-opt-before/MaskBlur.shader",
+      "action": "keep_pending",
+      "sha256": "854e784dcbfe1f01ac16e99b02ad96e178418a45eb940eede25211aa5713ad2d",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-opt-before/MaskBlurFeature.cs",
+      "action": "keep_pending",
+      "sha256": "01efeba40e35899441dcd79424c28f5bb6d227b5439941c87bef0b4a3c2309a3",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-opt-before/README.md",
+      "action": "keep_pending",
+      "sha256": "9a0db9d5017189461ea9cbbdebf82ef4f5847c7de460dcd79fe22d4c7010f51e",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-quality-figure.py",
+      "action": "keep_pending",
+      "sha256": "ec07458748a6dbab590d7722a9522b3084ab1baa940275725ed57dfd65a33220",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-quality-restore.cs",
+      "action": "keep_pending",
+      "sha256": "8582b85c3790d2553dca3ddf608125f881df3a55be15fe2025ded337fcbdbb31",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-quality-setup.cs",
+      "action": "keep_pending",
+      "sha256": "a2d60a9c2da44b5c1dd2b0aca5a9f23fee15f3f2f739aa3d7a8d1ae0fc37c9d6",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage1-medium-metrics.json",
+      "action": "keep_pending",
+      "sha256": "31036841d8c1aa36380f962007b3382859163adb96c5a69c513b712c39a43f35",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage1/BlurFunction.hlsl",
+      "action": "keep_pending",
+      "sha256": "4a8fdbe6a91f049123b92cf3613e2c229005a526e7d575f405ce5f145484bb33",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage1/BlurFunction.md",
+      "action": "keep_pending",
+      "sha256": "309f70d4012e1bda0e6cf1d3e44e585b7aee84762bbcae68c1c620b65e5d7161",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage2/BlurFunction.hlsl",
+      "action": "keep_pending",
+      "sha256": "28e37848b134ddb1886c43edd8cf2a0311f680cb5b83450299779aacc74df276",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage2/BlurFunction.md",
+      "action": "keep_pending",
+      "sha256": "4c3130b654cc787ba38790fa8c86ea5bced2b2ec0475906f0d190a4072c6b6c6",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage2/MaskBlur.shader",
+      "action": "keep_pending",
+      "sha256": "6761dd4fcd274bee35276767616b0dd4faa59d6b1ca2c2ce5326418659e73489",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage2/MaskBlurFeature.cs",
+      "action": "keep_pending",
+      "sha256": "b0897c006986e165eb3d270640344e73b90d963ff041a994c4ad3ae89019d48b",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage2b/MaskBlur.shader",
+      "action": "keep_pending",
+      "sha256": "d1431c7b75ffd25f701c19b224f0e0acdba3adfb6de805501d95640d2a170e88",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage2b/MaskBlurFeature.cs",
+      "action": "keep_pending",
+      "sha256": "c74472070d2a75d9ec790a64b6773c91c14fd3ab45b47fe5675d532e4fbad770",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage3/MaskBlur.shader",
+      "action": "keep_pending",
+      "sha256": "dc84345e69f5fb5d19a32b6affa2e4b053a4762400d791876ca6769416ac01d1",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage3/MaskBlurFeature.cs",
+      "action": "keep_pending",
+      "sha256": "016f130798738effb9c68f56f9b6e5fd666755cf9922a32d73e60965ecd4b9cb",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/maskblur-stage3/README.md",
+      "action": "keep_pending",
+      "sha256": "7889864e568ee6870fb0546946ef1e8d66549a4268693d09a31e3d19f64264e1",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/pbr-before-organize.hlsl",
+      "action": "keep_pending",
+      "sha256": "1580c0d4b7d2894f55d2b71252cd3827a2a144655025a4f3600c80e7b94e3b02",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/pbr-btdf-check",
+      "action": "keep_pending",
+      "sha256": "fae6e638dd5cd42d93e9fd43de850f03d763ffcb65c7961ad7e09755b76c000e",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/pbr-btdf-check.cpp",
+      "action": "keep_pending",
+      "sha256": "4b9bdfeaab382cdffaf1dabf84ee85d21016257a4c125240a3232d78f7ae8c05",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/pbr-btdf-section.hlsl",
+      "action": "keep_pending",
+      "sha256": "0df7ae7d4d16bd7612bd87f4923a1096401015238fe7937d1cccb146e1d43ebd",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/pbr-organize-check",
+      "action": "keep_pending",
+      "sha256": "92c73826e21f67e0573dbcde85c05f1650a70275e213c17f766665f17c0b4a87",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/pbr-organize-check.cpp",
+      "action": "keep_pending",
+      "sha256": "f337f84db057087697165bb6f0ab74ed29f82127d22a24513f89cbf6ce2c2fdf",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/pbr-rendering-equation.patch",
+      "action": "keep_pending",
+      "sha256": "459d81e0f2c4857e3ee42f51714fb11ba503bb11bf5b7ac47178139560009f96",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/plant-assets.cs",
+      "action": "keep_pending",
+      "sha256": "fb72252f1a3e96ef31e0fae88b0bdacaa6e36abf9a1603345b017a05fb96d60a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/plant-verify.cs",
+      "action": "keep_pending",
+      "sha256": "e2a6befd5f07e6aadfacd22b47928fdd14706b5802b5a3cfee8ee9f71c849e3f",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/render-sss-lut-check.cs",
+      "action": "keep_pending",
+      "sha256": "91afe3dd28540a0f08e708780caea91b8f611938d55d571c69d55cf4afe811fb",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/simplify-sss.py",
+      "action": "keep_pending",
+      "sha256": "5ec53d4f82809bfe6b1a50293286addbfc73f7396c1170b0a4101a5e400119bf",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/sss-auto-distance.py",
+      "action": "keep_pending",
+      "sha256": "5d528cb070c795607e45935e2aae26ccb5ed00a378f8e382b216ca133f423ddb",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/sss-sample-encapsulate.py",
+      "action": "keep_pending",
+      "sha256": "7b89004c2f787f0b7316984b5773c3eb543f935ab8f78b19003d56f1e4ebf37e",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-0-False.png",
+      "action": "keep_pending",
+      "sha256": "3d0972de31b6010d34c904bdafad8de8eb5f19c8cfaebd8af5e7002eb24299f2",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-0-True.png",
+      "action": "keep_pending",
+      "sha256": "b0e39f093e6183411978e47769b868f68856d54d83afbb69a54b01b034bea8f9",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-1-False.png",
+      "action": "keep_pending",
+      "sha256": "37390f3d8f1cab1e1e6ef6258ee0d4736a60892c7874325d757d6fc5ddcf31c8",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-1-True.png",
+      "action": "keep_pending",
+      "sha256": "37390f3d8f1cab1e1e6ef6258ee0d4736a60892c7874325d757d6fc5ddcf31c8",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-2-False.png",
+      "action": "keep_pending",
+      "sha256": "5fa0b66637c8a5e378cea071e8e94693d71dab450e01f5ce8f00f34ec41b3ab6",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-2-True.png",
+      "action": "keep_pending",
+      "sha256": "5fa0b66637c8a5e378cea071e8e94693d71dab450e01f5ce8f00f34ec41b3ab6",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-3-False.png",
+      "action": "keep_pending",
+      "sha256": "d6dd2cbc70e4208261a4e57249cfd86b81b68abf29aba500b4f99c368b281dd5",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-3-True.png",
+      "action": "keep_pending",
+      "sha256": "70f0916c58fa1073ecd9164f93ecf61a2711400317db835516a91e5543d4d378",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-4-False.png",
+      "action": "keep_pending",
+      "sha256": "383f277d26847dccc0aed275ed96285e672ff8c72c3fe3b2d1c77563b90f9006",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/template-4-True.png",
+      "action": "keep_pending",
+      "sha256": "2ef0faf5571e20ebcf5a305e8407e24825fe1553f091d94f0a739510206eaf4c",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/update-sss-doc.py",
+      "action": "keep_pending",
+      "sha256": "9aa95dac5faea1f12207541bebf2b5485a59a1011165ea5ba7871585acb75f5a",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/validate-sss-lut.cs",
+      "action": "keep_pending",
+      "sha256": "5bd6e8e92d9fa34ec5aefbb00449638c1bf7704a218b50af93aac0459e5857a4",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    },
+    {
+      "source": "tmp/validate-sss-modes.cs",
+      "action": "keep_pending",
+      "sha256": "20dbf5177ff465c1f4866adadf5fa0fc1103c78bb7881945914118340176fbd7",
+      "reason": "缺原始任务语义/依赖或当前 dirty 基线，继续原位保留；不在本次归档删除映射中。"
+    }
+  ],
+  "source_file_counts": {
+    "2026-09-17-shader-rename": 16,
+    "2026-10-09-weather-integration": 21,
+    "2026-09-07-snowy-prototype": 12,
+    "2026-09-17-plant-billboard": 7,
+    "2026-09-21-diffusegi-ao-cleanup": 26,
+    "2026-10-09-maskblur-darkspot": 17
+  },
+  "source_bytes": 51370788,
+  "prepared_unique_payload_bytes": 79704795,
+  "prepared_archive_files": 99,
+  "prepared_archive_bytes": 79704795,
+  "old_repository_source_files": 63,
+  "old_repository_source_bytes": 51370788,
+  "new_external_copy_only_files": 10,
+  "group_summary": {
+    "2026-09-17-shader-rename": {
+      "archive_files": 16,
+      "archive_bytes": 321537,
+      "old_source_files": 1,
+      "old_source_bytes": 8939211
+    },
+    "2026-10-09-weather-integration": {
+      "archive_files": 21,
+      "archive_bytes": 162438,
+      "old_source_files": 20,
+      "old_source_bytes": 161426
+    },
+    "2026-09-07-snowy-prototype": {
+      "archive_files": 12,
+      "archive_bytes": 419337,
+      "old_source_files": 11,
+      "old_source_bytes": 418627
+    },
+    "2026-09-17-plant-billboard": {
+      "archive_files": 7,
+      "archive_bytes": 116076,
+      "old_source_files": 6,
+      "old_source_bytes": 115419
+    },
+    "2026-09-21-diffusegi-ao-cleanup": {
+      "archive_files": 26,
+      "archive_bytes": 41616630,
+      "old_source_files": 21,
+      "old_source_bytes": 41539371
+    },
+    "2026-10-09-maskblur-darkspot": {
+      "archive_files": 17,
+      "archive_bytes": 37068777,
+      "old_source_files": 4,
+      "old_source_bytes": 196734
+    }
+  },
+  "validation": {
+    "prepared_hashes_verified": 99,
+    "old_source_hashes_reverified_unchanged": 69,
+    "originals_deleted_or_moved": false,
+    "rename_plan": "84 changes/75 names exact semantic reconstruction, 155 Git bodies + 13 snapshots",
+    "dense_cpu": "Minimal-package self-check passed: six regenerated serialized NPY SHA/shape/dtype equals immutable expectation, historical numeric report exact equality; no archived NPY read.",
+    "editor_gpu_executed": false,
+    "generated_npy_permanent_archive": 0,
+    "generated_npy_delete_after_reproduction": 6
+  },
+  "self_destination": ".agents/agents/meta-developer/memory/evidence/2026-10-10-lab-structure-audit/legacy-source-map.json",
+  "excluded_legacy_sources": [
+    {
+      "source": "tmp/maskblur-darkspot-dense/disk_r16_one5-dense-reference.npy",
+      "source_sha256": "ed6e02c62713cac0958c6e1c614c2846d10c41345fdc0c2ec884165855346c4e",
+      "source_size_bytes": 3686528,
+      "proposal": "delete_after_reproduction",
+      "reason": "六份历史密集参考生成数组之一；已用冻结CPU工具及保留的RGBA输入实际重生成，文件SHA256/shape/dtype与不可变expected-reference.json匹配，原报告数值完全相同。须先安装并校验归档输入/工具/期望，才按批准清单删除。",
+      "proof": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/verification.json",
+      "expected": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "final_proof": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/verification.json"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-dense/disk_r16_one9-dense-reference.npy",
+      "source_sha256": "a7bd4251dae97fd5e945b6daf4c678f81e71e83fcc42b729e6693b3fdf163c23",
+      "source_size_bytes": 3686528,
+      "proposal": "delete_after_reproduction",
+      "reason": "六份历史密集参考生成数组之一；已用冻结CPU工具及保留的RGBA输入实际重生成，文件SHA256/shape/dtype与不可变expected-reference.json匹配，原报告数值完全相同。须先安装并校验归档输入/工具/期望，才按批准清单删除。",
+      "proof": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/verification.json",
+      "expected": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "final_proof": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/verification.json"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-dense/disk_r16_two9-dense-reference.npy",
+      "source_sha256": "4b8b49ef7bd2bc3a138f68cda933dc515b25c3bf0273466a958a2dca0cbd9b92",
+      "source_size_bytes": 3686528,
+      "proposal": "delete_after_reproduction",
+      "reason": "六份历史密集参考生成数组之一；已用冻结CPU工具及保留的RGBA输入实际重生成，文件SHA256/shape/dtype与不可变expected-reference.json匹配，原报告数值完全相同。须先安装并校验归档输入/工具/期望，才按批准清单删除。",
+      "proof": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/verification.json",
+      "expected": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "final_proof": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/verification.json"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-dense/disk_r3_one9-dense-reference.npy",
+      "source_sha256": "cb348a18b45580fbc40e01c4d8f343865c5ca0a10e545af1d937dde433f9fe0f",
+      "source_size_bytes": 3686528,
+      "proposal": "delete_after_reproduction",
+      "reason": "六份历史密集参考生成数组之一；已用冻结CPU工具及保留的RGBA输入实际重生成，文件SHA256/shape/dtype与不可变expected-reference.json匹配，原报告数值完全相同。须先安装并校验归档输入/工具/期望，才按批准清单删除。",
+      "proof": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/verification.json",
+      "expected": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "final_proof": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/verification.json"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-dense/disk_r80_one9-dense-reference.npy",
+      "source_sha256": "8a6406e4abe89aa8b0bf312f294b53bbd2a0cea554fe4ea1b7d30ad754c8b29e",
+      "source_size_bytes": 3686528,
+      "proposal": "delete_after_reproduction",
+      "reason": "六份历史密集参考生成数组之一；已用冻结CPU工具及保留的RGBA输入实际重生成，文件SHA256/shape/dtype与不可变expected-reference.json匹配，原报告数值完全相同。须先安装并校验归档输入/工具/期望，才按批准清单删除。",
+      "proof": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/verification.json",
+      "expected": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "final_proof": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/verification.json"
+    },
+    {
+      "source": "tmp/maskblur-darkspot-dense/uniform_one9-dense-reference.npy",
+      "source_sha256": "7b24bcb0b3cdc6ac9385ebd4b6be23329c72c6f28931c030a587faab57ca5db1",
+      "source_size_bytes": 3686528,
+      "proposal": "delete_after_reproduction",
+      "reason": "六份历史密集参考生成数组之一；已用冻结CPU工具及保留的RGBA输入实际重生成，文件SHA256/shape/dtype与不可变expected-reference.json匹配，原报告数值完全相同。须先安装并校验归档输入/工具/期望，才按批准清单删除。",
+      "proof": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/verification.json",
+      "expected": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/legacy/2026-10-09-maskblur-darkspot/expected-reference.json",
+      "final_proof": ".agents/agents/unity-developer/memory/evidence/2026-10-09-maskblur-darkspot/verification.json"
+    }
+  ]
+}

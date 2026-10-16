@@ -31,7 +31,7 @@
 
 | 文件 | 类 | 职责 |
 |---|---|---|
-| `Editor/NoiseGeneratorWindow.cs` | `NoiseGeneratorWindow : EditorWindow` | 可视化面板：参数调节、hash 缓存预览、资源保存 |
+| `Editor/NoiseGeneratorWindow.cs` | `NoiseGeneratorWindow : EditorWindow` | 可视化面板：参数调节、hash 缓存预览；Generate / Load / Save 与资产所有权由本窗口持有 |
 
 ---
 
@@ -189,8 +189,12 @@ float value = NoiseGenerator.Sample3D(
 1. 菜单栏：`Tools → Noise Generator...`
 2. 顶部切换输出模式 `Texture3D` / `Texture2D`
 3. 调整参数（噪声类型、分辨率、缩放、无缝选项；2D 模式逐通道卡片独立调整，支持 `Randomize` 种子）
-4. 点击 `Generate` 预览——预览带 hash 缓存，参数未变时拖动 Slice 不重复生成
-5. 设置输出路径（默认 `Assets/Mine/Noises/Noise3D.asset` / `Noise2D.asset`），点击 `Save` 写入项目；路径已存在时弹覆盖确认
+4. 点击 `Generate` 生成当前模式资产。3D 切片显示当前资产实际像素；尚无 3D 资产时按参数预览。切片按轴和位置缓存。
+5. 窗口持有当前模式的 `Asset Path`，默认值：`Assets/Textures/Noise3D.asset` / `Assets/Textures/Noise2D.asset`。Save 与 Load 共用当前模式的一条路径；覆盖其他同类型资产前确认，保留 GUID；Load 后直接 Save 不弹覆盖确认。
+6. 点击 `Load` 回看已有资产；不恢复生成参数。已载入或保存的 2D 资产不会被参数预览替换；要应用新参数，点击 `Generate`。未落盘的 2D 程序化预览仍随参数更新。
+7. 窗口只持有一个当前资产；新的 Generate / Load 或 2D 自动打包会换源，释放被替换的未落盘结果。切换输出模式本身不保证立即释放；已落盘资产始终由 AssetDatabase 管理。
+
+窗口独立继承 `EditorWindow`，资产 IO 与生命周期均在本工具内实现。3D 预览按载入纹理的真实宽、高、深切片；纹理不可读时提示预览不可用，不以当前参数伪造载入内容。
 
 ### 通过代码
 

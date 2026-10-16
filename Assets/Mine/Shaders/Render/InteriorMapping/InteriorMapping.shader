@@ -14,11 +14,17 @@ Shader "Render/InteriorMapping"
         _FallbackColor("Fallback Color", Color) = (0.0375, 0.0525, 0.0825, 1)
         _RoomBrightness("Room Brightness", Range(0, 8)) = 1.5
         [Enum(Box, 0, Hemisphere, 1)]
-        _ProjectionType("Projection Type", Float) = 0
+        _ProjectionType("Room Shape", Float) = 0
+        [Header(Map)]
+        [Enum(Legacy, 4, Equirectangular, 0, Octahedral, 1, EqualAreaOctahedral, 2, Hemisphere, 3)]
+        _MapProjection("Map Projection", Float) = 4
+        [Enum(Panorama, 0, Interior, 1)]
+        _MapCoverage("Map Coverage", Float) = 0
     }
 
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+    #include "Assets/Mine/Special/HLSL/HDRMapFunction.hlsl"
     #include "Assets/Mine/Shaders/Render/InteriorMapping/InteriorMappingFunction.hlsl"
 
     struct InteriorMappingAttributes
@@ -79,7 +85,7 @@ Shader "Render/InteriorMapping"
             ZTest LEqual
 
             HLSLPROGRAM
-            #pragma target 2.0
+            #pragma target 4.5
             #pragma vertex Vert
             #pragma fragment Frag
             ENDHLSL
