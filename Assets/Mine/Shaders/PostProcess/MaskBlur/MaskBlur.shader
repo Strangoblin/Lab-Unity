@@ -5,7 +5,9 @@ Shader "PostProcess/MaskBlur"
 {
     Properties
     {
-        [HideInInspector] _BlurRadius ("Blur Radius", Float) = 0.5
+        [HideInInspector] _BlurParameters ("Radius, Mode, Jitter, Seed", Vector) = (0.5, 0, 1, 0)
+        [HideInInspector] _BlurOutputSize ("Output Size", Vector) = (1920, 1080, 0, 0)
+        [HideInInspector] _ExtractDownsample ("Extract Downsample", Float) = 0
         [HideInInspector] _Intensity ("Intensity", Float) = 0.5
         [HideInInspector] _DebugMode ("Debug Mode", Float) = 0
     }
@@ -18,31 +20,65 @@ Shader "PostProcess/MaskBlur"
     TEXTURE2D_X(_MaskBlurTexture);
 
     CBUFFER_START(UnityPerMaterial)
-        float _BlurRadius;
+        float4 _BlurParameters;
+        float4 _BlurOutputSize;
+        float _ExtractDownsample;
         float _Intensity;
         float _DebugMode;
     CBUFFER_END
 
+    #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/BlurFunction.hlsl"
+
     // ════════════════════════════════════════════════════════════
-    //  Gaussian — fixed five-sample kernel using source texture texels.
+    //  Gaussian — shared fixed or spatially jittered separable kernel.
     // ════════════════════════════════════════════════════════════
-    half4 MaskBlurGaussian(float2 uv, float2 direction)
+    half4 MaskBlurGaussian(Varyings input, float2 direction, float passSeed)
     {
-        float2 offset = direction * _BlitTexture_TexelSize.xy * (_BlurRadius * 2.0);
-        half4 color = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv - offset) * 0.1216216;
-        color += SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv - offset * 0.5) * 0.2332432;
-        color += SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv) * 0.290918;
-        color += SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv + offset * 0.5) * 0.2332432;
-        color += SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv + offset) * 0.1216216;
-        return color / 1.0006476;
+        float2 uvStep = Blur_GetUVStep(_BlurParameters.x, _BlurOutputSize.xy, (int)_BlurParameters.y);
+        #if defined(_MASKBLUR_JITTERED)
+        #if defined(_MASKBLUR_QUALITY_HIGH)
+        return Blur_Gaussian9Jittered(input.texcoord, uvStep, direction,
+            input.texcoord * _BlurOutputSize.xy, _BlurParameters.z, _BlurParameters.w + passSeed,
+            TEXTURE2D_X_ARGS(_BlitTexture, sampler_LinearClamp));
+        #elif defined(_MASKBLUR_QUALITY_MEDIUM)
+        return Blur_Gaussian9Jittered(input.texcoord, uvStep, direction,
+            input.texcoord * _BlurOutputSize.xy, _BlurParameters.z, _BlurParameters.w + passSeed,
+            TEXTURE2D_X_ARGS(_BlitTexture, sampler_LinearClamp));
+        #else
+        return Blur_Gaussian5Jittered(input.texcoord, uvStep, direction,
+            input.texcoord * _BlurOutputSize.xy, _BlurParameters.z, _BlurParameters.w + passSeed,
+            TEXTURE2D_X_ARGS(_BlitTexture, sampler_LinearClamp));
+        #endif
+        #else
+        return Blur_Gaussian5(input.texcoord, uvStep, direction,
+            TEXTURE2D_X_ARGS(_BlitTexture, sampler_LinearClamp));
+        #endif
     }
 
     // ════════════════════════════════════════════════════════════
     //  Extract — retain selected HDR scene colors with mask coverage in alpha.
     // ════════════════════════════════════════════════════════════
+    float4 MaskBlurExtractPoint(float2 uv)
+    {
+        float mask = SAMPLE_TEXTURE2D_X(_MaskBlurMaskTexture, sampler_PointClamp, uv).r;
+        float3 scene = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, uv).rgb;
+        return float4(scene * mask, mask);
+    }
+
     half4 Frag_Extract(Varyings input) : SV_Target
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+        UNITY_BRANCH
+        if (_ExtractDownsample > 0.5)
+        {
+            float2 offset = abs(_BlitTexture_TexelSize.xy) * 0.5;
+            float4 selected = MaskBlurExtractPoint(input.texcoord + float2(-offset.x, -offset.y));
+            selected += MaskBlurExtractPoint(input.texcoord + float2(offset.x, -offset.y));
+            selected += MaskBlurExtractPoint(input.texcoord + float2(-offset.x, offset.y));
+            selected += MaskBlurExtractPoint(input.texcoord + offset);
+            return selected * 0.25;
+        }
         half mask = SAMPLE_TEXTURE2D_X(_MaskBlurMaskTexture, sampler_LinearClamp, input.texcoord).r;
         half3 scene = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord).rgb;
         return half4(scene * mask, mask);
@@ -54,13 +90,13 @@ Shader "PostProcess/MaskBlur"
     half4 Frag_Horizontal(Varyings input) : SV_Target
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-        return MaskBlurGaussian(input.texcoord, float2(1.0, 0.0));
+        return MaskBlurGaussian(input, float2(1.0, 0.0), 0.0);
     }
 
     half4 Frag_Vertical(Varyings input) : SV_Target
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-        return MaskBlurGaussian(input.texcoord, float2(0.0, 1.0));
+        return MaskBlurGaussian(input, float2(0.0, 1.0), 1.0);
     }
 
     // ════════════════════════════════════════════════════════════
@@ -104,9 +140,11 @@ Shader "PostProcess/MaskBlur"
         {
             Name "Horizontal"
             HLSLPROGRAM
-            #pragma target 2.0
+            #pragma target 3.5
             #pragma vertex Vert
             #pragma fragment Frag_Horizontal
+            #pragma multi_compile_local_fragment _ _MASKBLUR_JITTERED
+            #pragma multi_compile_local_fragment _ _MASKBLUR_QUALITY_MEDIUM _MASKBLUR_QUALITY_HIGH
             ENDHLSL
         }
 
@@ -114,9 +152,11 @@ Shader "PostProcess/MaskBlur"
         {
             Name "Vertical"
             HLSLPROGRAM
-            #pragma target 2.0
+            #pragma target 3.5
             #pragma vertex Vert
             #pragma fragment Frag_Vertical
+            #pragma multi_compile_local_fragment _ _MASKBLUR_JITTERED
+            #pragma multi_compile_local_fragment _ _MASKBLUR_QUALITY_MEDIUM _MASKBLUR_QUALITY_HIGH
             ENDHLSL
         }
 
