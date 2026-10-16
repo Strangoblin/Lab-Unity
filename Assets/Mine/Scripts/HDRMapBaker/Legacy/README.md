@@ -1,3 +1,5 @@
+> Current implementation: [HDR Map Baker](../HDRMapBaker.md) and [HDR Map Converter](../../HDRMapConverter/HDRMapConverter.md). This document preserves the previous tool description as migration history; the classes here are GUID-preserving compatibility adapters.
+
 # Interior Map Baker
 
 ## Overview
@@ -32,7 +34,7 @@ After creating the framework:
 2. Confirm that `BakeCamera` exists under the framework; it is the camera owned by the Baker and stays disabled during normal scene rendering.
 3. Assign the scene `InteriorMapBaker` object to **Framework** in the Tools window.
 4. Set the face resolution, bake type, and render layers, then click **Bake**.
-5. Save the generated texture asset using the save path.
+5. Save the generated texture asset using **Asset Path**; Load reads the same path.
 6. Set the consuming material's `_ProjectionType` to the same projection as the baked texture.
 
 Clicking **Create Framework** repeatedly does not duplicate existing direct child objects. Clicking **Create Standard Framework** creates a new complete root framework and assigns it to the current tool window. Existing frameworks created before the dedicated camera was added can be repaired with **Create Framework** in the Inspector or **Initialize Framework** in the Tools window.
@@ -129,8 +131,9 @@ Both components name the `Interior` member, so the whole bake framework is silen
 | Face Resolution | Resolution of each cubemap face, currently `16–1024` |
 | Bake Type | Selects `Box` or `Hemisphere` output layout |
 | Render Layers | Culling Mask used by the Baker-owned camera |
-| Save Path | Project path for the generated texture asset |
-| Load Path | Project path for an existing texture asset |
+| Asset Path | Shared Save / Load project path, defaulting to `Assets/Textures/InteriorMap.asset` |
+
+The window independently inherits `EditorWindow` and owns its Asset Path, Bake / Load / Save actions, and asset lifetime. Only the target asset is saved; scene and Renderer assets are not included in the save operation.
 
 The output texture dimensions depend on **Bake Type**:
 
@@ -144,9 +147,11 @@ For example, a face resolution of `256` produces a `512 × 256` Box texture or a
 The window supports:
 
 - **Bake**: render a room panorama from the selected framework-owned camera and create a temporary texture;
-- **Load**: load an existing `Texture2D` asset;
-- **Save**: save the current texture as a project asset, with an overwrite confirmation;
+- **Load**: load an existing `Texture2D` asset from Asset Path; bake settings are kept;
+- **Save**: save to Asset Path, confirming before overwriting a different asset of the same type; update it in place to preserve its GUID;
 - **Preview**: display the current generated or loaded texture using the selected layout aspect ratio.
+
+Setting **Bake Type** in the window also updates the volume component's wireframe through `InteriorMapBakeVolume.SetBakeType`, so the visualization matches the projection that will be produced.
 
 ---
 
