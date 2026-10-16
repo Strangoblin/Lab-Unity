@@ -3,78 +3,29 @@ name: unity-editor
 description: Control Unity Editor from the command line and choose between unityctl for a running Editor and Unity's official Editor CLI for process-owned automation. Activate for play mode, compilation, logs, tests, scenes, builds, batch mode, or Editor command-line usage.
 ---
 
-# unityctl - Unity Editor Remote Control
+# Unity Editor 操作
 
-Control a running Unity Editor from the command line without batch mode.
+本 skill 集合 Editor 连接、命令和 Roslyn 脚本；角色索引不维护操作流程。
+先运行 `unityctl status`，按 [连接与可用性](references/availability.md) 判断实际通信状态。
 
-## Setup (Required First)
+## 选择通道
 
-Run `unityctl status` first to check what's already running. If Unity is already connected, skip straight to commands.
+| 通道 | 适用 | 边界 |
+|---|---|---|
+| unityctl | 已运行 Editor 的场景、Play、日志、查询 | Bridge 与 Editor 必须同宿主 |
+| 官方 Editor CLI | CI、冷导入、构建、测试、executeMethod | 自有 Editor 进程，不是向已开 Editor 发 RPC |
+| 官方 -version | 安装/版本探测 | 不启动 Editor |
 
-**Platform config (Bridge + availability + troubleshooting):** [../../agents/unity-developer/AGENT.md](../../agents/unity-developer/AGENT.md)
-**Full command reference:** [../../agents/unity-developer/cli/unityctl.md](../../agents/unity-developer/cli/unityctl.md)
+项目已被 Editor 打开时不再对同一路径启动第二个官方实例；使用 unityctl 或独立项目副本。
+发现安装路径，避免固定 Unity 版本；官方参数查 [Unity 文档](https://docs.unity3d.com/Manual/EditorCommandLineArguments.html)。
 
-## Choosing the CLI
+## 操作与验证
 
-| Interface | Best for | Key constraint |
-|-----------|----------|----------------|
-| `unityctl` | Inspecting or controlling an already-running Editor | Requires its bridge in the same user host environment as Unity |
-| Official Unity Editor CLI | CI, builds, cold imports, tests, and `-executeMethod` jobs that own the Editor process | Starts a separate Editor process; it does not RPC into the open Editor |
-| Official `-version` | Safe installation/version probe | Prints the version without starting the Editor |
+1. 从 [CLI 索引](references/cli/README.md) 选择命令；查询前后状态使用 snapshot、logs 或 script eval。
+2. 需要脚本先查 [Roslyn 库](scripts/roslyn/README.md)，按 [脚本决策](../auto-manager/capabilities/script-decision.md) 复用或新建；脚本用文件编辑工具写入。
+3. 根据任务模式执行编译/运行；日志、结构和视觉质量分别报告。画面质量由人工在 Editor 判断。
+4. 场景/资源地址来自用户输入或 `python3 .mcp/validation/project_resources.py path <id>`；配置不赋予额外修改权限。
+5. 仅恢复本流程改过的状态；关闭/重启 Editor 需考虑未保存内容和任务授权。
 
-Routing rules:
-
-- Prefer `unityctl` for status, scenes, play mode, logs, snapshots, and ad hoc queries against the open project.
-- Never launch a second official Editor CLI instance against a project already open; use `unityctl` or a separate project copy.
-- Discover the installed Editor path instead of hardcoding a version. For official arguments, use the [Unity Editor command-line documentation](https://docs.unity3d.com/Manual/EditorCommandLineArguments.html).
-
-## Verifying Changes
-
-Pick the cheapest observation that answers the question — prefer structured tools (consume less context, are diffable, and precise). Visual quality is confirmed by a human in the Editor:
-
-| What you need to verify | Tool |
-|------------------------|------|
-| Scene hierarchy, components, properties | `snapshot` (with `--components`, `--filter`) |
-| UI layout, visibility, screen positions | `snapshot --screen` |
-| Runtime behavior, errors, warnings | `logs` |
-| Specific value or state | `script eval` (query it directly) |
-| Test correctness | `test run` |
-
-**Rule of thumb:** if you can express the expected result as a value or property, verify with `snapshot`, `logs`, or `script eval` — leave visual quality (art, shaders, layout polish) to human observation in the Editor.
-
-## Scene Observation & Manipulation Workflow
-
-Use `snapshot` to observe, `ui click` to interact, `eval --id` for custom actions, then `snapshot` to verify.
-
-```bash
-unityctl snapshot --screen                 # See the scene with UI screen bounds
-unityctl ui click --name "StartButton"    # Find and click by name (one call)
-unityctl snapshot                          # Verify the result
-```
-
-## Script Execution Quick Reference
-
-```bash
-unityctl script eval 'Application.version'
-unityctl script eval --id -1290 'target.transform.position'
-unityctl script eval -u UnityEngine.SceneManagement 'SceneManager.GetActiveScene().name'
-unityctl script execute /tmp/MyScript.cs
-unityctl script eval -t 600 -u UnityEditor 'return BuildPipeline.BuildPlayer(opts).summary.result.ToString();'
-```
-
-**Important:** Always use the Write tool to create the `.cs` file rather than shell heredocs.
-
-## Typical Workflow
-
-```bash
-unityctl asset refresh       # Compile — check for errors
-unityctl snapshot            # Verify scene state (structured, cheap)
-unityctl play enter
-unityctl snapshot            # Check runtime state with instance IDs
-unityctl logs                # Check for errors/warnings
-unityctl play exit
-```
-
-## Troubleshooting
-
-Run `unityctl status` first to diagnose issues. Full troubleshooting table: [../../agents/unity-developer/cli/unityctl.md](../../agents/unity-developer/cli/unityctl.md)
+完整相机 PNG 用 [unity-render-debug](../unity-render-debug/SKILL.md)，相对耗时用 [unity-render-benchmark](../unity-render-benchmark/SKILL.md)。
+临时工作按 [产物规范](../../knowledge/meta/interfaces/task-artifacts.md) 归属；可复用 Editor 操作代码归本 skill。

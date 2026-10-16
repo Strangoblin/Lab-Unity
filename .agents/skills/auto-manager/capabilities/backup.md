@@ -1,53 +1,18 @@
-# backup — 重大改动前备份
+# Backup — Git 回退与验证基线
 
-> 架构级改动或大量修改前，建立实体备份 + Git 备份双保险。
+项目使用 Git 作为回退来源；产物归属见 [会话产物规范](../../../knowledge/meta/interfaces/task-artifacts.md)。重大结构调整前确认精确影响文件、当前 Git 状态及可用基准。
 
----
+## 改动前
 
-## 触发条件
+- 已提交且干净的文件：记录基准 commit 和路径，直接用 Git 比较与恢复。
+- dirty / 未跟踪文件：先区分已有用户工作与本任务改动；不能假定 HEAD 保存当前内容。必要复现输入可留在任务 `fixtures/`，注明来源、哈希和用途。
+- 阶段提交只包含已核对的精确文件；不自动把整个脏工作区 add/commit，也不自动 stash。
+- 不新增资产内 `.backup_*` 或 tar/zip 回退包。存量唯一副本按清理清单保留或归档，不能因新规范而直接删除。
 
-满足以下任一条件时，**必须先备份再动手**：
+## 回退与比较
 
-| 触发条件 | 示例 |
-|----------|------|
-| 架构级改动 | 单级联→多级联、Shader→Compute Shader、Feature 重构 |
-| 同一文件修改超 50 行 | 重写 RecordRenderGraph、替换投影算法 |
-| 用户明确要求备份 | "先备份再改" |
-| 文件从未被 git 提交 | `git status` 显示 `??` 的资产文件 |
+使用指定 commit 的文件内容作 diff 基准。真正恢复前核对目标文件当前改动和用户授权，避免覆盖其他工作；禁止 `git stash --all`。
 
-> 研发模式**默认跳过备份**（依赖 git 历史 + 改动粒度小）。
+## 验证输入
 
----
-
-## 备份流程
-
-```
-重大改动触发
-  │
-  ├── [0a] 实体备份（方便对比检查）
-  │     ├── mkdir Assets/path/to/feature/.backup_v<序号>_<描述>/
-  │     ├── cp 所有相关文件到备份目录
-  │     ├── echo "" > .backup_v<序号>_<描述>/.gitignore  （Unity 自动忽略 . 开头目录）
-  │     └── echo "备份说明" > .backup_v<序号>_<描述>/README.txt
-  │
-  └── [0b] Git 备份（方便回退）
-        ├── git add <改动文件>
-        └── git commit -m "<Feature>: <改动简述>（备份基准）"
-```
-
-## 命名规范
-
-- 格式：`.backup_v<序号>_<简短描述>/`
-- 示例：`.backup_v1_single_cascade/`、`.backup_v2_before_compute/`
-- Unity 自动忽略 `.` 开头的目录，不会被导入为资产
-
-## 回退方式
-
-```bash
-# 实体对比：直接 diff 两个目录
-diff Assets/xxx/.backup_v1_xxx/CurrentFile.cs Assets/xxx/CurrentFile.cs
-
-# Git 回退：找到备份 commit 的 hash
-git log --oneline -10
-git checkout <commit_hash> -- Assets/xxx/File.cs
-```
+测试为比较算法而保存的旧输入属于验证基线，不是第二套功能源码。临时基线放任务 `fixtures/`；长期验证仅保留复现所需输入，随脚本归档并在入口说明依赖。可重建隔离项目随 runner 结束清理。

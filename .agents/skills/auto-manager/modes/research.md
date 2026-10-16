@@ -1,87 +1,21 @@
-# Research Mode — 研发流水线
+# Research Mode
 
-> 适用于 Shader 调试、参数调优、效果验证、假设验证等探索性任务。
-> 核心特征：**频繁暂停等待人工观测，快速试错循环**。
+适用 Shader 调参、渲染效果与假设验证。每次修改一个可归因的假设，编译后由人工观测再进入下一轮。
+共用门禁和授权以 [执行契约](../capabilities/execution-contract.md) 为准。
 
----
+## 流程
 
-## When to Use
+承接开发入口已完成的模式选择、recipe 与工作区登记，不重新初始化；已有知识与设计结论直接复用，变化时更新。
 
-以下任一信号触发：
+1. R1 按 [知识预加载](../capabilities/knowledge.md) 读取门禁必读和目标相关材料，输出/同步 G1.5。
+2. R2 说明本轮假设和改动点；新增能力或改变结构时将 [可持续开发判断](../capabilities/sustainable-development.md) 并入本轮假设（已有结论复用，普通调参按影响简化）；需要脚本或新增文件时按 [脚本决策](../capabilities/script-decision.md) / [落点](../capabilities/file-placement.md) 取用资源；通过写入门禁修改。
+3. Editor 已连接时 R3 按 [编译](../capabilities/compile.md) 快速验证一次；错误报告定位与建议，不自动修复。
+4. 编译通过报告实际覆盖；请用户在 Editor 观察目标输出。需要 Shader Pass/载体证据时按 [渲染检查](../capabilities/shader-validation.md)。
+5. 人工确认本轮观察结果后再决定下一轮；确认效果达成或放弃方向后收尾。
 
-- 指令涉及 Shader / 渲染 / 视觉效果
-- GPU / Compute Shader 相关
-- 关键词：调试、看看效果、试试、验证、排查、调参数
-- 无明确的目标值（如"调好看一点"）
+## 验证和退出
 
----
-
-## Process
-
-```
-用户假设/指令
-  │
-  ├── ═══════════ [G0] 框架入口 ═══════════
-  │     OUTPUT: ## G0: Framework Check — Agent: unity-developer
-  │
-  ├── ═══════════ [G1] 模式确认 ═══════════
-  │     OUTPUT: ## G1: Mode Selection — Mode: Research | Reason: <why>
-  │     注: 模式经 gate_set_recipe 声明；g_mode 门禁已退役（后果验证 v2，链统一 [g_entry, g_knowledge]）
-  │
-  ├── [R1] 知识预加载 ─── @capabilities/knowledge.md （按需加载）
-  │
-  ├── [R2] 快速编辑 ─── 直接修改代码
-  │
-  ├── ═══════════════ Editor Required ═══════════════
-  │     ↓ 以下步骤仅在 unityctl status = connected 时执行 ↓
-  │
-  ├── [R3] 编译验证 ─── @capabilities/compile.md （快速模式：报错即停）
-  │     ├── 编译失败 → 报告错误 → ⏸️ 暂停（不自动修复）
-  │     └── 编译通过 → 报告"编译通过，请手动进入 Play Mode 验证效果"
-  │
-  ═══════════════ Editor Required ═══════════════
-```
-
-**Editor 不可用时：** 执行 [R1]-[R2] 后直接报告"代码已修改，Editor 未运行，无法验证效果"。
-
-**Play Mode：** Research Mode 不自动进入 Play Mode。渲染效果需要人工观测，Agent 无法闭环验证，自动进入只会浪费效率。用户自行决定何时进入/退出 Play Mode。
-
-## Key Behaviors
-
-| 维度 | 行为 |
-|------|------|
-| 备份 | ❌ 跳过 |
-| 知识预加载 | 按需（Shader→读 ShaderStructure，C#→读 ScriptStructure） |
-| 方案设计 | ❌ 跳过（假设驱动） |
-| 编译失败 | 报告 → ⏸️ 暂停，不自动修复 |
-| Play Mode | ❌ 不自动进入（人工观测，Agent 无法闭环） |
-| 循环 | ✅ 支持无限循环 |
-| 清理 | ❌ 不触发 |
-
-## Rationalizations（Agent 不得跳过）
-
-| Agent 可能的借口 | 为什么不能跳过 |
-|-----------------|--------------|
-| "编译通过了，效果应该没问题" | 渲染效果无法通过编译验证，必须人工看图 |
-| "我根据日志推断画面应该是正确的" | Shader 的视觉效果不能用日志推断 |
-| "这个改动很小，不用暂停确认" | 微小的 Shader 参数变化可能导致完全不同的画面 |
-| "多改几处一起跑效率更高" | 一次改一处才能定位哪个改动导致了效果变化 |
-
-## Red Flags
-
-- Agent 尝试在 Research Mode 下自动修复编译错误 → 立即停止，等待人工
-- Agent 跳过观测步骤直接进入下一轮修改 → 提醒"必须先确认画面效果"
-- Agent 建议"批量修改后一起验证" → 拒绝，Research Mode 每次只改一处
-
-## Verification
-
-| 阶段 | 验证方式 | 通过标准 |
-|------|---------|---------|
-| 编译 | `unityctl asset refresh` 输出 | `compilation succeeded` |
-| 效果 | 人工看图确认 | 用户明确回复"符合预期"或"可以了" |
-
-## Exit
-
-- 人工确认效果符合预期
-- 人工决定放弃当前方向
-- 触发兜底退出（@../../../agents/unity-developer/AGENT.md）
+- 不自动进入 Play Mode；用户已有明确要求时沿用其授权。日志/编译不能证明画面质量。
+- 不追加实体备份；重大变更仍保护既有工作与 Git 基准。不自动整理无关功能代码。
+- Editor 不可用时 R1/R2 后报告代码结果与验证缺口，详见 [可用性](../../unity-editor/references/availability.md)。
+- 错误/超时的停止条件见 [恢复与退出](../capabilities/recovery.md)。任务输出按 [产物规范](../../../knowledge/meta/interfaces/task-artifacts.md) 收尾并报告路径。

@@ -1,0 +1,159 @@
+{
+  "status": "prepared; no legacy deletion or move executed",
+  "intended_archive": ".agents/agents/unity-developer/scripts/validation/hash",
+  "intended_evidence": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function",
+  "self_destination": ".agents/agents/unity-developer/scripts/validation/hash/source-map.json",
+  "entries": [
+    {
+      "source": ".codex/tmp/hash-unification/verify_hash.py",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/verify_hash.py",
+      "prepared_relative": "verify_hash.py",
+      "destination": ".agents/agents/unity-developer/scripts/validation/hash/verify_hash.py",
+      "source_sha256": "a59d27fef3dbfd21e442d697d12fc870148d31299f86dc0dadc95f42baa50246",
+      "prepared_sha256": "6c239b76724d9fbe7f5fe2d57c6a118424f26464be87269c73104e4306eab279",
+      "source_bytes": 17544,
+      "prepared_bytes": 8166,
+      "adapted": true,
+      "note": "Portable helper/current final CLI; protected output routing and expanded source parsing."
+    },
+    {
+      "source": ".codex/tmp/hash-unification/verify_hash_final.py",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/verify_hash_final.py",
+      "prepared_relative": "verify_hash_final.py",
+      "destination": ".agents/agents/unity-developer/scripts/validation/hash/verify_hash_final.py",
+      "source_sha256": "d522f61bfe4694201132d67afdb9194a146910eece9f0d559fc5185091672d84",
+      "prepared_sha256": "b54591e11bea215bb117fd8ee6c9d0cde37160ef89f488f51ccfe9d8ced8b1e2",
+      "source_bytes": 19209,
+      "prepared_bytes": 26013,
+      "adapted": true,
+      "note": "Portable current-contract verification, explicit historical drift, immutable fixtures, strict historical option."
+    },
+    {
+      "source": ".codex/tmp/hash-variant-consolidation/analyze_variants.py",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/analyze_variants.py",
+      "prepared_relative": "analyze_variants.py",
+      "destination": ".agents/agents/unity-developer/scripts/validation/hash/analyze_variants.py",
+      "source_sha256": "5f8cbe133e830ec0a066c2ba15a5a1506c3d3fc542592cef95f27a000fe998d7",
+      "prepared_sha256": "4be777134d98363eaa2a5abe4e02a5318a549c440a2861f6c5f6349febff6742",
+      "source_bytes": 10755,
+      "prepared_bytes": 11081,
+      "adapted": true,
+      "note": "Portable baseline/output references; numeric statistics unchanged."
+    },
+    {
+      "source": ".codex/tmp/hash-unification/before.json",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/fixtures/before.json",
+      "prepared_relative": "fixtures/before.json",
+      "destination": ".agents/agents/unity-developer/scripts/validation/hash/fixtures/before.json",
+      "source_sha256": "32c209892b3f9a27e2fa048c4c183fda17e671d651b2419caeb2f62bb3b411d5",
+      "prepared_sha256": "32c209892b3f9a27e2fa048c4c183fda17e671d651b2419caeb2f62bb3b411d5",
+      "source_bytes": 133471,
+      "prepared_bytes": 133471,
+      "adapted": false,
+      "note": "Immutable original baseline, byte-identical."
+    },
+    {
+      "source": ".codex/tmp/hash-unification/final-stage-before.json",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/fixtures/final-stage-before.json",
+      "prepared_relative": "fixtures/final-stage-before.json",
+      "destination": ".agents/agents/unity-developer/scripts/validation/hash/fixtures/final-stage-before.json",
+      "source_sha256": "02af0bb9dd12dcc617f7b86f35911e0b5e7accd081df2cfe0c123d1e7e7e11b1",
+      "prepared_sha256": "02af0bb9dd12dcc617f7b86f35911e0b5e7accd081df2cfe0c123d1e7e7e11b1",
+      "source_bytes": 160674,
+      "prepared_bytes": 160674,
+      "adapted": false,
+      "note": "Immutable final-stage baseline, byte-identical."
+    },
+    {
+      "source": ".codex/tmp/hash-unification/final-validation-report.json",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/evidence/final-validation-report.json",
+      "prepared_relative": "evidence/final-validation-report.json",
+      "destination": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/final-validation-report.json",
+      "source_sha256": "5b6a0427a5a82e974d84eb485876c980369f961cbebe951a93b01db3a8d3f2f0",
+      "prepared_sha256": "5b6a0427a5a82e974d84eb485876c980369f961cbebe951a93b01db3a8d3f2f0",
+      "source_bytes": 5974,
+      "prepared_bytes": 5974,
+      "adapted": false,
+      "note": "Historical final-stage result, byte-identical; not current-tree verification."
+    },
+    {
+      "source": ".codex/tmp/hash-variant-consolidation/REPORT.md",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/evidence/VARIANT_REVIEW.md",
+      "prepared_relative": "evidence/VARIANT_REVIEW.md",
+      "destination": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/VARIANT_REVIEW.md",
+      "source_sha256": "f846464131a600bda86f347c7998db318e6fde988fb6a3323c16c0a4b8c798f7",
+      "prepared_sha256": "7d85320a6b13ac80de0a4868205d7621cade91cc36d1f7a950552cb100e5ea41",
+      "source_bytes": 7287,
+      "prepared_bytes": 7327,
+      "adapted": true,
+      "note": "Historical domain review; links adapted to split permanent archive."
+    },
+    {
+      "source": ".codex/tmp/hash-variant-consolidation/report.json",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/evidence/variant-statistics-report.json",
+      "prepared_relative": "evidence/variant-statistics-report.json",
+      "destination": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/variant-statistics-report.json",
+      "source_sha256": "e95bd0b80809a16e9d767fce5d78fa1c2a6dab9c309bd39b985faab3f4973a90",
+      "prepared_sha256": "5a4572da88e731282c9b300f5925fa633bdd0883d6eacb61a2644d5e38567252",
+      "source_bytes": 54437,
+      "prepared_bytes": 54522,
+      "adapted": true,
+      "note": "Numerically identical verified rerun; baseline reference adapted to permanent split."
+    },
+    {
+      "source": null,
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/README.md",
+      "prepared_relative": "README.md",
+      "destination": ".agents/agents/unity-developer/scripts/validation/hash/README.md",
+      "source_sha256": null,
+      "prepared_sha256": "75d6d034944c642f46ecb19ff341181c878c82486b8cc73168aca821f239363b",
+      "source_bytes": null,
+      "prepared_bytes": 3205,
+      "adapted": true,
+      "note": "New portable runtime/archive guide."
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/output/hash-archive-validation/final-validation-report.json",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/evidence/current-contract-validation-report.json",
+      "prepared_relative": "evidence/current-contract-validation-report.json",
+      "destination": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/current-contract-validation-report.json",
+      "source_sha256": "2f0ce62032059451ee11a610c67e4b8fd6bedb046d6cb15e95ca8e44f19e302b",
+      "prepared_sha256": "38d9d787121e7f0064f9a0ced205171b5c9b148af818444658eaeca9e453054e",
+      "source_bytes": 11599,
+      "prepared_bytes": 11681,
+      "adapted": true,
+      "note": "Passing current-contract rerun; explicitly reports historical source drift."
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/output/hash-archive-historical-strict/final-validation-report.json",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/evidence/historical-strict-snapshot-report.json",
+      "prepared_relative": "evidence/historical-strict-snapshot-report.json",
+      "destination": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/historical-strict-snapshot-report.json",
+      "source_sha256": "5bbbb5cc1db7d1b348971bcac8748e63ed8c9a428e70464b846f54293e3d30db",
+      "prepared_sha256": "b5bd83edbea36392d209d214a398c147cfe51bede7335b06c8780656c0b64dce",
+      "source_bytes": 8231,
+      "prepared_bytes": 8462,
+      "adapted": true,
+      "note": "Historical strict check returns expected FAIL, not presented as migration preservation pass."
+    },
+    {
+      "source": "tmp/sessions/2026-10-10-lab-structure-audit/evidence/hash-archive-control-checks.json",
+      "prepared": "tmp/sessions/2026-10-10-lab-structure-audit/prepared-archive/hash/evidence/archive-control-checks.json",
+      "prepared_relative": "evidence/archive-control-checks.json",
+      "destination": ".agents/agents/unity-developer/memory/evidence/2026-10-10-hash-function/archive-control-checks.json",
+      "source_sha256": "91729b2fb7886351a1922773288b7548fc1476cf8aec54d84504e28fd7340c13",
+      "prepared_sha256": "91729b2fb7886351a1922773288b7548fc1476cf8aec54d84504e28fd7340c13",
+      "source_bytes": 2602,
+      "prepared_bytes": 2602,
+      "adapted": false,
+      "note": "Ten actual in-memory caller/control/routing checks, no Assets writes."
+    }
+  ],
+  "excluded_legacy_sources": [
+    {
+      "source": ".codex/tmp/hash-unification/verify_mcp_isolated.py",
+      "proposal": "delete after exact manifest approval",
+      "reason": "Replaced by current isolated MCP runner .mcp/tests/run_isolated.py; copied fixture is reconstructible, not a permanent Hash archive dependency."
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 
 | 类型 | 验证载体 | 入口 |
 |---|---|---|
-| 2D 全屏 / 后处理 | 复用 `Assets/Mine/Shaders/PostProcess/Debug/` 调试 Shader 和固定 DebugOutputFeature，在真实相机管线观察 | [屏幕调试方法](../../../agents/unity-developer/references/shader/postprocess/feature-script-structure.md#4-屏幕调试方法rendererfeature-屏幕调试) |
+| 2D 全屏 / 后处理 | 实际 Feature Debug / 固定 DebugOutputFeature → 相机输出，按需完整 PNG | [unity-render-debug](../../unity-render-debug/SKILL.md) |
 | 3D 网格材质 / 顶点变形 | Mesh + Material + Camera + Light；可先用隔离预览场景，再按依赖补真实场景验证 | 下述流程 |
 
 这里的 2D 指全屏处理，不指所有 Sprite/UI。依赖场景深度、法线、中间 RT 或自定义 Feature 的材质，仍需真实管线集成验证。
@@ -27,9 +27,9 @@
 
 ## 3D：隔离渲染与对照
 
-- 临时 Roslyn 验证脚本依照 [脚本决策](script-decision.md) 放在 `tmp/`；不将特定材质的阈值直接提升为通用脚本。
+- 临时 Roslyn 验证脚本依照 [脚本决策](script-decision.md) 放在 `tmp/sessions/<date-task-id>/staging/`；不将特定材质的阈值直接提升为通用脚本。
 - `EditorSceneManager.NewPreviewScene()` 中放置网格、材质、相机和光；显式绑定 `camera.scene`，避免混入用户场景。
-- URP 使用 `RenderPipeline.SubmitRenderRequest` + `UniversalRenderPipeline.SingleCameraRequest` 输出 RenderTexture；不能用 CPU 数学复算代替实际 GPU 输出。
+- 需要画面对照或截图时使用 [统一渲染调试流程](../../unity-render-debug/SKILL.md) 的相机请求 / PNG 路径；CPU 数学复算不代替实际 GPU 输出。
 - 无帧间行为的静态材质可在 Edit Mode 验证；时间动画、生命周期、运行时资源初始化需进入 Play Mode。
 - 验证前记录修改的状态；在 `finally` 恢复活动 RT、释放临时纹理/材质并关闭预览场景，不保存或清理用户场景物体。
 

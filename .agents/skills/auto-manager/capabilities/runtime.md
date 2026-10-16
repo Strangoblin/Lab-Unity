@@ -40,4 +40,4 @@ unityctl logs --stack           # 带堆栈跟踪
 
 ## 引用
 
-- 错误诊断详情：[../../../rules/shader-development.md](../../../rules/shader-development.md)
+- 错误诊断详情：[../../../rules/shader-development.md](../../../knowledge/rules/shader-development.md)
