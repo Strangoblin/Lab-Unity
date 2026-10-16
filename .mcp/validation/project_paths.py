@@ -153,17 +153,30 @@ def check_placement(path: str, is_new: bool, category: str = "") -> dict:
 # ════════════════════════════════════════════════════════════════
 
 def _rel_posix(path: str) -> str:
+    """比较用归一形 —— 分隔符统一为 POSIX，相对化后**再归一一次**。
+
+    为什么必须归一：Windows 上 os.path.isabs 认得正斜杠绝对路径，于是走
+    os.path.relpath，而它用 os.sep 拼回结果（正斜杠又变回反斜杠），调用方比的
+    却是 POSIX 前缀（policy 的 applies_to / ALLOWED_PREFIXES）——不归一就恒不相等。
+    """
     rel = str(path).replace("\\", "/")
     if os.path.isabs(rel):
         try:
             rel = os.path.relpath(rel, PROJECT_ROOT)
         except ValueError:
-            return rel
+            return rel.replace("\\", "/")   # 不同盘符：保持原形，交给调用方判否
+        rel = rel.replace("\\", "/")
     return rel.lstrip("./")
 
 
 def _under(rel: str, prefix: str) -> bool:
-    prefix = prefix.rstrip("/")
+    """路径包含判定 —— 两侧先归一再比，且只在**分隔符边界**上匹配。
+
+    归一在两侧都做：check_workspace_roots 传进来的是绝对路径（realpath 全反斜杠
+    形），前缀却是 PROJECT_ROOT；只归一侧仍会恒 False。
+    """
+    rel = str(rel).replace("\\", "/").rstrip("/")
+    prefix = str(prefix).replace("\\", "/").rstrip("/")
     return rel == prefix or rel.startswith(prefix + "/")
 
 
