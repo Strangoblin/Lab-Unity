@@ -213,7 +213,9 @@ HISTORICAL_MEMORY_ORIGINS = {
 HISTORICAL_RELOCATIONS = {
     ".agents/agents/unity-developer/scripts/roslyn/camera-offscreen-capture.cs": ".agents/skills/unity-render-debug/scripts/camera-offscreen-capture.cs",
     ".agents/agents/unity-developer/scripts/roslyn": ".agents/skills/unity-editor/scripts/roslyn",
-    ".agents/agents/unity-developer/scripts/validation/hash": ".agents/skills/unity-feature-reuse/project-adapters/hash",
+    ".agents/agents/unity-developer/scripts/validation/hash": "Assets/Mine/Special/HLSL/Validation~/hash",
+    ".agents/skills/unity-feature-reuse/project-adapters/hash": "Assets/Mine/Special/HLSL/Validation~/hash",
+    ".agents/skills/auto-manager/project-adapters/production-tools": "Assets/Mine/Scripts/ProductionTools/Validation~",
     ".agents/agents/meta-developer/scripts": ".agents/skills/agent-maintenance/scripts",
     ".agents/agents/unity-developer/templates": ".agents/skills/auto-manager/templates",
     ".agents/agents/unity-developer/cli": ".agents/skills/unity-editor/references/cli",

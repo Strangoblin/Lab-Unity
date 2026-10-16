@@ -58,4 +58,4 @@ description: 在 Unity 中新增同类功能、扩展 Shader/HLSL/Compute/C# 变
 只读/规划任务在回复或现有计划记录关联；实施任务在已有功能 README 或库索引/合同注释记录沿用的实源/通用函数、项目公共入口、保留差异与验证结果，写入范围沿用任务授权。
 不复制算法正文或新建通用清单；后续同类实现从这一关联基线继续，库索引失效时以实源为准。
 
-项目已有 Hash 迁移/消费合同验证器见 [Hash 项目适配器](project-adapters/hash/README.md)；只在该项目合同适用时取用，不当作任意随机算法的通用检验器。
+项目已有的 Hash 迁移/消费合同验证器是项目专属内容，按资源绑定 `validation.hash.guide` 取用（`python3 .mcp/validation/project_resources.py path validation.hash.guide`）；只在该项目合同适用时取用，不当作任意随机算法的通用检验器。

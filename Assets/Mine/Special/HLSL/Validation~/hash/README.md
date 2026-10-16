@@ -1,7 +1,7 @@
 # Hash 复用验证
 
-正式入口：`.agents/skills/unity-feature-reuse/project-adapters/hash/`。
-精选报告位于 `../../../memory/evidence/2026-10-10-hash-function/`。
+正式入口：`Assets/Mine/Special/HLSL/Validation~/hash/`（Lab 项目专属适配器；资源绑定 `validation.hash.guide` / `validation.hash.adapter`）。
+精选报告位于 `.agents/memory/unity/evidence/2026-10-10-hash-function/`。
 2026-10-10 已按批准清单安装、从正式路径复跑并移除对应旧临时文件。
 
 ## 文件与依赖
@@ -20,9 +20,9 @@
 从项目根执行：
 
 ```sh
-python3 .agents/skills/unity-feature-reuse/project-adapters/hash/verify_hash.py \
+python3 Assets/Mine/Special/HLSL/Validation~/hash/verify_hash.py \
   --run-id 2026-10-10-hash-validation-rerun
-python3 .agents/skills/unity-feature-reuse/project-adapters/hash/analyze_variants.py \
+python3 Assets/Mine/Special/HLSL/Validation~/hash/analyze_variants.py \
   --run-id 2026-10-10-hash-statistics-rerun
 ```
 

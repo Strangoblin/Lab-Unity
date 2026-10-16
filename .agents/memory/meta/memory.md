@@ -8,6 +8,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-16-project-adapters-back-to-project.md](2026-10-16-project-adapters-back-to-project.md) | 2026-10-16 | 用户裁决项目个体内容不得留在共享库：两处 `project-adapters/`（9 文件）迁回项目功能 `Assets/Mine/Scripts/ProductionTools/Validation~/` 与 `Assets/Mine/Special/HLSL/Validation~/hash/`，迁移后逐字节一致；技能改按 `validation.hash.*` 资源 ID 取用，`task-artifacts.md` 撤掉 project-adapters 规则；根目录 4 个 mono 转储建 checkpoint 后清理。strict 与四套隔离 MCP 全绿。 |
 | [2026-10-16-local-remote-merge-windows-port.md](2026-10-16-local-remote-merge-windows-port.md) | 2026-10-16 | 合并远程 22 个提交（MCP v3 判定核 + 渲染/工具链）与本地 4 个提交（terrain 分层、CityScene、路径归一）；远程引入的 Windows 移植缺陷已修（`delete_gated` 缺 `O_NOFOLLOW`/`dir_fd` 退化、隔离 runner 只读 git 对象清理失败）；四套隔离 MCP 与架构 strict 全绿，Unity Editor 未验证。 |
 | [2026-10-16-auto-manager-routing.md](2026-10-16-auto-manager-routing.md) | 2026-10-16 | Unity 首次任务分派收口到 auto-manager；SKILL 分类、AutoMode 一次启动、模式持有阶段，独立操作 / 报告分析轻路由，实施时升级；移除角色直连叶子，保留真实依赖。冷启动、架构、链接与隔离 MCP 验证通过。 |
 | [2026-10-16-sustainable-development-startup.md](2026-10-16-sustainable-development-startup.md) | 2026-10-16 | 可持续开发判断归 auto-manager 单一正文，角色、入口与三模式在首次实施前接入；局部小修简化，已有结论复用，不增门禁或文档；新功能 / 小修冷启动演练、83 链接检查、架构与隔离 MCP 验证通过。 |

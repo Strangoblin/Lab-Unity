@@ -1,10 +1,12 @@
 # Lab production-tool checks
 
+Lab 项目专属回归适配器，归项目功能目录 `Assets/Mine/Scripts/ProductionTools/Validation~/`（2026-10-16 由 agent 库 project-adapters 迁回项目）。
+
 Connected-Editor regression adapter for the five independent Lab windows:
 
 ```sh
 unityctl status
-unityctl -t 60 script execute .agents/skills/auto-manager/project-adapters/production-tools/ProductionToolChecks.cs
+unityctl -t 60 script execute Assets/Mine/Scripts/ProductionTools/Validation~/ProductionToolChecks.cs
 ```
 
 `Script.Main()` creates temporary window instances and a unique `__ProductionValidation_<guid>` folder under the Noise tool.
