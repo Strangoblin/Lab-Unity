@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mine.SceneGizmo
+namespace Mine.GizmoRendering
 {
     /// <summary>
     /// Derives subordinate colors from a member color, so one member color can still express

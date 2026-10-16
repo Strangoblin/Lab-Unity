@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Mine.SceneGizmo
+namespace Mine.GizmoRendering
 {
     /// <summary>
     /// One user-defined group of scene gizmos. It carries the display properties that used to be
@@ -30,7 +30,7 @@ namespace Mine.SceneGizmo
         public string Label
         {
             get => _label;
-            set => _label = value;
+            internal set => _label = GizmoMemberSet.NormalizeLabel(value);
         }
 
         /// <summary>Family switch. A disabled member draws nothing, whatever the global policy says.</summary>
@@ -55,7 +55,14 @@ namespace Mine.SceneGizmo
         }
 
         /// <summary>Live roster of sources that named this member.</summary>
-        public IReadOnlyList<IGizmoSource> Sources => _sources;
+        public IReadOnlyList<IGizmoSource> Sources
+        {
+            get
+            {
+                Prune();
+                return _sources;
+            }
+        }
 
         // ════════════════════════════════════════════════════════════
         //  Roster — maintained by the manager window scan and by draw-time attachment
@@ -63,7 +70,8 @@ namespace Mine.SceneGizmo
 
         internal void Attach(IGizmoSource source)
         {
-            if (source == null) return;
+            Prune();
+            if (!IsAlive(source) || !Matches(source.Member)) return;
             if (_sources.Contains(source)) return;
             _sources.Add(source);
         }
@@ -72,8 +80,14 @@ namespace Mine.SceneGizmo
         {
             for (int index = _sources.Count - 1; index >= 0; index--)
             {
-                if (_sources[index] == null) _sources.RemoveAt(index);
+                IGizmoSource source = _sources[index];
+                if (!IsAlive(source) || !Matches(source.Member)) _sources.RemoveAt(index);
             }
+        }
+
+        internal static bool IsAlive(IGizmoSource source)
+        {
+            return source != null && (!(source is UnityEngine.Object target) || target != null);
         }
 
         internal void ClearRoster()
@@ -83,7 +97,7 @@ namespace Mine.SceneGizmo
 
         internal bool Matches(string label)
         {
-            return string.Equals(_label, label, StringComparison.Ordinal);
+            return string.Equals(_label, GizmoMemberSet.NormalizeLabel(label), StringComparison.Ordinal);
         }
     }
 }

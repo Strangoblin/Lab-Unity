@@ -1,4 +1,4 @@
-namespace Mine.SceneGizmo
+namespace Mine.GizmoRendering
 {
     /// <summary>
     /// Shape family a gizmo source draws. Reported by <see cref="IGizmoSource.Form"/> and shown in the

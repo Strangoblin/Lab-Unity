@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Runtime.InteropServices;
 using Mine.Fields;
-using Mine.SceneGizmo;
+using Mine.GizmoRendering;
 
 /// <summary>
 /// Rain particle simulation — particles spawn throughout a rotated volume and
@@ -79,9 +79,9 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator, IGizmo
 
     public GizmoForm Form => GizmoForm.Volume;
 
-    private void OnDrawGizmos() => SceneGizmos.Draw(this, false);
+    private void OnDrawGizmos() => GizmoRender.Draw(this, false);
 
-    private void OnDrawGizmosSelected() => SceneGizmos.Draw(this, true);
+    private void OnDrawGizmosSelected() => GizmoRender.Draw(this, true);
 
     public void DrawGizmos(GizmoCanvas canvas)
     {

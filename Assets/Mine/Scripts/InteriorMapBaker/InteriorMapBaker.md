@@ -6,7 +6,7 @@
 
 The scene framework owns the bake volume, view direction, and a dedicated disabled bake camera. The tool window lets the user select a framework, create or repair a standard framework, configure texture settings, choose a bake type, bake a texture, load an existing asset, save the result, and preview the output.
 
-The volume and direction components participate in the shared Scene Gizmo framework: both register into the `Interior` member, and that member owns their enablement, display scenario and color. See [SceneGizmo](../SceneGizmo/SceneGizmo.md).
+The volume and direction components participate in the shared GizmoRender framework: both register into the `Interior` member, and that member owns their enablement, display scenario and color. See [GizmoRender](../GizmoRender/GizmoRender.md).
 
 ---
 
@@ -44,8 +44,8 @@ Clicking **Create Framework** repeatedly does not duplicate existing direct chil
 | Class | Responsibility |
 |---|---|
 | `InteriorMapBaker` | Scene entry point; stores references to the volume, direction, and Baker-owned camera |
-| `InteriorMapBakeVolume` | Stores and draws the oriented bake volume |
-| `InteriorMapBakeDirection` | Stores and draws the bake view direction arrow |
+| `InteriorMapBakeVolume` | Stores the oriented bake volume and reports it as a `Volume` source of the `Interior` gizmo member |
+| `InteriorMapBakeDirection` | Stores the bake view direction and reports it as a `Direction` source of the `Interior` gizmo member |
 | `InteriorMapTextureBaker` | Configures the framework-owned Camera, renders six explicit cubemap faces, and converts them to the selected output projection |
 | `InteriorMapBakerEditorUtility` | Shared Editor-only logic for creating, binding, and initializing framework objects |
 | `InteriorMapBakerWindow` | Tools window for framework creation and selection, projection settings, baking, loading, saving, and preview |
@@ -98,10 +98,10 @@ The camera object remains in the scene hierarchy for inspection and later reuse.
 |---|---|---:|---|
 | `_center` | `Vector3` | `(0,0,0)` | Local-space center offset relative to the component Transform |
 | `_size` | `Vector3` | `(2,2,3)` | Local-space volume size, clamped to positive values |
-| `_drawGizmo` | `bool` | `true` | Draw the volume wireframe |
-| `_gizmoColor` | `Color` | Cyan | Volume wireframe color |
+| `_bakeType` | `InteriorMapBakeType` | `Box` | Selects the wireframe: `Box` draws a wire cube, `Hemisphere` draws the rear-half sphere grid |
+| `_gizmoMember` | `string` | `Interior` | Gizmo member this component registers into |
 
-The component Transform controls the position and orientation of the volume. Its scale affects the Gizmo and the subsequent local-to-world matrix.
+The component Transform controls the position and orientation of the volume. Its scale affects the Gizmo and the subsequent local-to-world matrix. Drawing is a `GizmoForm.Volume` source, so the wireframe uses the `Interior` member color and derives no secondary tint.
 
 ### `InteriorMapBakeDirection`
 
@@ -111,10 +111,11 @@ The component Transform controls the position and orientation of the volume. Its
 | `_length` | `float` | `1.5` | Arrow length |
 | `_headLength` | `float` | `0.3` | Arrow head length |
 | `_headWidth` | `float` | `0.15` | Arrow head width |
-| `_drawGizmo` | `bool` | `true` | Draw the direction arrow |
-| `_gizmoColor` | `Color` | Yellow | Direction arrow color |
+| `_gizmoMember` | `string` | `Interior` | Gizmo member this component registers into |
 
-The component Transform's `forward` vector defines the bake view direction.
+The component Transform's `forward` vector defines the bake view direction. Drawing is a `GizmoForm.Direction` source using the `Interior` member color; the origin marker sphere radius is derived from `_headWidth`.
+
+Both components name the `Interior` member, so the whole bake framework is silenced, retinted or switched to always-on from `Tools/GizmoRender` — or by pointing `_gizmoMember` at a different member — without touching the components themselves.
 
 ---
 

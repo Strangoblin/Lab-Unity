@@ -1,5 +1,5 @@
 using UnityEngine;
-using Mine.SceneGizmo;
+using Mine.GizmoRendering;
 
 /// <summary>
 /// Defines the forward direction used by an InteriorMap baker and visualizes it as a Scene view arrow.
@@ -36,9 +36,9 @@ public sealed class InteriorMapBakeDirection : MonoBehaviour, IGizmoSource
 
     public GizmoForm Form => GizmoForm.Direction;
 
-    private void OnDrawGizmos() => SceneGizmos.Draw(this, false);
+    private void OnDrawGizmos() => GizmoRender.Draw(this, false);
 
-    private void OnDrawGizmosSelected() => SceneGizmos.Draw(this, true);
+    private void OnDrawGizmosSelected() => GizmoRender.Draw(this, true);
 
     public void DrawGizmos(GizmoCanvas canvas)
     {

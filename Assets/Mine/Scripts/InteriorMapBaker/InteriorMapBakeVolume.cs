@@ -1,5 +1,5 @@
 using UnityEngine;
-using Mine.SceneGizmo;
+using Mine.GizmoRendering;
 
 /// <summary>
 /// Defines the local-space volume that an InteriorMap baker should use as its room range.
@@ -42,9 +42,9 @@ public sealed class InteriorMapBakeVolume : MonoBehaviour, IGizmoSource
 
     public GizmoForm Form => GizmoForm.Volume;
 
-    private void OnDrawGizmos() => SceneGizmos.Draw(this, false);
+    private void OnDrawGizmos() => GizmoRender.Draw(this, false);
 
-    private void OnDrawGizmosSelected() => SceneGizmos.Draw(this, true);
+    private void OnDrawGizmosSelected() => GizmoRender.Draw(this, true);
 
     public void DrawGizmos(GizmoCanvas canvas)
     {

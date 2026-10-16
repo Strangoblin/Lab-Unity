@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
-using Mine.SceneGizmo;
+using Mine.GizmoRendering;
 
 /// <summary>
 /// Fish particle simulation — particles are distributed along and inside a
@@ -67,9 +67,9 @@ public class FishSimulation : MonoBehaviour, IUniversalInstanceSimulator, IGizmo
 
     public GizmoForm Form => GizmoForm.Path;
 
-    private void OnDrawGizmos() => SceneGizmos.Draw(this, false);
+    private void OnDrawGizmos() => GizmoRender.Draw(this, false);
 
-    private void OnDrawGizmosSelected() => SceneGizmos.Draw(this, true);
+    private void OnDrawGizmosSelected() => GizmoRender.Draw(this, true);
 
     public void DrawGizmos(GizmoCanvas canvas)
     {

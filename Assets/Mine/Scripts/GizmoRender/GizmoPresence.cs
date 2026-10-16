@@ -1,8 +1,8 @@
-namespace Mine.SceneGizmo
+namespace Mine.GizmoRendering
 {
     /// <summary>
-    /// Display scenario a gizmo source declares for itself: when the scene view should draw it.
-    /// This is the per-component half of the display decision; the global half is <see cref="GizmoPolicy"/>.
+    /// Display scenario a member declares for its sources: when the scene view should draw it.
+    /// This is the per-member half of the display decision; the global half is <see cref="GizmoPolicy"/>.
     /// </summary>
     public enum GizmoPresence
     {
@@ -17,7 +17,7 @@ namespace Mine.SceneGizmo
     }
 
     /// <summary>
-    /// Session-wide display override applied on top of every source's declared <see cref="GizmoPresence"/>.
+    /// Editor-wide display override applied on top of every source's declared <see cref="GizmoPresence"/>.
     /// Lets one switch silence or surface all gizmos without editing each component.
     /// </summary>
     public enum GizmoPolicy

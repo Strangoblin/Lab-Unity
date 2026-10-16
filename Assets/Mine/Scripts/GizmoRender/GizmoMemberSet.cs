@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace Mine.SceneGizmo
+namespace Mine.GizmoRendering
 {
     /// <summary>
     /// The editable member list behind the whole framework, stored as a project asset so the
@@ -24,10 +24,16 @@ namespace Mine.SceneGizmo
     public sealed class GizmoMemberSet : ScriptableObject
     {
         /// <summary>Project-relative path of the member configuration asset.</summary>
-        public const string AssetPath = "Assets/Mine/Scripts/SceneGizmo/SceneGizmoMembers.asset";
+        public const string AssetPath = "Assets/Mine/Scripts/GizmoRender/GizmoRenderMembers.asset";
+
+        /// <summary>Canonical membership key, shared by lookup, registration and roster cleanup.</summary>
+        public static string NormalizeLabel(string label)
+        {
+            return string.IsNullOrWhiteSpace(label) ? "Unassigned" : label.Trim();
+        }
 
 #if UNITY_EDITOR
-        private const string AssetFolder = "Assets/Mine/Scripts/SceneGizmo";
+        private const string AssetFolder = "Assets/Mine/Scripts/GizmoRender";
 
         [SerializeField] private List<GizmoMember> _members = new List<GizmoMember>();
 
@@ -57,7 +63,7 @@ namespace Mine.SceneGizmo
 
             if (!AssetDatabase.IsValidFolder(AssetFolder))
             {
-                AssetDatabase.CreateFolder("Assets/Mine/Scripts", "SceneGizmo");
+                AssetDatabase.CreateFolder("Assets/Mine/Scripts", "GizmoRender");
             }
 
             set = CreateInstance<GizmoMemberSet>();
@@ -94,16 +100,9 @@ namespace Mine.SceneGizmo
             return TransientFor(label);
         }
 
-        /// <summary>True when the member belongs to the saved asset rather than the transient fallback.</summary>
-        public static bool IsPersistent(GizmoMember member)
-        {
-            GizmoMemberSet set = Load();
-            return set != null && member != null && set._members.Contains(member);
-        }
-
         private static GizmoMember TransientFor(string label)
         {
-            string key = string.IsNullOrEmpty(label) ? "Unassigned" : label;
+            string key = NormalizeLabel(label);
             if (Transients.TryGetValue(key, out GizmoMember member)) return member;
 
             member = BuildMember(key);
@@ -119,11 +118,11 @@ namespace Mine.SceneGizmo
         /// <summary>Finds a member by label, or null.</summary>
         public GizmoMember Find(string label)
         {
-            if (string.IsNullOrEmpty(label)) return null;
+            string key = NormalizeLabel(label);
 
             for (int index = 0; index < _members.Count; index++)
             {
-                if (_members[index] != null && _members[index].Matches(label)) return _members[index];
+                if (_members[index] != null && _members[index].Matches(key)) return _members[index];
             }
 
             return null;
@@ -141,12 +140,44 @@ namespace Mine.SceneGizmo
         /// <summary>Appends a new member.</summary>
         public GizmoMember AddMember(string label)
         {
-            string key = string.IsNullOrEmpty(label) ? $"Member {_members.Count + 1}" : label;
+            string stem = NormalizeLabel(label);
+            string key = stem;
+            for (int suffix = 2; Find(key) != null; suffix++) key = $"{stem} {suffix}";
             GizmoMember member = BuildMember(key);
-            member.Label = key;
             _members.Add(member);
             Save();
             return member;
+        }
+
+        /// <summary>Renames a member without creating empty or duplicate membership keys.</summary>
+        public bool TryRename(GizmoMember member, string label, out string error)
+        {
+            error = null;
+            if (member == null || !_members.Contains(member))
+            {
+                error = "The member does not belong to this set.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(label))
+            {
+                error = "A member label cannot be empty.";
+                return false;
+            }
+
+            string key = NormalizeLabel(label);
+            GizmoMember existing = Find(key);
+            if (existing != null && existing != member)
+            {
+                error = $"A member named '{key}' already exists.";
+                return false;
+            }
+
+            if (member.Matches(key)) return true;
+            member.Label = key;
+            member.ClearRoster();
+            Save();
+            return true;
         }
 
         /// <summary>Removes a member. Sources naming it fall back to the transient member.</summary>
@@ -176,18 +207,30 @@ namespace Mine.SceneGizmo
                 _members[index]?.ClearRoster();
             }
 
+            bool added = false;
             foreach (IGizmoSource source in sources)
             {
-                if (source == null) continue;
-                EnsureMember(source.Member).Attach(source);
+                if (!GizmoMember.IsAlive(source)) continue;
+                string key = NormalizeLabel(source.Member);
+                GizmoMember member = Find(key);
+                if (member == null)
+                {
+                    member = BuildMember(key);
+                    _members.Add(member);
+                    added = true;
+                }
+
+                member.Attach(source);
             }
+
+            if (added) Save();
         }
 
         /// <summary>Writes pending edits back to the configuration asset.</summary>
         public void Save()
         {
             EditorUtility.SetDirty(this);
-            AssetDatabase.SaveAssetIfDirty(this);
+            if (AssetDatabase.Contains(this)) AssetDatabase.SaveAssetIfDirty(this);
         }
 
         // ════════════════════════════════════════════════════════════

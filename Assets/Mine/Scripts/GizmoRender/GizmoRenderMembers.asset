@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6e352ec2902744571aee0880d1141111, type: 3}
-  m_Name: SceneGizmoMembers
-  m_EditorClassIdentifier: Assembly-CSharp::Mine.SceneGizmo.GizmoMemberSet
+  m_Name: GizmoRenderMembers
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.GizmoRendering.GizmoMemberSet
   _members:
   - _label: Wind
     _enabled: 1

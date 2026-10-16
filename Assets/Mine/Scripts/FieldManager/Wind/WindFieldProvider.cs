@@ -1,5 +1,5 @@
 using UnityEngine;
-using Mine.SceneGizmo;
+using Mine.GizmoRendering;
 
 namespace Mine.Fields
 {
@@ -61,9 +61,9 @@ namespace Mine.Fields
 
         public GizmoForm Form => GizmoForm.Volume;
 
-        private void OnDrawGizmos() => SceneGizmos.Draw(this, false);
+        private void OnDrawGizmos() => GizmoRender.Draw(this, false);
 
-        private void OnDrawGizmosSelected() => SceneGizmos.Draw(this, true);
+        private void OnDrawGizmosSelected() => GizmoRender.Draw(this, true);
 
         public void DrawGizmos(GizmoCanvas canvas)
         {

@@ -1,15 +1,15 @@
 using System;
 using UnityEngine;
 
-namespace Mine.SceneGizmo
+namespace Mine.GizmoRendering
 {
     /// <summary>
     /// Drawing surface shared by every gizmo source. Owns the current space and the reusable
     /// shape primitives, so sources describe geometry instead of open-coding line loops.
     /// </summary>
     /// <remarks>
-    /// Primitives draw in the space currently set by <see cref="LocalSpace"/>. Sources are created
-    /// and reused by <see cref="SceneGizmos"/>; a source never constructs its own canvas, and never
+    /// Primitives draw in the space currently set by <see cref="LocalSpace"/>. The canvas is created
+    /// and reused by <see cref="GizmoRender"/>; a source never constructs its own canvas, and never
     /// saves or restores color and matrix itself — the dispatcher wraps the whole call.
     ///
     /// Secondary parts of one visualization derive their color from <see cref="BaseColor"/> through
@@ -48,7 +48,7 @@ namespace Mine.SceneGizmo
         }
 
         /// <summary>
-        /// Color of the member that owns the drawing source. Pre-assigned by <see cref="SceneGizmos"/>;
+        /// Color of the member that owns the drawing source. Pre-assigned by <see cref="GizmoRender"/>;
         /// use it to derive subordinate tints instead of hardcoding a second color.
         /// </summary>
         public Color BaseColor { get; internal set; }

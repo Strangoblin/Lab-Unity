@@ -3,29 +3,20 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace Mine.SceneGizmo
+namespace Mine.GizmoRendering
 {
     /// <summary>
     /// Single dispatch point for scene gizmo drawing. Resolves the source's member, applies the
-    /// member's enablement and display scenario plus the session-wide policy, sets the member color,
+    /// member's enablement and display scenario plus the editor-wide policy, sets the member color,
     /// then hands the shared canvas to the source and restores the gizmo state afterwards.
     /// </summary>
     /// <remarks>
-    /// Named after Unity's own <c>Gizmos</c> and <c>Handles</c>: this is the surface gizmo sources
-    /// draw through, not a component. A source participates with two one-line hooks, so Unity's
-    /// reserved callbacks stay the trigger and the framework needs no registry or domain-reload
-    /// bookkeeping:
-    /// <code>
-    /// private void OnDrawGizmos() => SceneGizmos.Draw(this, false);
-    /// private void OnDrawGizmosSelected() => SceneGizmos.Draw(this, true);
-    /// </code>
-    /// Unity calls the first for every active object and the second only for the selection, so a
-    /// source still draws exactly once: <see cref="GizmoPresence.Always"/> draws in the unselected
-    /// pass, <see cref="GizmoPresence.OnSelected"/> only in the selected pass.
+    /// Sources use the two Unity Gizmo callbacks. Always draws in the ordinary pass and
+    /// OnSelected in the selection pass; each dispatch restores color, matrix and base color.
     /// </remarks>
-    public static class SceneGizmos
+    public static class GizmoRender
     {
-        /// <summary>Editor preference key holding the session-wide <see cref="GizmoPolicy"/>.</summary>
+        /// <summary>Legacy preference key retained so the GizmoRender rename preserves the user override.</summary>
         public const string PolicyKey = "Mine.SceneGizmo.Policy";
 
         private static readonly GizmoCanvas Canvas = new GizmoCanvas();
@@ -34,7 +25,7 @@ namespace Mine.SceneGizmo
         //  会话级情景 — override on top of every member declaration
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>Session-wide override; <see cref="GizmoPolicy.Default"/> defers to each member.</summary>
+        /// <summary>Editor-wide override; <see cref="GizmoPolicy.Default"/> defers to each member.</summary>
         public static GizmoPolicy Policy
         {
             get
@@ -53,7 +44,7 @@ namespace Mine.SceneGizmo
             }
         }
 
-        /// <summary>Applies the session-wide override to a member's declared scenario.</summary>
+        /// <summary>Applies the editor-wide override to a member's declared scenario.</summary>
         public static GizmoPresence Resolve(GizmoPresence declared)
         {
             switch (Policy)
@@ -90,9 +81,11 @@ namespace Mine.SceneGizmo
         /// <summary>Member that owns <paramref name="source"/>, or null outside the editor.</summary>
         public static GizmoMember ResolveMember(IGizmoSource source)
         {
-            if (source == null) return null;
+            if (!GizmoMember.IsAlive(source)) return null;
 #if UNITY_EDITOR
-            return GizmoMemberSet.ResolveMember(source.Member);
+            GizmoMember member = GizmoMemberSet.ResolveMember(source.Member);
+            member.Attach(source);
+            return member;
 #else
             return null;
 #endif
@@ -133,22 +126,19 @@ namespace Mine.SceneGizmo
             GizmoMember member = ResolveMember(source);
             if (!IsVisible(member, selected)) return;
 
-            Canvas.BaseColor = member.Color;
-
-#if UNITY_EDITOR
-            // Keeps a member's roster current for data that appeared after the last window scan
-            if (GizmoMemberSet.IsPersistent(member)) member.Attach(source);
-#endif
-
+            Color previousBaseColor = Canvas.BaseColor;
             Color previousColor = Gizmos.color;
             Matrix4x4 previousMatrix = Gizmos.matrix;
             try
             {
+                Canvas.BaseColor = member.Color;
                 Canvas.Color = member.Color;
+                Canvas.Matrix = Matrix4x4.identity;
                 source.DrawGizmos(Canvas);
             }
             finally
             {
+                Canvas.BaseColor = previousBaseColor;
                 Gizmos.color = previousColor;
                 Gizmos.matrix = previousMatrix;
             }

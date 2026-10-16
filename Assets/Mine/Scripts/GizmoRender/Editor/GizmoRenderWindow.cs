@@ -4,14 +4,14 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Mine.SceneGizmo
+namespace Mine.GizmoRendering
 {
     /// <summary>
     /// Manager window for the scene gizmo framework: one place to add, remove and retune members,
     /// switch the session-wide display policy, and inspect which sources each member currently holds.
     /// </summary>
     /// <remarks>
-    /// The window is a GUI shell. Visibility resolution stays in <see cref="SceneGizmos"/> and the
+    /// The window is a GUI shell. Visibility resolution stays in <see cref="GizmoRender"/> and the
     /// member data lives in the <see cref="GizmoMemberSet"/> asset, so nothing here owns state beyond
     /// the scroll position and which rows are expanded.
     ///
@@ -19,9 +19,10 @@ namespace Mine.SceneGizmo
     /// control's return value: a popup or toggle can report a value during a layout or repaint pass
     /// that was never user intent, and writing session state from that corrupts the display policy.
     /// </remarks>
-    public sealed class SceneGizmoWindow : EditorWindow
+    public sealed class GizmoRenderWindow : EditorWindow
     {
         [SerializeField] private Vector2 _scrollPosition;
+        private string _labelError;
 
         private readonly List<IGizmoSource> _scanned = new List<IGizmoSource>();
         private readonly HashSet<GizmoMember> _expanded = new HashSet<GizmoMember>();
@@ -30,10 +31,10 @@ namespace Mine.SceneGizmo
         //  Menu entry and refresh hooks
         // ════════════════════════════════════════════════════════════
 
-        [MenuItem("Tools/Scene Gizmo/Gizmo Manager")]
+        [MenuItem("Tools/GizmoRender")]
         private static void OpenWindow()
         {
-            var window = GetWindow<SceneGizmoWindow>(false, "Gizmo Manager", true);
+            var window = GetWindow<GizmoRenderWindow>(false, "GizmoRender", true);
             window.minSize = new Vector2(420f, 480f);
         }
 
@@ -55,7 +56,7 @@ namespace Mine.SceneGizmo
 
         private void OnGUI()
         {
-            EditorGUILayout.LabelField("Scene Gizmo", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("GizmoRender", EditorStyles.boldLabel);
             EditorGUILayout.Space(4f);
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
@@ -73,29 +74,29 @@ namespace Mine.SceneGizmo
             EditorGUILayout.BeginVertical("box");
 
             EditorGUI.BeginChangeCheck();
-            GizmoPolicy policy = (GizmoPolicy)EditorGUILayout.EnumPopup("Global Override", SceneGizmos.Policy);
+            GizmoPolicy policy = (GizmoPolicy)EditorGUILayout.EnumPopup("Global Override", GizmoRender.Policy);
             if (EditorGUI.EndChangeCheck())
             {
-                SceneGizmos.Policy = policy;
+                GizmoRender.Policy = policy;
                 SceneView.RepaintAll();
             }
 
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Hide All", GUILayout.Height(24f)))
             {
-                SceneGizmos.HideAll();
+                GizmoRender.HideAll();
                 SceneView.RepaintAll();
             }
 
             if (GUILayout.Button("Show All", GUILayout.Height(24f)))
             {
-                SceneGizmos.ShowAll();
+                GizmoRender.ShowAll();
                 SceneView.RepaintAll();
             }
 
             if (GUILayout.Button("Reset", GUILayout.Height(24f)))
             {
-                SceneGizmos.ResetOverrides();
+                GizmoRender.ResetOverrides();
                 SceneView.RepaintAll();
             }
 
@@ -139,10 +140,13 @@ namespace Mine.SceneGizmo
 
             EditorGUILayout.EndVertical();
 
+            if (!string.IsNullOrEmpty(_labelError)) EditorGUILayout.HelpBox(_labelError, MessageType.Warning);
+
             EditorGUILayout.HelpBox(
                 "A member owns its display properties and its source array. A source names its member by " +
                 "label, so renaming a member leaves the old sources unregistered until they name the new " +
-                "label; two visualizations that need different colors belong in two members.",
+                "label. A later scan registers those old labels again. Disable a member to hide its " +
+                "sources; use separate members for different colors.",
                 MessageType.Info);
 
             if (removeTarget != null &&
@@ -207,13 +211,13 @@ namespace Mine.SceneGizmo
 
             EditorGUI.BeginChangeCheck();
             bool enabled = EditorGUILayout.Toggle("Enabled", member.Enabled);
-            string label = EditorGUILayout.TextField("Label", member.Label);
+            string label = EditorGUILayout.DelayedTextField("Label", member.Label);
             GizmoPresence presence = (GizmoPresence)EditorGUILayout.EnumPopup("Scenario", member.Presence);
             Color color = EditorGUILayout.ColorField("Color", member.Color);
             if (EditorGUI.EndChangeCheck())
             {
                 member.Enabled = enabled;
-                member.Label = label;
+                set.TryRename(member, label, out _labelError);
                 member.Presence = presence;
                 member.Color = color;
                 changed = true;
@@ -286,7 +290,6 @@ namespace Mine.SceneGizmo
 
             GizmoMemberSet set = GizmoMemberSet.Ensure();
             set.RosterFrom(_scanned);
-            set.Save();
             Repaint();
         }
     }

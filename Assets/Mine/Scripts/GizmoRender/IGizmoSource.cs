@@ -1,4 +1,4 @@
-namespace Mine.SceneGizmo
+namespace Mine.GizmoRendering
 {
     /// <summary>
     /// Contract every scene visualization implements. A source names the <see cref="GizmoMember"/>
@@ -11,7 +11,7 @@ namespace Mine.SceneGizmo
     /// different properties belongs to a different member.
     ///
     /// Sources never touch <c>Gizmos.color</c> or <c>Gizmos.matrix</c> directly and never decide
-    /// their own trigger; <see cref="SceneGizmos.Draw"/> owns both. Subordinate parts of one
+    /// their own trigger; <see cref="GizmoRender.Draw"/> owns both. Subordinate parts of one
     /// visualization derive their tint from <see cref="GizmoCanvas.BaseColor"/> via
     /// <see cref="GizmoTint"/>.
     /// </remarks>
@@ -19,7 +19,7 @@ namespace Mine.SceneGizmo
     {
         /// <summary>
         /// Membership key: the label of the <see cref="GizmoMember"/> this source belongs to.
-        /// Read and written so the manager window can regroup a source without touching code.
+        /// Stored by the component so it can be regrouped without changing its drawing code.
         /// </summary>
         string Member { get; set; }
 
