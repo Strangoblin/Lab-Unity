@@ -8,6 +8,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-05-gate-path-windows-regression.md](2026-10-05-gate-path-windows-regression.md) | 2026-10-05 | 修复 `validate_path` Windows 分隔符回归（35a2fd6 引入）：`Assets/Mine/**` 三通道被误判 `PATH_NOT_ALLOWED`；比较两侧归一化 + 跨盘按拒绝、补单元与端到端回归用例、`test_knowledge_paths` 首个断言改 Path 相等（曾掩蔽同文件内的回归用例）。附 Codex 工具可见性 vs 政策声明的待裁决项 |
 | [2026-10-05-local-remote-merge.md](2026-10-05-local-remote-merge.md) | 2026-10-05 | 合并远程体系与本地 OpenCode skill、Windows 软链检查；strict 通过，记录 Windows MCP 测试限制。 |
 | [2026-09-21-gate-operation-model.md](2026-09-21-gate-operation-model.md) | 2026-09-21 | 门禁从「按文件」改「按操作」建模：新增 `move_gated` 补**复合面**（移动 = 写新 + 删旧，单独看每步判定都对、合起来误拦 → 验净效果）；批次级检查须排在逐文件检查前、链式判定须对称（两处都是测试跑出来的）；落点校验从**休眠**接上线——**只收受管扩展名 + 顶层根只到一层**，照现实布局写（202 个受管文件 0 误报），新文件 error / 已有 warning；`category` 注解升为可校验。附审计结论「门禁不知道自己的对偶操作」与三处未做项（写入/移动无 CLI、`g_file` 遗留、`cp` 读出被拦属已裁决取舍） |
 | [2026-09-21-spatial-filter-budget-guidance.md](2026-09-21-spatial-filter-budget-guidance.md) | 2026-09-21 | **空间滤波参数契约与模板**：Quality 固定样本数/分布/下采样率，Radius 只缩放 offset 和感受野；覆盖 Blur/SNN/Kuwahara/Bilateral/SSGI Resolve，修正 fullscreen 旧表述并新增 9/16/25 tap HLSL 骨架。 |
@@ -55,6 +56,7 @@
 ### 待办
 - [x] **MCP live server 重连**（2026-09-21）：`delete_gated` 已落地并过测试；重启 stdio 进程**不够**（工具表按会话冻结），须 `/mcp` 重连——已由用户完成，item 5 两个文件已删。Bash 通道 `validation/delete_gated.py` 已补，此后不依赖重连
 - [ ] **Codex 是否可用 Bash 删除通道**（2026-09-21）：`validation/delete_gated.py` 技术上也对 Codex 可见；是否授权属政策裁决，未擅自写进 `.codex/` 文档
+- [ ] **Codex 门禁工具可见性 vs 政策声明**（2026-10-05）：`.codex/config.toml` 注册 unity-gate 使 write/delete/move 三工具对 Codex 可见可用，与 `.codex/AGENTS.md:45,59`「只有 Claude 侧持有」矛盾；需裁决收窄暴露还是更新政策（同 2026-09-21 条目）
 - [ ] `settings.json` 的 `Write(/Assets/Mine/**)` 为死规则（从不被读取，仅触发启动告警），可清理——用户权限配置，未擅动
 - [x] `.claude/skills/` 实体副本 → 逐 skill 相对软链（2026-09-04 裁决方案二，人工确认后执行；32 文件 → 9 软链）
 - [ ] 删除已迁移旧路径的 compatibility stubs（agent/rules 软链为发现机制保留；仅剩 `.claude/agents/<role>/` 空目录壳物理清理，无 git 足迹）
