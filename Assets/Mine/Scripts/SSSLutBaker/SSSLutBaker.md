@@ -5,7 +5,7 @@
 ## 使用
 
 1. 设置分辨率、采样数和 `Scatter Radius RGB`，点击 Bake 预览，Save 保存 `.asset`。
-2. 将 LUT 赋给测试材质的 `SSS LUT`。默认输出为本目录 `SSS_LUT.asset`。
+2. 将 LUT 赋给测试材质的 `SSS LUT`。默认输出为 `Assets/Textures/SSS_LUT.asset`，由窗口的 Asset Path 字段持有。
 3. `SSS Strength`（0–1）控制叠加贡献；0 为 Half-Lambert 基础响应。
 4. `Scattering Distance`（0–1，世界单位）控制散射距离；内部自动估计几何曲率，以 `spread = distance * curvature` 查询 LUT，0 关闭散射贡献。
 
@@ -13,6 +13,8 @@
 共享库 `Assets/Mine/Special/HLSL/SSSFunction.hlsl` 内声明 `_SSSLut` 与采样器；
 `_SSSLut_TexelSize` 留在调用 Shader 的 `UnityPerMaterial` 中，传给 `SSS_SampleLut(NdotL, positionWS, normalWS, scatteringDistance, texelSize)`，避免材质常量移出 CBUFFER。
 函数内部计算曲率和散射范围；输入归一化几何法线，在片元阶段调用。函数返回原始查表结果（未赋 LUT 或范围为零返回零贡献），强度与 Half-Lambert 组合由材质处理；`SSS_Response` 已移除。
+
+窗口独立继承 `EditorWindow`，`Asset Path` 是 Bake 后 Save 与 Load 的共同路径。三个按钮与资产所有权在本工具内实现；覆盖其他同类型资产前确认，保存只写目标资产。
 
 ## LUT 契约
 

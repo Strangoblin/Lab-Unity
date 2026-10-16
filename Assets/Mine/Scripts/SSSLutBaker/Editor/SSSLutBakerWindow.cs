@@ -1,29 +1,46 @@
 // ════════════════════════════════════════════════════════════
-//  SSSLutBakerWindow — 烘焙、预览与保存 SSS LUT，更新资产时保留 GUID。
+//  SSSLutBakerWindow — 烘焙、预览与保存 SSS LUT。
+//  生产工具标准结构：固定资产路径 + Bake / Load / Save + 资产所有权。
+//  烘焙逻辑在服务层 SSSLutBaker，本窗只做设置与预览。
 // ════════════════════════════════════════════════════════════
 
 using UnityEngine;
 using UnityEditor;
-using System;
 using System.IO;
 
 namespace Mine.SSSLutBaker
 {
-    /// <summary>SSS LUT 烘焙窗口；只拥有本窗口生成的临时纹理。</summary>
+    /// <summary>SSS LUT 烘焙窗口 —— 固定落在 Assets/Textures/SSS_LUT.asset。</summary>
     public sealed class SSSLutBakerWindow : EditorWindow
     {
+        // ── 资产所有权 ──────────────────────────────────────────
+        private UnityEngine.Object _asset;
+
+        private bool _ownsAsset;
+
+        // ── 烘焙设置 ────────────────────────────────────────────
+
         [SerializeField] private int _resolution = 128;
         [SerializeField] private int _sampleCount = 256;
         [SerializeField] private Vector3 _profile = new Vector3(1f, 0.35f, 0.2f);
-        [SerializeField] private string _assetPath = "Assets/Mine/Scripts/SSSLutBaker/SSS_LUT.asset";
-        [SerializeField] private Vector2 _scrollPosition;
 
-        private Texture2D _previewTexture;
-        private bool _ownsTexture;
+        // ── 固定资产路径（Save = Load）──────────────────────────
 
-        // ════════════════════════════════════════════════════════════
-        //  菜单与生命周期
-        // ════════════════════════════════════════════════════════════
+        [SerializeField] private string _assetPath = "Assets/Textures/SSS_LUT.asset";
+
+        private Vector2 _scrollPosition;
+
+        private string AssetPath
+        {
+            get => _assetPath;
+            set => _assetPath = value;
+        }
+
+        private string BakeLabel => "Bake";
+
+        // ════════════════════════════════════════════════════════
+        //  菜单入口
+        // ════════════════════════════════════════════════════════
 
         [MenuItem("Tools/SSS Lut Baker...")]
         public static void ShowWindow()
@@ -32,142 +49,368 @@ namespace Mine.SSSLutBaker
             window.minSize = new Vector2(380f, 480f);
         }
 
-        private void OnDisable()
-        {
-            ReleasePreview();
-        }
-
-        // ════════════════════════════════════════════════════════════
-        //  GUI — 设置、行动行与预览
-        // ════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════
+        //  GUI — 设置 → 路径行 → 行动行 → 预览
+        // ════════════════════════════════════════════════════════
 
         private void OnGUI()
         {
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+
             EditorGUILayout.LabelField("SSS Lut Baker", EditorStyles.boldLabel);
             _resolution = EditorGUILayout.IntSlider("Resolution", _resolution, 16, 512);
             _sampleCount = EditorGUILayout.IntSlider("Samples", _sampleCount, 32, 1024);
             _profile = EditorGUILayout.Vector3Field("Scatter Radius RGB", _profile);
             EditorGUILayout.HelpBox("RGB controls relative scatter width (0.02 to 2). Red spreads furthest in the default profile.", MessageType.Info);
-            DrawPath();
+            DrawAssetPathRow();
 
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Bake", GUILayout.Height(30))) BakePreview();
-            if (GUILayout.Button("Load", GUILayout.Height(30))) LoadPreview();
-            using (new EditorGUI.DisabledScope(_previewTexture == null))
-            {
-                if (GUILayout.Button("Save", GUILayout.Height(30))) SavePreview();
-            }
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space(4f);
+            DrawActionRow();
 
-            if (_previewTexture != null)
-            {
-                float size = Mathf.Max(128f, position.width - 36f);
-                Rect rect = GUILayoutUtility.GetRect(size, size, GUILayout.ExpandWidth(true));
-                EditorGUI.DrawPreviewTexture(rect, _previewTexture, null, ScaleMode.ScaleToFit);
-                EditorGUILayout.LabelField("X: NdotL (-1 to 1) | Y: Scatter x Curvature (0 to 2)");
-                EditorGUILayout.LabelField($"{_previewTexture.width} x {_previewTexture.height} | Linear RGB response");
-            }
+            EditorGUILayout.Space(4f);
+            DrawPreview();
+
             EditorGUILayout.EndScrollView();
         }
 
-        private void DrawPath()
+        private void DrawPreview()
+        {
+            Texture2D lut = Asset as Texture2D;
+            if (lut == null)
+            {
+                EditorGUILayout.HelpBox("Bake or load a SSS LUT to preview.", MessageType.Info);
+                return;
+            }
+
+            float size = Mathf.Max(128f, position.width - 36f);
+            Rect rect = GUILayoutUtility.GetRect(size, size, GUILayout.ExpandWidth(true));
+            if (Event.current.type == EventType.Repaint)
+            {
+                EditorGUI.DrawPreviewTexture(rect, lut, null, ScaleMode.ScaleToFit);
+            }
+
+            EditorGUILayout.LabelField("X: NdotL (-1 to 1) | Y: Scatter x Curvature (0 to 2)");
+            EditorGUILayout.LabelField($"{lut.width} x {lut.height} | Linear RGB response");
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  烘焙 — 委托 SSSLutBaker 服务层，结果所有权移交基类
+        // ════════════════════════════════════════════════════════
+
+        private UnityEngine.Object BakeCore()
+        {
+            return SSSLutBaker.Bake(_resolution, _sampleCount, _profile);
+        }
+
+
+
+
+        // ════════════════════════════════════════════════════════
+        //  工具可调整
+        // ════════════════════════════════════════════════════════
+
+        /// <summary>当前是否允许烘焙（如场景框架未就绪时为 false）。</summary>
+        private bool CanBake => true;
+
+        /// <summary>烘焙是否显示进度条（Baker 型需要；Generator 型瞬时完成）。</summary>
+        private bool ShowBakeProgress => true;
+
+        /// <summary>当前资产是否可落盘（多输出模式的窗口按当前模式判断）。</summary>
+        private bool HasSaveableAsset => _asset != null;
+
+        /// <summary>资产变化（Bake 完成 / Load 完成）后的回调：工具据此刷新自己的预览与状态。</summary>
+        private void OnAssetChanged() { }
+
+        // ── 工具可读 ────────────────────────────────────────────
+
+        /// <summary>当前资产：预览来源与待保存对象。</summary>
+        private UnityEngine.Object Asset => _asset;
+
+        // ════════════════════════════════════════════════════════
+        //  生命周期 — 窗口关闭时释放自产资产
+        // ════════════════════════════════════════════════════════
+
+        private void OnDisable()
+        {
+            ReleaseAsset();
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  共享 UI — 路径行与行动行
+        // ════════════════════════════════════════════════════════
+
+        /// <summary>固定资产路径行：可直接编辑 + Browse 选择。</summary>
+        private void DrawAssetPathRow(string label = "Asset Path")
         {
             EditorGUILayout.BeginHorizontal();
-            _assetPath = EditorGUILayout.TextField("Asset Path", _assetPath);
-            if (GUILayout.Button("Browse", GUILayout.Width(64)))
+            AssetPath = EditorGUILayout.TextField(label, AssetPath);
+            if (GUILayout.Button("Browse", GUILayout.Width(64f)))
             {
-                string selected = EditorUtility.SaveFilePanelInProject("SSS LUT Asset",
-                    Path.GetFileNameWithoutExtension(_assetPath), "asset", "Choose LUT path",
-                    "Assets/Mine/Scripts/SSSLutBaker");
-                if (!string.IsNullOrEmpty(selected)) _assetPath = selected;
+                string directory = Path.GetDirectoryName(AssetPath);
+                if (string.IsNullOrEmpty(directory)) directory = "Assets";
+
+                string chosen = EditorUtility.SaveFilePanelInProject(
+                    titleContent.text, Path.GetFileName(AssetPath), "asset", "Choose asset path", directory);
+                if (!string.IsNullOrEmpty(chosen))
+                {
+                    AssetPath = chosen;
+                }
             }
             EditorGUILayout.EndHorizontal();
         }
 
-        // ════════════════════════════════════════════════════════════
-        //  Bake / Load / Save — 委托烘焙并维护预览所有权
-        // ════════════════════════════════════════════════════════════
-
-        private void BakePreview()
+        /// <summary>标准行动行：[Bake / Generate] [Load] [Save]。</summary>
+        private void DrawActionRow()
         {
-            EditorUtility.DisplayProgressBar("SSS Lut Baker", "Integrating diffusion profile...", 0.5f);
+            EditorGUILayout.BeginHorizontal();
+
+            using (new EditorGUI.DisabledScope(!CanBake))
+            {
+                if (GUILayout.Button(BakeLabel, GUILayout.Height(30f)))
+                {
+                    Bake();
+                }
+            }
+
+            if (GUILayout.Button("Load", GUILayout.Height(30f)))
+            {
+                LoadFromAsset();
+            }
+
+            using (new EditorGUI.DisabledScope(!HasSaveableAsset))
+            {
+                if (GUILayout.Button("Save", GUILayout.Height(30f)))
+                {
+                    SaveToAsset();
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  行动实现 — 烘焙 / 回看 / 落盘
+        // ════════════════════════════════════════════════════════
+
+        private void Bake()
+        {
+            UnityEngine.Object baked = null;
+            if (ShowBakeProgress)
+            {
+                EditorUtility.DisplayProgressBar(titleContent.text, "Baking...", 0.5f);
+            }
+
             try
             {
-                Texture2D texture = SSSLutBaker.Bake(_resolution, _sampleCount, _profile);
-                ReleasePreview();
-                _previewTexture = texture;
-                _ownsTexture = true;
+                baked = BakeCore();
             }
-            catch (Exception exception) { Debug.LogException(exception); }
-            finally { EditorUtility.ClearProgressBar(); }
+            catch (System.Exception exception)
+            {
+                Debug.LogException(exception);
+            }
+            finally
+            {
+                if (ShowBakeProgress)
+                {
+                    EditorUtility.ClearProgressBar();
+                }
+            }
+
+            if (baked != null)
+            {
+                SetAsset(baked, true);
+            }
         }
 
-        private void LoadPreview()
+        private void LoadFromAsset()
         {
-            Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(_assetPath);
-            if (texture == null)
+            if (!AssetFiles.IsValidAssetPath(AssetPath))
             {
-                Debug.LogWarning($"No Texture2D at {_assetPath}");
+                Debug.LogWarning($"{titleContent.text}: \"{AssetPath}\" is not a valid asset path.");
                 return;
             }
-            ReleasePreview();
-            _previewTexture = texture;
-            _ownsTexture = false;
-        }
 
-        private void SavePreview()
-        {
-            try { EditorGUIUtility.PingObject(SaveTextureAsset(_previewTexture, _assetPath)); }
-            catch (Exception exception) { Debug.LogException(exception); }
-        }
-
-        /// <summary>保存 LUT；已有 Texture2D 原位更新，避免材质引用失效。</summary>
-        public static Texture2D SaveTextureAsset(Texture2D texture, string assetPath)
-        {
-            if (texture == null) throw new ArgumentNullException(nameof(texture));
-            string path = assetPath?.Replace('\\', '/');
-            if (string.IsNullOrEmpty(path) || !path.StartsWith("Assets/", StringComparison.Ordinal)
-                || !path.EndsWith(".asset", StringComparison.OrdinalIgnoreCase)
-                || Array.Exists(path.Split('/'), part => part == ".." || part == "."))
-                throw new ArgumentException("Use an .asset path inside Assets.", nameof(assetPath));
-
-            UnityEngine.Object existingObject = AssetDatabase.LoadMainAssetAtPath(path);
-            if (existingObject != null && !(existingObject is Texture2D))
-                throw new InvalidOperationException("The selected path contains a different asset type.");
-            EnsureFolders(Path.GetDirectoryName(path)?.Replace('\\', '/'));
-
-            Texture2D existing = existingObject as Texture2D;
-            if (existing != null)
+            UnityEngine.Object loaded = AssetFiles.Load(AssetPath);
+            if (loaded == null)
             {
-                if (existing != texture) EditorUtility.CopySerialized(texture, existing);
-                existing.name = Path.GetFileNameWithoutExtension(path);
-                EditorUtility.SetDirty(existing);
-                AssetDatabase.SaveAssets();
-                return existing;
+                Debug.LogWarning($"{titleContent.text}: no asset at \"{AssetPath}\".");
+                return;
             }
 
-            Texture2D copy = Instantiate(texture);
-            copy.name = Path.GetFileNameWithoutExtension(path);
-            try { AssetDatabase.CreateAsset(copy, path); }
-            catch { DestroyImmediate(copy); throw; }
-            AssetDatabase.SaveAssets();
-            return copy;
+            SetAsset(loaded, false);
         }
 
-        private static void EnsureFolders(string directory)
+        private void SaveToAsset()
         {
-            if (string.IsNullOrEmpty(directory) || AssetDatabase.IsValidFolder(directory)) return;
-            string parent = Path.GetDirectoryName(directory)?.Replace('\\', '/');
-            EnsureFolders(parent);
-            AssetDatabase.CreateFolder(parent, Path.GetFileName(directory));
+            UnityEngine.Object saved = AssetFiles.Save(_asset, AssetPath);
+            if (saved == null)
+            {
+                return;
+            }
+
+            SetAsset(saved, false);     // 落盘后资产归 AssetDatabase 管理，窗口不再销毁
+            EditorGUIUtility.PingObject(saved);
+            Debug.Log($"{titleContent.text}: saved to {AssetPath}");
         }
 
-        private void ReleasePreview()
+        // ════════════════════════════════════════════════════════
+        //  所有权 — 自产资产由窗口接管，落盘 / 载入的资产不销毁
+        // ════════════════════════════════════════════════════════
+
+        /// <summary>替换当前资产。owned = true 表示工具移交所有权，窗口负责销毁。</summary>
+        private void SetAsset(UnityEngine.Object asset, bool owned)
         {
-            if (_ownsTexture && _previewTexture != null) DestroyImmediate(_previewTexture);
-            _previewTexture = null;
-            _ownsTexture = false;
+            ReleaseAsset();
+            _asset = asset;
+            _ownsAsset = owned;
+            OnAssetChanged();
+            Repaint();
         }
-    }
+
+        private void ReleaseAsset()
+        {
+            if (_ownsAsset && _asset != null)
+            {
+                DestroyImmediate(_asset);
+            }
+
+            _asset = null;
+            _ownsAsset = false;
+        }
+
+        private static class AssetFiles
+        {
+            // ════════════════════════════════════════════════════════
+            //  路径校验 — Assets/ 下的 .asset，且不含 . / .. 段
+            // ════════════════════════════════════════════════════════
+
+            /// <summary>资产路径是否可安全落盘 / 回看。</summary>
+            public static bool IsValidAssetPath(string path)
+            {
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    return false;
+                }
+
+                string normalized = Normalize(path);
+                if (!normalized.StartsWith("Assets/", System.StringComparison.Ordinal))
+                {
+                    return false;
+                }
+
+                if (!normalized.EndsWith(".asset", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                foreach (string segment in normalized.Split('/'))
+                {
+                    if (segment == "." || segment == "..")
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            // ════════════════════════════════════════════════════════
+            //  回看 / 落盘
+            // ════════════════════════════════════════════════════════
+
+            /// <summary>按路径回看已落盘资产；路径非法或资产不存在返回 null。</summary>
+            public static UnityEngine.Object Load(string path)
+            {
+                return IsValidAssetPath(path) ? AssetDatabase.LoadMainAssetAtPath(Normalize(path)) : null;
+            }
+
+            /// <summary>
+            /// 落盘资产并返回磁盘上的对象实例。
+            /// 路径上已有同类型资产时原位更新以保留 GUID；类型不符、路径非法或用户取消覆盖返回 null。
+            /// </summary>
+            public static UnityEngine.Object Save(UnityEngine.Object source, string path)
+            {
+                if (source == null || !IsValidAssetPath(path))
+                {
+                    Debug.LogError($"ProductionTools: invalid save request (source={source}, path=\"{path}\").");
+                    return null;
+                }
+
+                string normalized = Normalize(path);
+                UnityEngine.Object existing = AssetDatabase.LoadMainAssetAtPath(normalized);
+
+                if (existing == source)
+                {
+                    EditorUtility.SetDirty(existing);
+                    AssetDatabase.SaveAssetIfDirty(existing);
+                    return existing;
+                }
+
+                if (existing != null && !existing.GetType().IsInstanceOfType(source))
+                {
+                    Debug.LogError($"ProductionTools: \"{normalized}\" already holds a {existing.GetType().Name}, "
+                        + $"cannot save a {source.GetType().Name} there.");
+                    return null;
+                }
+
+                if (existing != null && !EditorUtility.DisplayDialog(
+                        "Overwrite Asset",
+                        $"The file already exists. Overwrite it?\n{normalized}",
+                        "Overwrite",
+                        "Cancel"))
+                {
+                    return null;
+                }
+
+                EnsureFolders(Path.GetDirectoryName(normalized));
+
+                if (existing != null)
+                {
+                    EditorUtility.CopySerialized(source, existing);
+                    existing.name = Path.GetFileNameWithoutExtension(normalized);
+                    EditorUtility.SetDirty(existing);
+                    AssetDatabase.SaveAssetIfDirty(existing);
+                    return existing;
+                }
+
+                UnityEngine.Object copy = UnityEngine.Object.Instantiate(source);
+                copy.name = Path.GetFileNameWithoutExtension(normalized);
+                AssetDatabase.CreateAsset(copy, normalized);
+                AssetDatabase.SaveAssetIfDirty(copy);
+                return copy;
+            }
+
+            // ════════════════════════════════════════════════════════
+            //  目录 — 逐级补齐 Assets 下缺失目录
+            // ════════════════════════════════════════════════════════
+
+            /// <summary>补齐目录及其缺失父级；越出 Assets 的路径直接忽略。</summary>
+            public static void EnsureFolders(string directory)
+            {
+                if (string.IsNullOrEmpty(directory) || AssetDatabase.IsValidFolder(directory))
+                {
+                    return;
+                }
+
+                string parent = Normalize(Path.GetDirectoryName(directory));
+                if (string.IsNullOrEmpty(parent) || parent == directory
+                    || !parent.StartsWith("Assets", System.StringComparison.Ordinal))
+                {
+                    return;
+                }
+
+                EnsureFolders(parent);
+                AssetDatabase.CreateFolder(parent, Path.GetFileName(directory));
+            }
+
+            // ════════════════════════════════════════════════════════
+            //  私有辅助
+            // ════════════════════════════════════════════════════════
+
+            private static string Normalize(string path)
+            {
+                return string.IsNullOrEmpty(path) ? string.Empty : path.Replace('\\', '/');
+            }
+        }
+}
 }

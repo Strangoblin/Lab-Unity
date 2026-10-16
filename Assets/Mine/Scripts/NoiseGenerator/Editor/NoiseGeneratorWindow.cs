@@ -1,14 +1,20 @@
 #if UNITY_EDITOR
-using System.IO;
 using UnityEditor;
 using UnityEngine;
+using System.IO;
 
 /// <summary>
-/// Editor window for generating procedural noise textures through <see cref="NoiseGenerator"/>.
-/// Thin GUI shell: per-mode settings, hash-cached texture previews and asset save.
+/// Noise Generator 窗口 —— 按输出模式生成程序化噪声纹理。
+/// 生产工具标准结构：固定资产路径 + Generate / Load / Save + 资产所有权。
+/// 生成逻辑在 facade <see cref="NoiseGenerator"/>，本窗负责设置分区、hash 缓存预览与输出。
 /// </summary>
 public sealed class NoiseGeneratorWindow : EditorWindow
 {
+    // ── 资产所有权 ──────────────────────────────────────────
+    private UnityEngine.Object _asset;
+
+    private bool _ownsAsset;
+
     private enum OutputMode
     {
         Texture3D,
@@ -33,10 +39,11 @@ public sealed class NoiseGeneratorWindow : EditorWindow
         public NoiseGenerator.NoiseType noiseType = NoiseGenerator.NoiseType.Perlin;
         public float randomSeed = 0f;
         public int previewHash;
-        [System.NonSerialized] public Texture2D previewTexture;   // runtime cache, rebuilt on hash mismatch
+        [System.NonSerialized] public Texture2D previewTexture;   // 运行时缓存，hash 不符时重建
     }
 
-    // ── Serialized state ──────────────────────────────────────
+    // ── 序列化状态 ──────────────────────────────────────────
+
     [SerializeField] private OutputMode _outputMode;
     [SerializeField] private Texture3DSettings _texture3DSettings = new Texture3DSettings();
     [SerializeField] private ChannelSettings[] _channelSettings = new ChannelSettings[4];
@@ -45,18 +52,48 @@ public sealed class NoiseGeneratorWindow : EditorWindow
     [SerializeField] private int _selectedChannel2D;
     [SerializeField] private int _selectedAxis3D;
     [SerializeField] private Vector2 _scrollPos;
-    [SerializeField] private string _outputPath3D = "Assets/Mine/Noises/Noise3D.asset";
-    [SerializeField] private string _outputPath2D = "Assets/Mine/Noises/Noise2D.asset";
 
-    // ── Runtime textures (released in OnDisable) ──────────────
-    private Texture3D _noiseTexture3D;
-    private Texture2D _packedTexture2D;
+    // ── 固定资产路径（Save = Load，按输出模式各一条）─────────
+
+    [SerializeField] private string _assetPath2D = "Assets/Textures/Noise2D.asset";
+    [SerializeField] private string _assetPath3D = "Assets/Textures/Noise3D.asset";
+
+    // ── 运行时预览纹理（窗口自有，OnDisable 释放）────────────
+
     private Texture2D[] _sliceTextures3D = new Texture2D[3];
     private int[] _sliceHashes3D = new int[3];
     private int _packedHash;
 
     private static readonly string[] AxisLabels = { "X", "Y", "Z" };
     private static readonly string[] ChannelLabels = { "R", "G", "B", "A" };
+
+    // ── 当前资产按模式取用 ──────────────────────────────────
+
+    private Texture3D Current3D => Asset as Texture3D;
+    private Texture2D Current2D => Asset as Texture2D;
+
+    private string AssetPath
+    {
+        get => _outputMode == OutputMode.Texture3D ? _assetPath3D : _assetPath2D;
+        set
+        {
+            if (_outputMode == OutputMode.Texture3D) _assetPath3D = value;
+            else _assetPath2D = value;
+        }
+    }
+
+    private string BakeLabel => "Generate";
+
+    /// <summary>生成为瞬时操作，不需要进度条。</summary>
+    private bool ShowBakeProgress => false;
+
+    /// <summary>只有当前模式下产出的资产可落盘。</summary>
+    private bool HasSaveableAsset =>
+        _outputMode == OutputMode.Texture3D ? Current3D != null : Current2D != null;
+
+    // ═══════════════════════════════════════════════════════
+    //  菜单与生命周期
+    // ═══════════════════════════════════════════════════════
 
     [MenuItem("Tools/Noise Generator...")]
     public static void ShowWindow()
@@ -66,10 +103,6 @@ public sealed class NoiseGeneratorWindow : EditorWindow
         window.Show();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  Window lifecycle
-    // ═══════════════════════════════════════════════════════════
-
     private void OnEnable()
     {
         EnsureChannelSettings();
@@ -78,15 +111,14 @@ public sealed class NoiseGeneratorWindow : EditorWindow
 
     private void OnDisable()
     {
-        ReleaseTexture(ref _noiseTexture3D);
-        ReleaseTexture(ref _packedTexture2D);
+        ReleaseAsset();
         ReleaseTexture(ref _sliceTextures3D);
         ReleaseChannelPreviews();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  Window layout
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    //  窗口布局
+    // ═══════════════════════════════════════════════════════
 
     private void OnGUI()
     {
@@ -207,7 +239,14 @@ public sealed class NoiseGeneratorWindow : EditorWindow
         EditorGUILayout.BeginVertical("box");
         EditorGUILayout.LabelField($"Axis {AxisLabels[_selectedAxis3D]} Preview", EditorStyles.boldLabel);
 
-        int maxSlice = Mathf.Max(0, _texture3DSettings.size - 1);
+        if (Current3D != null && !Current3D.isReadable)
+        {
+            EditorGUILayout.HelpBox("This texture is not readable; slice preview is unavailable.", MessageType.Info);
+            EditorGUILayout.EndVertical();
+            return;
+        }
+
+        int maxSlice = GetSliceDimensions(_selectedAxis3D).z - 1;
         _previewSlices3D[_selectedAxis3D] = EditorGUILayout.IntSlider(
             "Slice", Mathf.Clamp(_previewSlices3D[_selectedAxis3D], 0, maxSlice), 0, maxSlice);
 
@@ -224,7 +263,7 @@ public sealed class NoiseGeneratorWindow : EditorWindow
         EditorGUILayout.BeginVertical("box");
         EditorGUILayout.LabelField("Packed RGBA Preview", EditorStyles.boldLabel);
         UpdatePackedPreviewTexture();
-        DrawTexturePreview(_packedTexture2D);
+        DrawTexturePreview(Current2D);
         EditorGUILayout.EndVertical();
     }
 
@@ -237,111 +276,63 @@ public sealed class NoiseGeneratorWindow : EditorWindow
         }
 
         float width = EditorGUIUtility.currentViewWidth - 40f;
-        float height = width;
-        Rect rect = GUILayoutUtility.GetRect(width, height, GUILayout.ExpandWidth(true));
+        Rect rect = GUILayoutUtility.GetRect(width, width, GUILayout.ExpandWidth(true));
         if (Event.current.type == EventType.Repaint)
         {
             GUI.DrawTexture(rect, texture, ScaleMode.ScaleToFit, false);
         }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  Output section
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    //  输出分区 — 固定资产路径 + Generate / Load / Save
+    // ═══════════════════════════════════════════════════════
 
     private void DrawOutputSection()
     {
         EditorGUILayout.LabelField("Output", EditorStyles.boldLabel);
-        EditorGUILayout.BeginHorizontal();
-
-        string currentPath = GetCurrentOutputPath();
-        currentPath = EditorGUILayout.TextField("Asset Path", currentPath);
-        SetCurrentOutputPath(currentPath);
-
-        if (GUILayout.Button("Browse...", GUILayout.MaxWidth(90)))
-        {
-            string directory = "Assets";
-            string filename = _outputMode == OutputMode.Texture3D ? "Noise3D.asset" : "Noise2D.asset";
-            string activePath = GetCurrentOutputPath();
-            if (!string.IsNullOrEmpty(activePath))
-            {
-                directory = Path.GetDirectoryName(activePath)?.Replace('\\', '/') ?? "Assets";
-                string fileName = Path.GetFileName(activePath);
-                if (!string.IsNullOrEmpty(fileName)) filename = fileName;
-            }
-
-            bool is3D = _outputMode == OutputMode.Texture3D;
-            string newPath = EditorUtility.SaveFilePanelInProject(
-                is3D ? "Save Texture3D" : "Save Texture2D",
-                filename, "asset",
-                is3D ? "Choose where to save the Texture3D asset." : "Choose where to save the Texture2D asset.",
-                directory);
-
-            if (!string.IsNullOrEmpty(newPath))
-            {
-                SetCurrentOutputPath(newPath);
-            }
-        }
-
-        EditorGUILayout.EndHorizontal();
-
+        DrawAssetPathRow();
         EditorGUILayout.Space(4);
-        EditorGUILayout.BeginHorizontal();
-
-        if (GUILayout.Button(_outputMode == OutputMode.Texture3D ? "Generate Texture3D" : "Generate Texture2D", GUILayout.Height(28)))
-        {
-            if (_outputMode == OutputMode.Texture3D)
-            {
-                Generate3DNoise();
-            }
-            else
-            {
-                Generate2DNoise();
-            }
-        }
-
-        using (new EditorGUI.DisabledScope(!HasCurrentTexture()))
-        {
-            if (GUILayout.Button(_outputMode == OutputMode.Texture3D ? "Save Texture3D" : "Save Texture2D", GUILayout.Height(28)))
-            {
-                SaveCurrentNoise();
-            }
-        }
-
-        EditorGUILayout.EndHorizontal();
+        DrawActionRow();
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  Cache updates
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    //  预览缓存更新
+    // ═══════════════════════════════════════════════════════
 
     private void UpdateSlicePreview3D(int axis)
     {
-        int size = Mathf.Clamp(_texture3DSettings.size, 4, 256);
-        int maxSlice = Mathf.Max(0, size - 1);
+        if (Current3D != null && !Current3D.isReadable)
+        {
+            ReleaseTexture(ref _sliceTextures3D[axis]);
+            return;
+        }
+
+        Vector3Int dimensions = GetSliceDimensions(axis);
+        int size = dimensions.x;
+        int maxSlice = dimensions.z - 1;
         _previewSlices3D[axis] = Mathf.Clamp(_previewSlices3D[axis], 0, maxSlice);
 
         int hash = GetSlicePreviewHash(axis, size);
-        if (_sliceTextures3D[axis] != null && _sliceTextures3D[axis].width == size
-            && _sliceHashes3D[axis] == hash)
+        if (_sliceTextures3D[axis] != null && _sliceTextures3D[axis].width == dimensions.x
+            && _sliceTextures3D[axis].height == dimensions.y && _sliceHashes3D[axis] == hash)
         {
             return;
         }
 
         ReleaseTexture(ref _sliceTextures3D[axis]);
-        _sliceTextures3D[axis] = new Texture2D(size, size, TextureFormat.R8, false)
+        _sliceTextures3D[axis] = new Texture2D(dimensions.x, dimensions.y, TextureFormat.R8, false)
         {
             filterMode = FilterMode.Point,
             wrapMode = TextureWrapMode.Repeat
         };
 
-        Color[] colors = new Color[size * size];
-        for (int y = 0; y < size; y++)
+        Color[] colors = new Color[dimensions.x * dimensions.y];
+        for (int y = 0; y < dimensions.y; y++)
         {
-            for (int x = 0; x < size; x++)
+            for (int x = 0; x < dimensions.x; x++)
             {
                 float value = Sample3DSlice(axis, x, y, _previewSlices3D[axis], size);
-                colors[x + y * size] = new Color(value, value, value, 1f);
+                colors[x + y * dimensions.x] = new Color(value, value, value, 1f);
             }
         }
 
@@ -368,34 +359,43 @@ public sealed class NoiseGeneratorWindow : EditorWindow
         settings.previewHash = hash;
     }
 
+    /// <summary>载入 / 保存的资产保持原样；仅未落盘的程序化预览随参数更新。</summary>
     private void UpdatePackedPreviewTexture()
     {
-        int activeCount = Mathf.Clamp(_activeChannelCount, 1, 4);
-        int outputResolution = GetPackedResolution(activeCount);
-        int hash = GetPackedPreviewHash(activeCount, outputResolution);
-
-        if (_packedTexture2D != null && _packedTexture2D.width == outputResolution
-            && _packedHash == hash)
+        if (Current2D != null && EditorUtility.IsPersistent(Current2D))
         {
             return;
         }
 
-        ReleaseTexture(ref _packedTexture2D);
+        int activeCount = Mathf.Clamp(_activeChannelCount, 1, 4);
+        int outputResolution = GetPackedResolution(activeCount);
+        int hash = GetPackedPreviewHash(activeCount, outputResolution);
+
+        Texture2D packed = Current2D;
+        if (packed != null && packed.width == outputResolution && _packedHash == hash)
+        {
+            return;
+        }
+
+        SetAsset(BuildPackedTexture(activeCount, outputResolution), true);
+        _packedHash = hash;
+    }
+
+    private Texture2D BuildPackedTexture(int activeCount, int outputResolution)
+    {
         var sources = new Texture2D[activeCount];
         for (int i = 0; i < activeCount; i++)
         {
             sources[i] = _channelSettings[i].previewTexture;
         }
-
-        _packedTexture2D = NoiseGenerator.PackChannels(sources, outputResolution);
-        _packedHash = hash;
+        return NoiseGenerator.PackChannels(sources, outputResolution);
     }
 
     private float Sample3DSlice(int axis, int x, int y, int slice, int size)
     {
-        int xi = 0;
-        int yi = 0;
-        int zi = 0;
+        int xi;
+        int yi;
+        int zi;
 
         switch (axis)
         {
@@ -416,11 +416,37 @@ public sealed class NoiseGeneratorWindow : EditorWindow
                 break;
         }
 
+        if (Current3D != null)
+        {
+            return Current3D.GetPixel(xi, yi, zi).r;
+        }
+
         float wx = (float)xi / size;
         float wy = (float)yi / size;
         float wz = (float)zi / size;
         return NoiseGenerator.Sample3D(wx, wy, wz, _texture3DSettings.scale,
             _texture3DSettings.seamless, _texture3DSettings.noiseType);
+    }
+
+    private Vector3Int GetSliceDimensions(int axis)
+    {
+        Texture3D texture = Current3D;
+        int size = Mathf.Clamp(_texture3DSettings.size, 4, 256);
+        int width = texture != null ? texture.width : size;
+        int height = texture != null ? texture.height : size;
+        int depth = texture != null ? texture.depth : size;
+
+        switch (axis)
+        {
+            case 0: return new Vector3Int(depth, height, width);
+            case 1: return new Vector3Int(width, depth, height);
+            default: return new Vector3Int(width, height, depth);
+        }
+    }
+
+    private void OnAssetChanged()
+    {
+        ReleaseTexture(ref _sliceTextures3D);
     }
 
     private int GetPackedResolution(int activeCount)
@@ -433,9 +459,9 @@ public sealed class NoiseGeneratorWindow : EditorWindow
         return outputResolution;
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  Preview hashes
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    //  预览 hash
+    // ═══════════════════════════════════════════════════════
 
     private int GetSlicePreviewHash(int axis, int size)
     {
@@ -481,26 +507,22 @@ public sealed class NoiseGeneratorWindow : EditorWindow
         }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    //  Actions
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    //  生成 — 委托 NoiseGenerator facade，结果所有权移交基类
+    // ═══════════════════════════════════════════════════════
 
-    private void Generate3DNoise()
-    {
-        ReleaseTexture(ref _noiseTexture3D);
-        _noiseTexture3D = NoiseGenerator.Generate3DTexture(
-            Mathf.Clamp(_texture3DSettings.size, 4, 256),
-            _texture3DSettings.scale,
-            _texture3DSettings.seamless,
-            _texture3DSettings.noiseType);
-
-        Repaint();
-        Debug.Log($"3D {_texture3DSettings.noiseType} generated. Size: {_texture3DSettings.size}");
-    }
-
-    private void Generate2DNoise()
+    private UnityEngine.Object BakeCore()
     {
         EnsureChannelSettings();
+
+        if (_outputMode == OutputMode.Texture3D)
+        {
+            int size = Mathf.Clamp(_texture3DSettings.size, 4, 256);
+            Texture3D texture = NoiseGenerator.Generate3DTexture(
+                size, _texture3DSettings.scale, _texture3DSettings.seamless, _texture3DSettings.noiseType);
+            Debug.Log($"3D {_texture3DSettings.noiseType} generated. Size: {size}");
+            return texture;
+        }
 
         int activeCount = Mathf.Clamp(_activeChannelCount, 1, 4);
         for (int i = 0; i < activeCount; i++)
@@ -508,108 +530,16 @@ public sealed class NoiseGeneratorWindow : EditorWindow
             UpdateChannelPreview(i);
         }
 
-        UpdatePackedPreviewTexture();
-        Repaint();
-        Debug.Log($"2D packed noise generated. Channels: {activeCount}, " +
-                  $"Resolution: {_packedTexture2D.width}x{_packedTexture2D.height}");
+        int outputResolution = GetPackedResolution(activeCount);
+        Texture2D packed = BuildPackedTexture(activeCount, outputResolution);
+        _packedHash = GetPackedPreviewHash(activeCount, outputResolution);
+        Debug.Log($"2D packed noise generated. Channels: {activeCount}, Resolution: {outputResolution}x{outputResolution}");
+        return packed;
     }
 
-    private bool HasCurrentTexture()
-    {
-        return _outputMode == OutputMode.Texture3D ? _noiseTexture3D != null : _packedTexture2D != null;
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  Save
-    // ═══════════════════════════════════════════════════════════
-
-    private string GetCurrentOutputPath()
-    {
-        return _outputMode == OutputMode.Texture3D ? _outputPath3D : _outputPath2D;
-    }
-
-    private void SetCurrentOutputPath(string path)
-    {
-        if (_outputMode == OutputMode.Texture3D)
-        {
-            _outputPath3D = path;
-        }
-        else
-        {
-            _outputPath2D = path;
-        }
-    }
-
-    private void SaveCurrentNoise()
-    {
-        if (_outputMode == OutputMode.Texture3D)
-        {
-            SaveTexture3D();
-        }
-        else
-        {
-            SaveTexture2D();
-        }
-    }
-
-    private void SaveTexture3D()
-    {
-        if (_noiseTexture3D == null)
-        {
-            Debug.LogWarning("Noise texture is null. Generate first.");
-            return;
-        }
-        SaveTextureAsset(_outputPath3D, _noiseTexture3D, "3D Noise");
-    }
-
-    private void SaveTexture2D()
-    {
-        if (_packedTexture2D == null)
-        {
-            Debug.LogWarning("Noise texture is null. Generate first.");
-            return;
-        }
-        SaveTextureAsset(_outputPath2D, _packedTexture2D, "2D Noise");
-    }
-
-    private void SaveTextureAsset(string path, Object texture, string label)
-    {
-        if (string.IsNullOrEmpty(path))
-        {
-            Debug.LogWarning("Output path is empty. Set a valid project-relative path like 'Assets/Mine/Noises/Noise3D.asset'.");
-            return;
-        }
-
-        path = path.Replace('\\', '/');
-        string dir = Path.GetDirectoryName(path)?.Replace('\\', '/');
-        if (string.IsNullOrEmpty(dir) || !path.StartsWith("Assets"))
-        {
-            Debug.LogError("Output path must be inside project, e.g., 'Assets/Mine/Noises/Noise3D.asset'.");
-            return;
-        }
-
-        if (AssetDatabase.LoadAssetAtPath<Object>(path) != null)
-        {
-            bool overwrite = EditorUtility.DisplayDialog("Overwrite Asset",
-                $"The file already exists. Overwrite it?\n{path}", "Overwrite", "Cancel");
-            if (!overwrite) return;
-        }
-
-        EnsureFolders(dir);
-
-        var assetCopy = Object.Instantiate(texture);
-        AssetDatabase.DeleteAsset(path);
-        AssetDatabase.CreateAsset(assetCopy, path);
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-        EditorGUIUtility.PingObject(assetCopy);
-
-        Debug.Log($"{label} saved to: {path}");
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    //  Utility
-    // ═══════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════
+    //  运行时状态与纹理释放
+    // ═══════════════════════════════════════════════════════
 
     private void EnsureChannelSettings()
     {
@@ -650,7 +580,11 @@ public sealed class NoiseGeneratorWindow : EditorWindow
 
     private void ReleaseChannelPreviews()
     {
-        if (_channelSettings == null) return;
+        if (_channelSettings == null)
+        {
+            return;
+        }
+
         for (int i = 0; i < _channelSettings.Length; i++)
         {
             if (_channelSettings[i] != null)
@@ -669,58 +603,309 @@ public sealed class NoiseGeneratorWindow : EditorWindow
         }
     }
 
-    private static void ReleaseTexture(ref Texture3D texture)
-    {
-        if (texture != null)
-        {
-            DestroyImmediate(texture);
-            texture = null;
-        }
-    }
-
     private static void ReleaseTexture(ref Texture2D[] textures)
     {
-        if (textures == null) return;
+        if (textures == null)
+        {
+            return;
+        }
+
         for (int i = 0; i < textures.Length; i++)
         {
-            if (textures[i] != null)
-            {
-                DestroyImmediate(textures[i]);
-                textures[i] = null;
-            }
+            ReleaseTexture(ref textures[i]);
         }
     }
 
-    private static void EnsureFolders(string fullPath)
+
+
+
+    // ════════════════════════════════════════════════════════
+    //  工具可调整
+    // ════════════════════════════════════════════════════════
+
+    /// <summary>当前是否允许烘焙（如场景框架未就绪时为 false）。</summary>
+    private bool CanBake => true;
+
+    // ── 工具可读 ────────────────────────────────────────────
+
+    /// <summary>当前资产：预览来源与待保存对象。</summary>
+    private UnityEngine.Object Asset => _asset;
+
+    // ════════════════════════════════════════════════════════
+    //  共享 UI — 路径行与行动行
+    // ════════════════════════════════════════════════════════
+
+    /// <summary>固定资产路径行：可直接编辑 + Browse 选择。</summary>
+    private void DrawAssetPathRow(string label = "Asset Path")
     {
-        if (string.IsNullOrEmpty(fullPath))
+        EditorGUILayout.BeginHorizontal();
+        AssetPath = EditorGUILayout.TextField(label, AssetPath);
+        if (GUILayout.Button("Browse", GUILayout.Width(64f)))
+        {
+            string directory = Path.GetDirectoryName(AssetPath);
+            if (string.IsNullOrEmpty(directory)) directory = "Assets";
+
+            string chosen = EditorUtility.SaveFilePanelInProject(
+                titleContent.text, Path.GetFileName(AssetPath), "asset", "Choose asset path", directory);
+            if (!string.IsNullOrEmpty(chosen))
+            {
+                AssetPath = chosen;
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+    }
+
+    /// <summary>标准行动行：[Bake / Generate] [Load] [Save]。</summary>
+    private void DrawActionRow()
+    {
+        EditorGUILayout.BeginHorizontal();
+
+        using (new EditorGUI.DisabledScope(!CanBake))
+        {
+            if (GUILayout.Button(BakeLabel, GUILayout.Height(30f)))
+            {
+                Bake();
+            }
+        }
+
+        if (GUILayout.Button("Load", GUILayout.Height(30f)))
+        {
+            LoadFromAsset();
+        }
+
+        using (new EditorGUI.DisabledScope(!HasSaveableAsset))
+        {
+            if (GUILayout.Button("Save", GUILayout.Height(30f)))
+            {
+                SaveToAsset();
+            }
+        }
+
+        EditorGUILayout.EndHorizontal();
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  行动实现 — 烘焙 / 回看 / 落盘
+    // ════════════════════════════════════════════════════════
+
+    private void Bake()
+    {
+        UnityEngine.Object baked = null;
+        if (ShowBakeProgress)
+        {
+            EditorUtility.DisplayProgressBar(titleContent.text, "Baking...", 0.5f);
+        }
+
+        try
+        {
+            baked = BakeCore();
+        }
+        catch (System.Exception exception)
+        {
+            Debug.LogException(exception);
+        }
+        finally
+        {
+            if (ShowBakeProgress)
+            {
+                EditorUtility.ClearProgressBar();
+            }
+        }
+
+        if (baked != null)
+        {
+            SetAsset(baked, true);
+        }
+    }
+
+    private void LoadFromAsset()
+    {
+        if (!AssetFiles.IsValidAssetPath(AssetPath))
+        {
+            Debug.LogWarning($"{titleContent.text}: \"{AssetPath}\" is not a valid asset path.");
+            return;
+        }
+
+        UnityEngine.Object loaded = AssetFiles.Load(AssetPath);
+        if (loaded == null)
+        {
+            Debug.LogWarning($"{titleContent.text}: no asset at \"{AssetPath}\".");
+            return;
+        }
+
+        SetAsset(loaded, false);
+    }
+
+    private void SaveToAsset()
+    {
+        UnityEngine.Object saved = AssetFiles.Save(_asset, AssetPath);
+        if (saved == null)
         {
             return;
         }
 
-        fullPath = fullPath.Replace('\\', '/');
-        if (!fullPath.StartsWith("Assets"))
+        SetAsset(saved, false);     // 落盘后资产归 AssetDatabase 管理，窗口不再销毁
+        EditorGUIUtility.PingObject(saved);
+        Debug.Log($"{titleContent.text}: saved to {AssetPath}");
+    }
+
+    // ════════════════════════════════════════════════════════
+    //  所有权 — 自产资产由窗口接管，落盘 / 载入的资产不销毁
+    // ════════════════════════════════════════════════════════
+
+    /// <summary>替换当前资产。owned = true 表示工具移交所有权，窗口负责销毁。</summary>
+    private void SetAsset(UnityEngine.Object asset, bool owned)
+    {
+        ReleaseAsset();
+        _asset = asset;
+        _ownsAsset = owned;
+        OnAssetChanged();
+        Repaint();
+    }
+
+    private void ReleaseAsset()
+    {
+        if (_ownsAsset && _asset != null)
         {
-            return;
+            DestroyImmediate(_asset);
         }
 
-        string[] parts = fullPath.Split('/');
-        string current = parts[0];
-        for (int i = 1; i < parts.Length; i++)
+        _asset = null;
+        _ownsAsset = false;
+    }
+
+    private static class AssetFiles
+    {
+        // ════════════════════════════════════════════════════════
+        //  路径校验 — Assets/ 下的 .asset，且不含 . / .. 段
+        // ════════════════════════════════════════════════════════
+
+        /// <summary>资产路径是否可安全落盘 / 回看。</summary>
+        public static bool IsValidAssetPath(string path)
         {
-            string next = parts[i];
-            if (string.IsNullOrEmpty(next))
+            if (string.IsNullOrWhiteSpace(path))
             {
-                continue;
+                return false;
             }
 
-            string combined = current + "/" + next;
-            if (!AssetDatabase.IsValidFolder(combined))
+            string normalized = Normalize(path);
+            if (!normalized.StartsWith("Assets/", System.StringComparison.Ordinal))
             {
-                AssetDatabase.CreateFolder(current, next);
+                return false;
             }
 
-            current = combined;
+            if (!normalized.EndsWith(".asset", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            foreach (string segment in normalized.Split('/'))
+            {
+                if (segment == "." || segment == "..")
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  回看 / 落盘
+        // ════════════════════════════════════════════════════════
+
+        /// <summary>按路径回看已落盘资产；路径非法或资产不存在返回 null。</summary>
+        public static UnityEngine.Object Load(string path)
+        {
+            return IsValidAssetPath(path) ? AssetDatabase.LoadMainAssetAtPath(Normalize(path)) : null;
+        }
+
+        /// <summary>
+        /// 落盘资产并返回磁盘上的对象实例。
+        /// 路径上已有同类型资产时原位更新以保留 GUID；类型不符、路径非法或用户取消覆盖返回 null。
+        /// </summary>
+        public static UnityEngine.Object Save(UnityEngine.Object source, string path)
+        {
+            if (source == null || !IsValidAssetPath(path))
+            {
+                Debug.LogError($"ProductionTools: invalid save request (source={source}, path=\"{path}\").");
+                return null;
+            }
+
+            string normalized = Normalize(path);
+            UnityEngine.Object existing = AssetDatabase.LoadMainAssetAtPath(normalized);
+
+            if (existing == source)
+            {
+                EditorUtility.SetDirty(existing);
+                AssetDatabase.SaveAssetIfDirty(existing);
+                return existing;
+            }
+
+            if (existing != null && !existing.GetType().IsInstanceOfType(source))
+            {
+                Debug.LogError($"ProductionTools: \"{normalized}\" already holds a {existing.GetType().Name}, "
+                    + $"cannot save a {source.GetType().Name} there.");
+                return null;
+            }
+
+            if (existing != null && !EditorUtility.DisplayDialog(
+                    "Overwrite Asset",
+                    $"The file already exists. Overwrite it?\n{normalized}",
+                    "Overwrite",
+                    "Cancel"))
+            {
+                return null;
+            }
+
+            EnsureFolders(Path.GetDirectoryName(normalized));
+
+            if (existing != null)
+            {
+                EditorUtility.CopySerialized(source, existing);
+                existing.name = Path.GetFileNameWithoutExtension(normalized);
+                EditorUtility.SetDirty(existing);
+                AssetDatabase.SaveAssetIfDirty(existing);
+                return existing;
+            }
+
+            UnityEngine.Object copy = UnityEngine.Object.Instantiate(source);
+            copy.name = Path.GetFileNameWithoutExtension(normalized);
+            AssetDatabase.CreateAsset(copy, normalized);
+            AssetDatabase.SaveAssetIfDirty(copy);
+            return copy;
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  目录 — 逐级补齐 Assets 下缺失目录
+        // ════════════════════════════════════════════════════════
+
+        /// <summary>补齐目录及其缺失父级；越出 Assets 的路径直接忽略。</summary>
+        public static void EnsureFolders(string directory)
+        {
+            if (string.IsNullOrEmpty(directory) || AssetDatabase.IsValidFolder(directory))
+            {
+                return;
+            }
+
+            string parent = Normalize(Path.GetDirectoryName(directory));
+            if (string.IsNullOrEmpty(parent) || parent == directory
+                || !parent.StartsWith("Assets", System.StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            EnsureFolders(parent);
+            AssetDatabase.CreateFolder(parent, Path.GetFileName(directory));
+        }
+
+        // ════════════════════════════════════════════════════════
+        //  私有辅助
+        // ════════════════════════════════════════════════════════
+
+        private static string Normalize(string path)
+        {
+            return string.IsNullOrEmpty(path) ? string.Empty : path.Replace('\\', '/');
         }
     }
 }

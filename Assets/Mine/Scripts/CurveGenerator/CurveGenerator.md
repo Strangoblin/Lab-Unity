@@ -2,7 +2,7 @@
 
 **路径:** `Assets/Mine/Scripts/CurveGenerator/`
 **类型:** 编辑器工具 + 运行时数据资产
-**依赖:** `CurveAsset` (ScriptableObject), `CurveGeneratorWindow` (EditorWindow)
+**依赖:** `CurveAsset` (ScriptableObject), `CurveGeneratorWindow` (`EditorWindow`)
 
 ---
 
@@ -36,7 +36,7 @@ CurveGeneratorWindow (Editor, Tools → Curve Generator...)
 
 | 类 | 位置 | 职责 |
 |---|---|---|
-| `CurveGeneratorWindow` | `Scripts/CurveGenerator/Editor/` | EditorWindow: GUI + Scene 预览 + Save |
+| `CurveGeneratorWindow` | `Scripts/CurveGenerator/Editor/` | 独立 EditorWindow：GUI + Scene 预览 + Generate / Load / Save |
 | `CurveBake` | `Scripts/CurveGenerator/` | 无状态数学工具: 投影 + 共享采样骨架 `SampleUniform` |
 | `Curves/BezierCurve` | `Scripts/CurveGenerator/Curves/` | Bezier 段公式 + `SampleSegment` 回调 |
 | `Curves/CatmullRomCurve` | `Scripts/CurveGenerator/Curves/` | Catmull-Rom 段公式 + `SampleSegment` 回调 |
@@ -67,6 +67,8 @@ CurveBake.Result                       内存预览
 
 ---
 
+窗口独立继承 `EditorWindow`，在本工具内持有 Asset Path、Generate / Load / Save 与资产所有权。Load 恢复曲线资产中的数据和曲线类型；覆盖同类型资产保留 GUID，保存只写目标资产。
+
 ## 配置参数
 
 ### Window 面板
@@ -78,7 +80,7 @@ CurveBake.Result                       内存预览
 | Dimension | Toolbar | XYZ | XYZ / XY / XZ / YZ，投影到指定平面 |
 | Samples | Slider | 256 | 采样分辨率 (16–4096)，均匀分配至各段、每段保底 1 样本 |
 | Loop | Toggle | false | 首尾闭合 |
-| Asset Path | Text | `Assets/Mine/Curves/NewCurve.asset` | Save 输出路径（Browse... 可选） |
+| Asset Path | Text | `Assets/Mine/Data/Curves/NewCurve.asset` | Save / Load 共用资产路径（Browse... 可选） |
 
 ### CurveAsset 资产格式
 
