@@ -14,6 +14,7 @@ Unity 任务首次分派到 [autoagent](auto-manager/SKILL.md)，再由其选择
 | [unity-render-benchmark](unity-render-benchmark/SKILL.md) | 渲染同步墙钟 A/B 采集与结果判读 | 本项目维护 |
 | [codex-bridge](codex-bridge/SKILL.md) | Claude / Codex 接口与共享入口同步 | 本项目维护 |
 | [codex-opencode-go](codex-opencode-go/SKILL.md) | 本项目的 OpenCode Go 委派边界（通用手册见全局权威） | 本项目维护 |
+| [opencode-orchestrate](opencode-orchestrate/SKILL.md) | 通过本机 OpenCode CLI 派发边界明确的任务（deepseek-v4.1-flash） | 本项目维护（2026-10-05 合入） |
 | [unityctl-plugins](unityctl-plugins/SKILL.md) | unityctl 插件创建与实现 | 外部：unityctl-plugins 目录 |
 
 外部来源仅标注技能出处，不构成第三套知识；来源追踪见 [knowledge/external/README.md](../knowledge/external/README.md)。
