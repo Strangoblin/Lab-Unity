@@ -155,79 +155,11 @@ MonoBehaviour:
     _chunkCells: 50
     _origin: {x: 0, y: 0}
     _seed: 42
-    _broadWarpCycles: 8
-    _broadWarpDistance: 0
-    _detailWarpCycles: 21
-    _detailWarpDistance: 0
-    _voronoiRegionWidth: 30
-    _voronoiRegionSoftness: 3
-    _voronoiRoadWidth: 2
-    _voronoiCornerSoftness: 3
-    _depressionDepth: 1
-    _houseCount: 10
-    _treeCount: 90
-    _featureRules:
-    - _region: 1
-      _sitesAtReferenceSize: 2
-      _minRadiusAtReferenceSize: 17
-      _maxRadiusAtReferenceSize: 22
-    - _region: 2
-      _sitesAtReferenceSize: 3
-      _minRadiusAtReferenceSize: 22
-      _maxRadiusAtReferenceSize: 32
-    - _region: 3
-      _sitesAtReferenceSize: 4
-      _minRadiusAtReferenceSize: 23
-      _maxRadiusAtReferenceSize: 32
-    - _region: 4
-      _sitesAtReferenceSize: 2
-      _minRadiusAtReferenceSize: 13
-      _maxRadiusAtReferenceSize: 19
-    - _region: 5
-      _sitesAtReferenceSize: 2
-      _minRadiusAtReferenceSize: 15
-      _maxRadiusAtReferenceSize: 23
-    - _region: 6
-      _sitesAtReferenceSize: 2
-      _minRadiusAtReferenceSize: 16
-      _maxRadiusAtReferenceSize: 23
-  _plantSettings:
-    _maxPlants: 100000
-    _rules:
-    - _region: 0
-      _plant: 0
-      _densityPerSquareUnit: 0.45
-      _footprintRadius: 0.12
-    - _region: 0
-      _plant: 1
-      _densityPerSquareUnit: 0.07
-      _footprintRadius: 0.18
-    - _region: 1
-      _plant: 0
-      _densityPerSquareUnit: 0.05
-      _footprintRadius: 0.12
-    - _region: 2
-      _plant: 2
-      _densityPerSquareUnit: 1.1
-      _footprintRadius: 0.12
-    - _region: 3
-      _plant: 0
-      _densityPerSquareUnit: 0.12
-      _footprintRadius: 0.12
-    - _region: 5
-      _plant: 1
-      _densityPerSquareUnit: 0.35
-      _footprintRadius: 0.18
-    - _region: 5
-      _plant: 3
-      _densityPerSquareUnit: 0.15
-      _footprintRadius: 0.12
-    - _region: 6
-      _plant: 0
-      _densityPerSquareUnit: 0.15
-      _footprintRadius: 0.12
+  _terrainType: {fileID: 11400000, guid: d5a09e08a2834d08bed54ab00440f887, type: 2}
+  _renderSettings:
+    _surfaceShader: {fileID: 0}
+    _colorBlendWidth: 3
   _generateOnStart: 1
-  _surfaceShader: {fileID: 0}
 --- !u!4 &13978429
 Transform:
   m_ObjectHideFlags: 0
