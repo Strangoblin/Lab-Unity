@@ -1,1 +1,0 @@
-../../.agents/rules/shader-development.md

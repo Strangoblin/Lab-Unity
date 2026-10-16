@@ -1,1 +1,0 @@
-../../.agents/rules/csharp-renderpass.md

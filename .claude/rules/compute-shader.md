@@ -1,1 +1,0 @@
-../../.agents/rules/compute-shader.md
