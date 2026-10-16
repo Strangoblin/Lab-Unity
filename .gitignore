@@ -16,7 +16,13 @@
 /.unityctl/bridge.json
 /Screenshots/
 /run.log
+# 系统杂项与崩溃转储；既有 tracked 文件另按清单处理
+.DS_Store
+/mono_crash*.json
 /tmp/
 Assets/**/.backup_*/
 **/__pycache__/
 *.pyc
+# 摩擦账本 — 门禁自观测信号（运行时状态，不入库；框架级结论提炼进 memory）
+.mcp/friction.jsonl
+.mcp/friction.jsonl.tmp
