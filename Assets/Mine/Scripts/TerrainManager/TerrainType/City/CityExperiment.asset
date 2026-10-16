@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb9db6bf032d4064589e3c8fd29e70fd, type: 3}
+  m_Name: CityExperiment
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Terrain.CityTerrainType
+  _settings:
+    _grid:
+      _columns: 3
+      _rows: 3
+      _mainRoadEvery: 3
+      _mainRoadWidth: 8
+      _streetWidth: 4
+      _sidewalkWidth: 2
+      _minBlockSpan: 24
+    _buildingSetback: 2
+    _zones:
+    - _zone: 0
+      _weight: 20
+    - _zone: 1
+      _weight: 40
+    - _zone: 2
+      _weight: 25
+    - _zone: 3
+      _weight: 15
+    _subtypes:
+    - _subtype: 101
+      _weight: 1
+      _maxFacilitiesPerBlock: 2
+      _treesPerBlock: 0
+      _grassDensity: 0
+    - _subtype: 102
+      _weight: 1
+      _maxFacilitiesPerBlock: 1
+      _treesPerBlock: 0
+      _grassDensity: 0
+    - _subtype: 201
+      _weight: 1
+      _maxFacilitiesPerBlock: 4
+      _treesPerBlock: 1
+      _grassDensity: 0
+    - _subtype: 202
+      _weight: 1
+      _maxFacilitiesPerBlock: 10
+      _treesPerBlock: 0
+      _grassDensity: 0
+    - _subtype: 301
+      _weight: 1
+      _maxFacilitiesPerBlock: 4
+      _treesPerBlock: 1
+      _grassDensity: 0
+    - _subtype: 302
+      _weight: 1
+      _maxFacilitiesPerBlock: 2
+      _treesPerBlock: 1
+      _grassDensity: 0
+    - _subtype: 401
+      _weight: 1
+      _maxFacilitiesPerBlock: 1
+      _treesPerBlock: 6
+      _grassDensity: 0.3
+    - _subtype: 402
+      _weight: 1
+      _maxFacilitiesPerBlock: 0
+      _treesPerBlock: 10
+      _grassDensity: 0.5

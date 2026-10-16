@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a3af1a784747b14b9385c47839cfca7, type: 3}
+  m_Name: AlgorithmCountryside
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Terrain.CountrysideTerrainType
+  _settings:
+    _baseRegion: 0
+    _roadType: 1
+    _broadWarpCycles: 8
+    _broadWarpDistance: 0
+    _detailWarpCycles: 21
+    _detailWarpDistance: 0
+    _voronoiRegionWidth: 30
+    _voronoiRegionSoftness: 3
+    _voronoiRoadWidth: 2
+    _voronoiCornerSoftness: 3
+    _depressionDepth: 1
+    _houseCount: 10
+    _treeCount: 90
+    _featureRules:
+    - _region: 1
+      _sitesAtReferenceSize: 2
+      _minRadiusAtReferenceSize: 17
+      _maxRadiusAtReferenceSize: 22
+      _preferredAnchor: {x: 0.29, y: 0.5}
+    - _region: 2
+      _sitesAtReferenceSize: 3
+      _minRadiusAtReferenceSize: 22
+      _maxRadiusAtReferenceSize: 32
+      _preferredAnchor: {x: 0.7, y: 0.36}
+    - _region: 3
+      _sitesAtReferenceSize: 4
+      _minRadiusAtReferenceSize: 23
+      _maxRadiusAtReferenceSize: 32
+      _preferredAnchor: {x: 0.72, y: 0.73}
+    - _region: 4
+      _sitesAtReferenceSize: 2
+      _minRadiusAtReferenceSize: 13
+      _maxRadiusAtReferenceSize: 19
+      _preferredAnchor: {x: 0.22, y: 0.22}
+    - _region: 5
+      _sitesAtReferenceSize: 2
+      _minRadiusAtReferenceSize: 15
+      _maxRadiusAtReferenceSize: 23
+      _preferredAnchor: {x: 0.47, y: 0.2}
+    - _region: 6
+      _sitesAtReferenceSize: 2
+      _minRadiusAtReferenceSize: 16
+      _maxRadiusAtReferenceSize: 23
+      _preferredAnchor: {x: 0.43, y: 0.78}
+  _plantSettings:
+    _maxPlants: 100000
+    _rules:
+    - _region: 0
+      _plant: 0
+      _densityPerSquareUnit: 0.45
+      _footprintRadius: 0.12
+    - _region: 0
+      _plant: 1
+      _densityPerSquareUnit: 0.07
+      _footprintRadius: 0.18
+    - _region: 1
+      _plant: 0
+      _densityPerSquareUnit: 0.05
+      _footprintRadius: 0.12
+    - _region: 2
+      _plant: 2
+      _densityPerSquareUnit: 1.1
+      _footprintRadius: 0.12
+    - _region: 3
+      _plant: 0
+      _densityPerSquareUnit: 0.12
+      _footprintRadius: 0.12
+    - _region: 5
+      _plant: 1
+      _densityPerSquareUnit: 0.35
+      _footprintRadius: 0.18
+    - _region: 5
+      _plant: 3
+      _densityPerSquareUnit: 0.15
+      _footprintRadius: 0.12
+    - _region: 6
+      _plant: 0
+      _densityPerSquareUnit: 0.15
+      _footprintRadius: 0.12

@@ -1,34 +1,155 @@
 # TerrainManager — 当前方案与实验记录
 
-> 状态：Voronoi 单模式的功能性实验；下文“历史实验记录”保留迭代依据，不代表当前代码。
-> 更新：2026-09-28
+> 状态：地图方案、通用生成器与渲染器分层；提供郊野 Voronoi 与独立正交城市功能性实验。
+> 更新：2026-10-06
 > 目标目录：`Assets/Mine/Scripts/TerrainManager/`
 
-## 当前方案（2026-09-28）
+## 当前架构（2026-10-06）
 
-面向 3D 俯视角的近乎平面地图，默认 300 × 300 世界单位。`TerrainManager` 只编排生成和表现提交；`TerrainMapData` 是区域、所属种子、连通区域组、道路覆盖与高度的唯一数据源。现行顺序为：初始化草地底层 → 按六类非草地规则放置相斥种子 → 最近种子归属及 Voronoi 距离差阈值生成特征区 → Voronoi 胞边道路覆盖所有区域 → 对地区与道路统一做最终数据扰动 → 派生连通组与水域下凹 → 生成地表、稀疏完整个体和密集地被。相同配置与种子应得到相同结果；不再生成地点连接路线，也不要求道路连通或避开水域。
+面向 3D 俯视角的近乎平面地图，默认 300 × 300 世界单位。`TerrainManager` 不再代表郊野方案，只负责通用配置、方案选择、事务式生成与生命周期。`TerrainMapData` 仍是区域、地点归属、区域组、道路覆盖与高度的唯一数据源；郊野地点为特征种子、区域组为连通特征区，城市地点和区域组均对应可采样街区，不跨道路合并用途相同的街区。地图与放置记录使用整数内容 ID，其含义、生成配方和外观由当前 `TerrainTypeDefinition` 资产决定。通用生成器和渲染器不引用郊野或城市常量，也不假定 ID 连续；道路 ID `0` 保留为无道路。
 
-| 层 | 现行组件 | 产物与约束 |
+| 层 | 目录与组件 | 职责与约束 |
 |---|---|---|
-| 数据 | `TerrainDataGenerator`、`TerrainVoronoiSdf`、`TerrainRoutePlanner`、`TerrainDataNoise` | `TerrainMapData`；后者虽沿用 Planner 名称，实际只写胞边覆盖，不做 A*/MST 寻路。 |
-| 地表 | `TerrainMeshGenerator`、`TerrainSurface.shader` | 连续分块 Mesh 与颜色图；地区色先柔化，道路再以固定土黄色 `(0.70, 0.55, 0.28)` 按覆盖度叠加。 |
-| 稀疏内容 | `TerrainStuffDistributor` | 房屋、风车、森林树及果树的确定性占位计划；当前用简单几何表现。 |
-| 密集地被 | `TerrainPlantDistributor`、`TerrainPlantRenderer` | 矮草、高草、小麦、花的密度规则与分批实例面片；树不属于 Plant。 |
-| 编排 | `TerrainManager` | 全部生成成功后替换旧结果；重复生成和退出时释放 Mesh、纹理、材质及植被渲染资源。 |
+| 专用方案 | `TerrainType/`：`TerrainTypeDefinition` 与 `Countryside/`、`City/` | 方案资产选择生成步骤，持有各地图的规则、内容配方、ID 含义及颜色/几何规格；专用布局与设施分布也归其方案目录。 |
+| 通用生成 | `TerrainGenerator/`：数据入口、Voronoi、正交路网、高度、道路、噪声、Stuff/Plant 分布、Mesh 生成 | 输入通用参数、规则和外观契约，输出地图、放置计划、分块 Mesh 与颜色图；不创建场景物体，不硬编码专用内容。 |
+| 通用渲染 | `TerrainRenderer/`：`ITerrainAppearance`、`TerrainRenderSettings`、`TerrainSceneRenderer`、`TerrainPlantRenderer`、`TerrainSurface/` | 消费地图与生成结果；场景渲染器创建地表/占位物并管理对象、材质、Mesh、纹理及植被渲染资源的释放。 |
+| 编排 | 根目录 `TerrainManager` | 选择方案，调用地图/内容/地表生成；全部成功才替换旧结果，失败不提交半成品，禁用或退出时释放生成结果。 |
+| Editor | 根目录 `Editor/` 与各 `TerrainType/<方案>/Editor/` | 通用 Manager 面板及原有验证入口留在公共 Editor；各方案资产面板、独立实验创建与专项验证随方案存放。 |
+
+### 当前目录
+
+```text
+TerrainManager/
+├── TerrainManager.cs
+├── Plan.md
+├── Editor/
+│   ├── TerrainManagerInspector.cs
+│   ├── TerrainExperimentSetup.cs
+│   └── TerrainExperimentValidation.cs
+├── TerrainType/
+│   ├── TerrainTypeDefinition.cs
+│   ├── Countryside/
+│   │   ├── CountrysideContent.cs
+│   │   ├── CountrysideSettings.cs
+│   │   ├── CountrysideTerrainType.cs
+│   │   ├── AlgorithmCountryside.asset
+│   │   └── Editor/CountrysideTerrainTypeInspector.cs
+│   └── City/
+│       ├── CityContent.cs
+│       ├── CitySettings.cs
+│       ├── CityLayout.cs
+│       ├── CityLayoutGenerator.cs
+│       ├── CityMapGenerator.cs
+│       ├── CityStuffDistributor.cs
+│       ├── CityTerrainType.cs
+│       ├── CityExperiment.asset
+│       ├── Plan.md
+│       └── Editor/
+│           ├── CityTerrainTypeInspector.cs
+│           ├── CityExperimentSetup.cs
+│           └── CityExperimentValidation.cs
+├── TerrainGenerator/
+│   ├── TerrainGenerationSettings.cs
+│   ├── TerrainMapData.cs
+│   ├── TerrainMapBuilder.cs
+│   ├── TerrainDataGenerator.cs
+│   ├── TerrainVoronoiSettings.cs
+│   ├── TerrainVoronoiGenerator.cs
+│   ├── TerrainVoronoiSdf.cs
+│   ├── TerrainRoadGenerator.cs
+│   ├── TerrainGridRoadGenerator.cs
+│   ├── TerrainDataNoise.cs
+│   ├── TerrainHeightGenerator.cs
+│   ├── TerrainStuffDistributor.cs
+│   ├── TerrainPlantDistributor.cs
+│   ├── TerrainPlantDistributor.md
+│   └── TerrainMeshGenerator.cs
+└── TerrainRenderer/
+    ├── ITerrainAppearance.cs
+    ├── TerrainRenderSettings.cs
+    ├── TerrainSceneRenderer.cs
+    ├── TerrainPlantRenderer.cs
+    └── TerrainSurface/TerrainSurface.shader
+```
+
+原有脚本与 Shader 的移动保留对应 `.meta` GUID；无需因目录变化重建场景组件引用。`TerrainMeshGenerator` 属于生成职责，Shader 与场景提交属于渲染职责。
+
+### 调用与数据契约
+
+`TerrainDataGenerator.Generate(mapSettings, terrainType)` 校验通用配置并委派 `terrainType.GenerateMap()`；类型资产随后通过 `DistributeStuff()`、`DistributePlants()` 输出计划。Plant 分布读取已经生成的 Stuff 占地，两者都只消费最终地图。`TerrainMeshGenerator` 从同一地图生成连续分块 Mesh 与颜色图，并通过 `ITerrainAppearance` 取得地区和道路颜色。`TerrainSceneRenderer` 消费这些结果及同一外观契约，负责实例提交、植被批次绘制和资源释放。
+
+`TerrainGenerationSettings` 只包含地图宽高、逻辑格距、分块格数、原点和随机种子。`TerrainVoronoiSettings` 是可复用 Voronoi 操作配置，不等于唯一地图方案；其中基础区域、道路类型、种子规则和优先锚点均由调用方指定。共用 Stuff/Plant 配置默认没有规则，不再隐式带入房屋、小麦或草的配方。
+
+### 当前郊野方案
+
+郊野流程保持：初始化草地底层 → 按六类非草地规则放置相斥种子 → 最近种子归属及 Voronoi 距离差阈值生成特征区 → Voronoi 胞边道路覆盖所有区域 → 对地区与道路统一做最终数据扰动 → 派生连通组 → 对水域应用通用下凹操作 → 分布稀疏完整个体与密集地被 → 生成地表并提交渲染。相同配置与种子应得到相同结果；不生成地点连接路线，也不要求道路连通或避开水域。
+
+草地、村落、麦地、森林、水域、草甸和果园的 ID 定义在 `CountrysideContent`；房屋、风车、森林树及果树仍是 Stuff，矮草、高草、小麦和花仍是 Plant。地区颜色、固定土黄色道路 `(0.70, 0.55, 0.28)` 与实验几何规格移到郊野外观实现；通用渲染层不再决定某种地区应该显示什么颜色。颜色与几何规格目前仍由方案代码提供，不代表已全部开放为面板参数。
+
+### 当前城市方案
+
+独立入口为 `Assets/Scenes/CityScene.unity`，引用 `TerrainType/City/CityExperiment.asset`；流程为正交车行道/人行道走廊 → 矩形街区 → 园区数量配额与四邻接轻聚类 → 子类型分配 → 写入通用地图 → 沿街矩形设施与入口预留 → 树木填空 → 绿化地被 → 共用地表与渲染层。默认 6×6 街区，主干道 8、支路 4、单侧人行道 2 世界单位；交叉处车道优先，地图边缘保留完整道路带。街区数量过多时按最小跨度减少，无法容纳一个街区和边界道路时明确拒绝。车道及启用的人行道至少宽一逻辑格；人行道可以设为 0。
+
+四大园区默认权重为工业 20、居民 40、科技 25、绿化 15；各园区目前各含两个等权子类型：工厂/工地、别墅区/平民窟、办公大楼/研发基地、公园/未开发区。按街区数配额，容量足够时为每个启用子类保底，不是任意面积下的精确面积配额。轻聚类加工业区边缘偏好只是初版规则，不包含工业住宅隔离、公园服务半径或交通模拟。
+
+设施与树均为 Stuff，以完整矩形占地检查道路及互相避让，设施入口走廊也需留空；通用 Plant 使用保守避让圆覆盖设施及入口。公园草坪与未开发区野草复用 `TerrainPlantDistributor`。尝试次数有限，不足的设施不缩小、不强行重叠，`CityStuffDistributor.DistributeDetailed()` 可读取实际数量与跳过数量。设施仍为不同尺寸/颜色的完整立方占位，地被仍为实例化交叉面片，不代表已实现最终美术或建筑预制体系统。详见 [城市实验计划](TerrainType/City/Plan.md)。
 
 ### 当前面板与数据语义
 
-Inspector 按生成顺序分为 Scene、Map、Feature Seeds、Voronoi Regions、Voronoi Roads、Final Data Warp、Sparse Content、Dense Vegetation。四个 Voronoi 参数保持滑杆：`Region Width` 控制特征胞内覆盖范围，`Region Softness` 只柔化地区距离场；`Route Width` 对种子距离差取阈值，`Corner Softness` 柔化路口。Play Mode 调整这四项会立即重生成，其余参数调整后使用 `Regenerate Terrain`。`Feature Seeds` 的半径影响种子相斥与扰动的核心保护，不是现行地区圆形边界。草地没有种子规则；道路在所有地区上层，统一为 Dirt，跨水域只有颜色覆盖，不生成桥面。`Depression Depth` 仅使水域地面下凹，不提供独立水面。
+Manager Inspector 按 General Map、Terrain Type、Renderer 排版，运行中提供重生成入口，并可展开所选方案的资产面板。郊野资产 Inspector 按生成顺序整理 Feature Seeds、Voronoi Regions、Voronoi Roads、Final Data Warp、Sparse Content、Dense Vegetation；这些参数不再嵌入通用 Manager。`AlgorithmScene` 引用 `TerrainType/Countryside/AlgorithmCountryside.asset`，原场景已保存的种子数量、半径、扰动和植被配方迁入该资产，不用新建资产的默认值覆盖已有调参。
+
+四个 Voronoi 参数保持滑杆：`Region Width` 控制特征胞内覆盖范围，`Region Softness` 只柔化地区距离场；`Route Width` 对种子距离差取阈值，`Corner Softness` 柔化路口。Play Mode 调整这四项会重生成引用该资产的 Manager，其余参数调整后使用 `Regenerate Terrain`。方案资产可共享，因此修改它会影响所有引用者；需要独立调参时复制资产并分别引用，不在 Manager 中保存隐式郊野副本。
+
+种子半径影响相斥距离与扰动核心保护，不是地区圆形边界。草地没有种子规则；郊野道路在所有地区上层，统一为 Dirt，跨水域只有颜色覆盖，不生成桥面。`Depression Depth` 仅使水域地面下凹，不提供独立水面。`Rendering` 的地表 Shader 与颜色混合宽度是共用表现设置，不改变地区归属或道路数据。
+
+### 扩展城市等方案
+
+在 `TerrainType/` 下新增方案子目录及 `TerrainTypeDefinition` 实现，独立定义内容 ID、参数和外观，并实现 `GenerateMap()`、`DistributeStuff()`、`DistributePlants()` 与校验。新方案可以复用 Voronoi/高度/分布算子，也可以采用完全不同的生成流程；不要求城市必须经过郊野种子规则或使用 Voronoi。
+
+自定义生成流程可使用公开 `TerrainMapBuilder` 填写地图，并通过 `TerrainStuffPlan`、`TerrainPlantPlan` 的公开构造函数提交自己的放置记录。最终仍输出相同地图与计划契约，Manager、连续地表生成与渲染层无需新增郊野/城市分支。将新方案资产赋给 Manager 即可切换；城市方案已沿此边界实现不同的布局算法，但尚无建筑预制体系统或运行时热加载。
 
 ### 验证与后续
 
-入口为 `Assets/Scenes/AlgorithmScene.unity`。`Tools/Terrain/Validate Experiment Data` 和 `Tools/Terrain/Validate Voronoi Distribution` 验证确定性、区域/道路阈值、宽度与柔化、占地及消费层；Play Mode 检查生成数量、日志与重复生成后的资源清理。视觉自然度、道路跨水表现、真实预制体及植被 Shader/LOD 尚待后续迭代。`TerrainRoadType.Stone` 仅留作旧数据契约兼容，生成器不再输出；旧树类 Plant 规则的反序列化迁移仍保留，待确认兼容窗口后再删除。此两项不是现行模式开关。
+郊野入口为 `Assets/Scenes/AlgorithmScene.unity`，城市入口为 `Assets/Scenes/CityScene.unity`，当前保持独立，不修改构建场景列表。`Tools/Terrain/Validate Experiment Data` 和 `Tools/Terrain/Validate Voronoi Distribution` 验证郊野；`Tools/Terrain/City/` 提供城市创建、数据、种子、尺寸及配置验证。另以不使用郊野 ID 的测试方案验证通用接口和稀疏 ID。回归及 Play Mode 检查生成数量、日志、重复生成与退出后的资源清理。视觉自然度、道路跨水表现、真实预制体及植被 Shader/LOD 尚待后续迭代。
 
-2026-09-28 收尾验证：Unity 资产刷新与编译成功；`Run()`、`RunVoronoiDistribution()` 通过。默认数据验证得到 300×300、36 块地表、146 个 Stuff、30,167 株地被；`AlgorithmScene` Play Mode 实际生成 36 块地表、146 个 Stuff、31,812 株地被／102 批，未见错误日志，并已退出。数据与场景数量不同来自场景中已保存的配方参数。Inspector 视觉排版及地形自然度仍需在 Editor 里人工观察。
+重构前回归基线为：默认郊野 300×300、36 块地表、146 个 Stuff、30,167 株地被；`AlgorithmScene` 原实际参数为 36 块地表、146 个 Stuff、31,812 株地被／102 批。默认与场景数量不同来自场景保存的配方参数，不能以默认结果替代场景迁移验证。本轮编译、自动化回归与场景运行结果见下方重构记录；未验证项目不得按通过记录。
+
+## 地图方案解耦与目录重构（2026-10-06）
+
+本轮将通用地图配置从旧大配置中抽出，郊野默认种子、下凹目标、Stuff/Plant 配方及实验外观集中到 `TerrainType/Countryside/`。原数据、道路、噪声、分布与 Mesh 文件归入 `TerrainGenerator/`；植被渲染器及整套地表 Shader 归入 `TerrainRenderer/`。Manager 保留根目录，郊野专用 Inspector 随类型归档。移动保留原 `.meta` GUID；历史记录中的旧根路径和旧参数位置仅作追溯，不是当前目录规范。
+
+项目根 `.backup/terrain-structure-20261006-in-progress/` 保存本轮中间现场，只用于回退到记录时点，不是最初重构前的完整快照；不要与下文已退役的模块内迭代备份混用。
+
+- [x] 定义方案资产、通用数据/放置 ID、生成与外观契约；保留郊野既有行为。
+- [x] 分离通用生成与场景渲染生命周期，文档按新层次整理。
+- [x] 文件移动和场景参数资产迁移完成，所有原资产 GUID 保持不变；通用代码无郊野 ID/配方引用。
+- [x] Unity 6000.3.18f1 编译、默认数据、Voronoi、20 种子与 32／64／128／300 尺寸回归通过。
+- [x] 独立方案回归通过：地区 101、道路 9、Stuff 42、Plant 70／71；空默认配方、4 块地表、3 个植被批次与幂等资源释放正常。
+- [x] `AlgorithmScene` Play Mode 与迁移前一致：36 块地表、146 个 Stuff、31,812 株地被／102 批；运行日志无错误。
+- [x] 重复生成替换旧地图并停用旧根，后续帧只有 1 个生成根；缺少方案时拒绝生成并保留现有地图。禁用后数据、计划、表现引用及生成子物体清空；退出 Play Mode 后恢复 3 个场景根，场景未被标脏。
+- [x] 全模块结构规范检查与 `git diff --check` 通过。
+
+以上记录来自本轮实际验证；城市算法和最终美术表现不属于本轮验收。当前方案资产共享参数，不支持运行时热加载。只有一个 Voronoi 种子时没有胞间边界，特征覆盖全图且不生成胞边道路；空种子配方保持基础区域，这两种退化情形不要求伪造胞边。
+
+## 城市基础方案与独立场景（2026-10-06）
+
+本轮在既有扩展边界内新增 `TerrainType/City/` 专用实现和通用 `TerrainGridRoadGenerator`，共用 Manager、Mesh、SceneRenderer 与 PlantRenderer 无需改动。独立 `CityScene` 引用 `CityExperiment.asset`，不与 `AlgorithmScene` 合并、不修改构建场景列表；配置与完整流程见 [城市实验计划](TerrainType/City/Plan.md)。场景创建工具只保存新场景和新资产，拒绝覆盖已有路径。类型 Inspector 分组显示正交路网、园区配额、设施及地被参数，Play Mode 可显式重生成引用该资产的地图。
+
+- [x] Unity 6000.3.18f1 编译及全模块 C# 结构规范检查通过。
+- [x] 默认城市数据验证通过：300×300、36 街区、8 子类型，车道／人行道 22,400／13,776 格，设施 139／139、树 64／64、地被 3,220，36 地表块／6 植被批次；完整确定性、道路连通、设施及入口占地、草避让和表现消费检查通过。
+- [x] 城市 10 种子、64／128／300／128×256 尺寸及 6 类配置回归通过；默认 32×32 因无法容纳最小街区和边界道路而明确拒绝。
+- [x] 独立城市场景 Play Mode 数量与数据测试一致；重生成替换后仅 1 个生成根，生成失败保留旧结果，禁用及退出清理正常，退出后 3 根对象、场景未标脏。
+- [x] 郊野默认及通用独立方案回归通过；`AlgorithmScene` Play Mode 保持 36 块地表、146 Stuff、31,812 地被／102 批。原场景与本轮修改前备份哈希一致，郊野方案资产未改写。
+
+城市的单张地图表现、园区邻接偏好、建筑真实预制体与植被 Shader 留待后续。本轮仅完成功能性实验；不包含实时热加载、交通模拟或 WFC。项目根 `.backup/city-foundation-20261006/` 保存修改前主计划与郊野场景，仅用于对应文件回退，不是完整代码快照。
 
 ## 历史实验记录（以下内容不代表当前实现）
 
-下列原始计划和逐轮实验结果保留为决策记录。涉及圆形/标准 SDF、A*/MST、分区石路、草地种子、树类 Plant 或旧场景字段的描述均已被上方当前方案取代。
+下列原始计划和逐轮实验结果保留为决策记录。涉及圆形/标准 SDF、A*/MST、分区石路、草地种子、树类 Plant、旧场景字段，以及“所有配置/外观归于 Manager”或旧文件根路径的描述均已退役，被上方当前架构取代；不要按历史段落恢复旧规范。
+
+2026-10-05 清理：本节提及的 `TerrainManager/.backup/terrain-*` 九组迭代副本已从工作树移除，均为 Git 已跟踪文件，可由清理前提交恢复；这些路径不再表示现存资源。被 Git 忽略的 `Assets/Scenes/.backup_v1_terrain_experiment/` 仍保留。道路脚本由 `TerrainRoutePlanner` 改名为 `TerrainRoadGenerator`，`.meta` GUID 保持不变；旧石路枚举值与树规则自动迁移及对应验证已移除。
+
+清理后验证：Unity 编译、默认数据验证、Voronoi 专项验证、20 种子与 32／64／128／300 地图尺寸回归均通过。`AlgorithmScene` Play Mode 生成 36 个地表块、146 个 Stuff 和 31,812 株地被／102 批，未见错误日志；退出后生成数据与对象引用已释放。
 
 ## 目标与边界
 

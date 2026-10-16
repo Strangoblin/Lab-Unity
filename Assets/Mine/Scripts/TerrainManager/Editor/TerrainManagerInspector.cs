@@ -1,25 +1,28 @@
 // ════════════════════════════════════════════════════════════
-//  TerrainManagerInspector — 按生成顺序组织数据、内容与表现参数
+//  TerrainManagerInspector — 展示通用地图、方案资产与渲染设置
 // ════════════════════════════════════════════════════════════
 
-using UnityEditor;
 using UnityEngine;
+using UnityEditor;
 
 namespace Mine.Terrain.Editor
 {
+    /// <summary>
+    /// 场景组件只显示共享地图和渲染参数；专用配置交由所选方案的资产编辑器。
+    /// </summary>
     [CustomEditor(typeof(TerrainManager))]
     public sealed class TerrainManagerInspector : UnityEditor.Editor
     {
+        private UnityEditor.Editor _terrainTypeEditor;
+        private bool _showTerrainTypeSettings = true;
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
             SerializedProperty settings = serializedObject.FindProperty("_settings");
 
-            DrawSection("Scene");
+            DrawSection("General Map");
             EditorGUILayout.PropertyField(serializedObject.FindProperty("_generateOnStart"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("_surfaceShader"));
-
-            DrawSection("Map");
             DrawField(settings, "_width");
             DrawField(settings, "_height");
             DrawField(settings, "_cellSize");
@@ -27,57 +30,50 @@ namespace Mine.Terrain.Editor
             DrawField(settings, "_origin");
             DrawField(settings, "_seed");
 
-            DrawSection("Feature Seeds");
-            EditorGUILayout.PropertyField(settings.FindPropertyRelative("_featureRules"), true);
+            DrawSection("Terrain Type");
+            SerializedProperty terrainType = serializedObject.FindProperty("_terrainType");
+            EditorGUILayout.PropertyField(terrainType);
 
-            DrawSection("Voronoi Regions");
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(settings.FindPropertyRelative("_voronoiRegionWidth"),
-                new GUIContent("Region Width"));
-            EditorGUILayout.PropertyField(settings.FindPropertyRelative("_voronoiRegionSoftness"),
-                new GUIContent("Region Softness"));
-            bool regionChanged = EditorGUI.EndChangeCheck();
-            DrawField(settings, "_depressionDepth");
-
-            DrawSection("Voronoi Roads");
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(settings.FindPropertyRelative("_voronoiRoadWidth"),
-                new GUIContent("Route Width"));
-            EditorGUILayout.PropertyField(settings.FindPropertyRelative("_voronoiCornerSoftness"),
-                new GUIContent("Corner Softness"));
-            bool roadChanged = EditorGUI.EndChangeCheck();
-
-            DrawSection("Final Data Warp (300-unit reference)");
-            DrawField(settings, "_broadWarpCycles");
-            DrawField(settings, "_broadWarpDistance");
-            DrawField(settings, "_detailWarpCycles");
-            DrawField(settings, "_detailWarpDistance");
-
-            DrawSection("Sparse Content");
-            DrawField(settings, "_houseCount");
-            DrawField(settings, "_treeCount");
-
-            SerializedProperty plants = serializedObject.FindProperty("_plantSettings");
-            DrawSection("Dense Vegetation");
-            DrawField(plants, "_maxPlants");
-            EditorGUILayout.PropertyField(plants.FindPropertyRelative("_rules"), true);
+            DrawSection("Renderer");
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("_renderSettings"), true);
 
             serializedObject.ApplyModifiedProperties();
-
-            float broadWarp = settings.FindPropertyRelative("_broadWarpDistance").floatValue;
-            float detailWarp = settings.FindPropertyRelative("_detailWarpDistance").floatValue;
-            if (Mathf.Approximately(broadWarp, 0f) && Mathf.Approximately(detailWarp, 0f))
-                EditorGUILayout.HelpBox("Both final data warp distances are zero. " +
-                    "Regions and roads will keep their unperturbed SDF shapes.", MessageType.Info);
+            DrawTerrainTypeInspector(terrainType.objectReferenceValue);
 
             TerrainManager manager = (TerrainManager)target;
-            if ((regionChanged || roadChanged) && Application.isPlaying)
-                manager.Generate();
-            using (new EditorGUI.DisabledScope(!Application.isPlaying))
+            using (new EditorGUI.DisabledScope(!Application.isPlaying ||
+                terrainType.objectReferenceValue == null))
             {
                 if (GUILayout.Button("Regenerate Terrain"))
                     manager.Generate();
             }
+        }
+
+        private void OnDisable()
+        {
+            if (_terrainTypeEditor != null)
+                DestroyImmediate(_terrainTypeEditor);
+        }
+
+        private void DrawTerrainTypeInspector(UnityEngine.Object terrainType)
+        {
+            if (terrainType == null)
+            {
+                if (_terrainTypeEditor != null)
+                    DestroyImmediate(_terrainTypeEditor);
+                _terrainTypeEditor = null;
+                EditorGUILayout.HelpBox("Assign a Terrain Type asset before generating the map.",
+                    MessageType.Info);
+                return;
+            }
+
+            _showTerrainTypeSettings = EditorGUILayout.Foldout(_showTerrainTypeSettings,
+                "Terrain Type Settings (shared asset)", true);
+            if (!_showTerrainTypeSettings)
+                return;
+            UnityEditor.Editor.CreateCachedEditor(terrainType, null, ref _terrainTypeEditor);
+            using (new EditorGUI.IndentLevelScope())
+                _terrainTypeEditor.OnInspectorGUI();
         }
 
         private static void DrawSection(string title)
