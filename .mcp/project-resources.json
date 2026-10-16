@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "description": "Lab resource locations only; never a write-permission allow-list.",
+  "resources": {
+    "asset.root": "Assets/Mine",
+    "category.PostProcess": "Assets/Mine/Shaders/PostProcess",
+    "category.Render": "Assets/Mine/Shaders/Render",
+    "category.Graph": "Assets/Mine/Shaders/Graph",
+    "category.Script": "Assets/Mine/Scripts",
+    "library.hlsl.shared": "Assets/Mine/Special/HLSL",
+    "unity.debug-output-feature": "Assets/Mine/Special/Debug/DebugOutputFeature.cs",
+    "benchmark.ssgi.adapter": "Assets/Mine/Shaders/PostProcess/SSGI/Validation~/run_timing.sh",
+    "benchmark.ssgi.contract": "Assets/Mine/Shaders/PostProcess/SSGI/Timing.md",
+    "hash.function": "Assets/Mine/Special/HLSL/HashFunction.hlsl",
+    "hash.blur": "Assets/Mine/Special/HLSL/BlurFunction.hlsl",
+    "hash.weather": "Assets/Mine/Shaders/PostProcess/Weather/WeatherCommon.hlsl",
+    "hash.sso": "Assets/Mine/Shaders/PostProcess/SSO/SSO.shader",
+    "hash.fur": "Assets/Mine/Shaders/Render/Fur/FinInstanced.shader",
+    "hash.pcss": "Assets/Mine/Shaders/PostProcess/PCSS/PCSSFunction.hlsl",
+    "hash.sssm": "Assets/Mine/Shaders/PostProcess/SSSM/SSSM.shader",
+    "hash.ssc": "Assets/Mine/Shaders/PostProcess/SSC/SSC.shader",
+    "hash.ssl": "Assets/Mine/Shaders/PostProcess/SSL/SSL.shader",
+    "hash.rain": "Assets/Mine/Shaders/Render/RainDrops/RainDrop.hlsl",
+    "hash.specular": "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl",
+    "hash.gogh": "Assets/Mine/Shaders/Render/VanGogh/TheStarryNightSDF.hlsl",
+    "hash.kuwahara": "Assets/Mine/Shaders/PostProcess/Kuwahara/Kuwahara.shader",
+    "hash.ddof": "Assets/Mine/Shaders/PostProcess/DDOF/DDOF.shader",
+    "benchmark.ssgi.collector": "Assets/Mine/Shaders/PostProcess/SSGI/Validation~/CameraChecks.cs",
+    "benchmark.ssgi.checker": "Assets/Mine/Shaders/PostProcess/SSGI/Validation~/check_timing.py"
+  }
+}

@@ -15,6 +15,10 @@ from dataclasses import dataclass, field
 from importlib import import_module
 from typing import Optional
 
+from validation.policy import level_of
+from validation.project_paths import ALLOWED_PREFIXES, check_workspace_roots
+from telemetry import record as emit
+
 
 # ═══ 注册表 — 门禁元信息（Gate 模块路径）═══
 
@@ -23,16 +27,20 @@ GATE_REGISTRY: dict[str, dict] = {
                     "requires": [], "context_keys": ["agent"]},
     "g_knowledge": {"name": "知识加载证据校验", "module": "gates.g_knowledge",
                     "requires": ["g_entry"], "context_keys": ["loaded_files", "status"]},
-    # ── 退役门禁（保留注册供 gate_list 展示；不在任何配方，调用即 GATE_NOT_IN_RECIPE）──
-    "g_mode":      {"name": "模式确认（退役→gate_set_recipe）", "module": "gates.g_mode",
+    # ── 退役门禁 ──
+    # 保留注册只为两件事：`gate_list` 能告诉 agent「这个名字退役了、该走哪条路」，
+    # 以及测试钉住「退役项出现在任何配方 = 回归」。**故不带 `module`** —— 它们
+    # 永不进配方，`_load_gate` 到不了，模块文件已于 2026-10-09 删除（见 dated memory）。
+    # 若某天要复活某个：先写回 gates/<name>.py，再加回 `module` 与配方条目。
+    "g_mode":      {"name": "模式确认（退役→gate_set_recipe）",
                     "requires": ["g_entry"], "context_keys": ["mode", "reason"], "retired": True},
-    "g_script":    {"name": "脚本决策（退役→write_gated 注解）", "module": "gates.g_script",
+    "g_script":    {"name": "脚本决策（退役→write_gated 注解）",
                     "requires": ["g_knowledge"], "context_keys": ["decision"], "retired": True},
-    "g_file":      {"name": "文件放置（退役→write_gated 注解）", "module": "gates.g_file",
+    "g_file":      {"name": "文件放置（退役→write_gated file_type/category/effect 注解）",
                     "requires": ["g_knowledge"], "context_keys": ["file_type", "category", "effect"], "retired": True},
-    "g_web_search":{"name": "联网搜索（退役）", "module": "gates.g_web_search",
+    "g_web_search":{"name": "联网搜索（退役）",
                     "requires": ["g_entry"], "context_keys": ["query", "summary"], "retired": True},
-    "g_plan":      {"name": "方案设计（退役）", "module": "gates.g_plan",
+    "g_plan":      {"name": "方案设计（退役）",
                     "requires": ["g_web_search"], "context_keys": ["plan_summary"], "retired": True},
 }
 
@@ -61,6 +69,39 @@ def _load_gate(gate_id: str):
     return _gate_cache[gate_id]
 
 
+# ═══ policy — 把检查结果按 policy 级别降级（block→warn/off）═══
+
+_ERROR_TO_CHECK = {
+    "G15_MISSING_HIGH_PRIORITY": "ceremony.knowledge_high_priority",
+    "G15_UNRESOLVED_FILE": "ceremony.knowledge_resolvable",
+    "G15_AMBIGUOUS_FILE": "ceremony.knowledge_resolvable",
+}
+
+
+def _apply_check_policy(gate_id: str, result: dict) -> dict:
+    """policy 把该检查降为 warn/off → DENIED 转 OK（携带 warning），仍记账。
+
+    只作用于知识证据类检查；身份/顺序类错误（G0_FAILED / PREREQUISITE）不受 policy 影响。
+    """
+    if result.get("status") == "OK":
+        return result
+    check_id = _ERROR_TO_CHECK.get(result.get("error", ""))
+    if not check_id:
+        return result
+    level = level_of(check_id)
+    if level == "block":
+        return result
+    emit(op="gate", tool="gate_pass", outcome="warn" if level == "warn" else "ok",
+         signal=f"muted.{check_id}", check=check_id, level=level,
+         detail=result.get("hint", ""))
+    return {
+        "status": "OK",
+        "knowledge": "RELAXED",
+        "warning": {"id": check_id, "level": level,
+                    "detail": result.get("hint", "policy 已放宽此检查")},
+    }
+
+
 # ═══ SessionState ═══
 
 @dataclass
@@ -68,6 +109,9 @@ class SessionState:
     recipe: Optional[str] = None
     passed: set[str] = field(default_factory=set)
     contexts: dict = field(default_factory=dict)
+    # 工作目录（任务级写入边界，用户下达）: primary 主目录 + roots 已授权列表 + pending 待批请求
+    workspace: dict = field(default_factory=lambda: {
+        "primary": None, "roots": [], "pending": [], "set_at": None})
     writes: list[dict] = field(default_factory=list)   # 写入审计日志（注解随写记录）
     deletes: list[dict] = field(default_factory=list)  # 删除审计日志（write_gated 的对称面）
     moves: list[dict] = field(default_factory=list)    # 移动审计日志（写删复合面，记 src→dst 对）
@@ -80,12 +124,16 @@ class SessionState:
 
     def set_recipe(self, name: str) -> dict:
         if name not in RECIPES:
+            emit(op="gate", tool="gate_set_recipe", outcome="denied",
+                 signal="deny.ceremony.invalid_recipe", detail=name)
             return {"status": "DENIED", "error": "INVALID_RECIPE",
                     "hint": f"Recipe 必须为 {list(RECIPES.keys())} 之一。"}
         self.recipe = name
         self.passed.clear()
         self.contexts.clear()
         _save_state(self)
+        emit(op="gate", tool="gate_set_recipe", outcome="ok", signal="ceremony.recipe",
+             recipe=name)
         return {"status": "OK", "recipe": name, "gates": RECIPES[name],
                 "names": {g: GATE_REGISTRY[g]["name"] for g in RECIPES[name]}}
 
@@ -124,6 +172,7 @@ class SessionState:
                if k in GATE_REGISTRY[gate_id]["context_keys"]}
         gate_mod = _load_gate(gate_id)
         result = gate_mod.check(ctx)
+        result = _apply_check_policy(gate_id, result)
 
         if result.get("status") == "OK":
             self.passed.add(gate_id)
@@ -131,23 +180,157 @@ class SessionState:
             result["gate_name"] = GATE_REGISTRY[gate_id]["name"]
             result["remaining"] = self.remaining
             _save_state(self)
+            emit(op="gate", tool="gate_pass", outcome="ok", signal=f"ceremony.{gate_id}",
+                 recipe=self.recipe)
+            return result
+        emit(op="gate", tool="gate_pass", outcome="denied",
+             signal=f"deny.{result.get('error', 'gate')}", recipe=self.recipe,
+             detail=result.get("hint", ""))
         return result
 
+    # ── 工作目录 ──
+
+    def workspace_roots(self) -> list:
+        return list(self.workspace_view().get("roots", []))
+
+    def workspace_view(self) -> dict:
+        """工作目录视图 —— 合并内存与 state.json。
+
+        为什么: 人工批准走 CLI，写的是磁盘；MCP server 进程的内存态看不见 —— 不合并就会
+        「用户批了、agent 重试仍被拒」。roots 取并集（批准只增不减 = 安全方向）；
+        pending 以磁盘为准（人工动作的落点）。
+        """
+        disk: dict = {}
+        try:
+            if os.path.isfile(STATE_FILE):
+                with open(STATE_FILE, encoding="utf-8") as f:
+                    disk = json.load(f).get("workspace") or {}
+        except (OSError, ValueError):
+            disk = {}
+        if not disk:
+            return self.workspace
+        roots = list(dict.fromkeys(
+            list(self.workspace.get("roots", [])) + list(disk.get("roots", []))))
+        merged = {
+            "primary": self.workspace.get("primary") or disk.get("primary"),
+            "roots": roots,
+            "pending": disk.get("pending", self.workspace.get("pending", [])),
+            "set_at": self.workspace.get("set_at") or disk.get("set_at"),
+        }
+        self.workspace = merged
+        return merged
+
+    def set_workspace(self, path: str) -> dict:
+        """声明本次任务的工作目录。必须是单个目录，且落在基础作用域内（收窄而非放宽）。"""
+        p = (path or "").strip().rstrip("/")
+        if not p:
+            return {"status": "DENIED", "error": "EMPTY_WORKSPACE",
+                    "hint": "gate_set_workspace(path) 需要一个目录，如 Assets/Mine/Scripts。"}
+        check = check_workspace_roots([p], ALLOWED_PREFIXES)
+        if check["status"] != "OK":
+            emit(op="gate", tool="gate_set_workspace", outcome="denied",
+                 signal="deny.workspace.not_allowed", detail=p)
+            return check
+        self.workspace = {"primary": p, "roots": [p], "pending": [],
+                          "set_at": int(__import__("time").time() * 1000)}
+        _save_state(self)
+        emit(op="gate", tool="gate_set_workspace", outcome="ok", signal="workspace.set",
+             detail=p, recipe=self.recipe)
+        return {"status": "OK", "workspace": p, "roots": [p],
+                "hint": "本次任务的写入 / 删除 / 移动都限定在此目录内；"
+                        "需扩展走 gate_request_workspace(path, reason) 交人工批准。"}
+
+    def request_workspace(self, path: str, reason: str) -> dict:
+        """申请扩展工作目录。**只登记待批请求，不授权** —— 批准是人工动作（CLI）。"""
+        p = (path or "").strip().rstrip("/")
+        if not p:
+            return {"status": "DENIED", "error": "EMPTY_WORKSPACE", "hint": "缺少目录。"}
+        if not reason or not reason.strip():
+            return {"status": "DENIED", "error": "MISSING_REASON",
+                    "hint": "申请扩展工作目录必须给 reason（进审计，供人裁决）。"}
+        check = check_workspace_roots([p], ALLOWED_PREFIXES)
+        if check["status"] != "OK":
+            emit(op="gate", tool="gate_request_workspace", outcome="denied",
+                 signal="deny.workspace.not_allowed", detail=p)
+            return check
+        if p in self.workspace_roots():
+            return {"status": "OK", "already_granted": True, "workspace": p,
+                    "hint": "该目录已在授权列表内，无需申请。"}
+        import uuid
+        rid = "ws-" + uuid.uuid4().hex[:8]
+        self.workspace.setdefault("pending", []).append(
+            {"id": rid, "path": p, "reason": reason.strip()})
+        _save_state(self)
+        emit(op="gate", tool="gate_request_workspace", outcome="ok",
+             signal="workspace.requested", detail=f"{rid} {p}")
+        return {
+            "status": "NEEDS_APPROVAL", "request_id": rid, "path": p,
+            "pending": self.workspace.get("pending", []),
+            "hint": "请求已登记。**批准是人工动作，agent 不得自行执行** —— "
+                    f"请由用户运行: python3 .mcp/validation/gate_cli.py workspace approve {rid}",
+        }
+
+    def approve_workspace(self, request_id: str, by: str = "human") -> dict:
+        """批准一条待批请求（人工动作，经 CLI 调用；agent 自行调用违反规则且留痕）。"""
+        pending = self.workspace.get("pending", [])
+        hit = next((r for r in pending if r["id"] == request_id), None)
+        if not hit:
+            return {"status": "DENIED", "error": "NO_SUCH_REQUEST",
+                    "hint": f"待批列表: {[r['id'] for r in pending]}"}
+        self.workspace["pending"] = [r for r in pending if r["id"] != request_id]
+        self.workspace.setdefault("roots", [])
+        if hit["path"] not in self.workspace["roots"]:
+            self.workspace["roots"].append(hit["path"])
+        _save_state(self)
+        emit(op="gate", tool="gate_approve_workspace", outcome="ok",
+             signal="workspace.approved", detail=f"{request_id} {hit['path']} by={by}")
+        return {"status": "OK", "approved": hit["path"], "by": by,
+                "roots": self.workspace["roots"]}
+
+    def reject_workspace(self, request_id: str, reason: str = "") -> dict:
+        pending = self.workspace.get("pending", [])
+        hit = next((r for r in pending if r["id"] == request_id), None)
+        if not hit:
+            return {"status": "DENIED", "error": "NO_SUCH_REQUEST",
+                    "hint": f"待批列表: {[r['id'] for r in pending]}"}
+        self.workspace["pending"] = [r for r in pending if r["id"] != request_id]
+        _save_state(self)
+        emit(op="gate", tool="gate_reject_workspace", outcome="ok",
+             signal="workspace.rejected", detail=f"{request_id} {hit['path']} {reason}")
+        return {"status": "OK", "rejected": hit["path"], "reason": reason}
+
     def can_write(self) -> dict:
+        """配方门禁。policy 把 ceremony.recipe_gate 降为 warn/off 时，仪式不再阻断写入。
+
+        这是「框架随 agent 能力放宽」的主旋钮：默认 block（v2 行为），
+        实测 agent 已稳定自读知识后，可经 friction_report 提案把级别调低。
+        """
+        relaxed = level_of("ceremony.recipe_gate") != "block"
         if not self.recipe:
+            if relaxed:
+                return {"status": "OK", "recipe": None, "passed": [],
+                        "warnings": [{"id": "ceremony.recipe_gate",
+                                      "level": "warning",
+                                      "detail": "未声明配方（policy 已放宽）"}]}
             return {"status": "DENIED", "error": "NO_RECIPE",
                     "hint": "请先 gate_set_recipe(name)。"}
         missing = self.remaining
         if missing:
+            if relaxed:
+                return {"status": "OK", "recipe": self.recipe, "passed": sorted(self.passed),
+                        "warnings": [{"id": "ceremony.recipe_gate", "level": "warning",
+                                      "detail": f"配方 '{self.recipe}' 未过: {missing}（policy 已放宽）"}]}
             return {"status": "DENIED", "error": "GATE_NOT_PASSED",
                     "missing": missing, "passed": sorted(self.passed),
                     "hint": f"配方 '{self.recipe}' 还需通过: {missing}"}
         return {"status": "OK", "recipe": self.recipe, "passed": sorted(self.passed)}
 
     def reset(self) -> None:
+        emit(op="gate", tool="gate_reset", outcome="ok", signal="ceremony.reset")
         self.recipe = None
         self.passed.clear()
         self.contexts.clear()
+        self.workspace = {"primary": None, "roots": [], "pending": [], "set_at": None}
         self.writes.clear()
         self.deletes.clear()
         self.moves.clear()
@@ -168,7 +351,8 @@ def _save_state(s: SessionState) -> None:
         tmp = STATE_FILE + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump({"recipe": s.recipe, "passed": sorted(s.passed),
-                       "contexts": s.contexts}, f, ensure_ascii=False)
+                       "contexts": s.contexts, "workspace": s.workspace},
+                      f, ensure_ascii=False)
         os.replace(tmp, STATE_FILE)
     except Exception:
         pass
@@ -192,5 +376,9 @@ try:
         state.recipe = _data.get("recipe")
         state.passed = set(_data.get("passed", []))
         state.contexts = _data.get("contexts", {})
+        ws = _data.get("workspace")
+        if isinstance(ws, dict):
+            state.workspace = {"primary": ws.get("primary"), "roots": ws.get("roots", []),
+                               "pending": ws.get("pending", []), "set_at": ws.get("set_at")}
 except Exception:
     pass   # 损坏/不可读 → 冷启动, 等价于旧行为

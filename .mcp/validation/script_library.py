@@ -5,7 +5,13 @@ from typing import Optional
 
 # 项目根目录（.mcp 在项目根下）
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SCRIPTS_DIR = os.path.join(PROJECT_ROOT, ".agents", "agents", "unity-developer", "scripts", "roslyn")
+SCRIPTS_DIR = os.path.join(PROJECT_ROOT, ".agents", "skills", "unity-editor", "scripts", "roslyn")
+
+# 切分到专门 skill 的脚本仍保留旧 USE <basename> 决策兼容。
+SPECIALIZED_SCRIPTS = {
+    "camera-offscreen-capture.cs": os.path.join(PROJECT_ROOT, ".agents", "skills",
+        "unity-render-debug", "scripts", "camera-offscreen-capture.cs"),
+}
 
 # ── 固定脚本库 ──
 KNOWN_SCRIPTS: dict[str, str] = {
@@ -13,35 +19,31 @@ KNOWN_SCRIPTS: dict[str, str] = {
     "scene-organize.cs":      "测试物体分组整理到 __TestObjects__",
     "pipeline-check.cs":      "渲染管线 + Quality Level 诊断",
     "scan-temp-objects.cs":   "扫描临时物体",
-    # tmp/.reusable/ 中的脚本（已迁移）
-    "query_scene.cs":         "场景层级遍历（旧位置 tmp/.reusable/）",
-    "organize_scene.cs":      "测试物体分组（旧位置 tmp/.reusable/）",
-    "check_pipeline.cs":      "管线诊断（旧位置 tmp/.reusable/）",
-    "query_framedebugger.cs": "Frame Debugger（旧位置 tmp/.reusable/）",
+    "camera-offscreen-capture.cs": "完整相机 PNG（unity-render-debug）",
 }
+# 注: 旧位置 tmp/.reusable/ 的 4 个脚本（query_scene / organize_scene / check_pipeline /
+# query_framedebugger）曾登记在此，但 script_exists() 只查本目录，`USE <旧名>` 必然
+# SCRIPT_NOT_FOUND —— 那 4 条是**读不到的死数据**，2026-10-09 移除（见 dated memory）。
+# 2026-10-09 审计: 与 roslyn 重复/过期的 3 个（query_scene / organize_scene / check_pipeline）
+# 已删除（走 gate_cli delete，审计在 .mcp/deletes.jsonl）；tmp/.reusable/query_framedebugger.cs
+# 是 Frame Debugger 辅助脚本的唯一副本，保留。
 
 
 def list_scripts() -> list[dict]:
-    """列出 scripts/roslyn/ 中的所有 .cs 文件."""
-    if not os.path.isdir(SCRIPTS_DIR):
-        return []
-    result = []
-    for f in sorted(os.listdir(SCRIPTS_DIR)):
-        if f.endswith(".cs"):
-            full = os.path.join(SCRIPTS_DIR, f)
-            result.append({
-                "name": f,
-                "known": f in KNOWN_SCRIPTS,
-                "description": KNOWN_SCRIPTS.get(f, "(未注册 — 请更新 KNOWN_SCRIPTS)"),
-                "exists": True,
-                "bytes": os.path.getsize(full),
-            })
-    return result
+    """列出 Editor 脚本及迁到专门 skill 的兼容入口。"""
+    paths = dict(SPECIALIZED_SCRIPTS)
+    if os.path.isdir(SCRIPTS_DIR):
+        paths.update({name: os.path.join(SCRIPTS_DIR, name)
+                      for name in os.listdir(SCRIPTS_DIR) if name.endswith(".cs")})
+    return [{"name": name, "known": name in KNOWN_SCRIPTS,
+             "description": KNOWN_SCRIPTS.get(name, "(未注册 — 请更新 KNOWN_SCRIPTS)"),
+             "exists": True, "bytes": os.path.getsize(path)}
+            for name, path in sorted(paths.items()) if os.path.isfile(path)]
 
 
 def script_exists(name: str) -> bool:
-    """检查指定脚本是否存在于 scripts/roslyn/ 中."""
-    path = os.path.join(SCRIPTS_DIR, name)
+    """按 basename 查询 canonical 或已登记的专门 skill 脚本。"""
+    path = SPECIALIZED_SCRIPTS.get(name, os.path.join(SCRIPTS_DIR, name))
     return os.path.isfile(path)
 
 

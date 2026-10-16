@@ -1,4 +1,4 @@
-"""Gate tests — 后果验证门禁 (v2).
+"""Gate tests — 后果验证门禁 (v3: 判定核 + 策略数据 + 摩擦账本).
 
 链统一为 [g_entry, g_knowledge]:
   g_knowledge = 知识证据（真实文件解析）
@@ -8,6 +8,54 @@ import sys, json, asyncio, os, subprocess
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # .mcp/
 sys.path.insert(0, ROOT)
+
+# 测试写自己的摩擦账本，不污染生产账本（否则 E5 报告被测试噪声淹没）
+import tempfile
+TEST_LEDGER = os.path.join(tempfile.gettempdir(), "mcp-friction-test.jsonl")
+os.environ["MCP_FRICTION_FILE"] = TEST_LEDGER
+
+# 测试钉住「严格」策略：这里断言的是**机制**（该拦就拦），不是当前 policy 取值 ——
+# 否则每次调 policy 都要改一批断言。已发布策略的取值由 test_shipped_policy 单独守。
+SHIPPED_POLICY = os.path.join(ROOT, "policy.json")
+STRICT_POLICY = os.path.join(tempfile.gettempdir(), "mcp-policy-strict.json")
+with open(STRICT_POLICY, "w", encoding="utf-8") as _f:
+    json.dump({"checks": {
+        "ceremony.recipe_gate": {"level": "block"},
+        "ceremony.knowledge_high_priority": {"level": "block"},
+        "ceremony.knowledge_resolvable": {"level": "block"},
+    },
+    "workspace": {"required": True, "applies_to": ["Assets/Mine/"]},
+    }, _f)
+os.environ["MCP_POLICY_FILE"] = STRICT_POLICY
+
+
+class policy_env:
+    """临时切换策略文件；退出时**还原**（不是 pop —— pop 会让后续用例退回已发布策略）。"""
+
+    def __init__(self, path):
+        self.path = path
+
+    def __enter__(self):
+        from validation import policy
+        self._prev = os.environ.get("MCP_POLICY_FILE")
+        os.environ["MCP_POLICY_FILE"] = self.path
+        policy.reload()
+        return policy
+
+    def __exit__(self, *exc):
+        from validation import policy
+        if self._prev is None:
+            os.environ.pop("MCP_POLICY_FILE", None)
+        else:
+            os.environ["MCP_POLICY_FILE"] = self._prev
+        policy.reload()
+        return False
+
+
+def shipped_policy() -> dict:
+    """读**已发布**的 policy.json（不经 env 覆盖）。"""
+    with open(SHIPPED_POLICY, encoding="utf-8") as f:
+        return json.load(f)
 
 from gate_center import RECIPES, GATE_REGISTRY, RETIRED_GATES
 from gates.g_entry import ALLOWED_AGENTS
@@ -71,6 +119,23 @@ def self_check():
         assert g not in [x for gates in RECIPES.values() for x in gates], \
             f"退役门禁 '{g}' 不应出现在任何配方中"
     print("  ✅ 自检通过: 链统一 / 退役集合 / requires 一致")
+
+
+async def test_single_recipe_initialization_preserves_entry():
+    """Documented workflow: init once, entry then knowledge; re-init is a negative control."""
+    await call("gate_reset")
+    await call("gate_set_recipe", name="Production")
+    assert (await call("gate_pass", gate_id="g_entry", agent="unity-developer"))["status"] == "OK"
+    # Known failure from the former skill: G1 reinitialized after G0, losing entry.
+    await call("gate_set_recipe", name="Production")
+    denied = await call("gate_pass", gate_id="g_knowledge", status="COMPLETE", loaded_files=HIGH_PRIO)
+    assert denied["status"] == "DENIED" and denied["error"] == "PREREQUISITE", denied
+    # One initialization and no reset between the two gates preserves the chain.
+    assert (await call("gate_pass", gate_id="g_entry", agent="unity-developer"))["status"] == "OK"
+    passed = await call("gate_pass", gate_id="g_knowledge", status="COMPLETE", loaded_files=HIGH_PRIO)
+    assert passed["status"] == "OK", passed
+    await call("gate_reset")
+    print("  ✅ single recipe initialization preserves entry; duplicate-init control rejects knowledge")
 
 
 async def test_meta_bypass_boundary():
@@ -231,6 +296,7 @@ async def test_restart_recovery():
         "state.set_recipe('Production');"
         "state.pass_gate('g_entry', agent='unity-developer');"
         "state.pass_gate('g_knowledge', loaded_files=%r, status='COMPLETE');"
+        "state.set_workspace('Assets/Mine/Scripts');"
     ) % (ROOT, HIGH_PRIO)], capture_output=True, text=True, env=env)
     assert p1.returncode == 0, f"p1 failed: {p1.stderr}"
     assert os.path.isfile(STATE_FILE), "state.json 应已写入"
@@ -240,14 +306,15 @@ async def test_restart_recovery():
         "import sys, json; sys.path.insert(0, %r);"
         "from gate_center import state;"
         "print(json.dumps({'recipe': state.recipe, 'passed': sorted(state.passed),"
-        " 'ok': state.can_write()['status']}))"
+        " 'ok': state.can_write()['status'], 'ws': state.workspace_view()['roots']}))"
     ) % ROOT], capture_output=True, text=True, env=env)
     assert p2.returncode == 0, f"p2 failed: {p2.stderr}"
     out = json.loads(p2.stdout.strip().splitlines()[-1])
     assert out["recipe"] == "Production", f"recipe 未恢复: {out}"
     assert out["passed"] == ["g_entry", "g_knowledge"], f"passed 未恢复: {out}"
     assert out["ok"] == "OK", f"恢复后应可直接写入: {out}"
-    print("  ✅ 重启后 recipe/passed 恢复, can_write OK")
+    assert out["ws"] == ["Assets/Mine/Scripts"], f"工作目录未恢复: {out}"
+    print("  ✅ 重启后 recipe/passed/工作目录 恢复, can_write OK")
 
     # gate_reset 应清掉 state.json
     p3 = subprocess.run([sys.executable, "-c", (
@@ -665,6 +732,7 @@ async def test_write_gated_placement_wired():
     await call("gate_set_recipe", name="Quick")
     await call("gate_pass", gate_id="g_entry", agent="unity-developer")
     await call("gate_pass", gate_id="g_knowledge", loaded_files=HIGH_PRIO, status="COMPLETE")
+    await call("gate_set_workspace", path="Assets/Mine")   # 声明边界后才轮到落点校验
 
     # 新受管文件扔在 Assets/Mine 根下 → DENIED，且**不落盘**（被拒的写入代价是零）
     probe = os.path.join(os.path.dirname(ROOT), "Assets", "Mine", "_placement_probe.shader")
@@ -754,14 +822,384 @@ async def test_cli_move_gated():
     print("  ✅ 用法 / 门禁同源 / 作用域 / dry-run / 移动 / .meta 配对 / 落盘审计 均正确")
 
 
+# ════════════════════════════════════════════════════════════════
+#  v3 — 策略数据化 / 摩擦账本 / 统一通道
+# ════════════════════════════════════════════════════════════════
+
+def test_policy_levels():
+    """policy: 覆盖只能放宽；固有级别是地板；缺失文件回落固有（= v2 行为）。"""
+    print("\n── v3 策略数据化: 覆盖只放宽 / 缺省即 v2 ──")
+    import tempfile
+    from validation import policy
+
+    assert policy.level_of("norm.region-added") == "block"
+    assert policy.level_of("norm.divider-added") == "warn"
+    assert policy.level_of("不存在的检查") == "block", "未知检查默认 block（安全默认）"
+
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        json.dump({"checks": {
+            "norm.region-added": {"level": "warn"},     # 放宽 → 生效
+            "norm.divider-added": {"level": "block"},   # 收紧 → 应被忽略
+        }}, f)
+        tmp_policy = f.name
+    with policy_env(tmp_policy):
+        assert policy.level_of("norm.region-added") == "warn", "覆盖应放宽"
+        assert policy.level_of("norm.divider-added") == "warn", "覆盖不得比固有更严"
+        assert policy.snapshot()["norm.region-added"]["source"] == "policy"
+    os.remove(tmp_policy)
+    assert policy.level_of("norm.region-added") == "block", "还原后应回固有"
+    print("  ✅ 放宽生效 / 收紧被拒 / 还原回固有 / 未知检查安全默认")
+
+
+async def test_ceremony_relax():
+    """policy 放宽 ceremony.recipe_gate → 未过链也能写，但响应携带 warning（降级不静默）。"""
+    print("\n── v3 仪式降级机制: warn 放行留痕 / 退出即回 block ──")
+    import tempfile
+
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        json.dump({"checks": {"ceremony.recipe_gate": {"level": "warn"}}}, f)
+        tmp_policy = f.name
+    with policy_env(tmp_policy):
+        await call("gate_reset")
+        r = await call("write_gated", path="tmp/relax_probe.shader", content=GOOD_SHADER)
+        assert r["status"] == "OK", f"policy 放宽后应放行: {r}"
+        assert os.path.isfile(os.path.join(TMP, "relax_probe.shader")), "应真的写入"
+        assert any(w.get("id") == "ceremony.recipe_gate" for w in r.get("warnings", [])), \
+            f"降级必须留 warning: {r}"
+        cleanup("relax_probe.shader")
+        await call("gate_reset")
+    os.remove(tmp_policy)
+
+    # 退出 policy_env → 回到套件钉住的 block: 同一次写入 → DENIED
+    r = await call("write_gated", path="tmp/relax_probe.shader", content=GOOD_SHADER)
+    assert r["status"] == "DENIED" and r["error"] == "NO_RECIPE", f"钉回 block 应拒: {r}"
+    await call("gate_reset")
+    print("  ✅ warn 放行且留痕 / 回 block 即拒（策略是数据，不是代码分支）")
+
+
+async def test_write_cli_channel():
+    """gate_cli write — v2 唯一缺失的通道；与 MCP 同一判定核，逐码一致。"""
+    print("\n── v3 统一写通道: gate_cli write（MCP 工具表冻结不再等于写入断掉）──")
+    cli = os.path.join(ROOT, "validation", "gate_cli.py")
+    env = dict(os.environ, PYTHONPATH=ROOT)
+    src = os.path.join(TMP, "cli_write_src.shader")
+    out = os.path.join(TMP, "cli_write_out.shader")
+    bad = os.path.join(TMP, "cli_write_bad.shader")
+
+    def run(*args, stdin=None):
+        return subprocess.run([sys.executable, cli, *args],
+                              capture_output=True, text=True, env=env, input=stdin)
+
+    with open(src, "w", encoding="utf-8") as f:
+        f.write(GOOD_SHADER)
+    with open(bad, "w", encoding="utf-8") as f:
+        f.write("// 没有 Shader 声明\n")
+
+    # 用法: 缺 --path / 缺内容来源 → exit 2
+    assert run("write", "--path", "tmp/x.shader").returncode == 2, "缺内容来源应 exit 2"
+    assert run("write", "--content", "x").returncode == 2, "缺 --path 应 exit 2"
+
+    # 未过链（前序用例已 gate_reset）→ 与 MCP 同一道闸
+    r = run("write", "--path", "tmp/cli_write_out.shader", "--from", src)
+    assert r.returncode == 1 and "NO_RECIPE" in r.stdout, f"got {r.stdout}"
+
+    await call("gate_set_recipe", name="Quick")
+    await call("gate_pass", gate_id="g_entry", agent="unity-developer")
+    await call("gate_pass", gate_id="g_knowledge", loaded_files=HIGH_PRIO, status="COMPLETE")
+
+    # 作用域: 与 MCP 同一个 validate_path（逐码一致）
+    r = run("write", "--path", "/etc/hosts", "--content", "x")
+    mcp = await call("write_gated", path="/etc/hosts", content="x")
+    assert r.returncode == 1 and "PATH_NOT_ALLOWED" in r.stdout, f"got {r.stdout}"
+    assert mcp["error"] == "PATH_NOT_ALLOWED", f"got {mcp}"
+
+    # --dry-run: 判定但不落盘
+    r = run("write", "--path", "tmp/cli_write_out.shader", "--from", src, "--dry-run")
+    assert r.returncode == 0 and json.loads(r.stdout)["dry_run"] is True, f"got {r.stdout}"
+    assert not os.path.isfile(out), "--dry-run 不应落盘"
+
+    # 实写（内容来自 stdin）+ 规范违规 → exit 1
+    r = run("write", "--path", "tmp/cli_write_out.shader", "-", stdin=GOOD_SHADER)
+    assert r.returncode == 0 and json.loads(r.stdout)["status"] == "OK", f"got {r.stdout}"
+    assert open(out, encoding="utf-8").read() == GOOD_SHADER, "内容应保真"
+
+    r = run("write", "--path", "tmp/cli_write_bad_out.shader", "--from", bad)
+    assert r.returncode == 1 and "NORM_VIOLATION" in r.stdout, f"got {r.stdout}"
+    assert not os.path.isfile(os.path.join(TMP, "cli_write_bad_out.shader")), "被拒写入零落盘"
+
+    cleanup("cli_write_src.shader")
+    cleanup("cli_write_out.shader")
+    cleanup("cli_write_bad.shader")
+    await call("gate_reset")
+    print("  ✅ 用法 / 门禁同源 / 作用域逐码一致 / dry-run / stdin / 违规阻断 均正确")
+
+
+def test_friction_report():
+    """摩擦账本 → 聚合 → 提案。安全类零命中不提议退役；仪式比过高提议降级。"""
+    print("\n── v3 摩擦账本: 聚合口径 / 提案规则 / 安全类保护 ──")
+    import tempfile
+    import telemetry
+    from validation import friction_report
+
+    ledger = tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False).name
+    prev_ledger = os.environ.get("MCP_FRICTION_FILE")
+    try:
+        os.environ["MCP_FRICTION_FILE"] = ledger
+        telemetry.clear()
+        for _ in range(25):
+            telemetry.record(op="write", tool="t", outcome="ok", signal="ok.write")
+        for _ in range(3):
+            telemetry.record(op="write", tool="t", outcome="denied",
+                             signal="deny.norm.region-added", check="norm.region-added")
+        for _ in range(10):
+            telemetry.record(op="gate", tool="gate_pass", outcome="ok", signal="ceremony.g_entry")
+        telemetry.record(op="delete", tool="t", outcome="dry_run", signal="dry_run.delete")
+
+        agg = friction_report.aggregate(telemetry.read_all())
+        assert agg["real_ops"] == 28, f"dry-run 不计入真实操作: {agg['real_ops']}"
+        assert agg["ceremony_calls"] == 10, f"got {agg['ceremony_calls']}"
+        assert agg["sample_sufficient"] is True
+
+        # 「哪些检查不可退役」是**已发布策略**的性质 —— aggregate 会把当时的 policy 快照进去，
+        # 故须在 shipped 策略下重算 agg，而不是只换 proposals 的环境。
+        with policy_env(SHIPPED_POLICY):
+            agg_shipped = friction_report.aggregate(telemetry.read_all())
+            assert agg_shipped["policy"]["scope.path"]["retirable"] is False, "断言前提"
+            props = friction_report.proposals(agg_shipped)
+            assert any(p["kind"] == "safety-healthy" for p in props), \
+                f"安全类零命中必须标 health，不得提议退役: {props}"
+            for cid in ("deletion.recoverability", "deletion.guid-referenced",
+                        "move.presafety", "scope.path", "scope.workspace"):
+                assert not any(p["kind"] == "retire-or-demote" and p["check"] == cid
+                               for p in props), f"{cid} 不可退役，不得进退役提案: {props}"
+            assert not any(p["kind"] == "demote" and p["check"] == "ceremony.recipe_gate"
+                           for p in props), \
+                f"已降为 warn 的项不该再被提议 demote: {props}"
+
+        # 小样本 → 不出调级提案
+        small = friction_report.aggregate(telemetry.read_all()[:2])
+        assert small["sample_sufficient"] is False
+        assert all(p["severity"] == "info" for p in friction_report.proposals(small)), \
+            "小样本不得出 review 级提案"
+    finally:
+        telemetry.clear()                          # 先清临时账本（env 仍指向它）
+        if prev_ledger is None:                    # 还原（不是 pop —— pop 会让后续用例写生产账本）
+            os.environ.pop("MCP_FRICTION_FILE", None)
+        else:
+            os.environ["MCP_FRICTION_FILE"] = prev_ledger
+        try:
+            os.remove(ledger)
+        except OSError:
+            pass
+    print("  ✅ dry-run 不计真实操作 / 安全类保护 / 小样本不结论")
+
+
+# ════════════════════════════════════════════════════════════════
+#  工作目录边界 — 任务级写入范围（用户下达）
+# ════════════════════════════════════════════════════════════════
+
+async def _arm(workspace=None):
+    """过链（并可声明工作目录）—— 工作目录用例的公共前置。"""
+    await call("gate_reset")
+    await call("gate_set_recipe", name="Quick")
+    await call("gate_pass", gate_id="g_entry", agent="unity-developer")
+    await call("gate_pass", gate_id="g_knowledge", loaded_files=HIGH_PRIO, status="COMPLETE")
+    if workspace:
+        await call("gate_set_workspace", path=workspace)
+
+
+async def test_workspace_scope():
+    """工作目录: 未声明阻断 / 越界阻断 / tmp 豁免 / 只能收窄 / 删除移动同受约束。"""
+    print("\n── v3+ 工作目录: 未声明 / 越界 / 豁免 / 收窄 / 删移同约束 ──")
+    md = "Assets/Mine/Scripts/__ws_probe.md"
+    shader = "Assets/Mine/Shaders/__ws_probe.shader"
+    tmpf = "tmp/__ws_probe.md"
+    probe_md = os.path.join(os.path.dirname(ROOT), md)
+    probe_shader = os.path.join(os.path.dirname(ROOT), shader)
+    for _f in (probe_md, probe_shader):        # 上一次中断的残留
+        if os.path.isfile(_f):
+            os.remove(_f)
+
+    await _arm()   # 故意不声明工作目录
+    r = await call("write_gated", path=md, content="x")
+    assert r["status"] == "DENIED" and r["error"] == "WORKSPACE_NOT_SET", f"got {r}"
+    assert r["violations"][0]["id"] == "workspace-required", f"got {r['violations']}"
+
+    # tmp/ 是暂存区，不属任务边界
+    r = await call("write_gated", path=tmpf, content="x")
+    assert r["status"] == "OK", f"tmp/ 应豁免工作目录边界: {r}"
+    cleanup("__ws_probe.md")
+
+    # 工作目录只能收窄 —— 超出基础作用域直接拒绝
+    r = await call("gate_set_workspace", path="Assets/Other")
+    assert r["status"] == "DENIED" and r["error"] == "WORKSPACE_NOT_ALLOWED", f"got {r}"
+
+    assert (await call("gate_set_workspace", path="Assets/Mine/Scripts"))["status"] == "OK"
+    assert (await call("write_gated", path=md, content="x"))["status"] == "OK"
+
+    r = await call("write_gated", path=shader, content='Shader "T/x"\n{}\n')
+    assert r["status"] == "DENIED" and r["error"] == "WORKSPACE_VIOLATION", f"got {r}"
+    assert r["violations"][0]["id"] == "workspace-root", f"got {r['violations']}"
+    assert not os.path.exists(probe_shader), "越界写入零落盘"
+
+    # 删除同受约束
+    r = await call("delete_gated", paths=["Assets/Mine/Shaders/other.md"], reason="越界删除")
+    assert r["status"] == "DENIED" and r["error"] == "WORKSPACE_VIOLATION", f"got {r}"
+
+    # 移动两端都要在边界内
+    r = await call("move_gated", moves=[{"from": md, "to": shader}], reason="搬出边界")
+    assert r["status"] == "DENIED" and r["error"] == "WORKSPACE_VIOLATION", f"got {r}"
+
+    # gate_reset = 新任务 → 边界清空
+    await call("gate_reset")
+    st = await call("gate_status")
+    assert st["workspace"]["roots"] == [], f"reset 应清空工作目录: {st['workspace']}"
+    for f in (probe_md, probe_shader):
+        if os.path.isfile(f):
+            os.remove(f)
+    print("  ✅ 未声明阻断 / tmp 豁免 / 收窄校验 / 越界零落盘 / 删移同约束 / reset 清空")
+
+
+async def test_workspace_request_approval():
+    """多工作区: agent 只能登记请求；批准是人工动作（CLI）；未批准仍越界。"""
+    print("\n── v3+ 多工作区: request 登记 ≠ 授权 / CLI 人工批准后才生效 ──")
+    cli = os.path.join(ROOT, "validation", "gate_cli.py")
+    env = dict(os.environ, PYTHONPATH=ROOT)
+    inprobe = "Assets/Mine/Scripts/__ws_a.md"
+    outprobe = "Assets/Mine/Shaders/__ws_b.shader"
+    out_probe_abs = os.path.join(os.path.dirname(ROOT), outprobe)
+
+    def run(*args):
+        return subprocess.run([sys.executable, cli, *args],
+                              capture_output=True, text=True, env=env)
+
+    await _arm(workspace="Assets/Mine/Scripts")
+
+    # reason 必填；越界目标不得登记
+    r = await call("gate_request_workspace", path="Assets/Mine/Shaders", reason="  ")
+    assert r["status"] == "DENIED" and r["error"] == "MISSING_REASON", f"got {r}"
+    r = await call("gate_request_workspace", path="Assets/Other", reason="x")
+    assert r["status"] == "DENIED" and r["error"] == "WORKSPACE_NOT_ALLOWED", f"got {r}"
+
+    r = await call("gate_request_workspace", path="Assets/Mine/Shaders", reason="需要改 X shader")
+    assert r["status"] == "NEEDS_APPROVAL" and r["request_id"], f"got {r}"
+    rid = r["request_id"]
+    assert any(p["id"] == rid for p in r["pending"]), f"请求应进待批: {r}"
+
+    # 未批准 → 仍然越界（request ≠ grant）
+    r = await call("write_gated", path=outprobe, content='Shader "T/x"\n{}\n')
+    assert r["status"] == "DENIED" and r["error"] == "WORKSPACE_VIOLATION", f"got {r}"
+
+    # 人工批准（CLI 通道）→ server 进程须看得见（workspace_view 合并磁盘）
+    r = run("workspace", "approve", rid)
+    assert r.returncode == 0 and json.loads(r.stdout)["status"] == "OK", f"got {r.stdout}"
+    r = await call("write_gated", path=outprobe, content='Shader "T/x"\n{}\n')
+    assert r["status"] == "OK", f"批准后应放行: {r}"
+
+    # 拒绝路径: 登记 → reject → 仍越界且不在待批
+    r = await call("gate_request_workspace", path="Assets/Mine/Effects", reason="看看")
+    rid2 = r["request_id"]
+    assert json.loads(run("workspace", "reject", rid2, "--reason", "不需要").stdout)["status"] == "OK"
+    st = await call("gate_status")
+    assert not any(p["id"] == rid2 for p in st["workspace"]["pending"]), f"reject 应移出待批: {st}"
+    r = await call("write_gated", path="Assets/Mine/Effects/__ws_c.md", content="x")
+    assert r["status"] == "DENIED" and r["error"] == "WORKSPACE_VIOLATION", f"got {r}"
+
+    # show 可读
+    r = run("workspace", "show")
+    assert r.returncode == 0 and "roots" in json.loads(r.stdout)["workspace"], f"got {r.stdout}"
+
+    await call("gate_reset")
+    for f in (os.path.join(os.path.dirname(ROOT), inprobe), out_probe_abs):
+        if os.path.isfile(f):
+            os.remove(f)
+    print("  ✅ reason 必填 / 非法目标拒绝 / request≠grant / CLI 批准生效 / reject 移出 / show")
+
+
+def test_workspace_policy_required():
+    """policy required=false → 回到 v2 行为（不声明也能写）。"""
+    print("\n── v3+ 工作目录策略: required=false 回到 v2 ──")
+    import tempfile
+    from validation import policy
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        json.dump({"workspace": {"required": False, "applies_to": ["Assets/Mine/"]}, "checks": {}}, f)
+        tmp_policy = f.name
+    with policy_env(tmp_policy):
+        assert policy.workspace_policy()["required"] is False
+    os.remove(tmp_policy)
+    assert policy.workspace_policy()["required"] is True, "还原回套件策略（required=true）"
+    print("  ✅ required 由 policy 数据控制 / 还原回 true")
+
+
+def test_shipped_policy():
+    """已发布策略的取值 = 我们决定过的姿态。改动必须显式，不能悄悄漂移。"""
+    print("\n── 已发布策略姿势（防漂移回归）──")
+    from validation import policy
+    checks = shipped_policy()["checks"]
+
+    # 2026-10-09 人工批准的两项降级
+    assert checks["ceremony.recipe_gate"]["level"] == "warn", "2026-10-09 批准降级"
+    assert checks["ceremony.knowledge_high_priority"]["level"] == "warn"
+    # 未随仪式一起放宽的（防幻觉 + 产物可用性）
+    assert checks["ceremony.knowledge_resolvable"]["level"] == "block", "防幻觉不降级"
+    assert checks["norm.shader-decl"]["level"] == "block"
+    assert checks["norm.cs-type-decl"]["level"] == "block"
+    # 安全 / 权限类不可退役
+    for cid in ("scope.path", "scope.workspace", "deletion.recoverability",
+                "deletion.guid-referenced", "move.presafety", "ceremony.recipe_gate"):
+        assert checks[cid].get("retirable") is False, f"{cid} 不可退役"
+    # 工作目录边界默认开启
+    assert shipped_policy()["workspace"]["required"] is True
+
+    with policy_env(SHIPPED_POLICY):
+        assert policy.level_of("ceremony.recipe_gate") == "warn"
+        assert policy.level_of("scope.workspace") == "block"
+        assert policy.workspace_policy()["required"] is True
+    print("  ✅ 降级/保留/不可退役/工作目录开关 与决定一致")
+
+
+async def test_shipped_relaxed_write():
+    """端到端（已发布策略）: 未过链可写但留 warning；防幻觉仍硬拦；缺高优先级只提示。"""
+    print("\n── 已发布策略端到端: 未过链可写+留痕 / 防幻觉仍拦 ──")
+    with policy_env(SHIPPED_POLICY):
+        await call("gate_reset")
+        r = await call("write_gated", path="tmp/shipped_probe.shader", content=GOOD_SHADER)
+        assert r["status"] == "OK", f"已发布策略应放行未过链写入: {r}"
+        assert r["recipe"] is None, f"未声明配方应记为 None: {r}"
+        assert any(w.get("id") == "ceremony.recipe_gate" for w in r.get("warnings", [])), \
+            f"降级不静默 —— 必须携带 warning: {r}"
+        cleanup("shipped_probe.shader")
+
+        # 编造文件名 → 仍然硬拦（没随仪式降级）
+        await call("gate_set_recipe", name="Quick")
+        assert (await call("gate_pass", gate_id="g_entry",
+                           agent="unity-developer"))["status"] == "OK"
+        r = await call("gate_pass", gate_id="g_knowledge", status="COMPLETE",
+                       loaded_files=HIGH_PRIO + ", unity/standard/shader/不存在.md")
+        assert r["status"] == "DENIED" and r["error"] == "G15_UNRESOLVED_FILE", \
+            f"编造文件名必须仍拦: {r}"
+
+        # 缺高优先级 → 放宽为提示，但仍标记 RELAXED
+        r = await call("gate_pass", gate_id="g_knowledge", status="COMPLETE",
+                       loaded_files="unity/standard/shader/shader-structure.md")
+        assert r["status"] == "OK" and r.get("knowledge") == "RELAXED", f"got {r}"
+
+        # 全申报 → 正常通过，不标 RELAXED
+        r = await call("gate_pass", gate_id="g_knowledge", status="COMPLETE", loaded_files=HIGH_PRIO)
+        assert r["status"] == "OK" and r.get("knowledge") == "COMPLETE", f"got {r}"
+    await call("gate_reset")
+    print("  ✅ 未过链可写+留 warning / 防幻觉硬拦 / 缺项降为 RELAXED / 全申报仍 COMPLETE")
+
+
 async def main():
     print("=" * 50)
-    print("  Gate Tests (consequence-verification v2)")
+    print("  Gate Tests (consequence-verification v3)")
     print("=" * 50)
 
     print("\n── Self-check (registry invariants) ──")
     self_check()
 
+    await test_single_recipe_initialization_preserves_entry()
     await test_meta_bypass_boundary()
     await test_production_chain()
     await test_knowledge_fabricated()
@@ -782,11 +1220,22 @@ async def main():
     await test_cli_delete_gated()
     await test_move_gated()
     await test_cli_move_gated()
+    test_policy_levels()
+    await test_ceremony_relax()
+    await test_write_cli_channel()
+    test_friction_report()
+    await test_workspace_scope()
+    await test_workspace_request_approval()
+    test_workspace_policy_required()
+    test_shipped_policy()
+    await test_shipped_relaxed_write()
     await test_restart_recovery()   # 放最后: 子进程管理自己的 state.json, 不干扰进程内用例
 
     print("\n" + "=" * 50)
     print("  All tests passed ✓")
     print("=" * 50)
+    if os.path.isfile(TEST_LEDGER):
+        os.remove(TEST_LEDGER)
 
 
 if __name__ == "__main__":
