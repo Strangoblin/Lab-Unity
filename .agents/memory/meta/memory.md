@@ -8,6 +8,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-17-global-opencode-go-route.md](2026-10-17-global-opencode-go-route.md) | 2026-10-17 | 全局可达性：Codex / Claude 两侧各一份**逐字节相同**的薄路由 skill `opencode-go` + 三个明文路由入口（`~/.codex/AGENTS.md`、`~/.claude/CLAUDE.md`、`~/.claude/MEMORY.md`）；正文仍唯一留在仓库、不恢复副本；顺带修正 2026-10-15「已加路由」实际未落地（该文件为 0 字节）。strict 全绿、隔离 MCP 4/4、本机链路实跑 exit 0。 |
 | [2026-10-16-project-adapters-back-to-project.md](2026-10-16-project-adapters-back-to-project.md) | 2026-10-16 | 用户裁决项目个体内容不得留在共享库：两处 `project-adapters/`（9 文件）迁回项目功能 `Assets/Mine/Scripts/ProductionTools/Validation~/` 与 `Assets/Mine/Special/HLSL/Validation~/hash/`，迁移后逐字节一致；技能改按 `validation.hash.*` 资源 ID 取用，`task-artifacts.md` 撤掉 project-adapters 规则；根目录 4 个 mono 转储建 checkpoint 后清理。strict 与四套隔离 MCP 全绿。 |
 | [2026-10-16-local-remote-merge-windows-port.md](2026-10-16-local-remote-merge-windows-port.md) | 2026-10-16 | 合并远程 22 个提交（MCP v3 判定核 + 渲染/工具链）与本地 4 个提交（terrain 分层、CityScene、路径归一）；远程引入的 Windows 移植缺陷已修（`delete_gated` 缺 `O_NOFOLLOW`/`dir_fd` 退化、隔离 runner 只读 git 对象清理失败）；四套隔离 MCP 与架构 strict 全绿，Unity Editor 未验证。 |
 | [2026-10-16-auto-manager-routing.md](2026-10-16-auto-manager-routing.md) | 2026-10-16 | Unity 首次任务分派收口到 auto-manager；SKILL 分类、AutoMode 一次启动、模式持有阶段，独立操作 / 报告分析轻路由，实施时升级；移除角色直连叶子，保留真实依赖。冷启动、架构、链接与隔离 MCP 验证通过。 |

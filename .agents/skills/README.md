@@ -13,7 +13,7 @@ Unity 任务首次分派到 [autoagent](auto-manager/SKILL.md)，再由其选择
 | [unity-render-debug](unity-render-debug/SKILL.md) | 中间输出、Game View 观察、完整相机 PNG | 本项目维护 |
 | [unity-render-benchmark](unity-render-benchmark/SKILL.md) | 渲染同步墙钟 A/B 采集与结果判读 | 本项目维护 |
 | [codex-bridge](codex-bridge/SKILL.md) | Claude / Codex 接口与共享入口同步 | 本项目维护 |
-| [codex-opencode-go](codex-opencode-go/SKILL.md) | 本项目的 OpenCode Go 委派边界（通用手册见全局权威） | 本项目维护 |
+| [codex-opencode-go](codex-opencode-go/SKILL.md) | 本项目的 OpenCode Go 委派边界（唯一正文随仓库 git 留档；全局仅薄路由条目） | 本项目维护 |
 | [opencode-orchestrate](opencode-orchestrate/SKILL.md) | 通过本机 OpenCode CLI 派发边界明确的任务（deepseek-v4.1-flash） | 本项目维护（2026-10-05 合入） |
 | [unityctl-plugins](unityctl-plugins/SKILL.md) | unityctl 插件创建与实现 | 外部：unityctl-plugins 目录 |
 
