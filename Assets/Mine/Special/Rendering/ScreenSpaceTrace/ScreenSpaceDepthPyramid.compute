@@ -1,0 +1,68 @@
+// ═══════════════════════════════════════════════════════════════
+//  ScreenSpaceDepthPyramid — positive eye-depth conversion and conservative min reduction.
+// ═══════════════════════════════════════════════════════════════
+#pragma kernel CopyDepth
+#pragma kernel ReduceDepth
+
+Texture2D<float> _SourceDepth;
+Texture2D<float> _SourcePyramid;
+RWTexture2D<float> _Destination;
+float4 _DestinationSize;
+float4 _SourceUvScaleBias;
+float4 _DepthParams;
+float4 _SourceZBufferParams;
+int _SourceMip;
+int _SourceIsLinear;
+
+[numthreads(8, 8, 1)]
+void CopyDepth(uint3 dispatchId : SV_DispatchThreadID)
+{
+    if (any(dispatchId.xy >= (uint2)_DestinationSize.xy))
+        return;
+    uint sourceWidth;
+    uint sourceHeight;
+    _SourceDepth.GetDimensions(sourceWidth, sourceHeight);
+    float2 uv = ((float2)dispatchId.xy + 0.5) / _DestinationSize.xy;
+    uv = uv * _SourceUvScaleBias.xy + _SourceUvScaleBias.zw;
+    int2 sourcePixel = (int2)floor(uv * float2(sourceWidth, sourceHeight));
+    float eyeDepth = _DepthParams.y;
+    if (all(sourcePixel >= 0) && all(sourcePixel < int2(sourceWidth, sourceHeight)))
+    {
+        float depth = _SourceDepth.Load(int3(sourcePixel, 0));
+        bool valid = _SourceIsLinear != 0 ? depth > 0.0 && depth < _DepthParams.y
+            : (_DepthParams.w > 0.5 ? depth > 0.000001 : depth < 0.999999);
+        if (valid && isfinite(depth) && (_SourceIsLinear != 0 || (depth >= 0.0 && depth <= 1.0)))
+        {
+            eyeDepth = _SourceIsLinear != 0 ? depth
+                : (_DepthParams.z > 0.5
+                    ? lerp(_DepthParams.x, _DepthParams.y, _DepthParams.w > 0.5 ? 1.0 - depth : depth)
+                    : rcp(_SourceZBufferParams.z * depth + _SourceZBufferParams.w));
+            if (!isfinite(eyeDepth) || eyeDepth <= 0.0)
+                eyeDepth = _DepthParams.y;
+        }
+    }
+    _Destination[dispatchId.xy] = eyeDepth;
+}
+
+[numthreads(8, 8, 1)]
+void ReduceDepth(uint3 dispatchId : SV_DispatchThreadID)
+{
+    if (any(dispatchId.xy >= (uint2)_DestinationSize.xy))
+        return;
+    uint sourceWidth;
+    uint sourceHeight;
+    uint mipCount;
+    _SourcePyramid.GetDimensions(_SourceMip, sourceWidth, sourceHeight, mipCount);
+    float2 footprintScale = float2(sourceWidth, sourceHeight) / _DestinationSize.xy;
+    int2 firstPixel = (int2)floor((float2)dispatchId.xy * footprintScale);
+    int2 lastPixel = min((int2)ceil(((float2)dispatchId.xy + 1.0) * footprintScale), int2(sourceWidth, sourceHeight));
+    float nearestDepth = _DepthParams.y;
+    [loop]
+    for (int sampleY = firstPixel.y; sampleY < lastPixel.y; sampleY++)
+    {
+        [loop]
+        for (int sampleX = firstPixel.x; sampleX < lastPixel.x; sampleX++)
+            nearestDepth = min(nearestDepth, _SourcePyramid.Load(int3(sampleX, sampleY, _SourceMip)));
+    }
+    _Destination[dispatchId.xy] = nearestDepth;
+}

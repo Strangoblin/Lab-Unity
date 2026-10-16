@@ -4,7 +4,7 @@
 //  输入来自真实 URP RenderGraph 的 _BlitTexture。
 //  所有显示参数均由 Shader / Material 持有，RendererFeature 不复制参数。
 
-Shader "PostProcess/DebugOutput"
+Shader "Debug/DebugOutput"
 {
     Properties
     {
