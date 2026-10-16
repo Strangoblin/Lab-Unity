@@ -8,6 +8,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-16-local-remote-merge-windows-port.md](2026-10-16-local-remote-merge-windows-port.md) | 2026-10-16 | 合并远程 22 个提交（MCP v3 判定核 + 渲染/工具链）与本地 4 个提交（terrain 分层、CityScene、路径归一）；远程引入的 Windows 移植缺陷已修（`delete_gated` 缺 `O_NOFOLLOW`/`dir_fd` 退化、隔离 runner 只读 git 对象清理失败）；四套隔离 MCP 与架构 strict 全绿，Unity Editor 未验证。 |
 | [2026-10-16-auto-manager-routing.md](2026-10-16-auto-manager-routing.md) | 2026-10-16 | Unity 首次任务分派收口到 auto-manager；SKILL 分类、AutoMode 一次启动、模式持有阶段，独立操作 / 报告分析轻路由，实施时升级；移除角色直连叶子，保留真实依赖。冷启动、架构、链接与隔离 MCP 验证通过。 |
 | [2026-10-16-sustainable-development-startup.md](2026-10-16-sustainable-development-startup.md) | 2026-10-16 | 可持续开发判断归 auto-manager 单一正文，角色、入口与三模式在首次实施前接入；局部小修简化，已有结论复用，不增门禁或文档；新功能 / 小修冷启动演练、83 链接检查、架构与隔离 MCP 验证通过。 |
 | [2026-10-16-production-tools-agent-templates.md](2026-10-16-production-tools-agent-templates.md) | 2026-10-16 | 用户裁决生产工具通用框架归 agent：完整独立窗口模板入 skill，五窗口独立 EditorWindow；12 文件迁出 Assets，原字节与 Git blob 留证，Lab 验证归适配器；编译、42 项 Editor 回归及独立模板验证通过。 |
