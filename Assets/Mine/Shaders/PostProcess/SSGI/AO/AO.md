@@ -148,7 +148,7 @@ atten = 1 / (1 + d² × falloff)
 
 > 下表读数采集于公共时域接入、`falloff`、HBAO 工作分辨率半径修正和几何引导 Resolve 实现**之前**。`falloff = 0` 仍保持原遮挡权重，但 HBAO 搜索覆盖与合成升采样已经改变，因此下表的编译、持久化和确定性结论仍可参考，HBAO/合成的数值读数需要重新采集。
 
-读数来自 **Play Mode 离屏相机对照采集**：把主相机（642×522）复制到一张 `ARGB32` RT、关闭该相机的后处理，逐配置渲染后回读（脚本 `.codex/tmp/ao/verify3.cs`；`Debug=AO` 直出可见度）。
+读数来自 **2026-09-21 的 Play Mode 离屏相机对照采集**：把主相机（642×522）复制到一张 `ARGB32` RT、关闭该相机的后处理，逐配置渲染后回读，`Debug=AO` 直出可见度。原始 [verify3.cs 历史脚本](../../../../../../.agents/agents/unity-developer/memory/evidence/2026-09-21-diffusegi-ao-cleanup/historical-source/verify3.cs) 已从当时回退包恢复，仅供追溯旧读数；它没有适配后续 AO 改动，当前实现需重新采集。
 
 | 项 | 方法 | 结果 |
 |---|---|---|

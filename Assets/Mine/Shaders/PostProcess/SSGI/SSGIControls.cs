@@ -6,6 +6,8 @@ using UnityEngine;
 
 public enum SSGIQuality { Low, Medium, High }
 
+public enum SSGITraceBackend { DDA = 0, Ray = 1 }
+
 [Serializable]
 public sealed class SSGIPerformanceControls
 {

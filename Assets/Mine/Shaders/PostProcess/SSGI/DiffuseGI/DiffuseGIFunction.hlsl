@@ -4,6 +4,9 @@
 #ifndef DIFFUSE_GI_FUNCTION_INCLUDED
 #define DIFFUSE_GI_FUNCTION_INCLUDED
 
+#include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
+#include "Assets/Mine/Shaders/PostProcess/SSGI/SSGISpatialFilter.hlsl"
+
 // ════════════════════════════════════════════════════════════════
 //  Normal sample — explicit mip zero with URP stereo UVs and oct decoding.
 // ════════════════════════════════════════════════════════════════
@@ -23,9 +26,16 @@ float3 DiffuseGI_SampleNormal(float2 uv)
 // ════════════════════════════════════════════════════════════════
 float2 DiffuseGI_Noise(float2 pixel)
 {
-    float3 value = frac(float3(pixel.xyx) * float3(0.1031, 0.1030, 0.0973));
-    value += dot(value, value.yzx + 33.33);
-    return frac((value.xx + value.yz) * value.zy
+    uint2 cell = (uint2)pixel & 7u;
+    uint first = ((cell.x & 1u) << 5) | ((cell.y & 1u) << 4)
+        | ((cell.x & 2u) << 2) | ((cell.y & 2u) << 1)
+        | ((cell.x & 4u) >> 1) | ((cell.y & 4u) >> 2);
+    uint second = (cell.x & 1u) * 32u ^ (cell.y & 1u) * 48u
+        ^ ((cell.x >> 1) & 1u) * 40u ^ ((cell.y >> 1) & 1u) * 60u
+        ^ ((cell.x >> 2) & 1u) * 34u ^ ((cell.y >> 2) & 1u) * 51u;
+    float2 spatial = float2(first, second) * (1.0 / 64.0);
+    float2 scramble = Hash_FracGrid22(floor(pixel * (1.0 / 8.0)));
+    return frac(spatial + scramble
         + float2(_DiffuseGIFrameIndex * 0.75487766, _DiffuseGIFrameIndex * 0.5698403));
 }
 
@@ -56,14 +66,27 @@ float4 DiffuseGI_Gather(float2 uv)
     float3 originWS = SST_WorldPosition(uv, rawDepth) + normalWS * _GITraceParams.z;
     float2 rotation = DiffuseGI_Noise(floor(uv * _GISourceSize.zw));
     float4 sum = 0.0;
-    int rayCount = clamp(_GIRayCount, 1, 8);
+    #if defined(DIFFUSE_GI_LOW)
+        int rayCount = 4;
+        int stepCount = 24;
+    #elif defined(DIFFUSE_GI_MEDIUM)
+        int rayCount = 6;
+        int stepCount = 48;
+    #elif defined(DIFFUSE_GI_HIGH)
+        int rayCount = 8;
+        int stepCount = 64;
+    #else
+        int rayCount = clamp(_GIRayCount, 1, 8);
+        int stepCount = _GIStepCount;
+    #endif
     [loop]
     for (int rayIndex = 0; rayIndex < rayCount; ++rayIndex)
     {
-        float2 xi = frac(float2((rayIndex + 0.5) / rayCount, rayIndex * 0.61803398875) + rotation);
+        float2 xi = float2((rayIndex + rotation.x) / rayCount,
+            frac(rayIndex * 0.61803398875 + rotation.y));
         float3 directionWS = DiffuseGI_Direction(xi, normalWS);
         ScreenSpaceTraceHit hit;
-        if (!SST_Trace(originWS, directionWS, _GITraceParams.x, _GITraceParams.y, _GIStepCount, hit))
+        if (!SST_Trace(originWS, directionWS, _GITraceParams.x, _GITraceParams.y, stepCount, hit))
             continue;
         float3 hitNormalWS = DiffuseGI_SampleNormal(hit.uv);
         if (dot(hitNormalWS, -directionWS) <= 0.0 || hit.distance < _GITraceParams.z)
@@ -93,9 +116,9 @@ float DiffuseGI_GuideWeight(float2 sampleUV, float centerDepth, float3 centerNor
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Bilateral blur — five point taps, normalized by geometry and spatial weights.
+//  Spatial resolve — shared Specular-style wide radiance reconstruction.
 // ════════════════════════════════════════════════════════════════
-float4 DiffuseGI_Blur(float2 uv, float2 axis)
+float4 DiffuseGI_SpatialResolve(float2 uv)
 {
     float rawDepth = SST_SampleDepth(uv);
     float3 normalWS = DiffuseGI_SampleNormal(uv);
@@ -103,19 +126,8 @@ float4 DiffuseGI_Blur(float2 uv, float2 axis)
         return 0.0;
     normalWS = normalize(normalWS);
     float centerDepth = SST_EyeDepth(rawDepth);
-    float4 sum = 0.0;
-    float totalWeight = 0.0;
-    [unroll]
-    for (int tap = -2; tap <= 2; ++tap)
-    {
-        float2 sampleUV = uv + axis * _GISourceSize.xy * tap;
-        if (any(sampleUV <= 0.0) || any(sampleUV >= 1.0))
-            continue;
-        float weight = exp2(-0.5 * tap * tap) * DiffuseGI_GuideWeight(sampleUV, centerDepth, normalWS);
-        sum += SAMPLE_TEXTURE2D_X_LOD(_BlitTexture, sampler_PointClamp, sampleUV, 0) * weight;
-        totalWeight += weight;
-    }
-    return sum / max(totalWeight, 0.000001);
+    return SSGISpatial_Resolve(uv, _GISourceSize.xy, _GIFilterParams.z,
+        centerDepth, normalWS, 2.0, 32.0, true, 0.0);
 }
 
 // ════════════════════════════════════════════════════════════════

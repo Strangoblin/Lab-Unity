@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-//  DiffuseGI — screen-space diffuse gather, spatial denoise and additive resolve.
+//  DiffuseGI — screen-space diffuse gather, wide spatial reconstruction and resolve.
 // ════════════════════════════════════════════════════════════════
 Shader "PostProcess/DiffuseGI"
 {
@@ -26,6 +26,12 @@ Shader "PostProcess/DiffuseGI"
         int _DiffuseGIFrameIndex;
     CBUFFER_END
 
+    #define SCREEN_TRACE_LOAD_DEPTH(pixel) LOAD_TEXTURE2D_X(_CameraDepthTexture, pixel).r
+    #define SCREEN_TRACE_LOAD_PYRAMID(pixel, mip) 0.0
+    #include "Assets/Mine/Special/HLSL/RayStepFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl"
+    #undef SCREEN_TRACE_LOAD_DEPTH
+    #undef SCREEN_TRACE_LOAD_PYRAMID
     #include "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/DiffuseGI/DiffuseGIFunction.hlsl"
 
@@ -39,21 +45,12 @@ Shader "PostProcess/DiffuseGI"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  BlurHorizontal — geometry-guided horizontal denoising.
+    //  SpatialResolve — geometry-guided radiance reconstruction.
     // ════════════════════════════════════════════════════════════
-    float4 Frag_BlurHorizontal(Varyings input) : SV_Target
+    float4 Frag_SpatialResolve(Varyings input) : SV_Target
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-        return DiffuseGI_Blur(input.texcoord, float2(1, 0));
-    }
-
-    // ════════════════════════════════════════════════════════════
-    //  BlurVertical — geometry-guided vertical denoising.
-    // ════════════════════════════════════════════════════════════
-    float4 Frag_BlurVertical(Varyings input) : SV_Target
-    {
-        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-        return DiffuseGI_Blur(input.texcoord, float2(0, 1));
+        return DiffuseGI_SpatialResolve(input.texcoord);
     }
 
     // ════════════════════════════════════════════════════════════
@@ -93,29 +90,21 @@ Shader "PostProcess/DiffuseGI"
         {
             Name "Trace"
             HLSLPROGRAM
-            #pragma target 3.5
+            #pragma target 4.5
             #pragma vertex Vert
             #pragma fragment Frag_Trace
+            #pragma multi_compile_local_fragment _ SSGI_TRACE_RAY
+            #pragma multi_compile_local_fragment _ DIFFUSE_GI_LOW DIFFUSE_GI_MEDIUM DIFFUSE_GI_HIGH
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
             ENDHLSL
         }
         Pass
         {
-            Name "BlurHorizontal"
+            Name "SpatialResolve"
             HLSLPROGRAM
             #pragma target 3.5
             #pragma vertex Vert
-            #pragma fragment Frag_BlurHorizontal
-            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
-            ENDHLSL
-        }
-        Pass
-        {
-            Name "BlurVertical"
-            HLSLPROGRAM
-            #pragma target 3.5
-            #pragma vertex Vert
-            #pragma fragment Frag_BlurVertical
+            #pragma fragment Frag_SpatialResolve
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
             ENDHLSL
         }

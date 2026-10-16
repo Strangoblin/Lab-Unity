@@ -17,6 +17,10 @@ struct ScreenSpaceTraceHit
 {
     float2 uv;
     float distance;
+    float eyeDepth;
+    uint status;
+    uint steps;
+    uint depthQueries;
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -64,65 +68,59 @@ bool SST_Project(float3 positionWS, out float2 uv, out float eyeDepth)
 }
 
 // ════════════════════════════════════════════════════════════════
-//  Trace — fixed world steps, sign-crossing bracket and binary refinement.
+//  Trace — shared-library adapter; callers include RayStep and ScreenTrace first.
 // ════════════════════════════════════════════════════════════════
+#if defined(SCREENSPACETRACEFUNCTION_HLSL_INCLUDED)
+ScreenTraceContext SST_CreateTraceContext()
+{
+    ScreenTraceContext context = (ScreenTraceContext)0;
+    context.worldToView = UNITY_MATRIX_V;
+    context.viewToClip = UNITY_MATRIX_P;
+    #if UNITY_UV_STARTS_AT_TOP
+        context.uvScaleBias = float4(0.5, -0.5, 0.5, 0.5);
+    #else
+        context.uvScaleBias = float4(0.5, 0.5, 0.5, 0.5);
+    #endif
+    context.depthTextureSize = _CameraDepthTexture_TexelSize.zw;
+    context.depthSize = max(round(context.depthTextureSize * _RTHandleScale.xy), 1.0);
+    context.depthUvScaleBias = float4(_RTHandleScale.xy, 0.0, 0.0);
+    context.zBufferParams = _ZBufferParams;
+    context.clipPlanes = _ProjectionParams.yz;
+    context.orthographic = unity_OrthoParams.w > 0.5 ? 1u : 0u;
+    #if UNITY_REVERSED_Z
+        context.reversedZ = 1u;
+    #endif
+    return context;
+}
+
 bool SST_Trace(float3 originWS, float3 directionWS, float maxDistance,
     float thickness, int stepCount, out ScreenSpaceTraceHit hit)
 {
     hit = (ScreenSpaceTraceHit)0;
-    float2 uv;
-    float eyeDepth;
-    if (!SST_Project(originWS, uv, eyeDepth))
+    hit.status = SCREEN_TRACE_INVALID;
+    RayStepRay ray;
+    if (!RayStep_CreateRay(originWS, directionWS, float2(0.0, maxDistance), ray))
         return false;
-    float rawDepth = SST_SampleDepth(uv);
-    bool previousInFront = SST_IsSurface(rawDepth) && eyeDepth < SST_EyeDepth(rawDepth);
-    if (SST_IsSurface(rawDepth) && !previousInFront)
-        return false;
-    float previousDistance = 0.0;
-    float stepLength = maxDistance / max(stepCount, 1);
-    [loop]
-    for (int stepIndex = 1; stepIndex <= stepCount; ++stepIndex)
-    {
-        float rayDistance = stepLength * stepIndex;
-        if (!SST_Project(originWS + directionWS * rayDistance, uv, eyeDepth))
-            return false;
-        rawDepth = SST_SampleDepth(uv);
-        bool surface = SST_IsSurface(rawDepth);
-        float delta = eyeDepth - SST_EyeDepth(rawDepth);
-        if (surface && delta >= 0.0)
-        {
-            if (!previousInFront)
-                return false;
-            float lowDistance = previousDistance;
-            float highDistance = rayDistance;
-            [unroll]
-            for (int refine = 0; refine < 6; ++refine)
-            {
-                float middleDistance = (lowDistance + highDistance) * 0.5;
-                float2 middleUV;
-                float middleEyeDepth;
-                if (!SST_Project(originWS + directionWS * middleDistance, middleUV, middleEyeDepth))
-                    return false;
-                float middleRawDepth = SST_SampleDepth(middleUV);
-                if (SST_IsSurface(middleRawDepth) && middleEyeDepth >= SST_EyeDepth(middleRawDepth))
-                    highDistance = middleDistance;
-                else
-                    lowDistance = middleDistance;
-            }
-            if (!SST_Project(originWS + directionWS * highDistance, uv, eyeDepth))
-                return false;
-            rawDepth = SST_SampleDepth(uv);
-            delta = eyeDepth - SST_EyeDepth(rawDepth);
-            if (!SST_IsSurface(rawDepth) || delta < 0.0 || delta > thickness)
-                return false;
-            hit.uv = uv;
-            hit.distance = highDistance;
-            return true;
-        }
-        previousInFront = surface && delta < 0.0;
-        previousDistance = rayDistance;
-    }
-    return false;
+    ScreenTraceConfig config;
+    config.maxSteps = stepCount;
+    config.refinementSteps = 6;
+    config.thickness = thickness;
+    ScreenTraceContext context = SST_CreateTraceContext();
+    ScreenTraceHit geometry;
+    bool found;
+    #if defined(SSGI_TRACE_RAY)
+        found = ScreenTrace_TraceRay(ray, context, config, geometry);
+    #else
+        found = ScreenTrace_TraceDDA(ray, context, config, geometry);
+    #endif
+    hit.uv = geometry.uv;
+    hit.distance = geometry.distance;
+    hit.eyeDepth = geometry.eyeDepth;
+    hit.status = geometry.status;
+    hit.steps = geometry.steps;
+    hit.depthQueries = geometry.depthQueries;
+    return found;
 }
+#endif
 
 #endif
