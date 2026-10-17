@@ -38,10 +38,9 @@ public class SSCFeature : ScriptableRendererFeature
         [Range(0f, 1.000f)] public float thickness = 0.5f;
         [Range(0f, 1f)] public float middle = 0.5f;
         [Range(0f, 1f)] public float threshold = 0.2f;
-        public Vector3 size = new Vector3(100, 100, 10);
+        public Vector3 size = new Vector3(100, 50, 100);
 
         [Header("Scattering")]
-        [Range(0f, 1f)] public float scatteringWeight = 0.0f;
         [Range(-1f, 1f)] public float phaseG = 0.8f;
         [Range(0f, 2f)] public float ambientIntensity = 1.0f;
 
@@ -57,7 +56,6 @@ public class SSCFeature : ScriptableRendererFeature
         internal static readonly int ParamBID = Shader.PropertyToID("_CloudParamB");
         internal static readonly int CloudMiddleID = Shader.PropertyToID("_CloudMiddle");
         internal static readonly int CloudThresholdID = Shader.PropertyToID("_CloudThreshold");
-        internal static readonly int ScatteringWeightID = Shader.PropertyToID("_ScatteringWeight");
         internal static readonly int PhaseGID = Shader.PropertyToID("_PhaseG");
         internal static readonly int AmbientIntensityID = Shader.PropertyToID("_AmbientIntensity");
         internal static readonly int JitterID = Shader.PropertyToID("_Jitter");
@@ -103,7 +101,6 @@ public class SSCFeature : ScriptableRendererFeature
             sscMaterial.SetVector(Settings.ParamBID, new Vector4(settings.size.x, settings.size.y, settings.size.z, settings.thickness));
             sscMaterial.SetFloat(Settings.CloudMiddleID, settings.middle);
             sscMaterial.SetFloat(Settings.CloudThresholdID, settings.threshold);
-            sscMaterial.SetFloat(Settings.ScatteringWeightID, settings.scatteringWeight);
             sscMaterial.SetFloat(Settings.PhaseGID, settings.phaseG);
             sscMaterial.SetFloat(Settings.AmbientIntensityID, settings.ambientIntensity);
             sscMaterial.SetFloat(Settings.JitterID, settings.jitter);

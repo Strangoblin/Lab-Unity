@@ -14,7 +14,6 @@ Shader "PostProcess/SSC"
         _CloudThreshold ("Cloud Threshold", Range(0,1)) = 0.2
 
         [Header(Scattering)]
-        _ScatteringWeight ("Scattering Weight", Range(0,1)) = 0
         _PhaseG ("Phase G", Range(-1,1)) = 0.8
         _AmbientIntensity ("Ambient Intensity", Range(0,2)) = 1.0
 
@@ -43,7 +42,6 @@ Shader "PostProcess/SSC"
         float4 _CloudParamB;
         float _CloudMiddle;
         float _CloudThreshold;
-        float _ScatteringWeight;
         float _PhaseG;
         float _AmbientIntensity;
         float _Jitter;
@@ -78,17 +76,21 @@ Shader "PostProcess/SSC"
         return noise;
     }
 
+    // ════════════════════════════════════════════════════════════
+    //  DensityLOD — 低频与多层高频按 0.5 混合，各层滚动速度递增
+    // ════════════════════════════════════════════════════════════
     float DensityLOD(float3 positionWS, float3 transform, int lod)
     {
         float scale = transform.x;
         float speed = transform.y;
-        float rotation = transform.z * 180 / 3.14;
+        float rotation = transform.z * 3.14159 / 180.0;
         float3 direction = float3(cos(rotation), 0, sin(rotation));
 
-        float3 pos = (positionWS + speed * _Time.y * direction) * scale;
+        float3 pos = positionWS * scale;
+        float3 offset = speed * _Time.y * direction * scale;
         float mid = 0.0;
         float amp = 0.5;
-        float low = Noise(pos);
+        float low = Noise(pos + offset);
         float high = 0.0;
 
         static const float mul[4] = {2.02, 2.23, 2.41, 2.62};
@@ -97,62 +99,9 @@ Shader "PostProcess/SSC"
         for (int i = 0; i < lod; i++)
         {
             pos *= mul[i];
-            mid += amp * Noise(pos);
-            amp *= 0.5;
-            high = mid;
-        }
-
-        float density = lerp(0, high, low);
-        return low;
-    }
-
-    float DensityH(float3 positionWS, float3 paramUD, float cloudMiddle)
-    {
-        float top = paramUD.x;
-        float bottom = paramUD.y;
-        float thiciness = paramUD.z;
-        float height = saturate((positionWS.y - bottom) / (top - bottom));
-        float middle = saturate(cloudMiddle);
-
-        float density = max(0.0, 1.0 - abs(height - middle) * 2.0);
-        return pow(density, (1.0 - thiciness + 1e-5));
-    }
-
-    float CalculateDensity(float3 positionWS, float3 cloudTrans, float3 paramUD, float cloudMiddle, float cloudThreshold, int lod)
-    {
-        float density = DensityLOD(positionWS, cloudTrans, lod) * DensityH(positionWS, paramUD, cloudMiddle);
-        if (density < cloudThreshold)
-        {
-            density = 0.0;
-        }
-        return density;
-    }
-
-    // ════════════════════════════════════════════════════════════
-    //  Scattering 路径 — 迁移 CelToon 的 HG 相函数与高度环境光
-    //  仅在 _ScatteringWeight > 0 时执行，默认关闭以保持原观感。
-    // ════════════════════════════════════════════════════════════
-
-    float DensityLOD_Scatter(float3 positionWS, float3 transform, int lod)
-    {
-        float scale = transform.x;
-        float speed = transform.y;
-        float rotation = transform.z * 180 / 3.14;
-        float3 direction = float3(cos(rotation), 0, sin(rotation));
-
-        float3 pos = (positionWS + speed * _Time.y * direction) * scale;
-        float mid = 0.0;
-        float amp = 0.5;
-        float low = Noise(pos);
-        float high = 0.0;
-
-        static const float mul[4] = {2.02, 2.23, 2.41, 2.62};
-
-        [unroll]
-        for (int i = 0; i < lod; i++)
-        {
-            pos *= mul[i];
-            mid += amp * Noise(pos);
+            offset *= mul[i];
+            float layerSpeed = 1.0 + 0.15 * (i + 1);
+            mid += amp * Noise(pos + offset * layerSpeed);
             amp *= 0.5;
             high = mid;
         }
@@ -160,11 +109,14 @@ Shader "PostProcess/SSC"
         return low * 0.5 + high * 0.5;
     }
 
-    float DensityH_Scatter(float3 positionWS, float3 paramUD, float cloudMiddle)
+    // ════════════════════════════════════════════════════════════
+    //  DensityH — 以 middle 为峰值，向上下边界线性衰减
+    // ════════════════════════════════════════════════════════════
+    float DensityH(float3 positionWS, float3 paramUD, float cloudMiddle)
     {
         float top = paramUD.x;
         float bottom = paramUD.y;
-        float thiciness = paramUD.z;
+        float thickness = paramUD.z;
         float height = saturate((positionWS.y - bottom) / (top - bottom));
         float middle = saturate(cloudMiddle);
         float leftRange = max(0.00001, middle);
@@ -175,13 +127,13 @@ Shader "PostProcess/SSC"
             : ((1.0 - height) / rightRange);
 
         density = saturate(density);
-        float power = max(0.00001, 1.0 - thiciness);
+        float power = max(0.00001, 1.0 - thickness);
         return pow(density, power);
     }
 
-    float CalculateDensity_Scatter(float3 positionWS, float3 cloudTrans, float3 paramUD, float cloudMiddle, float cloudThreshold, int lod)
+    float CalculateDensity(float3 positionWS, float3 cloudTrans, float3 paramUD, float cloudMiddle, float cloudThreshold, int lod)
     {
-        float density = DensityLOD_Scatter(positionWS, cloudTrans, lod) * DensityH_Scatter(positionWS, paramUD, cloudMiddle);
+        float density = DensityLOD(positionWS, cloudTrans, lod) * DensityH(positionWS, paramUD, cloudMiddle);
         if (density < cloudThreshold)
         {
             density = 0.0;
@@ -192,7 +144,6 @@ Shader "PostProcess/SSC"
     // ════════════════════════════════════════════════════════════
     //  HG — Henyey-Greenstein 相函数；g 端点钳制避免前向峰值为 0 除
     // ════════════════════════════════════════════════════════════
-
     float HG(float cosTheta, float g)
     {
         g = clamp(g, -0.999, 0.999);
@@ -212,45 +163,25 @@ Shader "PostProcess/SSC"
              \
             step = min(step, (tFar - tCurrent)); \
             float3 localPosWS = cameraPosWS + rayDirWS * tCurrent; \
-            float3 lightPosWS = localPosWS + lightDirWS * step; \
+            float3 lightPosWS = localPosWS + lightDirWS * step * 20.0; \
             float localDensity = CalculateDensity(localPosWS, cloudTrans, paramUD, cloudMiddle, cloudThreshold, LOD); \
             float lightDensity = CalculateDensity(lightPosWS, cloudTrans, paramUD, cloudMiddle, cloudThreshold, LOD); \
-            float deltaDensity = saturate(localDensity - lightDensity); \
-             \
-            Diffuse += step * deltaDensity * (1 - Diffuse); \
-            Density += step * localDensity * (1 - Density); \
-            tCurrent += step; \
-        } \
-        } \
-
-    #define RAYMARCH_SCATTER(COUNT, LOD) \
-        { \
-        [loop] \
-        for (int j = 0; j < COUNT; j++) \
-        { \
-            if (tCurrent >= tFar || tCurrent >= tScene) \
-            { \
-                break; \
-            } \
-             \
-            step = min(step, (tFar - tCurrent)); \
-            float3 localPosWS = cameraPosWS + rayDirWS * tCurrent; \
-            float3 lightPosWS = localPosWS + lightDirWS * step * 20.0; \
-            float localDensity = CalculateDensity_Scatter(localPosWS, cloudTrans, paramUD, cloudMiddle, cloudThreshold, LOD); \
-            float lightDensity = CalculateDensity_Scatter(lightPosWS, cloudTrans, paramUD, cloudMiddle, cloudThreshold, LOD); \
-            float stepAlpha = localDensity * (1.0 - ScatterDensity); \
+            float stepAlpha = localDensity * (1.0 - Density); \
             float stepShadow = 1.0 - lightDensity; \
             float heightT = saturate((localPosWS.y - cloudBottom) / (cloudTop - cloudBottom)); \
             float3 ambient = lerp(unity_AmbientGround.rgb, unity_AmbientSky.rgb, heightT) * ambientIntensity; \
             float3 albedo = lerp(_BaseColorB.rgb, _BaseColorA.rgb, stepShadow); \
             float3 directLight = lightColor * stepShadow * phase; \
-            float3 scatter = directLight + ambient; \
-            ScatterDiffuse += scatter * albedo * stepAlpha; \
-            ScatterDensity += stepAlpha; \
+            float3 scattering = directLight + ambient; \
+            Diffuse += scattering * albedo * stepAlpha; \
+            Density += stepAlpha; \
             tCurrent += step; \
         } \
         } \
 
+    // ════════════════════════════════════════════════════════════
+    //  Frag_SSC — 单次 ray march，累积散射辐亮度与不透明度
+    // ════════════════════════════════════════════════════════════
     half4 Frag_SSC(Varyings input) : SV_Target
     {
         float2 uv = input.texcoord;
@@ -313,7 +244,9 @@ Shader "PostProcess/SSC"
         float  cloudThreshold = saturate(_CloudThreshold);
         float  ambientIntensity = max(0.0, _AmbientIntensity);
 
-        float Diffuse = 0.0;
+        float phase = HG(dot(rayDirWS, lightDirWS), _PhaseG);
+
+        float3 Diffuse = float3(0.0, 0.0, 0.0);
         float Density = 0.0;
 
         int CountLOD = Count / 4;
@@ -322,29 +255,9 @@ Shader "PostProcess/SSC"
         RAYMARCH(CountLOD, 2);
         RAYMARCH(CountLOD, 1);
 
-        float4 legacyColor = float4(lerp(_BaseColorB.rgb, _BaseColorA.rgb, Density), Density);
-        float scatteringWeight = saturate(_ScatteringWeight);
-        if (scatteringWeight <= 0.0)
-        {
-            return legacyColor;
-        }
-
-        float phase = HG(dot(rayDirWS, lightDirWS), _PhaseG);
-        float3 ScatterDiffuse = float3(0.0, 0.0, 0.0);
-        float ScatterDensity = 0.0;
-        tCurrent = max(tNear, 0.0) + jitter * step * _Jitter;
-        step = (tFar - tNear) / Count;
-
-        RAYMARCH_SCATTER(CountLOD, 4);
-        RAYMARCH_SCATTER(CountLOD, 3);
-        RAYMARCH_SCATTER(CountLOD, 2);
-        RAYMARCH_SCATTER(CountLOD, 1);
-
-        float4 scatterColor = float4(ScatterDiffuse, ScatterDensity);
-        return lerp(legacyColor, scatterColor, scatteringWeight);
+        return float4(Diffuse, Density);
     }
     #undef RAYMARCH
-    #undef RAYMARCH_SCATTER
 
     half4 Frag_Composite(Varyings input) : SV_Target
     {
