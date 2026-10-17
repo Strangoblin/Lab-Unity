@@ -46,7 +46,7 @@
 
 ## 活跃上下文
 
-- CelToon 资源与 SSC 合并（2026-10-17）：SSC 保留 Lab URP 17 RenderGraph，合入 CelToon 的 HG 相函数与高度环境光作为可选散射路径（`_ScatteringWeight` 默认 0，旧观感不变），新增 middle/threshold/phaseG/ambientIntensity；Unity batchmode 编译零消息。该 Feature 尚未挂到 Renderer，无画面验证。见 [SSC 合并记录](2026-10-17-ssc-celtoon-scattering-merge.md)、[资源审计](2026-10-17-celtoon-asset-audit.md)。
+- CelToon 资源与 SSC 替换（2026-10-17）：SSC 以 CelToon 的单循环密度场（多层混合 + middle 分段剖面）与 HG/高度环境光散射替换 Lab 旧路径，保留 URP 17 RenderGraph、三种噪声模式与 ray count；旧 `rotation` 的度→弧度换算一并修正。Unity batchmode 编译零消息；Feature 尚未挂到 Renderer，无画面验证。见 [替换记录](2026-10-17-ssc-celtoon-scattering-merge.md)、[资源审计](2026-10-17-celtoon-asset-audit.md)。
 
 - 生产工具归属（2026-10-16 当前）：通用框架已归 agent 完整模板，五窗口独立化并编译通过，42 项 Editor 回归及完整模板编译/Bake/释放验证通过。Noise 上轮修复保持；物理点击、不同资产覆盖确认与 GPU 画质仍待验。见 [迁移记录](../meta/2026-10-16-production-tools-agent-templates.md)；[前一轮接手](2026-10-16-production-tool-handover.md) 保持历史语义。
 
@@ -75,7 +75,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
-| [2026-10-17-ssc-celtoon-scattering-merge.md](2026-10-17-ssc-celtoon-scattering-merge.md) | 2026-10-17 | SSC 合并 CelToon 散射：保留 URP 17 RenderGraph，新增默认关闭的 HG/高度环境光路径；静态检查与 Unity 编译通过，未接入 Renderer、无画面验证。 |
+| [2026-10-17-ssc-celtoon-scattering-merge.md](2026-10-17-ssc-celtoon-scattering-merge.md) | 2026-10-17 | SSC 以 CelToon 单循环密度场 + HG/高度环境光替换旧路径，保留 URP 17 RenderGraph、三噪声模式与 ray count；静态检查与 Unity 编译通过，未接入 Renderer、无画面验证。 |
 | [2026-10-17-celtoon-asset-audit.md](2026-10-17-celtoon-asset-audit.md) | 2026-10-17 | CelToon→Lab 资源审计：OutlineFunction 已迁入；SSC 同 GUID 为 Lab 后续版本未覆盖；RimToon/SSR/Portal/ASE 水体等按退役、第三方或脚本依赖跳过。 |
 | [2026-10-16-gizmo-render-handover.md](2026-10-16-gizmo-render-handover.md) | 2026-10-16 | GizmoRender 更名与结构收敛完成；13 份 meta/GUID 保留、六组件接入、最终编译及 67 项 Editor 回归通过，源码/验证/证据归档。 |
 | [2026-10-16-production-tool-handover.md](2026-10-16-production-tool-handover.md) | 2026-10-16 | 续接框架与模板收尾，修复 Noise 2D 载入被预览替换及 3D 假回看；同步五工具文档，新增功能侧验证入口，编译与 37 项 Editor 回归通过，场景/Renderer 指纹不变。 |
