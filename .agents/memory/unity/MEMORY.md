@@ -46,6 +46,8 @@
 
 ## 活跃上下文
 
+- CelToon 资源审计（2026-10-17）：以 GUID 核对确认 Lab 多数资产为后续版本；已迁入 `OutlineFunction.hlsl`（GUID `fbbe23e4...`），SSC 同 GUID 未覆盖，CelToon 独有的 HG/环境光参数待决定。见 [记录](2026-10-17-celtoon-asset-audit.md)。
+
 - 生产工具归属（2026-10-16 当前）：通用框架已归 agent 完整模板，五窗口独立化并编译通过，42 项 Editor 回归及完整模板编译/Bake/释放验证通过。Noise 上轮修复保持；物理点击、不同资产覆盖确认与 GPU 画质仍待验。见 [迁移记录](../meta/2026-10-16-production-tools-agent-templates.md)；[前一轮接手](2026-10-16-production-tool-handover.md) 保持历史语义。
 
 - DiffuseGI性能（2026-10-15）：仅High `(2,8,64)→(3,8,64)`，追踪像素约少55.6%，Low/Medium与AO/Specular不改。正式首轮计时嘈杂，有界复测1080p整次同步墙钟三轮下降约22–33%，非纯GPU/固定收益。静止0.5 history RMS约+7.1%/方差+12.8%，细节有取舍、地面抖动未解决；68组/四负控/旧HalfHigh历史拒绝通过，原配置保持，未提交推送。见 [记录](2026-10-15-diffuse-high-performance.md)。
@@ -73,6 +75,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-17-celtoon-asset-audit.md](2026-10-17-celtoon-asset-audit.md) | 2026-10-17 | CelToon→Lab 资源审计：OutlineFunction 已迁入；SSC 同 GUID 为 Lab 后续版本未覆盖；RimToon/SSR/Portal/ASE 水体等按退役、第三方或脚本依赖跳过。 |
 | [2026-10-16-gizmo-render-handover.md](2026-10-16-gizmo-render-handover.md) | 2026-10-16 | GizmoRender 更名与结构收敛完成；13 份 meta/GUID 保留、六组件接入、最终编译及 67 项 Editor 回归通过，源码/验证/证据归档。 |
 | [2026-10-16-production-tool-handover.md](2026-10-16-production-tool-handover.md) | 2026-10-16 | 续接框架与模板收尾，修复 Noise 2D 载入被预览替换及 3D 假回看；同步五工具文档，新增功能侧验证入口，编译与 37 项 Editor 回归通过，场景/Renderer 指纹不变。 |
 | [2026-10-15-production-tool-framework.md](2026-10-15-production-tool-framework.md) | 2026-10-15 | **生产类工具统一框架**：五个 Generator/Baker 窗口接入抽象骨架（固定路径 + Bake/Load/Save + 所有权），保存改原位更新保 GUID、不全局 SaveAssets；净减 636 行，编译与 eval 确认，按钮交互待验收。 |
