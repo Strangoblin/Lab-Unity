@@ -49,7 +49,7 @@ public sealed class SSLFeature : ScriptableRendererFeature
         [Header("Artistic")]
         [Range(0.1f, 100f)] public float maxDistance = 10f;
         [Range(0f, 5f)] public float intensity = 1f;
-        [Range(0f, 2f)] public float sslScale = 0.5f;
+        [Range(0f, 0.999f)] public float sslScale = 0.5f;
         [Range(0f, 1f)] public float jitterScale = 0.5f;
         [Range(0f, 5f)] public float blurScale = 0.5f;
 
