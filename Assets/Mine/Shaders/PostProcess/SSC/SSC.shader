@@ -5,7 +5,6 @@ Shader "PostProcess/SSC"
         _BaseColorA ("Base Color", Color) = (1,1,1,1)
         _BaseColorB ("Base Color", Color) = (0,0,0,1)
         _MainTex2D ("Main Texture", 2D) = "white" {}
-        _MainTex3D ("Main Texture", 3D) = "white" {}
         _CloudParamA ("Cloud Param A", Vector) = (1,1,1,100)
         _CloudParamB ("Cloud Param B", Vector) = (1,1,1,0.5)
 
@@ -26,13 +25,12 @@ Shader "PostProcess/SSC"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl"
     #include "Assets/Mine/Special/HLSL/DeclareCustomTexture.hlsl"
     #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
 
     TEXTURE2D_X(_MainTex2D);
     SAMPLER(sampler_MainTex2D);
-    TEXTURE3D(_MainTex3D);
-    SAMPLER(sampler_MainTex3D);
     TEXTURE2D_X(_SSCTex);
 
     CBUFFER_START(UnityPerMaterial)
@@ -54,26 +52,11 @@ Shader "PostProcess/SSC"
         return ComputeWorldSpacePosition(uv, rawDepth, UNITY_MATRIX_I_VP);
     }
 
+    // 单一噪声路径：XZ 平面上的 2D 循环纹理，R 通道。
     float Noise(float3 positionWS)
     {
-        float noise = 0.0;
-        #if defined(SSC_NOISE_TEX2DR)
-            float2 uv = positionWS.xz / 256.0;
-            noise = _MainTex2D.SampleLevel(sampler_MainTex2D, uv, 0).r;
-        #elif defined(SSC_NOISE_TEX2DRG)
-            float3 pi = floor(positionWS);
-            float3 pf = frac(positionWS);
-            float3 uvw = pf * pf * (3.0 - 2.0 * pf);
-            float2 uv  = (pi.xz + float2(37.0, 17.0) * pi.y) / 256.0;
-            float2 rg = _MainTex2D.SampleLevel(sampler_MainTex2D, uv, 0).rg;
-            noise = lerp(rg.x, rg.y, uvw.y / 10);
-        #elif defined(SSC_NOISE_TEX3DXYZ)
-            float3 uvw = positionWS / 256.0;
-            noise = _MainTex3D.SampleLevel(sampler_MainTex3D, uvw, 0).r;
-        #else
-            noise = 0.0;
-        #endif
-        return noise;
+        float2 uv = positionWS.xz / 256.0;
+        return _MainTex2D.SampleLevel(sampler_MainTex2D, uv, 0).r;
     }
 
     // ════════════════════════════════════════════════════════════
@@ -141,16 +124,6 @@ Shader "PostProcess/SSC"
         return saturate(density);
     }
 
-    // ════════════════════════════════════════════════════════════
-    //  HG — Henyey-Greenstein 相函数；g 端点钳制避免前向峰值为 0 除
-    // ════════════════════════════════════════════════════════════
-    float HG(float cosTheta, float g)
-    {
-        g = clamp(g, -0.999, 0.999);
-        float g2 = g * g;
-        return (1.0 - g2) / pow(max(1e-5, 1.0 + g2 - 2.0 * g * cosTheta), 1.5);
-    }
-
     #define RAYMARCH(COUNT, LOD) \
         { \
         [loop] \
@@ -181,6 +154,7 @@ Shader "PostProcess/SSC"
 
     // ════════════════════════════════════════════════════════════
     //  Frag_SSC — 单次 ray march，累积散射辐亮度与不透明度
+    //  RGB 已按 stepAlpha 预乘；A 是前向合成后的覆盖率。
     // ════════════════════════════════════════════════════════════
     half4 Frag_SSC(Varyings input) : SV_Target
     {
@@ -244,7 +218,11 @@ Shader "PostProcess/SSC"
         float  cloudThreshold = saturate(_CloudThreshold);
         float  ambientIntensity = max(0.0, _AmbientIntensity);
 
-        float phase = HG(dot(rayDirWS, lightDirWS), _PhaseG);
+        // 与 MaskRBR 一致：Core HG 自带 1/(4π)，用峰值归一化消去该常量；
+        // g 由 SSC 自己钳制，避免 g=±1 的奇点。
+        float g = clamp(_PhaseG, -0.999, 0.999);
+        float phase = HenyeyGreensteinPhaseFunction(g, dot(rayDirWS, lightDirWS))
+                    / HenyeyGreensteinPhaseFunction(g, 1.0);
 
         float3 Diffuse = float3(0.0, 0.0, 0.0);
         float Density = 0.0;
@@ -255,15 +233,23 @@ Shader "PostProcess/SSC"
         RAYMARCH(CountLOD, 2);
         RAYMARCH(CountLOD, 1);
 
-        return float4(Diffuse, Density);
+        return float4(Diffuse, saturate(Density));
     }
     #undef RAYMARCH
 
+    // ════════════════════════════════════════════════════════════
+    //  Frag_Composite — 预乘 alpha 合成
+    //  cloudColor.rgb 已含覆盖率权重，不能再乘一次 alpha；
+    //  正确形式：scene * (1 - a) + premultipliedCloud.rgb。
+    // ════════════════════════════════════════════════════════════
     half4 Frag_Composite(Varyings input) : SV_Target
     {
         float4 cloudColor = SampleCustomTexture(_SSCTex, sampler_LinearClamp, input.texcoord);
         float4 sceneColor = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
-        return lerp(sceneColor, cloudColor, cloudColor.a);
+
+        float alpha = saturate(cloudColor.a);
+        float3 composited = sceneColor.rgb * (1.0 - alpha) + cloudColor.rgb;
+        return half4(composited, sceneColor.a);
     }
     ENDHLSL
 
@@ -278,7 +264,6 @@ Shader "PostProcess/SSC"
             Name "SSC"
 
             HLSLPROGRAM
-            #pragma multi_compile _ SSC_NOISE_TEX2DR SSC_NOISE_TEX2DRG SSC_NOISE_TEX3DXYZ
             #pragma multi_compile _ SSC_RAY_COUNT_64 SSC_RAY_COUNT_128 SSC_RAY_COUNT_256
             #pragma target 2.0
             #pragma vertex Vert
