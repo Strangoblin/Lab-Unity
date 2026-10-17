@@ -27,7 +27,7 @@ FIXTURE_TREES = (
     ".agents/skills/unity-editor/scripts/roslyn",
 )
 FIXTURE_FILES = (
-    "AGENTS.md", ".agents/README.md", ".codex/AGENTS.md", ".codex/INTERFACE.md",
+    "AGENTS.md", ".agents/README.md", ".codex/AGENTS.md",
     ".agents/skills/unity-render-debug/scripts/camera-offscreen-capture.cs",
 )
 
@@ -117,8 +117,18 @@ def child_environment(fixture: Path) -> dict[str, str]:
     empty_hooks = fixture / "empty-git-hooks"
     temporary.mkdir()
     empty_hooks.mkdir()
+    git_usr_bin = None
+    if os.name == "nt" and not shutil.which("grep", path=env.get("PATH")):
+        git = shutil.which("git", path=env.get("PATH"))
+        if git:
+            candidate = Path(git).resolve().parent.parent / "usr" / "bin"
+            if (candidate / "grep.exe").is_file():
+                git_usr_bin = candidate
     env.update({
-        "PYTHONDONTWRITEBYTECODE": "1", "PROJECT_ROOT": str(fixture),
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1",
+        "PROJECT_ROOT": str(fixture),
         "TMPDIR": str(temporary), "TMP": str(temporary), "TEMP": str(temporary),
         "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull,
         "GIT_CONFIG_COUNT": "3",
@@ -126,6 +136,8 @@ def child_environment(fixture: Path) -> dict[str, str]:
         "GIT_CONFIG_KEY_1": "core.hooksPath", "GIT_CONFIG_VALUE_1": str(empty_hooks),
         "GIT_CONFIG_KEY_2": "init.templateDir", "GIT_CONFIG_VALUE_2": str(empty_hooks),
     })
+    if git_usr_bin:
+        env["PATH"] = str(git_usr_bin) + os.pathsep + env.get("PATH", "")
     return env
 
 
@@ -186,7 +198,7 @@ def run_isolated(root: Path, task: Path, interpreter: Path,
             log = evidence / (suite.stem + ".log")
             result = run_command([str(interpreter), str(suite)], fixture, env, log, timeout)
             definitions = sum(isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-                              and node.name.startswith("test_") for node in ast.walk(ast.parse(suite.read_text())))
+                              and node.name.startswith("test_") for node in ast.walk(ast.parse(suite.read_text(encoding="utf-8"))))
             report["results"].append({"suite": name, "exit_code": result,
                                        "test_function_definitions": definitions, "log": str(log)})
             print(f"{'PASS' if result == 0 else 'FAIL'} {name}: exit {result}; {log}")

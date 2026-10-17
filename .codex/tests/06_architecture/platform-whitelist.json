@@ -1,33 +1,27 @@
 {
-  "version": 3,
-  "description": "Plain platform entries route to shared role definitions; knowledge, memory and skills are separate libraries. Architecture sources contain no symlinks.",
+  "version": 4,
+  "description": "Two plain platform entries route to the shared role inventory; knowledge, memory and skills remain separate libraries. Architecture sources contain no symlinks.",
   "claude": {
     "retain": [
       "CLAUDE.md",
       "settings.json",
       "settings.local.json",
-      "hooks/**",
-      "agents/README.md",
-      "skills/README.md"
+      "hooks/**"
     ],
-    "notes": "Native discovery aliases are retired; shared roles, rules and skills are explicitly loaded through the role inventory."
+    "notes": "Claude keeps only its entry, settings and hooks; shared roles, rules and skills are explicitly loaded through the role inventory."
   },
   "codex": {
     "retain": [
       "AGENTS.md",
-      "INTERFACE.md",
-      "SKILL.md",
       "config.toml",
-      "config.toml.*",
       "hooks.json",
       "hooks/**",
       "tests/**",
       "tmp/**",
-      "agents/README.md",
       "agents/meta-developer.toml",
       "agents/unity-developer.toml"
     ],
-    "notes": "Platform runtime configuration, two thin role-route TOMLs, hooks and tests remain; shared discovery links and duplicate bodies are retired."
+    "notes": "Codex keeps its single entry, runtime configuration, Bash guard, thin role-route TOMLs and contract tests; duplicate routing documents are retired."
   },
   "shared_target": {
     "root": ".agents",
@@ -43,8 +37,6 @@
   },
   "platform_routes": [
     ".claude/CLAUDE.md",
-    ".claude/agents/README.md",
-    ".codex/AGENTS.md",
-    ".codex/agents/README.md"
+    ".codex/AGENTS.md"
   ]
 }

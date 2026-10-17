@@ -360,12 +360,12 @@ def semantic_category(path: str) -> tuple[str, str, str, str]:
     if path.startswith(".claude/settings") or path.startswith(".claude/hooks/"):
         suffix = path.removeprefix(".claude/")
         return "claude-platform", path, "retain", "Claude settings and hooks are platform-specific."
-    if path.startswith((".claude/agents/", ".codex/agents/")) and path.endswith("README.md"):
-        return "platform-route", path, "retain", "Plain entry points to the shared role inventory."
+    if path == ".codex/AGENTS.md":
+        return "platform-entry", ".codex/AGENTS.md", "compatibility", "Codex fixed project entry and sole plain route."
     if path.startswith(".agents/"):
         return "existing-shared-candidate", path, "retain-review", "Existing .agents content is a candidate target, not an automatic overwrite source."
     if path.startswith(".codex/"):
-        return "codex-platform", path, "retain", "Codex configuration, hooks, tests and legacy routing documents are platform-specific."
+        return "codex-platform", path, "retain", "Codex configuration, hooks, runtime role configs and tests are platform-specific."
     if path.startswith(".mcp/"):
         return "execution-gate", path, "retain-update-later", "MCP remains execution infrastructure; only its knowledge roots will change later."
     return "unknown", path, "review", "No automated ownership rule applies."
@@ -377,10 +377,36 @@ def codex_retired_path_errors() -> list[str]:
 
 
 
+def codex_hook_route_errors() -> list[str]:
+    """The project Bash guard must be launchable and must not hold a stale user path."""
+    path = ROOT / ".codex/hooks.json"
+    if not path.is_file():
+        return [".codex/hooks.json is missing"]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        groups = data["hooks"]["PreToolUse"]
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        return [f"codex hook route unavailable: {error}"]
+    errors: list[str] = []
+    handlers = [handler for group in groups for handler in group.get("hooks", [])
+                if handler.get("type") == "command"]
+    if not handlers:
+        errors.append(".codex/hooks.json has no PreToolUse command handler")
+    for handler in handlers:
+        commands = {key: str(handler.get(key, "")) for key in ("command", "commandWindows")}
+        if not any("guard-bash.sh" in command for command in commands.values()):
+            errors.append(".codex/hooks.json command must launch guard-bash.sh")
+        for key, command in commands.items():
+            if "/Users/" in command:
+                errors.append(f".codex/hooks.json {key} contains a stale user path")
+    return errors
+
+
 def phase2_contract() -> list[str]:
     """Validate library indexes, current knowledge fields and plain platform routes."""
     errors: list[str] = []
     errors.extend(codex_retired_path_errors())
+    errors.extend(codex_hook_route_errors())
     errors.extend(platform_route_errors())
     missing = [path for path in PHASE2_REQUIRED if not (ROOT / path).is_file()]
     if missing:

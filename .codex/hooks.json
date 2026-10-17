@@ -1,4 +1,5 @@
 {
+  "description": "Project-local Bash safety guard.",
   "hooks": {
     "PreToolUse": [
       {
@@ -6,7 +7,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "'/Users/xiaokangji/Unity/Lab/.codex/hooks/guard-bash.sh'"
+            "command": "bash \"$(git rev-parse --show-toplevel)/.codex/hooks/guard-bash.sh\"",
+            "commandWindows": "\"C:/Program Files/Git/bin/bash.exe\" \"C:/Programs/Unity/Unity Project/Lab/.codex/hooks/guard-bash.sh\"",
+            "statusMessage": "Checking Bash command"
           }
         ]
       }

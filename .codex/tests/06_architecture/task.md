@@ -1,7 +1,5 @@
-# 06_architecture — Phase 4 migration contract baseline
+# 06_architecture ? plain-route baseline
 
-This test is intentionally read-only against the platform adapters. It validates the Phase 2 shared-core scaffold, the Phase 3 shared-content migration and the Phase 4 MCP knowledge-root cutover, and generates
-ignored reports under `output/` and verifies that the Phase 4 metrics remain explainable while later Claude/Codex adapter cutovers are pending.
+Read-only contract test for shared-library ownership, the two platform entry files, zero architecture symlinks, hook parity and Codex hook command routing. It does not modify production gate state.
 
-Use `python3 verify.py --strict` only after the corresponding migration phase is
-complete; the default mode is expected to pass at the end of Phase 4.
+Run `python verify.py --strict`. Default mode is expected to pass for the current plain-route layout.

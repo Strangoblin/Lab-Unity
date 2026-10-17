@@ -7,7 +7,26 @@
 #    的 platform_hook_drift 检查守着。规则见 .agents/knowledge/rules/meta-architecture.md。
 
 INPUT=$(cat)
-CMD=$(echo "$INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" 2>/dev/null)
+
+# Windows 上 python3 可能是 Store 占位符；逐个探测，找不到可用解释器时失败关闭。
+PYTHON=""
+for candidate in python3 python; do
+    if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c 'import sys' >/dev/null 2>&1; then
+        PYTHON="$candidate"
+        break
+    fi
+done
+
+if [ -z "$PYTHON" ]; then
+    echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"C0 安全红线: 找不到可用的 Python 解析 Bash 命令，拒绝执行。"}}'
+    exit 2
+fi
+
+CMD=$(printf '%s' "$INPUT" | "$PYTHON" -c 'import sys,json; print(json.load(sys.stdin).get("tool_input",{}).get("command",""))' 2>/dev/null)
+if [ $? -ne 0 ]; then
+    echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"C0 安全红线: Bash 命令输入无法解析，拒绝执行。"}}'
+    exit 2
+fi
 
 # ═══ Hard blocks (exit 2) ═══
 

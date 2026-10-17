@@ -28,12 +28,11 @@ class OwnershipTests(unittest.TestCase):
         self.write(".agents/agents/README.md", "# Shared role inventory\n")
         self.write(".agents/agents/unity-developer/AGENT.md", "# Brain\n")
         self.target = self.write(".agents/skills/unity-editor/scripts/roslyn/scene-query.cs", "// tool\n")
-        self.routes = [".claude/CLAUDE.md", ".claude/agents/README.md",
-                       ".codex/AGENTS.md", ".codex/agents/README.md"]
+        self.routes = [".claude/CLAUDE.md", ".codex/AGENTS.md"]
         self.write(".codex/tests/06_architecture/platform-whitelist.json", json.dumps({"platform_routes": self.routes}))
         for relative in self.routes:
             path = self.root / relative
-            target = os.path.relpath(self.root / ".agents/agents/README.md", path.parent)
+            target = os.path.relpath(self.root / ".agents/agents/README.md", path.parent).replace(os.sep, "/")
             self.write(relative, f"[Role inventory]({target})\n")
 
     def write(self, relative: str, content: str = "fixture\n") -> Path:
@@ -102,7 +101,7 @@ class OwnershipTests(unittest.TestCase):
         self.assertTrue(VERIFY.platform_route_errors())
 
     def test_route_symlink_is_rejected_even_when_content_is_correct(self) -> None:
-        relative = ".claude/agents/README.md"
+        relative = ".claude/CLAUDE.md"
         (self.root / relative).unlink()
         self.link(relative, self.root / ".agents/agents/README.md")
         self.assertTrue(any(relative in error for error in VERIFY.platform_route_errors()))

@@ -8,6 +8,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-17-codex-claude-route-compaction.md](2026-10-17-codex-claude-route-compaction.md) | 2026-10-17 | 用户确认删除 `.codex` / `.claude` 的 7 项兼容壳与遗留产物；平台层压缩为 Codex `AGENTS.md` + Claude `CLAUDE.md` 两份明文路由，共享正文仍只在 `.agents/`。修复 Codex hook 的 `command` / `commandWindows` 与 Windows guard 的 Python 失败关闭；strict 全绿、隔离 MCP 4/4。 |
 | [2026-10-17-global-unity-route.md](2026-10-17-global-unity-route.md) | 2026-10-17 | 全局路由补 Unity：Codex 全局 AGENTS.md + Claude 全局 CLAUDE.md / MEMORY.md 三处明文指向 Lab/.agents 的 agents 清单与 autoagent；只路由能力库，资产 / Editor 操作仍留在当前工程；strict 全绿。 |
 | [2026-10-17-global-opencode-go-route.md](2026-10-17-global-opencode-go-route.md) | 2026-10-17 | 全局可达性：Codex / Claude 两侧各一份**逐字节相同**的薄路由 skill `opencode-go` + 三个明文路由入口（`~/.codex/AGENTS.md`、`~/.claude/CLAUDE.md`、`~/.claude/MEMORY.md`）；正文仍唯一留在仓库、不恢复副本；顺带修正 2026-10-15「已加路由」实际未落地（该文件为 0 字节）。strict 全绿、隔离 MCP 4/4、本机链路实跑 exit 0。 |
 | [2026-10-16-project-adapters-back-to-project.md](2026-10-16-project-adapters-back-to-project.md) | 2026-10-16 | 用户裁决项目个体内容不得留在共享库：两处 `project-adapters/`（9 文件）迁回项目功能 `Assets/Mine/Scripts/ProductionTools/Validation~/` 与 `Assets/Mine/Special/HLSL/Validation~/hash/`，迁移后逐字节一致；技能改按 `validation.hash.*` 资源 ID 取用，`task-artifacts.md` 撤掉 project-adapters 规则；根目录 4 个 mono 转储建 checkpoint 后清理。strict 与四套隔离 MCP 全绿。 |
@@ -81,7 +82,7 @@
 ### 待办
 - [ ] 2026-10-14 E5：复核 `norm.region-added` / `placement.root.new` 的零命中提案，未改策略。
 - [x] **MCP live server 重连**（2026-09-21）：`delete_gated` 已落地并过测试；重启 stdio 进程**不够**（工具表按会话冻结），须 `/mcp` 重连——已由用户完成，item 5 两个文件已删。Bash 通道 `validation/delete_gated.py` 已补，此后不依赖重连
-- [x] **Codex 是否可用 Bash 删除通道**（2026-10-08 裁决并落地）：三通道统一为 `gate_cli.py {write,delete,move}`（同一判定核），已明确写进 `.codex/AGENTS.md` + `INTERFACE.md`；`write` 通道补齐（此前是三条操作里唯一单通道的）
+- [x] **Codex 是否可用 Bash 删除通道**（2026-10-08 裁决并落地）：三通道统一为 `gate_cli.py {write,delete,move}`（同一判定核），已明确写进 `.codex/AGENTS.md`（旧 `INTERFACE.md` 已于 2026-10-17 删除）；`write` 通道补齐（此前是三条操作里唯一单通道的）
 - [x] **工作目录边界**（2026-10-09）：`workspace.required=true` 已生效（用户要求任务开始先确认目录），流程已在 skill 加 `[G0.5]`
 - [x] **首条策略降级已执行**（2026-10-09，人工批准）：两项 → `warn`；防幻觉与产物可用性类保持 `block`。**观察窗口进行中**（一个完整任务周期）—— 到期看 `friction.jsonl` 的 `warn.ceremony.recipe_gate` 频率与产物质量，决定维持或升回 `block`
 - [ ] `settings.json` 的 `Write(/Assets/Mine/**)` 为死规则（从不被读取，仅触发启动告警），可清理——用户权限配置，未擅动
