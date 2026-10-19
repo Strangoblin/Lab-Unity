@@ -16,7 +16,7 @@ public class Script
     {
         public bool passed;
         public string device;
-        public int cases, pixels, failures, paddedCases, negativeControls;
+        public int cases, pixels, failures, paddedCases, negativeControls, overlayCases;
         public float maxError;
         public List<string> messages = new List<string>();
     }
@@ -77,10 +77,12 @@ public class Script
                     }
                 }
             }
+            CheckOverlays(report, material);
             foreach (var message in ShaderUtil.GetShaderMessages(shader))
                 if (message.severity.ToString() == "Error")
                     throw new Exception("Shader error: " + message.message);
-            report.passed = report.cases > 0 && report.failures == 0 && report.negativeControls == 1;
+            report.passed = report.cases > 0 && report.overlayCases > 0
+                && report.failures == 0 && report.negativeControls == 2;
             string output = args != null && args.Length > 0 ? args[0]
                 : Path.Combine("tmp", "sessions", DateTime.Now.ToString("yyyy-MM-dd")
                     + "-screenwarp-shader-" + Guid.NewGuid().ToString("N").Substring(0, 8), "output");
@@ -168,6 +170,112 @@ public class Script
     }
     static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 
+    // ════════════════════════════════════════════════════════════
+    //  Overlay — 独立输出UV、直通端点和straight-alpha source-over的GPU对照。
+    // ════════════════════════════════════════════════════════════
+    static void CheckOverlays(Report report, Material material)
+    {
+        int[] widths = { 96, 54 };
+        int[] heights = { 54, 96 };
+        float[] alphas = { 0f, 0.35f, 1f };
+        float[] opacities = { 0f, 0.4f, 1f };
+        Vector2 center = new Vector2(0.2f, 0.65f);
+        for (int shape = 0; shape < 2; ++shape)
+        for (int padded = 0; padded < 2; ++padded)
+        using (var fixture = new Fixture(widths[shape], heights[shape], padded != 0))
+        {
+            foreach (float alpha in alphas)
+            {
+                var overlay = new Texture2D(fixture.width, fixture.height, TextureFormat.RGBAFloat, false, true)
+                { hideFlags = HideFlags.HideAndDontSave, filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+                try
+                {
+                    var colors = new Color[fixture.width * fixture.height];
+                    for (int y = 0; y < fixture.height; ++y)
+                    for (int x = 0; x < fixture.width; ++x)
+                        colors[y * fixture.width + x] = OverlayGradient((x + 0.5f) / fixture.width,
+                            (y + 0.5f) / fixture.height, alpha);
+                    overlay.SetPixels(colors); overlay.Apply(false, false);
+                    for (int mode = 0; mode < 4; ++mode)
+                    foreach (float strength in new[] { 0f, 1f })
+                    foreach (float opacity in opacities)
+                        RunOverlay(report, fixture, material, overlay, mode, strength, center, alpha, opacity, 0);
+                    if (alpha == 1f)
+                    {
+                        for (int mode = 0; mode < 4; ++mode)
+                        {
+                            RunOverlay(report, fixture, material, overlay, mode, 1f, center, alpha, 1f, 1);
+                            RunOverlay(report, fixture, material, overlay, mode, 1f, center, alpha, 1f, 2);
+                        }
+                        if (shape == 0 && padded == 0)
+                        {
+                            Color[] enabled = fixture.Draw(material, 0, 1f, center, 1f, 1, 0, overlay, 1f);
+                            Color[] disabled = fixture.Draw(material, 0, 1f, center, 1f, 1, 0, overlay, 0f);
+                            float delta = 0f;
+                            for (int i = 0; i < enabled.Length; ++i) delta = Mathf.Max(delta, Error(enabled[i], disabled[i]));
+                            if (delta < 0.1f) throw new Exception("Overlay negative control failed to detect disabled overlay.");
+                            ++report.negativeControls;
+                        }
+                    }
+                }
+                finally { UnityEngine.Object.DestroyImmediate(overlay); }
+            }
+        }
+    }
+
+    static Color OverlayGradient(float u, float v, float alpha)
+    {
+        return new Color(0.1f + 0.7f * u, 0.9f - 0.6f * v, 2f + 0.2f * u, alpha);
+    }
+
+    static void RunOverlay(Report report, Fixture fixture, Material material, Texture2D overlay,
+        int mode, float strength, Vector2 center, float alpha, float opacity, int debug)
+    {
+        Color[] actual = fixture.Draw(material, mode, strength, center, 1f, 1, debug, overlay, opacity);
+        float maxError = 0f;
+        for (int y = 0; y < fixture.height; ++y)
+        for (int x = 0; x < fixture.width; ++x)
+        {
+            float u = (x + 0.5f) / fixture.width;
+            float v = (y + 0.5f) / fixture.height;
+            Vector2 mapped = Reference(new Vector2(u, v), (double)fixture.width / fixture.height,
+                mode, strength, center, 1f);
+            bool inside = mapped.x >= 0f && mapped.x <= 1f && mapped.y >= 0f && mapped.y <= 1f;
+            Color expected;
+            if (debug == 1) expected = new Color(Mathf.Clamp01(mapped.x), Mathf.Clamp01(mapped.y), inside ? 1f : 0f, 1f);
+            else if (debug == 2) expected = inside ? Color.green : Color.red;
+            else
+            {
+                Color background = !inside ? Fixture.Border : Fixture.Gradient(
+                    Mathf.Clamp(mapped.x, 0.5f / fixture.width, 1f - 0.5f / fixture.width),
+                    Mathf.Clamp(mapped.y, 0.5f / fixture.height, 1f - 0.5f / fixture.height));
+                Color top = OverlayGradient(u, v, alpha);
+                double coverage = (double)alpha * opacity;
+                if (coverage == 0.0) expected = background;
+                else
+                {
+                    double retained = background.a * (1.0 - coverage);
+                    double outputAlpha = coverage + retained;
+                    expected = new Color((float)((top.r * coverage + background.r * retained) / outputAlpha),
+                        (float)((top.g * coverage + background.g * retained) / outputAlpha),
+                        (float)((top.b * coverage + background.b * retained) / outputAlpha), (float)outputAlpha);
+                }
+            }
+            maxError = Mathf.Max(maxError, Error(actual[y * fixture.width + x], expected));
+        }
+        ++report.cases; ++report.overlayCases;
+        report.pixels += actual.Length;
+        if (fixture.padded) ++report.paddedCases;
+        report.maxError = Mathf.Max(report.maxError, maxError);
+        if (maxError > Tolerance || !Finite(maxError))
+        {
+            ++report.failures;
+            if (report.messages.Count < 12) report.messages.Add("Overlay mode=" + mode + " strength=" + strength
+                + " alpha=" + alpha + " opacity=" + opacity + " debug=" + debug + " padded=" + fixture.padded
+                + " size=" + fixture.width + "x" + fixture.height + " error=" + maxError);
+        }
+    }
+
     sealed class Fixture : IDisposable
     {
         public static readonly Color Border = new Color(0.125f, 0.375f, 0.625f, 0.875f);
@@ -201,13 +309,16 @@ public class Script
 
         public static Color Gradient(float u, float v) => new Color(u, v, 2f, 0.25f + 0.5f * u + 0.2f * v);
 
-        public Color[] Draw(Material material, int mode, float strength, Vector2 center, float zoom, int border, int debug)
+        public Color[] Draw(Material material, int mode, float strength, Vector2 center, float zoom, int border, int debug,
+            Texture2D overlay = null, float overlayOpacity = 0f)
         {
             material.SetVector("_WarpParameters", new Vector4(mode, strength, zoom, border));
             material.SetVector("_WarpCenter", new Vector4(center.x, center.y, 0f, 0f));
             material.SetColor("_WarpBorderColor", Border);
             material.SetVector("_WarpSourceSize", new Vector4(width, height, 1f / width, 1f / height));
             material.SetFloat("_WarpDebug", debug);
+            material.SetTexture("_WarpOverlayTexture", overlay != null ? overlay : Texture2D.blackTexture);
+            material.SetFloat("_WarpOverlayOpacity", overlayOpacity);
             var command = new CommandBuffer { name = "ScreenWarp GPU validation" };
             try
             {

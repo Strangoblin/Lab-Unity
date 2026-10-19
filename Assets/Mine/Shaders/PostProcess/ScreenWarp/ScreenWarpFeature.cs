@@ -8,7 +8,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace Mine.ScreenWarp
 {
-    /// <summary>在主后处理之后，以一次颜色采样实现独立屏幕变形。</summary>
+    /// <summary>在主后处理之后重映射颜色，并可叠加固定屏幕空间的RGBA素材。</summary>
     public sealed class ScreenWarpFeature : ScriptableRendererFeature
     {
         public enum WarpMode { Barrel, Pincushion, Fisheye, Panini }
@@ -26,12 +26,18 @@ namespace Mine.ScreenWarp
 
             [Header("Artistic")]
             public WarpMode mode = WarpMode.Barrel;
-            [Tooltip("0 = 完全关闭。连续插值采样坐标，包含 Zoom 的影响。")]
+            [Tooltip("0 = 关闭变形。连续插值采样坐标，包含 Zoom；上层遮盖独立控制。")]
             [Range(0f, 1f)] public float strength = 0.35f;
             [Tooltip("归一化画面坐标；不移动或修改 Camera。")]
             public Vector2 center = new Vector2(0.5f, 0.5f);
             [Tooltip("裁切已有画面以减少露边，不会生成视野之外的内容。")]
             [Range(1f, 2f)] public float zoom = 1f;
+
+            [Header("Artistic · Overlay")]
+            [Tooltip("固定屏幕空间的RGBA素材，透明区域露出场景；按输出UV铺满画面。")]
+            public Texture2D overlayTexture;
+            [Tooltip("0 = 关闭遮盖；未指定素材时不启用。不会随变形强度缩小不透明区域。")]
+            [Range(0f, 1f)] public float overlayOpacity = 1f;
 
             [Header("Debug")]
             public DebugMode debug = DebugMode.Off;
@@ -41,6 +47,8 @@ namespace Mine.ScreenWarp
             internal static readonly int BorderColorID = Shader.PropertyToID("_WarpBorderColor");
             internal static readonly int SourceSizeID = Shader.PropertyToID("_WarpSourceSize");
             internal static readonly int DebugID = Shader.PropertyToID("_WarpDebug");
+            internal static readonly int OverlayTextureID = Shader.PropertyToID("_WarpOverlayTexture");
+            internal static readonly int OverlayOpacityID = Shader.PropertyToID("_WarpOverlayOpacity");
         }
 
         readonly struct Parameters
@@ -49,6 +57,8 @@ namespace Mine.ScreenWarp
             public readonly Vector4 center;
             public readonly Color borderColor;
             public readonly DebugMode debug;
+            public readonly Texture2D overlayTexture;
+            public readonly float overlayOpacity;
 
             public Parameters(Settings settings)
             {
@@ -62,9 +72,12 @@ namespace Mine.ScreenWarp
                 borderColor = new Color(Finite(color.r, 0f), Finite(color.g, 0f),
                     Finite(color.b, 0f), Finite(color.a, 1f));
                 debug = (DebugMode)Mathf.Clamp((int)settings.debug, 0, 2);
+                overlayTexture = settings.overlayTexture;
+                overlayOpacity = overlayTexture != null
+                    ? Mathf.Clamp01(Finite(settings.overlayOpacity, 0f)) : 0f;
             }
 
-            public bool Active => warp.y > 0f || debug != DebugMode.Off;
+            public bool Active => warp.y > 0f || overlayOpacity > 0f || debug != DebugMode.Off;
 
             static float Finite(float value, float fallback)
             {
@@ -139,6 +152,9 @@ namespace Mine.ScreenWarp
                         pass.material.SetColor(Settings.BorderColorID, pass.parameters.borderColor);
                         pass.material.SetVector(Settings.SourceSizeID, sourceSize);
                         pass.material.SetFloat(Settings.DebugID, (float)pass.parameters.debug);
+                        pass.material.SetTexture(Settings.OverlayTextureID,
+                            pass.parameters.overlayTexture != null ? pass.parameters.overlayTexture : Texture2D.blackTexture);
+                        pass.material.SetFloat(Settings.OverlayOpacityID, pass.parameters.overlayOpacity);
                         Blitter.BlitTexture(context.cmd, pass.source, scaleBias, pass.material, pass.passIndex);
                     });
                 }

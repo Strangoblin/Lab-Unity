@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════
-//  ScreenWarp — 单次RGBA采样；逻辑UV变形与物理RT采样区域分开。
+//  ScreenWarp — 场景逆映射与可选RGBA遮盖；场景UV、输出UV分别取样。
 // ════════════════════════════════════════════════════════════
 Shader "PostProcess/ScreenWarp"
 {
@@ -11,12 +11,15 @@ Shader "PostProcess/ScreenWarp"
     #include "Assets/Mine/Special/HLSL/TRS.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/ScreenWarp/ScreenWarpFunction.hlsl"
 
+    TEXTURE2D(_WarpOverlayTexture);
+
     CBUFFER_START(UnityPerMaterial)
         float4 _WarpParameters;
         float4 _WarpCenter;
         float4 _WarpBorderColor;
         float4 _WarpSourceSize;
         float _WarpDebug;
+        float _WarpOverlayOpacity;
     CBUFFER_END
 
     // ════════════════════════════════════════════════════════
@@ -40,7 +43,13 @@ Shader "PostProcess/ScreenWarp"
         float2 clampedUV = clamp(sourceUV, halfTexel, 1.0 - halfTexel);
         float2 sampleUV = DYNAMIC_SCALING_APPLY_SCALEBIAS(clampedUV);
         float4 color = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, sampleUV);
-        return lerp(color, _WarpBorderColor, _WarpParameters.w * (1.0 - inside));
+        color = lerp(color, _WarpBorderColor, _WarpParameters.w * (1.0 - inside));
+        if (_WarpOverlayOpacity > 0.0)
+        {
+            float4 overlay = SAMPLE_TEXTURE2D(_WarpOverlayTexture, sampler_LinearClamp, uv);
+            color = ScreenWarp_CompositeOverlay(color, overlay, _WarpOverlayOpacity);
+        }
+        return color;
     }
     ENDHLSL
 

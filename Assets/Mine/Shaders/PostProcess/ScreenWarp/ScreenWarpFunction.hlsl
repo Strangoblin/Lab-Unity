@@ -43,4 +43,19 @@ float ScreenWarp_Inside(float2 uv)
     return step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
 }
 
+// ════════════════════════════════════════════════════════════
+//  CompositeOverlay — straight RGBA source-over，透明素材严格保留底图。
+//  素材与底图Alpha为覆盖率[0,1]；Opacity已在Feature入口钳制。
+// ════════════════════════════════════════════════════════════
+float4 ScreenWarp_CompositeOverlay(float4 background, float4 overlay, float opacity)
+{
+    float alpha = saturate(overlay.a) * opacity;
+    if (alpha <= 0.0)
+        return background;
+    float remainingAlpha = background.a * (1.0 - alpha);
+    float outputAlpha = alpha + remainingAlpha;
+    float3 premultiplied = overlay.rgb * alpha + background.rgb * remainingAlpha;
+    return float4(premultiplied / outputAlpha, outputAlpha);
+}
+
 #endif

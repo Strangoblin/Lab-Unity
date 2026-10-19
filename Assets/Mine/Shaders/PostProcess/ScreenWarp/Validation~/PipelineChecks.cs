@@ -28,6 +28,9 @@ public class Script
         public string scope = "Isolated real URP SingleCameraRequest + RenderGraph; no original scene or assets modified. Camera stack, XR, dynamic resolution and other project Features are not covered.";
         public int assertions;
         public int requests;
+        public int baseRequests;
+        public int overlayRequests;
+        public int overlayAssertions;
         public bool originalRendererStateRestored;
         public bool originalSceneStateRestored;
         public bool activeRenderTextureRestored;
@@ -43,6 +46,8 @@ public class Script
         public int height;
         public float meanRgbDifference;
         public float maxRgbDifference;
+        public float maxAlphaDifference;
+        public int sampledPixelCount;
         public float changedPixelFraction;
     }
 
@@ -314,6 +319,7 @@ public class Script
         Require(a.Length == b.Length, name + ": comparison size");
         double sum = 0;
         float maximum = 0;
+        float maximumAlpha = 0;
         int changed = 0;
         for (int i = 0; i < a.Length; i++)
         {
@@ -323,10 +329,12 @@ public class Script
             float delta = Mathf.Max(r, g, blue);
             sum += (r + g + blue) / 3.0;
             maximum = Mathf.Max(maximum, delta);
+            maximumAlpha = Mathf.Max(maximumAlpha, Mathf.Abs(a[i].a - b[i].a));
             if (delta > 0.02f) changed++;
         }
         var result = new Comparison { name = name, width = width, height = height,
             meanRgbDifference = (float)(sum / a.Length), maxRgbDifference = maximum,
+            maxAlphaDifference = maximumAlpha, sampledPixelCount = a.Length,
             changedPixelFraction = (float)changed / a.Length };
         report.comparisons.Add(result);
         return result;
@@ -402,6 +410,188 @@ public class Script
         state.Check(camera, label + "-entire-effect-toggle-sequence");
     }
 
+    // The program textures are disposable validation inputs, not imported assets.
+    // Binary colors avoid requiring an assumed display transform for fixed-coordinate checks.
+    static Texture2D OverlayTexture(bool transparentCenter)
+    {
+        const int side = 64;
+        var texture = new Texture2D(side, side, TextureFormat.RGBAFloat, false, true)
+        {
+            name = transparentCenter ? "ScreenWarp.Validation.RGBAFrame" : "ScreenWarp.Validation.OpaqueOverlay",
+            hideFlags = HideFlags.HideAndDontSave,
+            wrapMode = TextureWrapMode.Clamp,
+            filterMode = FilterMode.Bilinear
+        };
+        var pixels = new Color[side * side];
+        for (int y = 0; y < side; y++)
+        for (int x = 0; x < side; x++)
+        {
+            Color color = x < side / 2
+                ? (y < side / 2 ? Color.red : Color.yellow)
+                : (y < side / 2 ? Color.blue : Color.cyan);
+            if (transparentCenter && x >= side / 4 && x < side * 3 / 4
+                && y >= side / 4 && y < side * 3 / 4)
+                color = new Color(1, 0, 1, 0); // Nonzero RGB must not leak through alpha=0.
+            pixels[y * side + x] = color;
+        }
+        texture.SetPixels(pixels);
+        texture.Apply(false, false);
+        return texture;
+    }
+
+    static Comparison CompareOverlayRegion(Color[] a, Color[] b, int width, int height,
+        string name, bool center)
+    {
+        Require(a.Length == width * height && b.Length == a.Length, name + ": matching image dimensions");
+        double sum = 0;
+        float maximum = 0;
+        float maximumAlpha = 0;
+        int changed = 0;
+        int samples = 0;
+        for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+        {
+            float u = (x + 0.5f) / width;
+            float v = (y + 0.5f) / height;
+            // Stay several texture texels away from alpha/filter boundaries.
+            bool selected = center ? u > 0.30f && u < 0.70f && v > 0.30f && v < 0.70f
+                : u < 0.18f || u > 0.82f || v < 0.18f || v > 0.82f;
+            if (!selected) continue;
+            int index = y * width + x;
+            float r = Mathf.Abs(a[index].r - b[index].r);
+            float g = Mathf.Abs(a[index].g - b[index].g);
+            float blue = Mathf.Abs(a[index].b - b[index].b);
+            float delta = Mathf.Max(r, g, blue);
+            sum += (r + g + blue) / 3.0;
+            maximum = Mathf.Max(maximum, delta);
+            maximumAlpha = Mathf.Max(maximumAlpha, Mathf.Abs(a[index].a - b[index].a));
+            if (delta > 0.02f) changed++;
+            samples++;
+        }
+        Require(samples > width * height / 10, name + ": region contains a substantial number of pixels");
+        var comparison = new Comparison { name = name, width = width, height = height,
+            meanRgbDifference = (float)(sum / samples), maxRgbDifference = maximum,
+            maxAlphaDifference = maximumAlpha, sampledPixelCount = samples,
+            changedPixelFraction = (float)changed / samples };
+        report.comparisons.Add(comparison);
+        return comparison;
+    }
+
+    static void EqualRGBA(Comparison comparison, string message)
+    {
+        Require(comparison.maxRgbDifference <= 1e-5f && comparison.maxAlphaDifference <= 1e-5f, message);
+    }
+
+    static void CheckOverlay(ScreenWarpFeature feature, Camera camera, int width, int height)
+    {
+        int requestStart = report.requests;
+        int assertionStart = report.assertions;
+        ScreenWarpFeature.Settings originalSettings = feature.settings;
+        bool originalActive = feature.isActive;
+        bool originalOrthographic = camera.orthographic;
+        float originalAspect = camera.aspect;
+        Matrix4x4 originalProjection = camera.projectionMatrix;
+        var originalCamera = new CameraState(camera);
+        Texture2D opaque = null;
+        Texture2D frame = null;
+        string label = "overlay-" + width + "x" + height;
+        try
+        {
+            camera.orthographic = false;
+            camera.aspect = (float)width / height;
+            camera.ResetProjectionMatrix();
+            var fixedCamera = new CameraState(camera);
+            feature.settings = new ScreenWarpFeature.Settings
+            {
+                shader = originalSettings.shader,
+                mode = ScreenWarpFeature.WarpMode.Barrel,
+                strength = 0,
+                center = new Vector2(0.5f, 0.5f),
+                zoom = 1,
+                border = ScreenWarpFeature.BorderMode.Color,
+                borderColor = new Color(0.9f, 0.02f, 0.7f, 1),
+                debug = ScreenWarpFeature.DebugMode.Off,
+                overlayTexture = null,
+                overlayOpacity = 1
+            };
+            opaque = OverlayTexture(false);
+            frame = OverlayTexture(true);
+            feature.SetActive(false);
+            Color[] baseline = Capture(camera, width, height, label + "-baseline");
+            feature.SetActive(true);
+            Color[] nullOverlay = Capture(camera, width, height, label + "-null");
+            EqualRGBA(Compare(baseline, nullOverlay, width, height, label + "-null-preserves-baseline"),
+                "Null overlay and zero warp preserve baseline RGBA");
+
+            feature.settings.overlayTexture = opaque;
+            feature.settings.overlayOpacity = 0;
+            Color[] opacityZero = Capture(camera, width, height, label + "-opacity-zero");
+            EqualRGBA(Compare(baseline, opacityZero, width, height, label + "-opacity-zero-preserves-baseline"),
+                "Opacity zero and zero warp preserve baseline RGBA");
+
+            feature.settings.overlayOpacity = 1;
+            Color[] opaqueOnly = Capture(camera, width, height, label + "-opaque-zero-warp");
+            Comparison opaqueDifference = Compare(baseline, opaqueOnly, width, height, label + "-opaque-overlay-enqueues-at-zero-warp");
+            Require(opaqueDifference.meanRgbDifference > 0.1f && opaqueDifference.changedPixelFraction > 0.9f,
+                "Opaque overlay must render over the real scene even when warp strength is zero");
+            feature.settings.strength = 1;
+            Color[] opaqueWarp = Capture(camera, width, height, label + "-opaque-with-warp");
+            EqualRGBA(Compare(opaqueOnly, opaqueWarp, width, height, label + "-opaque-fixed-screen-coordinates"),
+                "Opaque overlay stays at identical screen coordinates when warp changes");
+
+            feature.settings.overlayTexture = null;
+            Color[] warped = Capture(camera, width, height, label + "-warped-control");
+            Comparison warpControl = Compare(baseline, warped, width, height, label + "-warp-control-is-visible");
+            Require(warpControl.meanRgbDifference > 0.003f && warpControl.changedPixelFraction > 0.02f,
+                "Overlay region checks require an actually changed warped-scene control");
+            feature.settings.overlayTexture = frame;
+            feature.settings.overlayOpacity = 0;
+            Color[] warpedOpacityZero = Capture(camera, width, height, label + "-warped-opacity-zero");
+            EqualRGBA(Compare(warped, warpedOpacityZero, width, height, label + "-opacity-zero-keeps-warp"),
+                "Opacity zero disables overlay without disabling scene warp");
+
+            feature.settings.overlayOpacity = 1;
+            Color[] warpedFrame = Capture(camera, width, height, label + "-warped-transparent-frame");
+            EqualRGBA(CompareOverlayRegion(warped, warpedFrame, width, height, label + "-transparent-center-keeps-warped-rgba", true),
+                "Zero-alpha frame center preserves the already-warped scene RGBA");
+            Comparison visibleFrame = CompareOverlayRegion(warped, warpedFrame, width, height, label + "-opaque-frame-border-visible", false);
+            Require(visibleFrame.meanRgbDifference > 0.1f && visibleFrame.changedPixelFraction > 0.9f,
+                "The frame test also requires a visible opaque border");
+
+            feature.settings.strength = 0;
+            Color[] unwarpedFrame = Capture(camera, width, height, label + "-unwarped-transparent-frame");
+            EqualRGBA(CompareOverlayRegion(baseline, unwarpedFrame, width, height, label + "-transparent-center-keeps-baseline-rgba", true),
+                "Zero-alpha frame center preserves unwarped baseline RGBA");
+            EqualRGBA(CompareOverlayRegion(warpedFrame, unwarpedFrame, width, height, label + "-frame-border-fixed-screen-coordinates", false),
+                "Opaque frame edge remains fixed to the same screen pixels with warp on/off");
+
+            feature.settings.strength = 1;
+            feature.settings.debug = ScreenWarpFeature.DebugMode.SourceUV;
+            feature.settings.overlayTexture = null;
+            Color[] debugControl = Capture(camera, width, height, label + "-sourceuv-control");
+            feature.settings.overlayTexture = opaque;
+            Color[] debugOverlay = Capture(camera, width, height, label + "-sourceuv-with-opaque-overlay");
+            EqualRGBA(Compare(debugControl, debugOverlay, width, height, label + "-debug-bypasses-overlay"),
+                "SourceUV debug remains visible and is not covered by the opaque overlay");
+            Require(Compare(opaqueOnly, debugOverlay, width, height, label + "-debug-control-is-distinct").meanRgbDifference > 0.1f,
+                "Debug bypass comparison must use a debug image visibly distinct from the overlay");
+            fixedCamera.Check(camera, label + "-entire-overlay-sequence");
+        }
+        finally
+        {
+            feature.settings = originalSettings;
+            feature.SetActive(originalActive);
+            camera.orthographic = originalOrthographic;
+            camera.aspect = originalAspect;
+            camera.projectionMatrix = originalProjection;
+            if (opaque != null) UnityEngine.Object.DestroyImmediate(opaque);
+            if (frame != null) UnityEngine.Object.DestroyImmediate(frame);
+            report.overlayRequests += report.requests - requestStart;
+            try { originalCamera.Check(camera, label + "-camera-restored"); }
+            finally { report.overlayAssertions += report.assertions - assertionStart; }
+        }
+    }
+
     public static object Main(string[] args)
     {
         Output = args != null && args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]) ? args[0]
@@ -440,6 +630,9 @@ public class Script
                 CheckGroup(feature, scene.Camera, false, 360, 640);
                 CheckGroup(feature, scene.Camera, true, 640, 360);
                 CheckGroup(feature, scene.Camera, true, 360, 640);
+                report.baseRequests = report.requests;
+                CheckOverlay(feature, scene.Camera, 640, 360);
+                CheckOverlay(feature, scene.Camera, 360, 640);
             }
             Require(SceneManager.sceneCount == originals.Length && SceneManager.GetActiveScene() == originalActiveScene,
                 "Original scene list and active scene unchanged");
@@ -472,6 +665,7 @@ public class Script
             File.WriteAllText(Path.Combine(Output, "pipeline-checks.json"), json);
         }
         return new { passed = report.passed, assertions = report.assertions, requests = report.requests,
+            baseRequests = report.baseRequests, overlayRequests = report.overlayRequests, overlayAssertions = report.overlayAssertions,
             errorCount = report.errors.Count, error = report.error, output = Output + "/pipeline-checks.json" };
     }
 }
