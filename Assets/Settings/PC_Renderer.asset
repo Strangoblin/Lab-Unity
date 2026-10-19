@@ -110,7 +110,8 @@ MonoBehaviour:
   - {fileID: 1854382760940641301}
   - {fileID: -6187475661629958052}
   - {fileID: 7979418361354919465}
-  m_RendererFeatureMap: 5cb9f3e33361c5a0159c79cf4b17bc195cd82b1cabab21aa291eca0eb996bc6e
+  - {fileID: 3243830817614936851}
+  m_RendererFeatureMap: 5cb9f3e33361c5a0159c79cf4b17bc195cd82b1cabab21aa291eca0eb996bc6e133b672bf166042d
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -183,6 +184,29 @@ MonoBehaviour:
   m_OutlineMaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_OutlineCompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
+--- !u!114 &3243830817614936851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d060bd4b05ae7465daff6a14811086ca, type: 3}
+  m_Name: ScreenWarp
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.ScreenWarp.ScreenWarpFeature
+  m_Active: 1
+  settings:
+    shader: {fileID: 4800000, guid: 75d716969ac054d5bab687a7f6afa4e7, type: 3}
+    showInSceneView: 0
+    border: 1
+    borderColor: {r: 0, g: 0, b: 0, a: 1}
+    mode: 0
+    strength: 0.35
+    center: {x: 0.5, y: 0.5}
+    zoom: 1
+    debug: 0
 --- !u!114 &4655793570601728598
 MonoBehaviour:
   m_ObjectHideFlags: 0

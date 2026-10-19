@@ -13,6 +13,8 @@
 
 ## 关键架构决策
 
+- **ScreenWarp v1（2026-10-19）**：独立屏幕重映射，Barrel/Pincushion/Fisheye/Panini，共享强度/中心/放大/边界/Debug；AfterPost单Raster Pass、一次RGBA采样，不改相机、不请求深度法线。PC_Renderer已接入，零强度跳过。Metal432组及真实URP30请求/362断言通过；Stack/XR/硬件动态分辨率/Picker逆映射与性能待扩展。见 [交付与边界](2026-10-19-screenwarp-v1.md)。
+
 - **HDR Map 生产链（2026-10-19 收尾）**：HDRMapBaker 固定线性 HDR 全景图，Render Layers + Include Sky 决定内容；独立 HDRMapConverter 处理四种 2D 投影、分辨率及全景/室内覆盖。共享 HDRMapFunction 服务天空与室内命中方向；旧脚本保 GUID 归 Legacy，旧图材质 Legacy=4，新经纬图用 0。Metal 80 项功能检查和连续方向梯度通过；不含 FGD / GGX / 反射生产。见 [交付与验证](2026-10-19-hdr-map-pipeline.md)。
 
 - **GizmoRender 统一 Gizmo 框架（2026-10-16 已归档）**：Source → 成员键/显隐分派 → Canvas/Tint，配置归成员集合，窗口只编辑与扫描；正式目录 `Assets/Mine/Scripts/GizmoRender`，菜单 `Tools/GizmoRender`。统一键校验/唯一性、清单失效清理、嵌套与异常状态恢复；六组件接入，GUID 保留，编译与 67 项 Editor 回归通过。GrassGenerator 与交互 Handles 未迁入。见 [归档](2026-10-16-gizmo-render-handover.md)。
@@ -77,6 +79,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-19-screenwarp-v1.md](2026-10-19-screenwarp-v1.md) | 2026-10-19 | 四种独立屏幕映射与PC_Renderer接入；Metal432组/URP30请求通过，相机保持，交互逆映射等边界留后续。 |
 | [2026-10-19-hdr-map-pipeline.md](2026-10-19-hdr-map-pipeline.md) | 2026-10-19 | Baker/Converter 拆分、四投影统一方向采样、旧 GUID 迁移；Metal 80 项功能及连续梯度通过，验证源码归档；FGD/GGX/反射排除。 |
 | [2026-10-16-gizmo-render-handover.md](2026-10-16-gizmo-render-handover.md) | 2026-10-16 | GizmoRender 更名与结构收敛完成；13 份 meta/GUID 保留、六组件接入、最终编译及 67 项 Editor 回归通过，源码/验证/证据归档。 |
 | [2026-10-16-production-tool-handover.md](2026-10-16-production-tool-handover.md) | 2026-10-16 | 续接框架与模板收尾，修复 Noise 2D 载入被预览替换及 3D 假回看；同步五工具文档，新增功能侧验证入口，编译与 37 项 Editor 回归通过，场景/Renderer 指纹不变。 |

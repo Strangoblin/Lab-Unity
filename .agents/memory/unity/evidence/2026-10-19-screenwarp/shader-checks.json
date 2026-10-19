@@ -1,0 +1,11 @@
+{
+    "passed": true,
+    "device": "Metal",
+    "cases": 432,
+    "pixels": 2082816,
+    "failures": 0,
+    "paddedCases": 216,
+    "negativeControls": 1,
+    "maxError": 0.00003629922866821289,
+    "messages": []
+}

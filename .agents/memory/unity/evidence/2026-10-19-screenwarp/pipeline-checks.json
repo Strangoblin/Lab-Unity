@@ -1,0 +1,232 @@
+{
+    "passed": true,
+    "device": "Apple M2 / Metal",
+    "pipeline": "PC_RPAsset",
+    "format": "ARGBFloat linear numeric comparison; PNG RGB converted linear to sRGB",
+    "scope": "Isolated real URP SingleCameraRequest + RenderGraph; no original scene or assets modified. Camera stack, XR, dynamic resolution and other project Features are not covered.",
+    "assertions": 362,
+    "requests": 30,
+    "originalRendererStateRestored": true,
+    "originalSceneStateRestored": true,
+    "activeRenderTextureRestored": true,
+    "error": "",
+    "files": [
+        "pipeline-perspective-640x360-off.png",
+        "pipeline-perspective-640x360-zero.png",
+        "pipeline-perspective-640x360-Barrel.png",
+        "pipeline-perspective-640x360-Pincushion.png",
+        "pipeline-perspective-640x360-Fisheye.png",
+        "pipeline-perspective-640x360-Panini.png",
+        "pipeline-perspective-640x360-uv-identity.png",
+        "pipeline-perspective-640x360-uv-barrel.png",
+        "pipeline-perspective-640x360-barrel-clamp.png",
+        "pipeline-perspective-640x360-barrel-color.png",
+        "pipeline-perspective-640x360-pp-barrel-clamp.png",
+        "pipeline-perspective-640x360-pp-barrel-color.png",
+        "pipeline-perspective-360x640-off.png",
+        "pipeline-perspective-360x640-zero.png",
+        "pipeline-perspective-360x640-Barrel.png",
+        "pipeline-perspective-360x640-Pincushion.png",
+        "pipeline-perspective-360x640-Fisheye.png",
+        "pipeline-perspective-360x640-Panini.png",
+        "pipeline-orthographic-640x360-off.png",
+        "pipeline-orthographic-640x360-zero.png",
+        "pipeline-orthographic-640x360-Barrel.png",
+        "pipeline-orthographic-640x360-Pincushion.png",
+        "pipeline-orthographic-640x360-Fisheye.png",
+        "pipeline-orthographic-640x360-Panini.png",
+        "pipeline-orthographic-360x640-off.png",
+        "pipeline-orthographic-360x640-zero.png",
+        "pipeline-orthographic-360x640-Barrel.png",
+        "pipeline-orthographic-360x640-Pincushion.png",
+        "pipeline-orthographic-360x640-Fisheye.png",
+        "pipeline-orthographic-360x640-Panini.png"
+    ],
+    "errors": []
+,
+"comparisons": [
+{
+    "name": "perspective-640x360-off-equals-zero-including-zoom",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.0,
+    "maxRgbDifference": 0.0,
+    "changedPixelFraction": 0.0
+},
+{
+    "name": "perspective-640x360-Barrel-changes-real-color",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.19877177476882935,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.45554688572883608
+},
+{
+    "name": "perspective-640x360-Pincushion-changes-real-color",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.02215646207332611,
+    "maxRgbDifference": 0.8869094848632813,
+    "changedPixelFraction": 0.17315538227558137
+},
+{
+    "name": "perspective-640x360-Fisheye-changes-real-color",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.20305395126342774,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.46166232228279116
+},
+{
+    "name": "perspective-640x360-Panini-changes-real-color",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.1095120832324028,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.30574652552604678
+},
+{
+    "name": "perspective-640x360-uv-coordinate-change",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.14386646449565888,
+    "maxRgbDifference": 1.0,
+    "changedPixelFraction": 0.7599305510520935
+},
+{
+    "name": "perspective-640x360-border-mode-integration",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.18710727989673615,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.35170137882232668
+},
+{
+    "name": "perspective-640x360-postprocessing-border-integration",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.18737797439098359,
+    "maxRgbDifference": 0.8973038792610169,
+    "changedPixelFraction": 0.35170137882232668
+},
+{
+    "name": "perspective-360x640-off-equals-zero-including-zoom",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.0,
+    "maxRgbDifference": 0.0,
+    "changedPixelFraction": 0.0
+},
+{
+    "name": "perspective-360x640-Barrel-changes-real-color",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.2054019421339035,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.4654253423213959
+},
+{
+    "name": "perspective-360x640-Pincushion-changes-real-color",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.03530103713274002,
+    "maxRgbDifference": 0.8869094848632813,
+    "changedPixelFraction": 0.18020834028720857
+},
+{
+    "name": "perspective-360x640-Fisheye-changes-real-color",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.2090882807970047,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.46921005845069888
+},
+{
+    "name": "perspective-360x640-Panini-changes-real-color",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.052543822675943378,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.1709027737379074
+},
+{
+    "name": "orthographic-640x360-off-equals-zero-including-zoom",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.0,
+    "maxRgbDifference": 0.0,
+    "changedPixelFraction": 0.0
+},
+{
+    "name": "orthographic-640x360-Barrel-changes-real-color",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.19704104959964753,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.4391189217567444
+},
+{
+    "name": "orthographic-640x360-Pincushion-changes-real-color",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.01665743626654148,
+    "maxRgbDifference": 0.8869094848632813,
+    "changedPixelFraction": 0.1338454931974411
+},
+{
+    "name": "orthographic-640x360-Fisheye-changes-real-color",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.2015315443277359,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.44535157084465029
+},
+{
+    "name": "orthographic-640x360-Panini-changes-real-color",
+    "width": 640,
+    "height": 360,
+    "meanRgbDifference": 0.10616587847471237,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.27591145038604739
+},
+{
+    "name": "orthographic-360x640-off-equals-zero-including-zoom",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.0,
+    "maxRgbDifference": 0.0,
+    "changedPixelFraction": 0.0
+},
+{
+    "name": "orthographic-360x640-Barrel-changes-real-color",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.20038160681724549,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.4328472316265106
+},
+{
+    "name": "orthographic-360x640-Pincushion-changes-real-color",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.02494361437857151,
+    "maxRgbDifference": 0.8869094848632813,
+    "changedPixelFraction": 0.14923611283302308
+},
+{
+    "name": "orthographic-360x640-Fisheye-changes-real-color",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.2045053243637085,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.4376171827316284
+},
+{
+    "name": "orthographic-360x640-Panini-changes-real-color",
+    "width": 360,
+    "height": 640,
+    "meanRgbDifference": 0.047461800277233127,
+    "maxRgbDifference": 0.8969039916992188,
+    "changedPixelFraction": 0.13414062559604646
+}
+]}
