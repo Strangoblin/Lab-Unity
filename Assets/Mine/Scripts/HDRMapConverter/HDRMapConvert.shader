@@ -35,6 +35,7 @@ Shader "Hidden/Mine/HDRMapConvert"
                 return SAMPLE_TEXTURECUBE_LOD(_SourceCube, sampler_SourceCube, direction, 0.0);
             return HDRMapSampleLOD(TEXTURE2D_ARGS(_Source2D, sampler_Source2D), direction, _SourceProjection, _Coverage, 0.0);
         }
+        // Convert camera render-target row orientation to the cubemap face convention.
         float4 CopyFace(Varyings input) : SV_Target
         {
             return SAMPLE_TEXTURE2D_LOD(_Source2D, sampler_Source2D,

@@ -28,7 +28,7 @@ float4 c = HDRMapSample(TEXTURE2D_ARGS(_Map, sampler_Map),
 
 Sky sampling passes the outward view direction. A mesh can pass any direction expressed in the map frame. **Planar interior mapping also needs a view-dependent ray and room intersection:** UV alone cannot create parallax. `InteriorMappingFunction.hlsl` retains box/hemisphere intersections; its hit direction adapts from room -Z to capture +Z and calls the same HDRMapSample function. The material's Room Shape remains independent of Map Projection / Map Coverage.
 
-In `Render/InteriorMapping`, choose Map Projection matching the converter result. `Legacy = -1` preserves existing material sampling; new assets should use their actual projection ID. Old Hemisphere disk assets remain compatible with the legacy path. Old full-sphere latitude behaviour is retained only in Legacy; new map sampling uses the corrected angular latitude contract. `_InteriorMap_ST` belongs to Legacy sampling; for HDR maps transform the plane's UV before ray construction, not the encoded map UV.
+In `Render/InteriorMapping`, choose Map Projection matching the converter result. `Legacy = 4` preserves existing material sampling; new assets should use their actual projection ID. Old Hemisphere disk assets remain compatible with the legacy path. Old full-sphere latitude behaviour is retained only in Legacy; new map sampling uses the corrected angular latitude contract. `_InteriorMap_ST` belongs to Legacy sampling; for HDR maps transform the plane's UV before ray construction, not the encoded map UV.
 
 The `Skybox/HDRMap` shader samples the same image projections with Exposure and Y Rotation. Assign its material through Lighting / Environment / Skybox Material. A camera-local Skybox component can override the scene skybox.
 

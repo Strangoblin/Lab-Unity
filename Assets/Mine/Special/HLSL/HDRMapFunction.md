@@ -4,7 +4,7 @@ Shared direction-to-image mapping and radiance sampling. Include URP `Core.hlsl`
 
 ## Contract
 
-Coordinates: +X right, +Y up, +Z forward, UV origin bottom-left. Equirectangular forward is UV (.5,.5); longitude is `atan2(x,z)`, vertical coordinate is angular latitude `asin(y)`. Standard octahedral and equal-area octahedral use +Y as their central pole. Zero input direction returns transparent; nonzero directions are normalized internally.
+Coordinates: +X right, +Y up, +Z forward, UV origin bottom-left. Equirectangular forward is UV (.5,.5); longitude is `atan2(x,z)`, vertical coordinate is angular latitude `asin(y)`. Standard octahedral and equal-area octahedral use +Y as their central pole. Near-zero input directions return transparent; valid directions are normalized internally.
 
 | Parameter | Values |
 |---|---|
@@ -28,7 +28,7 @@ float4 gradient = HDRMapSampleGrad(TEXTURE2D_ARGS(_Map, sampler_Map), direction,
 
 - `Assets/Mine/Scripts/HDRMapConverter/HDRMapConvert.shader`: target UV → direction → source sampling, yielding a linear HDR sampling image.
 - `Assets/Mine/Shaders/Render/HDRMap/HDRMapSkybox.shader`: outward sky direction, optional Y rotation and exposure.
-- `Assets/Mine/Shaders/Render/InteriorMapping/InteriorMappingFunction.hlsl`: room intersection stays effect-private; `(hit.x, hit.y, -hit.z)` adapts its -Z room frame to the shared +Z map frame. Material Map Projection = -1 preserves the previous sampling path.
+- `Assets/Mine/Shaders/Render/InteriorMapping/InteriorMappingFunction.hlsl`: room intersection stays effect-private; `(hit.x, hit.y, -hit.z)` adapts its -Z room frame to the shared +Z map frame. Material Map Projection = 4 preserves the previous sampling path.
 
 The same sampler serves panorama and interior coverage. A plane needs UV, camera position and room geometry to construct a parallax direction before calling it. UV mapping alone cannot reproduce view-dependent room parallax.
 

@@ -13,6 +13,8 @@
 
 ## 关键架构决策
 
+- **HDR Map 生产链（2026-10-19 收尾）**：HDRMapBaker 固定线性 HDR 全景图，Render Layers + Include Sky 决定内容；独立 HDRMapConverter 处理四种 2D 投影、分辨率及全景/室内覆盖。共享 HDRMapFunction 服务天空与室内命中方向；旧脚本保 GUID 归 Legacy，旧图材质 Legacy=4，新经纬图用 0。Metal 80 项功能检查和连续方向梯度通过；不含 FGD / GGX / 反射生产。见 [交付与验证](2026-10-19-hdr-map-pipeline.md)。
+
 - **GizmoRender 统一 Gizmo 框架（2026-10-16 已归档）**：Source → 成员键/显隐分派 → Canvas/Tint，配置归成员集合，窗口只编辑与扫描；正式目录 `Assets/Mine/Scripts/GizmoRender`，菜单 `Tools/GizmoRender`。统一键校验/唯一性、清单失效清理、嵌套与异常状态恢复；六组件接入，GUID 保留，编译与 67 项 Editor 回归通过。GrassGenerator 与交互 Handles 未迁入。见 [归档](2026-10-16-gizmo-render-handover.md)。
 
 - **生产类工具统一标准（2026-10-16 归属修正）**：通用完整窗口模板归 agent skill，五个 Generator / Baker 窗口独立继承 `EditorWindow`，在本工具内持有固定 Save=Load 路径、动作与所有权；项目 `ProductionTools` 目录已迁出。保留 `CopySerialized` 原位保存与 `SaveAssetIfDirty`，不依赖 agent 目录参与 Unity 编译。见 [当前裁决](../meta/2026-10-16-production-tools-agent-templates.md)。
@@ -46,6 +48,8 @@
 
 ## 活跃上下文
 
+- HDR Map 工具已完成拆分、采样接入和最终验证；正式入口 `Tools/HDR Map Baker...` / `Tools/HDR Map Converter...`，测试归 `HDRMapConverter/Validation~/`。见 [2026-10-19 收尾](2026-10-19-hdr-map-pipeline.md)。
+
 - 生产工具归属（2026-10-16 当前）：通用框架已归 agent 完整模板，五窗口独立化并编译通过，42 项 Editor 回归及完整模板编译/Bake/释放验证通过。Noise 上轮修复保持；物理点击、不同资产覆盖确认与 GPU 画质仍待验。见 [迁移记录](../meta/2026-10-16-production-tools-agent-templates.md)；[前一轮接手](2026-10-16-production-tool-handover.md) 保持历史语义。
 
 - DiffuseGI性能（2026-10-15）：仅High `(2,8,64)→(3,8,64)`，追踪像素约少55.6%，Low/Medium与AO/Specular不改。正式首轮计时嘈杂，有界复测1080p整次同步墙钟三轮下降约22–33%，非纯GPU/固定收益。静止0.5 history RMS约+7.1%/方差+12.8%，细节有取舍、地面抖动未解决；68组/四负控/旧HalfHigh历史拒绝通过，原配置保持，未提交推送。见 [记录](2026-10-15-diffuse-high-performance.md)。
@@ -73,6 +77,7 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-19-hdr-map-pipeline.md](2026-10-19-hdr-map-pipeline.md) | 2026-10-19 | Baker/Converter 拆分、四投影统一方向采样、旧 GUID 迁移；Metal 80 项功能及连续梯度通过，验证源码归档；FGD/GGX/反射排除。 |
 | [2026-10-16-gizmo-render-handover.md](2026-10-16-gizmo-render-handover.md) | 2026-10-16 | GizmoRender 更名与结构收敛完成；13 份 meta/GUID 保留、六组件接入、最终编译及 67 项 Editor 回归通过，源码/验证/证据归档。 |
 | [2026-10-16-production-tool-handover.md](2026-10-16-production-tool-handover.md) | 2026-10-16 | 续接框架与模板收尾，修复 Noise 2D 载入被预览替换及 3D 假回看；同步五工具文档，新增功能侧验证入口，编译与 37 项 Editor 回归通过，场景/Renderer 指纹不变。 |
 | [2026-10-15-production-tool-framework.md](2026-10-15-production-tool-framework.md) | 2026-10-15 | **生产类工具统一框架**：五个 Generator/Baker 窗口接入抽象骨架（固定路径 + Bake/Load/Save + 所有权），保存改原位更新保 GUID、不全局 SaveAssets；净减 636 行，编译与 eval 确认，按钮交互待验收。 |
