@@ -1316,7 +1316,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ab42036c30644bc7a5af914e7748e0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::POSSComponent
-  registrationIndex: 1
+  registrationIndex: 0
 --- !u!1 &258468803
 GameObject:
   m_ObjectHideFlags: 0
@@ -3445,6 +3445,7 @@ MonoBehaviour:
   _windDrag: 1
   spawnArea: {x: 30, y: 55, z: 30}
   lifetime: 2
+  _gizmoMember: Instance
 --- !u!114 &672302022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3587,7 +3588,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ab42036c30644bc7a5af914e7748e0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::POSSComponent
-  registrationIndex: 0
+  registrationIndex: 1
 --- !u!1 &726814606
 GameObject:
   m_ObjectHideFlags: 0
@@ -5055,6 +5056,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb0c464000f6545c2a96cceacdba9f8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteriorMapBaker
+  _renderLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  _includeSky: 1
   _volume: {fileID: 2102023140}
   _direction: {fileID: 1392930152}
   _camera: {fileID: 2119983928}
@@ -5493,6 +5498,7 @@ MonoBehaviour:
   tubeRadius: 2
   speedVariation: 0.5
   positionSmooth: 0.3
+  _gizmoMember: Instance
 --- !u!114 &1310496730
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5698,8 +5704,7 @@ MonoBehaviour:
   _length: 1.5
   _headLength: 0.3
   _headWidth: 0.15
-  _drawGizmo: 1
-  _gizmoColor: {r: 1, g: 0.75, b: 0.15, a: 0.95}
+  _gizmoMember: Interior
 --- !u!4 &1392930153
 Transform:
   m_ObjectHideFlags: 0
@@ -8175,9 +8180,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InteriorMapBakeVolume
   _center: {x: 0, y: 0, z: 0}
   _size: {x: 8, y: 8, z: 8}
+  _gizmoMember: Interior
   _bakeType: 1
-  _drawGizmo: 1
-  _gizmoColor: {r: 0.2, g: 0.8, b: 1, a: 0.85}
 --- !u!4 &2102023141
 Transform:
   m_ObjectHideFlags: 0

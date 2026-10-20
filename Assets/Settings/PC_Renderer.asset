@@ -196,16 +196,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d060bd4b05ae7465daff6a14811086ca, type: 3}
   m_Name: ScreenWarp
   m_EditorClassIdentifier: Assembly-CSharp::Mine.ScreenWarp.ScreenWarpFeature
-  m_Active: 1
+  m_Active: 0
   settings:
     shader: {fileID: 4800000, guid: 75d716969ac054d5bab687a7f6afa4e7, type: 3}
-    showInSceneView: 0
+    showInSceneView: 1
     border: 1
     borderColor: {r: 0, g: 0, b: 0, a: 1}
     mode: 0
     strength: 0.35
     center: {x: 0.5, y: 0.5}
     zoom: 1
+    overlayTexture: {fileID: 0}
+    overlayOpacity: 1
     debug: 0
 --- !u!114 &4655793570601728598
 MonoBehaviour:
