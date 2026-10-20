@@ -15,6 +15,9 @@ namespace Mine.Terrain.Editor
     /// </summary>
     public static class TerrainExperimentSetup
     {
+        private const string DefaultTypeAssetPath =
+            "Assets/Mine/Scripts/TerrainManager/TerrainType/Countryside/AlgorithmCountryside.asset";
+
         [MenuItem("Tools/Terrain/Prepare AlgorithmScene")]
         public static void PrepareFromMenu()
         {
@@ -33,8 +36,9 @@ namespace Mine.Terrain.Editor
                 root = new GameObject("Terrain Experiment");
                 Undo.RegisterCreatedObjectUndo(root, "Create Terrain Experiment");
             }
-            if (!root.TryGetComponent<TerrainManager>(out _))
-                Undo.AddComponent<TerrainManager>(root);
+            if (!root.TryGetComponent<TerrainManager>(out TerrainManager manager))
+                manager = Undo.AddComponent<TerrainManager>(root);
+            BindDefaultTypeIfMissing(manager);
 
             Camera camera = Camera.main;
             if (camera == null)
@@ -52,6 +56,43 @@ namespace Mine.Terrain.Editor
                 throw new InvalidOperationException("Failed to save AlgorithmScene.");
 
             return $"Prepared {scene.path} with TerrainManager and top-down camera.";
+        }
+
+        // ════════════════════════════════════════════════════════════
+        //  默认方案绑定 — 新实验入口使用郊野资产，已有方案配置保持其资产引用
+        // ════════════════════════════════════════════════════════════
+
+        private static void BindDefaultTypeIfMissing(TerrainManager manager)
+        {
+            SerializedObject serializedManager = new SerializedObject(manager);
+            SerializedProperty terrainType = serializedManager.FindProperty("_terrainType");
+            if (terrainType.objectReferenceValue != null)
+                return;
+
+            CountrysideTerrainType type =
+                AssetDatabase.LoadAssetAtPath<CountrysideTerrainType>(DefaultTypeAssetPath);
+            if (type == null)
+            {
+                EnsureAssetFolder("Assets/Mine/Scripts/TerrainManager/TerrainType/Countryside");
+                type = ScriptableObject.CreateInstance<CountrysideTerrainType>();
+                AssetDatabase.CreateAsset(type, DefaultTypeAssetPath);
+                AssetDatabase.SaveAssets();
+            }
+            terrainType.objectReferenceValue = type;
+            serializedManager.ApplyModifiedProperties();
+        }
+
+        private static void EnsureAssetFolder(string path)
+        {
+            string[] parts = path.Split('/');
+            string parent = parts[0];
+            for (int i = 1; i < parts.Length; i++)
+            {
+                string folder = parent + "/" + parts[i];
+                if (!AssetDatabase.IsValidFolder(folder))
+                    AssetDatabase.CreateFolder(parent, parts[i]);
+                parent = folder;
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -29,6 +30,20 @@ FIXTURE_FILES = (
     "AGENTS.md", ".agents/README.md", ".codex/AGENTS.md", ".codex/INTERFACE.md",
     ".agents/skills/unity-render-debug/scripts/camera-offscreen-capture.cs",
 )
+
+
+def clear_readonly(func, path, _error) -> None:
+    """Windows 上 git 对象带只读位，rmtree 前必须先摘掉。"""
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
+def remove_tree(path: Path) -> None:
+    """删除临时 fixture；只读文件（git 对象）先解只读再删。"""
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(path, onexc=clear_readonly)
+    else:
+        shutil.rmtree(path, onerror=clear_readonly)
 
 
 def project_root(configured: str | None = None) -> Path:
@@ -195,7 +210,7 @@ def run_isolated(root: Path, task: Path, interpreter: Path,
             if not retain:
                 try:
                     # Only the unique directory returned by this run's mkdtemp is owned.
-                    shutil.rmtree(fixture)
+                    remove_tree(fixture)
                     report["fixture_cleaned"] = True
                 except OSError as error:
                     report["cleanup_error"] = str(error)

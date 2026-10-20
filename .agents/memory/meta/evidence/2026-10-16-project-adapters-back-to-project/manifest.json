@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-16",
+  "authorization": "用户裁决：project-adapters 是项目个体内容，应移入对应项目文件夹；项目专属验证器一律归项目功能目录。",
+  "channel": ".agents 侧平台文件工具 -> tmp 暂存；Assets/Mine 侧经 move_gated 两批（batch1 workspace=Assets/Mine/Scripts/ProductionTools，batch2 workspace=Assets/Mine/Special/HLSL）",
+  "moves": [
+    {
+      "source": ".agents/skills/auto-manager/project-adapters/production-tools/ProductionToolChecks.cs",
+      "target": "Assets/Mine/Scripts/ProductionTools/Validation~/ProductionToolChecks.cs",
+      "bytes": 10712,
+      "sha256_before_edit": "3fda877d9dae32df9814e1627ed802e72125f1a1355e4423b8b7914809b1afd2",
+      "sha256_after_move": "3fda877d9dae32df9814e1627ed802e72125f1a1355e4423b8b7914809b1afd2",
+      "edited_before_move": false,
+      "git_blob_after_move": "8158ce4d89116d48a907a138e8b63d042b9080fd"
+    },
+    {
+      "source": ".agents/skills/auto-manager/project-adapters/production-tools/README.md",
+      "target": "Assets/Mine/Scripts/ProductionTools/Validation~/README.md",
+      "bytes": 1513,
+      "sha256_before_edit": "181ebfe1e2fda9f088f5c52d12f202c34332fb573b3e64fa9bad25297c00a5e8",
+      "sha256_after_move": "35aec33c0a061d7f90a36bce5d2a9589a03bde10b60e13f1703e38ddcfa16eda",
+      "edited_before_move": true,
+      "git_blob_after_move": "1fe5dad3bb219d774c46e0b68bd4cb3cb1c7f91a"
+    },
+    {
+      "source": ".agents/skills/unity-feature-reuse/project-adapters/hash/analyze_variants.py",
+      "target": "Assets/Mine/Special/HLSL/Validation~/hash/analyze_variants.py",
+      "bytes": 11317,
+      "sha256_before_edit": "6a35f00474de8612c2eacbec6b59045701a08e224729f51e099dcbc0a7095d60",
+      "sha256_after_move": "6a35f00474de8612c2eacbec6b59045701a08e224729f51e099dcbc0a7095d60",
+      "edited_before_move": false,
+      "git_blob_after_move": "faf854dc48281021198baea6ff000a22622c1619"
+    },
+    {
+      "source": ".agents/skills/unity-feature-reuse/project-adapters/hash/fixtures/before.json",
+      "target": "Assets/Mine/Special/HLSL/Validation~/hash/fixtures/before.json",
+      "bytes": 133487,
+      "sha256_before_edit": "0a161e62c191ecb47bc938b21308bb7e34be33791053442ddaccba1ab3325ce2",
+      "sha256_after_move": "0a161e62c191ecb47bc938b21308bb7e34be33791053442ddaccba1ab3325ce2",
+      "edited_before_move": false,
+      "git_blob_after_move": "b7425ef2b1dc9139666363f9ec536f88332d6c2d"
+    },
+    {
+      "source": ".agents/skills/unity-feature-reuse/project-adapters/hash/fixtures/final-stage-before.json",
+      "target": "Assets/Mine/Special/HLSL/Validation~/hash/fixtures/final-stage-before.json",
+      "bytes": 160695,
+      "sha256_before_edit": "04d9ceae78a6248d1f0a38f38529cea99813d43e38c6f9348f688edd09287a1a",
+      "sha256_after_move": "04d9ceae78a6248d1f0a38f38529cea99813d43e38c6f9348f688edd09287a1a",
+      "edited_before_move": false,
+      "git_blob_after_move": "1ac0882ccf8e3ce33e8f997475459b538edc8d8e"
+    },
+    {
+      "source": ".agents/skills/unity-feature-reuse/project-adapters/hash/README.md",
+      "target": "Assets/Mine/Special/HLSL/Validation~/hash/README.md",
+      "bytes": 3637,
+      "sha256_before_edit": "b4f718a60d52e3f77e777050a10ce4d58cf4910e4cf04d26b7b80d9847272a1c",
+      "sha256_after_move": "69c0d06eb5deb6083eb1c08487a2555a92ce57643dd7515189ce679febfef35b",
+      "edited_before_move": true,
+      "git_blob_after_move": "2d63c0b93783ce9a712995204313fbb2c4f73e56"
+    },
+    {
+      "source": ".agents/skills/unity-feature-reuse/project-adapters/hash/source-map.json",
+      "target": "Assets/Mine/Special/HLSL/Validation~/hash/source-map.json",
+      "bytes": 9615,
+      "sha256_before_edit": "2584656c2c85e8034815942f3ebabba7ad5c979605576181e93cb62d648f76d7",
+      "sha256_after_move": "2584656c2c85e8034815942f3ebabba7ad5c979605576181e93cb62d648f76d7",
+      "edited_before_move": false,
+      "git_blob_after_move": "898aea7ddd4fdf56921d608ff6fdc71db73e57e9"
+    },
+    {
+      "source": ".agents/skills/unity-feature-reuse/project-adapters/hash/verify_hash.py",
+      "target": "Assets/Mine/Special/HLSL/Validation~/hash/verify_hash.py",
+      "bytes": 8352,
+      "sha256_before_edit": "5c0ab7b85a8112fc9e9aa6403b7e603025424029bdee602f15849f16712d4202",
+      "sha256_after_move": "5c0ab7b85a8112fc9e9aa6403b7e603025424029bdee602f15849f16712d4202",
+      "edited_before_move": false,
+      "git_blob_after_move": "bb06869b4e811a6a9da57f3fffa69094b375339b"
+    },
+    {
+      "source": ".agents/skills/unity-feature-reuse/project-adapters/hash/verify_hash_final.py",
+      "target": "Assets/Mine/Special/HLSL/Validation~/hash/verify_hash_final.py",
+      "bytes": 26414,
+      "sha256_before_edit": "e497595a28eb75df0a477869760e2dbdb05f7904d9a312af8d8b0cf014bd4de7",
+      "sha256_after_move": "e497595a28eb75df0a477869760e2dbdb05f7904d9a312af8d8b0cf014bd4de7",
+      "edited_before_move": false,
+      "git_blob_after_move": "46f8d62fca6d1852020ca063b7fc12529df98d69"
+    }
+  ],
+  "removed_empty_dirs": [
+    ".agents/skills/auto-manager/project-adapters",
+    ".agents/skills/unity-feature-reuse/project-adapters"
+  ],
+  "resource_bindings_added": {
+    "validation.hash.guide": "Assets/Mine/Special/HLSL/Validation~/hash/README.md",
+    "validation.hash.adapter": "Assets/Mine/Special/HLSL/Validation~/hash/verify_hash.py",
+    "validation.production-tools.adapter": "Assets/Mine/Scripts/ProductionTools/Validation~/ProductionToolChecks.cs"
+  },
+  "root_junk_cleanup": {
+    "files": [
+      "mono_crash.0.0.json",
+      "mono_crash.0.1.json",
+      "mono_crash.2ecc0826c4.0.json",
+      "mono_crash.8d55ac588.0.json"
+    ],
+    "checkpoint_ref": "refs/codex/checkpoints/2026-10-16-root-mono-crash-before-cleanup",
+    "checkpoint_commit": "0dbf1bb13d9a",
+    "checkpoint_tree": "c5d4b6c53f21",
+    "detail": "tmp/sessions/2026-10-16-adapters-relocation-09dfbe16/evidence/mono-crash-cleanup-manifest.json"
+  },
+  "session_evidence": "tmp/sessions/2026-10-16-adapters-relocation-09dfbe16/",
+  "byte_identity": "迁移后 9/9 与迁移前逐字节相同；2 个 README 在迁移前先改自指路径（edited_before_move=true）"
+}

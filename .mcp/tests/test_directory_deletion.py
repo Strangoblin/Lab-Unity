@@ -309,6 +309,7 @@ class DirectoryDeletionTests(unittest.TestCase):
         result = self.delete(alias / "nested", recursive=True)
         self.assert_denied_unchanged([preserved, alias], result, before)
 
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "requires POSIX FIFO support")
     def test_fifo_is_not_treated_as_a_regular_file(self):
         target = self.base / "fifo"
         target.mkdir()

@@ -2,14 +2,14 @@
 //  TerrainExperimentValidation — 验证种子、区域、道路、占地与网格契约
 // ════════════════════════════════════════════════════════════
 
-using System;
 using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace Mine.Terrain.Editor
 {
     /// <summary>
-    /// 无场景依赖的 EditMode 验证，可从菜单或 unityctl script eval 调用。
+    /// 郊野方案的无场景 EditMode 回归；通用方案隔离另由 RunTypeIsolation 验证。
     /// </summary>
     public static class TerrainExperimentValidation
     {
@@ -37,27 +37,32 @@ namespace Mine.Terrain.Editor
             Debug.Log(RunVoronoiDistribution());
         }
 
+        [MenuItem("Tools/Terrain/Validate Terrain Type Isolation")]
+        public static void ValidateTypeIsolationFromMenu()
+        {
+            Debug.Log(RunTypeIsolation());
+        }
+
         public static string Run()
         {
-            TerrainGenerationSettings settings = new TerrainGenerationSettings();
-            TerrainMapData first = TerrainDataGenerator.Generate(settings);
-            TerrainMapData second = TerrainDataGenerator.Generate(settings);
+            using CountrysideFixture fixture = new CountrysideFixture();
+            TerrainGenerationSettings settings = fixture.MapSettings;
+            TerrainMapData first = fixture.Generate();
+            TerrainMapData second = fixture.Generate();
             TerrainGenerationSettings changedSettings = new TerrainGenerationSettings
             {
                 Seed = settings.Seed + 1
             };
-            TerrainMapData changed = TerrainDataGenerator.Generate(changedSettings);
-            TerrainGenerationSettings sparseSettings = new TerrainGenerationSettings
-            {
-                FeatureRules = new[]
+            TerrainMapData changed = fixture.Generate(changedSettings);
+            using CountrysideFixture sparseFixture = new CountrysideFixture();
+            sparseFixture.Settings.FeatureRules = new[]
                 {
-                    new TerrainFeatureRule(TerrainRegion.Village, 1, 17f, 22f),
-                    new TerrainFeatureRule(TerrainRegion.WheatField, 1, 22f, 32f),
-                    new TerrainFeatureRule(TerrainRegion.Forest, 1, 23f, 32f),
-                    new TerrainFeatureRule(TerrainRegion.Water, 1, 13f, 19f)
-                }
-            };
-            TerrainMapData sparse = TerrainDataGenerator.Generate(sparseSettings);
+                    new TerrainFeatureRule(CountrysideRegion.Village, 1, 17f, 22f),
+                    new TerrainFeatureRule(CountrysideRegion.WheatField, 1, 22f, 32f),
+                    new TerrainFeatureRule(CountrysideRegion.Forest, 1, 23f, 32f),
+                    new TerrainFeatureRule(CountrysideRegion.Water, 1, 13f, 19f)
+                };
+            TerrainMapData sparse = sparseFixture.Generate();
             TerrainGenerationSettings invalidSettings = new TerrainGenerationSettings
             {
                 Width = 0
@@ -65,23 +70,22 @@ namespace Mine.Terrain.Editor
             bool invalidRejected = false;
             try
             {
-                TerrainDataGenerator.Generate(invalidSettings);
+                fixture.Generate(invalidSettings);
             }
             catch (ArgumentException)
             {
                 invalidRejected = true;
             }
-            TerrainStuffPlan firstStuff = TerrainStuffDistributor.Distribute(first, settings);
-            TerrainStuffPlan secondStuff = TerrainStuffDistributor.Distribute(second, settings);
-            TerrainPlantSettings plantSettings = new TerrainPlantSettings();
-            ValidateLegacyPlantRules();
-            TerrainPlantPlan firstPlants = TerrainPlantDistributor.Distribute(first, firstStuff, plantSettings);
-            TerrainPlantPlan secondPlants = TerrainPlantDistributor.Distribute(second, secondStuff, plantSettings);
-            TerrainSurfaceResult surface = TerrainMeshGenerator.Generate(first, settings.ChunkCells);
+            TerrainStuffPlan firstStuff = fixture.Type.DistributeStuff(first);
+            TerrainStuffPlan secondStuff = fixture.Type.DistributeStuff(second);
+            TerrainPlantPlan firstPlants = fixture.Type.DistributePlants(first, firstStuff);
+            TerrainPlantPlan secondPlants = fixture.Type.DistributePlants(second, secondStuff);
+            TerrainSurfaceResult surface = TerrainMeshGenerator.Generate(first, settings.ChunkCells,
+                fixture.Type);
 
             try
             {
-                int[] regions = new int[Enum.GetValues(typeof(TerrainRegion)).Length];
+                int[] regions = new int[CountrysideRegion.Count];
                 int dirtCells = 0;
                 int roadOnFeatures = 0;
                 int roadOnWater = 0;
@@ -92,7 +96,7 @@ namespace Mine.Terrain.Editor
                 {
                     for (int x = 0; x < first.WidthCells; x++)
                     {
-                        TerrainRegion region = first.GetRegion(x, z);
+                        int region = first.GetRegion(x, z);
                         regions[(int)region]++;
                         Require(region == second.GetRegion(x, z), "Region generation is not deterministic.");
                         Require(first.GetOwnerSiteId(x, z) == second.GetOwnerSiteId(x, z),
@@ -103,7 +107,7 @@ namespace Mine.Terrain.Editor
                             "Road generation is not deterministic.");
                         Require(first.GetHeight(x, z) == second.GetHeight(x, z),
                             "Height generation is not deterministic.");
-                        if (region == TerrainRegion.Water)
+                        if (region == CountrysideRegion.Water)
                         {
                             float height = first.GetHeight(x, z);
                             if (height < lowestWater)
@@ -115,19 +119,19 @@ namespace Mine.Terrain.Editor
                         }
                         if (first.GetRoadCoverage(x, z) > 0.5f)
                         {
-                            if (first.GetRoadType(x, z) == TerrainRoadType.Dirt) dirtCells++;
-                            if (region != TerrainRegion.Grassland) roadOnFeatures++;
-                            if (region == TerrainRegion.Water) roadOnWater++;
+                            if (first.GetRoadType(x, z) == CountrysideRoadType.Dirt) dirtCells++;
+                            if (region != CountrysideRegion.Grassland) roadOnFeatures++;
+                            if (region == CountrysideRegion.Water) roadOnWater++;
                         }
                     }
                 }
 
                 for (int i = 0; i < regions.Length; i++)
-                    Require(regions[i] > 0, $"Region {(TerrainRegion)i} is missing.");
+                    Require(regions[i] > 0, $"Region {i} is missing.");
                 Require(first.Sites.Count == 28 && sparse.Sites.Count == 4,
                     "Map recipe did not control the number of feature instances.");
-                Require(regions[(int)TerrainRegion.Grassland] > 20000 &&
-                        regions[(int)TerrainRegion.Grassland] < 70000,
+                Require(regions[(int)CountrysideRegion.Grassland] > 20000 &&
+                        regions[(int)CountrysideRegion.Grassland] < 70000,
                     "Grassland share is outside the experiment's broad coverage range.");
                 ValidateSites(first);
                 ValidateRegionConnectivity(first, regions);
@@ -165,7 +169,7 @@ namespace Mine.Terrain.Editor
                 Require(ShaderUtil.GetShaderMessages(shader).Length == 0,
                     "TerrainSurface shader has compilation messages.");
 
-                return $"Terrain validation passed: {first.WidthCells}x{first.HeightCells}, " +
+                return $"Countryside validation passed: {first.WidthCells}x{first.HeightCells}, " +
                        $"regions {string.Join("/", regions)}, roads dirt={dirtCells} " +
                        $"feature/water={roadOnFeatures}/{roadOnWater}, " +
                        $"chunks={surface.Chunks.Count}, structures={firstStuff.Placements.Count}, " +
@@ -182,67 +186,67 @@ namespace Mine.Terrain.Editor
         public static string RunSeedSweep()
         {
             const int seedCount = 20;
+            using CountrysideFixture fixture = new CountrysideFixture();
             for (int seed = 0; seed < seedCount; seed++)
             {
-                TerrainMapData map = TerrainDataGenerator.Generate(
-                    new TerrainGenerationSettings { Seed = seed });
-                int[] regions = new int[Enum.GetValues(typeof(TerrainRegion)).Length];
+                TerrainMapData map = fixture.Generate(new TerrainGenerationSettings { Seed = seed });
+                int[] regions = new int[CountrysideRegion.Count];
                 for (int z = 0; z < map.HeightCells; z++)
                 {
                     for (int x = 0; x < map.WidthCells; x++)
                     {
-                        TerrainRegion region = map.GetRegion(x, z);
+                        int region = map.GetRegion(x, z);
                         regions[(int)region]++;
                     }
                 }
 
                 for (int i = 0; i < regions.Length; i++)
-                    Require(regions[i] > 0, $"Seed {seed} is missing region {(TerrainRegion)i}.");
+                    Require(regions[i] > 0, $"Seed {seed} is missing region {i}.");
                 ValidateSites(map);
                 ValidateRegionConnectivity(map, regions);
                 ValidateRoadLayers(map);
             }
 
-            return $"Terrain seed sweep passed: {seedCount} seeds, valid regions and layered roads.";
+            return $"Countryside seed sweep passed: {seedCount} seeds, valid regions and layered roads.";
         }
 
         public static string RunSizeSweep()
         {
             int[] sizes = { 32, 64, 128, 300 };
+            using CountrysideFixture fixture = new CountrysideFixture();
+            fixture.Settings.BroadWarpDistance = 0f;
+            fixture.Settings.DetailWarpDistance = 0f;
             for (int i = 0; i < sizes.Length; i++)
             {
                 TerrainGenerationSettings settings = new TerrainGenerationSettings
                 {
                     Width = sizes[i],
-                    Height = sizes[i],
-                    BroadWarpDistance = 0f,
-                    DetailWarpDistance = 0f
+                    Height = sizes[i]
                 };
-                TerrainMapData map = TerrainDataGenerator.Generate(settings);
+                TerrainMapData map = fixture.Generate(settings);
                 Require(map.WidthCells == sizes[i] && map.HeightCells == sizes[i],
                     "Map size was not applied.");
                 ValidateSites(map);
                 ValidateRoadLayers(map);
-                ValidatePolygonRegions(map, settings);
+                ValidatePolygonRegions(map, fixture.Settings, settings);
             }
-            return "Terrain size sweep passed: 32, 64, 128, 300.";
+            return "Countryside size sweep passed: 32, 64, 128, 300.";
         }
 
         public static string RunVoronoiDistribution()
         {
-            TerrainGenerationSettings settings = new TerrainGenerationSettings
-            {
-                BroadWarpDistance = 0f,
-                DetailWarpDistance = 0f
-            };
-            TerrainMapData unwarped = TerrainDataGenerator.Generate(settings);
-            ValidatePolygonRegions(unwarped, settings);
+            using CountrysideFixture fixture = new CountrysideFixture();
+            CountrysideSettings settings = fixture.Settings;
+            settings.BroadWarpDistance = 0f;
+            settings.DetailWarpDistance = 0f;
+            TerrainMapData unwarped = fixture.Generate();
+            ValidatePolygonRegions(unwarped, settings, fixture.MapSettings);
             ValidateVoronoiRoadSdf(unwarped, settings.VoronoiRoadWidth,
                 settings.VoronoiCornerSoftness);
             ValidateVariableVoronoiRoadWidth(unwarped, settings.VoronoiRoadWidth);
             settings.BroadWarpDistance = 18f;
             settings.DetailWarpDistance = 5f;
-            TerrainMapData warped = TerrainDataGenerator.Generate(settings);
+            TerrainMapData warped = fixture.Generate();
 
             int warpedFeatures = 0;
             int warpedRoads = 0;
@@ -264,11 +268,10 @@ namespace Mine.Terrain.Editor
             ValidateRegionSoftness();
             ValidateRoadLayers(unwarped);
             ValidateRoadLayers(warped);
-            TerrainStuffPlan stuff = TerrainStuffDistributor.Distribute(warped, settings);
-            TerrainPlantPlan plants = TerrainPlantDistributor.Distribute(warped, stuff,
-                new TerrainPlantSettings());
+            TerrainStuffPlan stuff = fixture.Type.DistributeStuff(warped);
+            TerrainPlantPlan plants = fixture.Type.DistributePlants(warped, stuff);
             TerrainSurfaceResult surface = TerrainMeshGenerator.Generate(warped,
-                settings.ChunkCells);
+                fixture.MapSettings.ChunkCells, fixture.Type);
             try
             {
                 Require(surface.Chunks.Count > 0 && stuff.Placements.Count > 0 &&
@@ -281,8 +284,126 @@ namespace Mine.Terrain.Editor
                     UnityEngine.Object.DestroyImmediate(surface.Chunks[i].Mesh);
                 UnityEngine.Object.DestroyImmediate(surface.ColorMap);
             }
-            return $"Voronoi distribution passed: noise feature/road=" +
+            return $"Countryside Voronoi distribution passed: noise feature/road=" +
                 $"{warpedFeatures}/{warpedRoads}.";
+        }
+
+        // ════════════════════════════════════════════════════════════
+        //  方案隔离 — 非郊野 ID 验证公共构建、空配方及表现资源归属
+        // ════════════════════════════════════════════════════════════
+
+        public static string RunTypeIsolation()
+        {
+            TerrainIsolationTestType type = ScriptableObject.CreateInstance<TerrainIsolationTestType>();
+            type.hideFlags = HideFlags.HideAndDontSave;
+            GameObject parent = null;
+            TerrainSurfaceResult surface = null;
+            TerrainSceneRenderer renderer = null;
+            try
+            {
+                TerrainGenerationSettings settings = new TerrainGenerationSettings
+                {
+                    Width = 32,
+                    Height = 32,
+                    Seed = 73
+                };
+                TerrainMapData map = TerrainDataGenerator.Generate(settings, type);
+                Require(map.GetRegion(0, 0) == TerrainIsolationTestType.RegionId &&
+                    map.GetHeight(0, 0) == -0.5f && map.GetOwnerSiteId(0, 0) == 0 &&
+                    map.GetRegionGroupId(0, 0) == 0 && map.Sites.Count == 1 &&
+                    map.RegionGroups.Count == 1,
+                    "Custom terrain type did not retain its public map-builder output.");
+                Require(map.GetRoadType(16, 16) == TerrainIsolationTestType.RoadId &&
+                    map.GetRoadCoverage(16, 16) == 1f,
+                    "Custom road ID was changed by the shared data entry point.");
+
+                TerrainVoronoiSettings emptyProfile = new TerrainVoronoiSettings
+                {
+                    BaseRegion = TerrainIsolationTestType.RegionId,
+                    BroadWarpDistance = 0f,
+                    DetailWarpDistance = 0f
+                };
+                TerrainMapData emptyMap = TerrainVoronoiGenerator.Generate(settings, emptyProfile);
+                TerrainPlantSettings emptyPlants = new TerrainPlantSettings();
+                Require(emptyProfile.FeatureRules.Length == 0 && emptyPlants.Rules.Length == 0 &&
+                    emptyMap.Sites.Count == 0 &&
+                    emptyMap.GetRegion(0, 0) == TerrainIsolationTestType.RegionId &&
+                    TerrainStuffDistributor.Distribute(emptyMap,
+                        new TerrainStuffSettings(Array.Empty<TerrainStuffRule>())).Placements.Count == 0 &&
+                    TerrainPlantDistributor.Distribute(emptyMap,
+                        new TerrainStuffPlan(), emptyPlants).Placements.Count == 0,
+                    "Shared generators introduced an implicit countryside recipe.");
+
+                TerrainStuffPlan stuff = type.DistributeStuff(map);
+                TerrainPlantPlan plants = type.DistributePlants(map, stuff);
+                Require(stuff.Count(TerrainIsolationTestType.StuffId) == 1 &&
+                    plants.Count(TerrainIsolationTestType.PlantId) == 2 &&
+                    plants.Count(TerrainIsolationTestType.SecondPlantId) == 1,
+                    "Sparse content IDs were not preserved by public placement plans.");
+                surface = TerrainMeshGenerator.Generate(map, 16, type, 0f);
+                Require(surface.Chunks.Count == 4 &&
+                    ColorsMatch(surface.ColorMap.GetPixel(0, 0), type.RegionColor(TerrainIsolationTestType.RegionId)) &&
+                    ColorsMatch(surface.ColorMap.GetPixel(16, 16), type.RoadColor(TerrainIsolationTestType.RoadId)),
+                    "Shared mesh generation did not consume the custom type palette.");
+
+                parent = new GameObject("Terrain Type Isolation Validation");
+                parent.hideFlags = HideFlags.HideAndDontSave;
+                renderer = new TerrainSceneRenderer(parent.transform, map, surface, stuff, plants,
+                    type, new TerrainRenderSettings(), 16);
+                Require(renderer.SurfaceChunkCount == 4 && renderer.PlantBatchCount == 3 &&
+                    renderer.GeneratedRoot != null,
+                    "Renderer did not support sparse plant IDs grouped by chunk and type.");
+                Mesh ownedMesh = surface.Chunks[0].Mesh;
+                Texture2D ownedColors = surface.ColorMap;
+                Transform generatedRoot = renderer.GeneratedRoot;
+                renderer.Dispose();
+                renderer.Dispose();
+                Require(renderer.GeneratedRoot == null && renderer.PlantBatchCount == 0,
+                    "Renderer disposal did not clear its scene and plant batches.");
+                if (!Application.isPlaying)
+                    Require(ownedMesh == null && ownedColors == null && generatedRoot == null,
+                        "Renderer did not release the surface resources it adopted.");
+                return "Terrain type isolation passed: region=101, road=9, stuff=42, " +
+                    "plants=70/71, empty shared recipes, chunks=4, plant batches=3, disposal valid.";
+            }
+            finally
+            {
+                renderer?.Dispose();
+                surface?.Dispose();
+                if (parent != null)
+                    UnityEngine.Object.DestroyImmediate(parent);
+                UnityEngine.Object.DestroyImmediate(type);
+            }
+        }
+
+        private static bool ColorsMatch(Color first, Color second) =>
+            Mathf.Abs(first.r - second.r) < 0.01f &&
+            Mathf.Abs(first.g - second.g) < 0.01f &&
+            Mathf.Abs(first.b - second.b) < 0.01f;
+
+        /// <summary>
+        /// 每个回归独立拥有临时郊野方案，测试参数不会写回项目中的方案资产。
+        /// </summary>
+        private sealed class CountrysideFixture : IDisposable
+        {
+            public TerrainGenerationSettings MapSettings { get; } = new TerrainGenerationSettings();
+            public CountrysideTerrainType Type { get; }
+            public CountrysideSettings Settings => Type.Settings;
+
+            public CountrysideFixture()
+            {
+                Type = ScriptableObject.CreateInstance<CountrysideTerrainType>();
+                Type.hideFlags = HideFlags.HideAndDontSave;
+            }
+
+            public TerrainMapData Generate(TerrainGenerationSettings settings = null) =>
+                TerrainDataGenerator.Generate(settings ?? MapSettings, Type);
+
+            public void Dispose()
+            {
+                if (Type != null)
+                    UnityEngine.Object.DestroyImmediate(Type);
+            }
         }
 
         private static void ValidateSites(TerrainMapData map)
@@ -290,7 +411,7 @@ namespace Mine.Terrain.Editor
             for (int i = 0; i < map.Sites.Count; i++)
             {
                 TerrainSite site = map.Sites[i];
-                Require(site.Region != TerrainRegion.Grassland,
+                Require(site.Region != CountrysideRegion.Grassland,
                     "The Grassland base layer created an unnecessary site.");
                 int x = Mathf.FloorToInt((site.Center.x - map.Origin.x) / map.CellSize);
                 int z = Mathf.FloorToInt((site.Center.y - map.Origin.y) / map.CellSize);
@@ -307,10 +428,10 @@ namespace Mine.Terrain.Editor
         }
 
         private static void ValidatePolygonRegions(TerrainMapData map,
-            TerrainGenerationSettings settings)
+            CountrysideSettings settings, TerrainGenerationSettings mapSettings)
         {
             float width = settings.VoronoiRegionWidth *
-                Mathf.Min(settings.Width, settings.Height) / 300f;
+                Mathf.Min(mapSettings.Width, mapSettings.Height) / 300f;
             float[] centerEdges = new float[map.Sites.Count];
             for (int i = 0; i < map.Sites.Count; i++)
                 centerEdges[i] = TerrainVoronoiSdf.DistanceGap(map,
@@ -324,7 +445,7 @@ namespace Mine.Terrain.Editor
                     float edge = TerrainVoronoiSdf.DistanceGap(map, point, owner.Id,
                         out _, settings.VoronoiRegionSoftness);
                     float threshold = centerEdges[owner.Id] - width;
-                    TerrainRegion expected = edge > threshold ? owner.Region : TerrainRegion.Grassland;
+                    int expected = edge > threshold ? owner.Region : CountrysideRegion.Grassland;
                     Require(map.GetRegion(x, z) == expected,
                         "Region differs from its Voronoi seed-distance threshold.");
                 }
@@ -333,34 +454,33 @@ namespace Mine.Terrain.Editor
 
         private static void ValidateWidthMonotonicity()
         {
-            TerrainGenerationSettings settings = new TerrainGenerationSettings
-            {
-                BroadWarpDistance = 0f,
-                DetailWarpDistance = 0f,
-                VoronoiRegionWidth = 12f
-            };
-            TerrainMapData narrowRegions = TerrainDataGenerator.Generate(settings);
+            using CountrysideFixture fixture = new CountrysideFixture();
+            CountrysideSettings settings = fixture.Settings;
+            settings.BroadWarpDistance = 0f;
+            settings.DetailWarpDistance = 0f;
+            settings.VoronoiRegionWidth = 12f;
+            TerrainMapData narrowRegions = fixture.Generate();
             settings.VoronoiRegionWidth = 30f;
-            TerrainMapData wideRegions = TerrainDataGenerator.Generate(settings);
+            TerrainMapData wideRegions = fixture.Generate();
             int expandedCells = 0;
             for (int z = 0; z < narrowRegions.HeightCells; z++)
             {
                 for (int x = 0; x < narrowRegions.WidthCells; x++)
                 {
-                    TerrainRegion before = narrowRegions.GetRegion(x, z);
-                    TerrainRegion after = wideRegions.GetRegion(x, z);
-                    if (before == TerrainRegion.Grassland && after != TerrainRegion.Grassland)
+                    int before = narrowRegions.GetRegion(x, z);
+                    int after = wideRegions.GetRegion(x, z);
+                    if (before == CountrysideRegion.Grassland && after != CountrysideRegion.Grassland)
                         expandedCells++;
-                    if (before != TerrainRegion.Grassland)
+                    if (before != CountrysideRegion.Grassland)
                         Require(before == after, "Increasing Voronoi region width removed a feature cell.");
                 }
             }
             Require(expandedCells > 0, "Voronoi region width does not expand regions.");
 
             settings.VoronoiRoadWidth = 3f;
-            TerrainMapData narrowRoads = TerrainDataGenerator.Generate(settings);
+            TerrainMapData narrowRoads = fixture.Generate();
             settings.VoronoiRoadWidth = 9f;
-            TerrainMapData wideRoads = TerrainDataGenerator.Generate(settings);
+            TerrainMapData wideRoads = fixture.Generate();
             int expandedRoadCells = 0;
             for (int z = 0; z < narrowRoads.HeightCells; z++)
             {
@@ -380,15 +500,14 @@ namespace Mine.Terrain.Editor
 
         private static void ValidateCornerSoftness()
         {
-            TerrainGenerationSettings settings = new TerrainGenerationSettings
-            {
-                BroadWarpDistance = 0f,
-                DetailWarpDistance = 0f,
-                VoronoiCornerSoftness = 0f
-            };
-            TerrainMapData original = TerrainDataGenerator.Generate(settings);
+            using CountrysideFixture fixture = new CountrysideFixture();
+            CountrysideSettings settings = fixture.Settings;
+            settings.BroadWarpDistance = 0f;
+            settings.DetailWarpDistance = 0f;
+            settings.VoronoiCornerSoftness = 0f;
+            TerrainMapData original = fixture.Generate();
             settings.VoronoiCornerSoftness = 3f;
-            TerrainMapData smoothed = TerrainDataGenerator.Generate(settings);
+            TerrainMapData smoothed = fixture.Generate();
             int widenedCells = 0;
             for (int z = 0; z < original.HeightCells; z++)
             {
@@ -408,15 +527,14 @@ namespace Mine.Terrain.Editor
 
         private static void ValidateRegionSoftness()
         {
-            TerrainGenerationSettings settings = new TerrainGenerationSettings
-            {
-                BroadWarpDistance = 0f,
-                DetailWarpDistance = 0f,
-                VoronoiRegionSoftness = 0f
-            };
-            TerrainMapData original = TerrainDataGenerator.Generate(settings);
+            using CountrysideFixture fixture = new CountrysideFixture();
+            CountrysideSettings settings = fixture.Settings;
+            settings.BroadWarpDistance = 0f;
+            settings.DetailWarpDistance = 0f;
+            settings.VoronoiRegionSoftness = 0f;
+            TerrainMapData original = fixture.Generate();
             settings.VoronoiRegionSoftness = 8f;
-            TerrainMapData smoothed = TerrainDataGenerator.Generate(settings);
+            TerrainMapData smoothed = fixture.Generate();
             int changedCells = 0;
             for (int z = 0; z < original.HeightCells; z++)
             {
@@ -498,7 +616,7 @@ namespace Mine.Terrain.Editor
                         "A terrain cell has no valid owner site.");
                     Require(groupId >= 0 && groupId < groupCount,
                         "A terrain cell has no valid region group.");
-                    TerrainRegion region = map.GetRegion(x, z);
+                    int region = map.GetRegion(x, z);
                     Require(map.RegionGroups[groupId].Region == region,
                         "Cell and region group disagree.");
                     if (firstCell[groupId] < 0)
@@ -570,7 +688,7 @@ namespace Mine.Terrain.Editor
                     roadCells++;
                     Require(map.GetRoadCoverage(x, z) <= 1f,
                         "Road coverage exceeds one.");
-                    Require(map.GetRoadType(x, z) == TerrainRoadType.Dirt,
+                    Require(map.GetRoadType(x, z) == CountrysideRoadType.Dirt,
                         "A road cell is not the shared dirt type.");
                 }
             }
@@ -585,8 +703,8 @@ namespace Mine.Terrain.Editor
             {
                 for (int x = 1; x < map.WidthCells - 1; x++)
                 {
-                    if (map.GetRegion(x, z) != TerrainRegion.Water ||
-                        map.GetRegion(x + 1, z) != TerrainRegion.Grassland)
+                    if (map.GetRegion(x, z) != CountrysideRegion.Water ||
+                        map.GetRegion(x + 1, z) != CountrysideRegion.Grassland)
                         continue;
                     Color edge = colorMap.GetPixel(x, z);
                     blendedBoundary = edge.r > 0.11f && edge.b < 0.64f;
@@ -603,14 +721,14 @@ namespace Mine.Terrain.Editor
             bool hasReference = false;
             bool crossesRegions = false;
             Color reference = Color.clear;
-            TerrainRegion firstRegion = TerrainRegion.Grassland;
+            int firstRegion = CountrysideRegion.Grassland;
             for (int z = 0; z < map.HeightCells; z++)
             {
                 for (int x = 0; x < map.WidthCells; x++)
                 {
                     if (map.GetRoadCoverage(x, z) < 0.99f)
                         continue;
-                    Require(map.GetRoadType(x, z) == TerrainRoadType.Dirt,
+                    Require(map.GetRoadType(x, z) == CountrysideRoadType.Dirt,
                         "Full-coverage road is not dirt.");
                     Color color = colorMap.GetPixel(x, z);
                     Require(color.r > color.g && color.g > color.b && color.r < 0.85f,
@@ -639,10 +757,10 @@ namespace Mine.Terrain.Editor
         private static void ValidateStuff(TerrainMapData map, TerrainStuffPlan first, TerrainStuffPlan second)
         {
             Require(first.Placements.Count == second.Placements.Count, "Stuff count is not deterministic.");
-            Require(first.Count(TerrainStuffType.House) > 0, "No house was placed.");
-            Require(first.Count(TerrainStuffType.Windmill) == 1, "Expected one windmill.");
-            Require(first.Count(TerrainStuffType.Tree) > 0 &&
-                    first.Count(TerrainStuffType.OrchardTree) > 0,
+            Require(first.Count(CountrysideStuffType.House) > 0, "No house was placed.");
+            Require(first.Count(CountrysideStuffType.Windmill) == 1, "Expected one windmill.");
+            Require(first.Count(CountrysideStuffType.Tree) > 0 &&
+                    first.Count(CountrysideStuffType.OrchardTree) > 0,
                 "A tree category is missing from stuff.");
 
             for (int i = 0; i < first.Placements.Count; i++)
@@ -668,14 +786,14 @@ namespace Mine.Terrain.Editor
             }
         }
 
-        private static TerrainRegion RegionFor(TerrainStuffType type)
+        private static int RegionFor(int type)
         {
             switch (type)
             {
-                case TerrainStuffType.House: return TerrainRegion.Village;
-                case TerrainStuffType.Tree: return TerrainRegion.Forest;
-                case TerrainStuffType.OrchardTree: return TerrainRegion.Orchard;
-                default: return TerrainRegion.WheatField;
+                case CountrysideStuffType.House: return CountrysideRegion.Village;
+                case CountrysideStuffType.Tree: return CountrysideRegion.Forest;
+                case CountrysideStuffType.OrchardTree: return CountrysideRegion.Orchard;
+                default: return CountrysideRegion.WheatField;
             }
         }
 
@@ -686,7 +804,7 @@ namespace Mine.Terrain.Editor
                 "Plant count is not deterministic.");
             Require(first.Placements.Count > structures.Placements.Count * 20,
                 "Plant distribution is not dense enough for the experiment.");
-            foreach (TerrainPlantType type in Enum.GetValues(typeof(TerrainPlantType)))
+            for (int type = 0; type < CountrysidePlantType.Count; type++)
                 Require(first.Count(type) > 0, $"Plant type {type} is missing.");
 
             for (int i = 0; i < first.Placements.Count; i++)
@@ -717,23 +835,82 @@ namespace Mine.Terrain.Editor
             }
         }
 
-        private static void ValidateLegacyPlantRules()
-        {
-            TerrainPlantSettings legacy = new TerrainPlantSettings();
-            int originalCount = legacy.Rules.Length;
-            legacy.Rules[0] = new TerrainPlantRule(TerrainRegion.Forest,
-                (TerrainPlantType)4, 0.006f, 1.4f);
-            legacy.Rules[1] = new TerrainPlantRule(TerrainRegion.Orchard,
-                (TerrainPlantType)5, 0.008f, 1.4f);
-            legacy.Validate();
-            Require(legacy.Rules.Length == originalCount - 2,
-                "Legacy tree plant rules were not migrated out of the dense plant settings.");
-        }
-
         private static void Require(bool condition, string message)
         {
             if (!condition)
                 throw new InvalidOperationException(message);
+        }
+    }
+
+    /// <summary>
+    /// 仅供隔离验证的临时方案；不引用郊野内容 ID 或其生成策略。
+    /// </summary>
+    public sealed class TerrainIsolationTestType : TerrainTypeDefinition
+    {
+        public const int RegionId = 101;
+        public const int RoadId = 9;
+        public const int StuffId = 42;
+        public const int PlantId = 70;
+        public const int SecondPlantId = 71;
+
+        public override void Validate() { }
+
+        public override TerrainMapData GenerateMap(TerrainGenerationSettings settings)
+        {
+            TerrainMapBuilder builder = new TerrainMapBuilder(settings);
+            TerrainMapData map = builder.Map;
+            Vector2 center = map.Origin + new Vector2(map.WidthCells, map.HeightCells) * map.CellSize * 0.5f;
+            builder.AddSite(new TerrainSite(0, RegionId, center, 4f));
+            builder.AddRegionGroup(new TerrainRegionGroup(0, RegionId,
+                map.WidthCells * map.HeightCells, center));
+            for (int z = 0; z < map.HeightCells; z++)
+            {
+                for (int x = 0; x < map.WidthCells; x++)
+                {
+                    builder.SetRegion(x, z, RegionId, 0);
+                    builder.SetRegionGroup(x, z, 0);
+                    builder.SetHeight(x, z, -0.5f);
+                }
+            }
+            builder.SetRoad(16, 16, 1f, RoadId);
+            return map;
+        }
+
+        public override TerrainStuffPlan DistributeStuff(TerrainMapData map) =>
+            new TerrainStuffPlan(new[]
+            {
+                new TerrainStuffPlacement(StuffId, Position(map, 4, 4), 0f, 0.25f)
+            });
+
+        public override TerrainPlantPlan DistributePlants(TerrainMapData map, TerrainStuffPlan stuff) =>
+            new TerrainPlantPlan(new[]
+            {
+                new TerrainPlantPlacement(PlantId, RegionId, Position(map, 2, 2), 0f, 1f, 0.1f),
+                new TerrainPlantPlacement(SecondPlantId, RegionId, Position(map, 3, 3), 0f, 1f, 0.1f),
+                new TerrainPlantPlacement(PlantId, RegionId, Position(map, 20, 2), 0f, 1f, 0.1f)
+            });
+
+        public override Color RegionColor(int region) => region == RegionId
+            ? new Color(0.1f, 0.3f, 0.7f)
+            : throw new ArgumentOutOfRangeException(nameof(region));
+
+        public override Color RoadColor(int roadType) => roadType == RoadId
+            ? new Color(0.7f, 0.2f, 0.6f)
+            : throw new ArgumentOutOfRangeException(nameof(roadType));
+
+        public override TerrainStuffVisual StuffVisual(int type) => type == StuffId
+            ? new TerrainStuffVisual(PrimitiveType.Cube, Vector3.one, Color.red)
+            : throw new ArgumentOutOfRangeException(nameof(type));
+
+        public override TerrainPlantVisual PlantVisual(int type) =>
+            type == PlantId || type == SecondPlantId
+                ? new TerrainPlantVisual(Vector3.one, Color.green)
+                : throw new ArgumentOutOfRangeException(nameof(type));
+
+        private static Vector3 Position(TerrainMapData map, int x, int z)
+        {
+            Vector2 center = map.CellCenter(x, z);
+            return new Vector3(center.x, map.GetHeight(x, z), center.y);
         }
     }
 }

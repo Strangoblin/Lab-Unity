@@ -52,6 +52,11 @@
 
 - HDR Map 工具已完成拆分、采样接入和最终验证；正式入口 `Tools/HDR Map Baker...` / `Tools/HDR Map Converter...`，测试归 `HDRMapConverter/Validation~/`。见 [2026-10-19 收尾](2026-10-19-hdr-map-pipeline.md)。
 
+- NormalSmoother Baker（2026-10-17）：窗口收敛为标准 Baker —— 输入固定单个 Mesh，固定资产路径 + Bake/Load/Save + 资产所有权，去掉多目标 / 子级 / 场景回写。编译、BakeCore、Save 新建与覆盖保 GUID 冒烟通过；GUI 画面未验收。见 [Baker 记录](2026-10-17-normal-smoother-baker.md)；[批量版记录](2026-10-17-normal-smoother-window.md) 为历史。
+- NormalSmoother 搬运（2026-10-17）：CelToon 法线平滑工具按项目脚本规范落到 Assets/Mine/Scripts/NormalSmoother/，公开 API/参数名保持不变；以原文件作参考实现做 21 例逐通道等价比对全部一致，骨骼权重与 UInt32 索引分支另验；Editor 窗口未搬运、无画面验证。见 [记录](2026-10-17-normal-smoother.md)。
+
+- CelToon 资源与 SSC 替换（2026-10-17）：SSC 以 CelToon 的单循环密度场（多层混合 + middle 分段剖面）与 HG/高度环境光散射替换 Lab 旧路径，保留 URP 17 RenderGraph、三种噪声模式与 ray count；旧 `rotation` 的度→弧度换算一并修正。Unity batchmode 编译零消息；Feature 尚未挂到 Renderer，无画面验证。见 [替换记录](2026-10-17-ssc-celtoon-scattering-merge.md)、[资源审计](2026-10-17-celtoon-asset-audit.md)。
+
 - 生产工具归属（2026-10-16 当前）：通用框架已归 agent 完整模板，五窗口独立化并编译通过，42 项 Editor 回归及完整模板编译/Bake/释放验证通过。Noise 上轮修复保持；物理点击、不同资产覆盖确认与 GPU 画质仍待验。见 [迁移记录](../meta/2026-10-16-production-tools-agent-templates.md)；[前一轮接手](2026-10-16-production-tool-handover.md) 保持历史语义。
 
 - DiffuseGI性能（2026-10-15）：仅High `(2,8,64)→(3,8,64)`，追踪像素约少55.6%，Low/Medium与AO/Specular不改。正式首轮计时嘈杂，有界复测1080p整次同步墙钟三轮下降约22–33%，非纯GPU/固定收益。静止0.5 history RMS约+7.1%/方差+12.8%，细节有取舍、地面抖动未解决；68组/四负控/旧HalfHigh历史拒绝通过，原配置保持，未提交推送。见 [记录](2026-10-15-diffuse-high-performance.md)。
@@ -82,6 +87,11 @@
 | [2026-10-19-screenwarp-overlay.md](2026-10-19-screenwarp-overlay.md) | 2026-10-19 | 固定输出 UV 的可选 RGBA 遮盖与独立不透明度；Metal 752 组/URP 52 请求通过，素材槽留空，原相机/场景配置保持。 |
 | [2026-10-19-screenwarp-v1.md](2026-10-19-screenwarp-v1.md) | 2026-10-19 | 四种独立屏幕映射与PC_Renderer接入；Metal432组/URP30请求通过，相机保持，交互逆映射等边界留后续。 |
 | [2026-10-19-hdr-map-pipeline.md](2026-10-19-hdr-map-pipeline.md) | 2026-10-19 | Baker/Converter 拆分、四投影统一方向采样、旧 GUID 迁移；Metal 80 项功能及连续梯度通过，验证源码归档；FGD/GGX/反射排除。 |
+| [2026-10-17-normal-smoother-baker.md](2026-10-17-normal-smoother-baker.md) | 2026-10-17 | 窗口改为标准 Baker：只接受单个 Mesh、固定资产路径与 Bake/Load/Save/所有权；编译、BakeCore、新建与覆盖保 GUID 冒烟通过，GUI 未验收。 |
+| [2026-10-17-normal-smoother-window.md](2026-10-17-normal-smoother-window.md) | 2026-10-17 | 搬运批量平滑法线窗口到 NormalSmoother/Editor/；原位覆盖保 GUID、场景回写用持久资产、预览按参数哈希重建；编译与落盘冒烟通过，GUI 未人工验收。 |
+| [2026-10-17-normal-smoother.md](2026-10-17-normal-smoother.md) | 2026-10-17 | 搬运 CelToon NormalSmoother 到 Assets/Mine/Scripts/NormalSmoother/，按项目脚本规范重排；21 例原实现逐通道等价、骨骼权重与 UInt32 分支通过；Editor 窗口未搬运、无画面验证。 |
+| [2026-10-17-ssc-celtoon-scattering-merge.md](2026-10-17-ssc-celtoon-scattering-merge.md) | 2026-10-17 | SSC 以 CelToon 单循环密度场 + HG/高度环境光替换旧路径，保留 URP 17 RenderGraph、三噪声模式与 ray count；静态检查与 Unity 编译通过，未接入 Renderer、无画面验证。 |
+| [2026-10-17-celtoon-asset-audit.md](2026-10-17-celtoon-asset-audit.md) | 2026-10-17 | CelToon→Lab 资源审计：OutlineFunction 已迁入；SSC 同 GUID 为 Lab 后续版本未覆盖；RimToon/SSR/Portal/ASE 水体等按退役、第三方或脚本依赖跳过。 |
 | [2026-10-16-gizmo-render-handover.md](2026-10-16-gizmo-render-handover.md) | 2026-10-16 | GizmoRender 更名与结构收敛完成；13 份 meta/GUID 保留、六组件接入、最终编译及 67 项 Editor 回归通过，源码/验证/证据归档。 |
 | [2026-10-16-production-tool-handover.md](2026-10-16-production-tool-handover.md) | 2026-10-16 | 续接框架与模板收尾，修复 Noise 2D 载入被预览替换及 3D 假回看；同步五工具文档，新增功能侧验证入口，编译与 37 项 Editor 回归通过，场景/Renderer 指纹不变。 |
 | [2026-10-15-production-tool-framework.md](2026-10-15-production-tool-framework.md) | 2026-10-15 | **生产类工具统一框架**：五个 Generator/Baker 窗口接入抽象骨架（固定路径 + Bake/Load/Save + 所有权），保存改原位更新保 GUID、不全局 SaveAssets；净减 636 行，编译与 eval 确认，按钮交互待验收。 |

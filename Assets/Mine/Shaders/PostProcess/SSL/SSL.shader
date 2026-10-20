@@ -19,6 +19,7 @@ Shader "PostProcess/SSL"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl"
     #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/BlurFunction.hlsl"
 
@@ -57,14 +58,6 @@ Shader "PostProcess/SSL"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  HG — Henyey-Greenstein 相位函数
-    // ════════════════════════════════════════════════════════════
-    float HG(float cosTheta, float g)
-    {
-        return (1 - g * g) / pow(1 + g * g - 2 * g * cosTheta, 1.5);
-    }
-
-    // ════════════════════════════════════════════════════════════
     //  SSL — RAY3D 屏幕空间光体积步进
     //
     //  沿视线从相机步进至深度重建点，SSL_LIGHT 累积阴影光照、SSL_FOG 累积深度密度
@@ -96,7 +89,11 @@ Shader "PostProcess/SSL"
                 break;
             }
             float lighting = SampleShadow(currentPos);
-            float phase = HG(dot(rayDir, lightDir), _SSLScale);
+            // 与 MaskRBR 一致：Core HG 自带 1/(4π)，用峰值归一化消去该常量；
+            // g 由 SSL 自己钳制，避免 g=1 的奇点。
+            float g = clamp(_SSLScale, 0.0, 0.999);
+            float phase = HenyeyGreensteinPhaseFunction(g, dot(rayDir, lightDir))
+                        / HenyeyGreensteinPhaseFunction(g, 1.0);
             lighting *= saturate(phase);
             currentPos += rayDir * stepSize;
             density += stepSize * lighting;

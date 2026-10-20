@@ -122,6 +122,13 @@ def guid_referenced_elsewhere(project_root: str, meta_rel: str, guid: str,
 
 # ═══ 目录预检 / 执行 —— 不跟随软链，不使用递归 rmtree ═══
 
+# Windows 没有 O_NOFOLLOW / O_DIRECTORY，也不支持 dir_fd；缺失时退化到路径级
+# 复验：预检已用 lstat 拒绝软链，open 后再比对 inode 兑住 lstat→open 之间的替换。
+_O_NOFOLLOW = getattr(os, "O_NOFOLLOW", 0)
+_O_DIRECTORY = getattr(os, "O_DIRECTORY", 0)
+_DIR_FD = os.open in os.supports_dir_fd
+
+
 def _identity(st: os.stat_result) -> tuple:
     return st.st_dev, st.st_ino, stat.S_IFMT(st.st_mode)
 
@@ -137,7 +144,8 @@ def _fingerprint(full: str) -> dict:
                 "children": sorted(os.listdir(full))}
     if not stat.S_ISREG(st.st_mode):
         raise ValueError("UNSUPPORTED_TYPE")
-    fd = os.open(full, os.O_RDONLY | os.O_NOFOLLOW)
+    # 无 O_NOFOLLOW 的平台靠下面的 fstat 身份比对兑住 lstat→open 的替换竞态
+    fd = os.open(full, os.O_RDONLY | _O_NOFOLLOW)
     try:
         if _identity(os.fstat(fd)) != _identity(st):
             raise OSError("文件在预检期间发生变化")
@@ -243,16 +251,25 @@ def plan(project_root: str, checked: list[tuple[str, str]], *, recursive: bool =
             "status": {}}   # 调用方（judgement.delete）填入每个路径的分类结果
 
 
-def _parent_fd(project_root: str, rel: str, anchors: dict) -> tuple[int, str]:
-    """从项目根逐级以 O_NOFOLLOW 打开祖先；返回调用方负责关闭的父目录 fd。"""
-    fd = os.open(project_root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+def _parent_fd(project_root: str, rel: str, anchors: dict) -> tuple[int | None, str]:
+    """定位待删项的父目录。
+
+    支持 dir_fd 的平台逐级以 O_NOFOLLOW 打开祖先并返回 fd；不支持时（Windows）
+    改用路径级复验（_lineage 逐级比对 inode）并返回 None。第二项：fd 分支是子项名，
+    路径分支是完整路径，交给 _*_child 助手分流。
+    """
+    root = os.path.abspath(project_root)
+    parts = rel.split("/")
+    if not _DIR_FD:
+        _lineage(root, rel, anchors)
+        return None, os.path.join(root, *parts)
+    fd = os.open(root, os.O_RDONLY | _O_DIRECTORY | _O_NOFOLLOW)
     try:
         if list(_identity(os.fstat(fd))) != anchors.get(""):
             raise OSError("项目根在预检后发生变化")
         key = ""
-        parts = rel.split("/")
         for part in parts[:-1]:
-            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            child = os.open(part, os.O_RDONLY | _O_DIRECTORY | _O_NOFOLLOW, dir_fd=fd)
             os.close(fd)
             fd = child
             key = part if not key else key + "/" + part
@@ -262,6 +279,32 @@ def _parent_fd(project_root: str, rel: str, anchors: dict) -> tuple[int, str]:
     except Exception:
         os.close(fd)
         raise
+
+
+def _stat_child(handle: int | None, name: str) -> os.stat_result:
+    """按句柄 stat 子项；无 dir_fd 的平台按路径 stat，同样不跟随软链。"""
+    if handle is None:
+        return os.stat(name, follow_symlinks=False)
+    return os.stat(name, dir_fd=handle, follow_symlinks=False)
+
+
+def _unlink_child(handle: int | None, name: str) -> None:
+    if handle is None:
+        os.unlink(name)
+    else:
+        os.unlink(name, dir_fd=handle)
+
+
+def _rmdir_child(handle: int | None, name: str) -> None:
+    if handle is None:
+        os.rmdir(name)
+    else:
+        os.rmdir(name, dir_fd=handle)
+
+
+def _close_handle(handle: int | None) -> None:
+    if handle is not None:
+        os.close(handle)
 
 
 def execute(project_root: str, planned: dict) -> dict:
@@ -274,18 +317,18 @@ def execute(project_root: str, planned: dict) -> dict:
     try:
         for e in planned["entries"]:
             rel, full = e["path"], e["full_path"]
-            fd, name = _parent_fd(project_root, rel, planned["anchors"])
+            handle, name = _parent_fd(project_root, rel, planned["anchors"])
             try:
                 if e["kind"] == "missing":
                     try:
-                        os.stat(name, dir_fd=fd, follow_symlinks=False)
+                        _stat_child(handle, name)
                     except FileNotFoundError:
                         continue
                     raise OSError("原先不存在的路径在预检后出现")
                 if _fingerprint(full) != e["snapshot"]:
                     raise OSError("路径在预检后发生变化")
             finally:
-                os.close(fd)
+                _close_handle(handle)
     except (OSError, ValueError) as ex:
         return {"status": "ERROR", "error": "PRECHECK_CHANGED", "deleted": [],
                 "failed": [{"path": rel, "error": str(ex)}]}
@@ -296,23 +339,23 @@ def execute(project_root: str, planned: dict) -> dict:
     for e in ordered:
         rel = e["path"]
         try:
-            fd, name = _parent_fd(project_root, rel, planned["anchors"])
+            handle, name = _parent_fd(project_root, rel, planned["anchors"])
             try:
-                current = os.stat(name, dir_fd=fd, follow_symlinks=False)
+                current = _stat_child(handle, name)
                 if list(_identity(current)) != e["snapshot"]["identity"]:
                     raise OSError("路径在执行期间被替换")
                 if e["kind"] == "file":
                     if _fingerprint(e["full_path"]) != e["snapshot"]:
                         raise OSError("文件在执行期间发生变化")
-                    os.unlink(name, dir_fd=fd)
+                    _unlink_child(handle, name)
                 else:
-                    os.rmdir(name, dir_fd=fd)
+                    _rmdir_child(handle, name)
                 info = (planned.get("status") or {}).get(rel) or {
                     "state": "unknown", "recoverable": False}
                 deleted.append({"path": rel, "kind": e["kind"], "state": info["state"],
                                 "recoverable": info["recoverable"]})
             finally:
-                os.close(fd)
+                _close_handle(handle)
         except (OSError, ValueError) as ex:
             failed.append({"path": rel, "error": str(ex)})
             break

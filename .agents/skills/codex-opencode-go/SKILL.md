@@ -9,6 +9,7 @@ description: Codex CLI/VSCode 与 opencode CLI/VSCode 扩展接入 OpenCode Go �
 
 > 📍 **本文件是 `codex-opencode-go` 的唯一权威**，路径 `Unity/Lab/.agents/skills/codex-opencode-go/SKILL.md`，随仓库 git 留档。
 > 先前的 `~/.agents/skills/codex-opencode-go/`（139 行）与 `~/.claude/skills/codex-opencode-go/`（255 行）副本已于 2026-10-15 归并并删除，**不存在第二份正文**。
+> 2026-10-17 起全局侧只保留**薄路由**（`~/.codex/skills/opencode-go/`、`~/.claude/skills/opencode-go/` + `~/.codex/AGENTS.md`、`~/.claude/CLAUDE.md`、`~/.claude/MEMORY.md` 的明文路由），让其他项目的 agent 也能发现本链路；**仍不存在第二份正文**。
 > 内容含机器级事实（config / 模型 / catalog / 传输 / opencode CLI / `ocw`）与 `Unity/Lab` 的门禁委派边界；其他项目复用请直接引用本路径，不要另存副本。
 
 ## 架构（直连）
@@ -347,6 +348,35 @@ curl -s "https://opencode.ai/zen/go/v1/models" -H "Authorization: Bearer $OPENAI
 - 受管源码（`Assets/Mine/**`）不得由 opencode 直接写入：先在隔离副本或 `tmp/sessions/<date-task-id>/` 生成草稿，再由主 agent 经 `gate_cli.py write|delete|move` 或对应 MCP 工具合入。
 - 委派不改变工作区授权、人工批准通道与 policy 档位；不能以「worker 已经写了」为由跳过门禁。
 - 委派说明必须给出目标、允许修改的文件、约束与验收标准；主 agent 复核完整 diff 并对结果负责。
+
+## 全局可达性与本机（Windows）现状（2026-10-17 实测）
+
+本手册是唯一正文（随仓库 git 留档）。全局侧只放**薄路由**，不复制正文：
+
+| 位置 | 形态 | 作用 |
+|---|---|---|
+| `~/.codex/skills/opencode-go/` | 薄 skill：路由 + 本机要点 | Codex 全局自动发现 |
+| `~/.claude/skills/opencode-go/` | 同上（与 Codex 侧逐字节相同） | Claude 全局自动发现 |
+| `~/.codex/AGENTS.md` / `~/.claude/CLAUDE.md` / `~/.claude/MEMORY.md` | 一行明文路由 | 无 skill 发现通道时的兜底 |
+
+2026-10-15 的裁决（`memory/meta/2026-10-15-skill-content-audit.md`）中「不存第二份正文」继续有效；2026-10-17 按用户要求补回**可达性**，形式改为薄路由条目。
+
+### 与本机（Windows）事实的差异
+
+本文其余各节实测于 macOS；与本机不同的部分以本表为准：
+
+| 项 | 本机事实（2026-10-17 实测） |
+|---|---|
+| CLI | `opencode` 1.18.32（`npm i -g opencode-ai`） |
+| 凭据来源 | 环境变量 **`OPENCODE_GO_API_KEY`**（User 级已设）；本机未设 `OPENCODE_API_KEY` →「凭据：`opencode-go` 认的是 `OPENCODE_API_KEY`」一节在本机不适用 |
+| opencode 配置 | `~/.config/opencode/opencode.json` **显式定义** provider `opencode-go`（`baseURL=https://opencode.ai/zen/go/v1`、`apiKey={env:OPENCODE_GO_API_KEY}`）→「配置：直接用内置 `opencode-go`，**不要**覆盖 baseURL」的默认两行配置在本机不适用 |
+| Codex 配置 | `~/.codex/config.toml`：`model_provider="opencode-go"`、`env_key="OPENCODE_GO_API_KEY"`、`wire_api="responses"`、`supports_websockets=false`、`model_catalog_json` 指向 Robot/Bot 的 catalog |
+| 可用模型 | `deepseek-v4.1-flash`（默认）、`deepseek-v4-pro`、`gpt-5.6-luna`（本机 403 地区限制，见模型可用性节） |
+| `ocw` 包装脚本 | 正文的 `~/.local/bin/ocw` 是 macOS 路径，本机**不存在**；直接 `opencode run -m opencode-go/<model> "<自包含任务>"` |
+| 冒烟验证 | `opencode run -m opencode-go/deepseek-v4.1-flash "Reply with exactly: OK"` → 退出码 **0**、输出 `OK` |
+| 其余 macOS 专有内容 | `~/.zshrc` 持久化、Mach-O/arm64 安装说明、`Cmd+*` 快捷键在 Windows 不适用 |
+
+> ⚠️ PowerShell 会把 opencode 的 ANSI/进度输出（走 stderr）包成 `NativeCommandError` 外观；**判链路看退出码与实际输出**，不要据此认定失败。
 
 ## 关联
 

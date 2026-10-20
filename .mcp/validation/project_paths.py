@@ -16,6 +16,16 @@ CANONICAL_ROSLYN_ROOT = ".agents/skills/unity-editor/scripts/roslyn"
 ALLOWED_EXACT_FILES = {".agents/skills/unity-render-debug/scripts/camera-offscreen-capture.cs"}
 
 
+def _canonical(path: str) -> str:
+    """比较用规范形：绝对化 + 分隔符归一 + 大小写归一（Windows）。
+
+    为什么必须归一：Windows 上 os.path.join(PROJECT_ROOT, "Assets/Mine") 的前缀内部
+    残留正斜杠（混合分隔符），而 os.path.commonpath 的返回值是全反斜杠形——
+    `commonpath(...) == prefix` 的字符串相等因此在 Windows 上恒为 False。
+    """
+    return os.path.normcase(os.path.normpath(os.path.abspath(path)))
+
+
 def validate_path(path: str) -> dict:
     """校验写入路径是否在合法目录内."""
     allowed_prefixes = [os.path.join(PROJECT_ROOT, p) for p in ALLOWED_PREFIXES]
@@ -23,6 +33,7 @@ def validate_path(path: str) -> dict:
     full = os.path.join(PROJECT_ROOT, path) if not os.path.isabs(path) else path
     full = os.path.abspath(full)
     resolved = os.path.realpath(full)
+    c_full, c_resolved = _canonical(full), _canonical(resolved)
 
     for target in ALLOWED_EXACT_FILES:
         canonical_target = os.path.abspath(os.path.join(PROJECT_ROOT, target))
@@ -31,9 +42,14 @@ def validate_path(path: str) -> dict:
             return {"status": "OK", "path": path, "full_path": full}
 
     for prefix in allowed_prefixes:
-        if (os.path.commonpath([full, prefix]) == prefix
-                and os.path.commonpath([resolved, os.path.realpath(prefix)]) == os.path.realpath(prefix)):
-            return {"status": "OK", "path": path, "full_path": full}
+        c_prefix = _canonical(prefix)
+        c_resolved_prefix = _canonical(os.path.realpath(prefix))
+        try:
+            if (os.path.commonpath([c_full, c_prefix]) == c_prefix
+                    and os.path.commonpath([c_resolved, c_resolved_prefix]) == c_resolved_prefix):
+                return {"status": "OK", "path": path, "full_path": full}
+        except ValueError:
+            continue   # 不同盘符（Windows）——不在任何前缀作用域内，按拒绝处理
 
     return {
         "status": "DENIED",
@@ -137,17 +153,30 @@ def check_placement(path: str, is_new: bool, category: str = "") -> dict:
 # ════════════════════════════════════════════════════════════════
 
 def _rel_posix(path: str) -> str:
+    """比较用归一形 —— 分隔符统一为 POSIX，相对化后**再归一一次**。
+
+    为什么必须归一：Windows 上 os.path.isabs 认得正斜杠绝对路径，于是走
+    os.path.relpath，而它用 os.sep 拼回结果（正斜杠又变回反斜杠），调用方比的
+    却是 POSIX 前缀（policy 的 applies_to / ALLOWED_PREFIXES）——不归一就恒不相等。
+    """
     rel = str(path).replace("\\", "/")
     if os.path.isabs(rel):
         try:
             rel = os.path.relpath(rel, PROJECT_ROOT)
         except ValueError:
-            return rel
+            return rel.replace("\\", "/")   # 不同盘符：保持原形，交给调用方判否
+        rel = rel.replace("\\", "/")
     return rel.lstrip("./")
 
 
 def _under(rel: str, prefix: str) -> bool:
-    prefix = prefix.rstrip("/")
+    """路径包含判定 —— 两侧先归一再比，且只在**分隔符边界**上匹配。
+
+    归一在两侧都做：check_workspace_roots 传进来的是绝对路径（realpath 全反斜杠
+    形），前缀却是 PROJECT_ROOT；只归一侧仍会恒 False。
+    """
+    rel = str(rel).replace("\\", "/").rstrip("/")
+    prefix = str(prefix).replace("\\", "/").rstrip("/")
     return rel == prefix or rel.startswith(prefix + "/")
 
 

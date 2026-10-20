@@ -21,7 +21,7 @@
 |---|---|
 | 功能代码、配置和说明 | 原功能目录；`Assets/Mine` 写/删/移仍走 Unity 门禁 |
 | 功能专属、可复现验证源码与必要基线 | 同功能 `Validation~/`，由 README / VALIDATION 给出入口；新运行输出回任务目录 |
-| skill 的复用脚本或验证工具 | `.agents/skills/<skill>/scripts/`；模板归该技能 templates/assets，项目专属遗留验证器可隔离在 project-adapters/；由技能索引注明用途、依赖和运行入口 |
+| skill 的复用脚本或验证工具 | `.agents/skills/<skill>/scripts/`；模板归该技能 templates/assets；由技能索引注明用途、依赖和运行入口。项目专属验证器不进共享库，归项目功能 `Validation~/`，经[项目资源](project-resources.md)绑定按 ID 取用 |
 | 平台/MCP 契约测试源码 | 原平台 `tests/`；MCP 默认使用隔离 runner，不在生产项目 reset |
 | 诊断结论与必要历史证据 | `.agents/memory/<domain>/` dated 记录；证据可放同库 `evidence/<date-task>/` 并链接，避免整包工作区 |
 | 真正的功能历史资产（场景等） | 功能所属 `Validation~/Archive/`，保留 GUID/来源/用途；不能混为运行资源 |

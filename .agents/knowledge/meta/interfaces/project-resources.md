@@ -25,6 +25,8 @@
 | `unity.debug-output-feature` | 可选项目调试显示适配器 |
 | `benchmark.ssgi.adapter` / `benchmark.ssgi.contract` | 项目已有计时适配器及合同 |
 | `hash.*` | 既有项目 Hash 验证器的当前源绑定 |
+| `validation.hash.guide` / `validation.hash.adapter` | 项目 Hash 迁移合同验证器的入口文档与运行器 |
+| `validation.production-tools.adapter` | 项目生产工具五窗口回归适配器 |
 
 移植到其他项目时更换绑定或提供等价解析器，不修改通用 skill。功能专属接口说明仍由实际功能文档维护，技能只依赖资源的用途与输入契约。
 

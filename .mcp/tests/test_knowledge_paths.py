@@ -80,7 +80,9 @@ def test_g_knowledge_reports_canonical_resolution() -> None:
 
 
 def test_roslyn_paths_use_only_canonical_skill_root() -> None:
-    assert ".agents/skills/unity-editor/scripts/roslyn" in SCRIPTS_DIR
+    # Path 比较而非字符串子串：Windows 上 os.path.join 产出反斜杠，
+    # 正斜杠子串断言在此平台恒失败（曾掩蔽本文件内的 Assets/Mine 作用域用例）。
+    assert Path(SCRIPTS_DIR) == ROOT / ".agents" / "skills" / "unity-editor" / "scripts" / "roslyn"
     assert script_exists("scene-query.cs")
     assert validate_path(".agents/skills/unity-editor/scripts/roslyn/scene-query.cs")["status"] == "OK"
     assert validate_path(".agents/agents/unity-developer/scripts/roslyn/scene-query.cs")["status"] == "DENIED"

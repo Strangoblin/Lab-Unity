@@ -1,39 +1,34 @@
 // ════════════════════════════════════════════════════════════
-//  TerrainManager — 编排地图数据、地表、结构与植被的场景生命周期
+//  TerrainManager — 编排可替换地图方案与通用表现生命周期
 // ════════════════════════════════════════════════════════════
 
-using System;
 using UnityEngine;
-using UnityEngine.Rendering;
+using System;
 
 namespace Mine.Terrain
 {
     /// <summary>
-    /// 原野实验入口：生成全部结果后一次提交，重复生成会替换旧场景对象和资源。
+    /// 场景入口只持有共享配置，完整生成成功后才替换当前地图和表现资源。
     /// </summary>
     public sealed class TerrainManager : MonoBehaviour
     {
-        [Header("Generation")]
         [SerializeField] private TerrainGenerationSettings _settings = new TerrainGenerationSettings();
-        [SerializeField] private TerrainPlantSettings _plantSettings = new TerrainPlantSettings();
+        [SerializeField] private TerrainTypeDefinition _terrainType;
+        [SerializeField] private TerrainRenderSettings _renderSettings = new TerrainRenderSettings();
         [SerializeField] private bool _generateOnStart = true;
-        [SerializeField] private Shader _surfaceShader;
 
-        private GameObject _generatedRoot;
-        private TerrainSurfaceResult _surface;
-        private Material _surfaceMaterial;
-        private Material _markerMaterial;
-        private TerrainPlantRenderer _plantRenderer;
+        private TerrainSceneRenderer _renderer;
 
+        public TerrainTypeDefinition TerrainType => _terrainType;
         public TerrainMapData CurrentMap { get; private set; }
         public TerrainStuffPlan CurrentStuff { get; private set; }
         public TerrainPlantPlan CurrentPlants { get; private set; }
-        public int SurfaceChunkCount => _surface?.Chunks.Count ?? 0;
-        public int PlantBatchCount => _plantRenderer?.BatchCount ?? 0;
-        public Transform GeneratedRoot => _generatedRoot != null ? _generatedRoot.transform : null;
+        public int SurfaceChunkCount => _renderer?.SurfaceChunkCount ?? 0;
+        public int PlantBatchCount => _renderer?.PlantBatchCount ?? 0;
+        public Transform GeneratedRoot => _renderer?.GeneratedRoot;
 
         // ════════════════════════════════════════════════════════════
-        //  生命周期 — Play Mode 自动生成，退出时释放生成资源
+        //  生命周期 — 场景持有表现实例，禁用或退出时释放
         // ════════════════════════════════════════════════════════════
 
         private void Start()
@@ -42,230 +37,78 @@ namespace Mine.Terrain
                 Generate();
         }
 
-        private void Update()
-        {
-            if (_generatedRoot != null && _plantRenderer != null)
-                _plantRenderer.Draw(gameObject.layer);
-        }
+        private void Update() => _renderer?.Draw(gameObject.layer);
 
-        private void OnDisable()
-        {
-            Release();
-        }
+        private void OnDisable() => Release();
 
-        private void OnDestroy()
-        {
-            Release();
-        }
+        private void OnDestroy() => Release();
 
         [ContextMenu("Generate Terrain Experiment")]
         public void Generate()
         {
-            Shader surfaceShader = _surfaceShader != null
-                ? _surfaceShader
-                : Shader.Find("TerrainSurface/TerrainSurface");
-            Shader markerShader = Shader.Find("Universal Render Pipeline/Unlit");
-            if (surfaceShader == null || markerShader == null)
-                throw new InvalidOperationException("Terrain surface or URP marker shader is missing.");
+            if (_terrainType == null)
+                throw new InvalidOperationException("Assign a Terrain Type asset before generating a map.");
+            if (_settings == null || _renderSettings == null)
+                throw new InvalidOperationException("Terrain map or render settings are missing.");
+            _renderSettings.Validate();
 
-            TerrainMapData map = null;
             TerrainSurfaceResult surface = null;
-            TerrainStuffPlan stuff = null;
-            TerrainPlantPlan plants = null;
-            GameObject root = null;
-            Material surfaceMaterial = null;
-            Material markerMaterial = null;
-            TerrainPlantRenderer plantRenderer = null;
+            TerrainSceneRenderer renderer = null;
+            TerrainMapData map;
+            TerrainStuffPlan stuff;
+            TerrainPlantPlan plants;
             System.Diagnostics.Stopwatch timer = System.Diagnostics.Stopwatch.StartNew();
-            long dataMilliseconds = 0;
-            long meshMilliseconds = 0;
-            long stuffMilliseconds = 0;
-            long plantMilliseconds = 0;
+            long dataMilliseconds;
+            long meshMilliseconds;
+            long stuffMilliseconds;
+            long plantMilliseconds;
 
             try
             {
-                map = TerrainDataGenerator.Generate(_settings);
+                map = TerrainDataGenerator.Generate(_settings, _terrainType);
                 dataMilliseconds = timer.ElapsedMilliseconds;
-                surface = TerrainMeshGenerator.Generate(map, _settings.ChunkCells);
+                surface = TerrainMeshGenerator.Generate(map, _settings.ChunkCells,
+                    _terrainType, _renderSettings.ColorBlendWidth);
                 meshMilliseconds = timer.ElapsedMilliseconds - dataMilliseconds;
-                stuff = TerrainStuffDistributor.Distribute(map, _settings);
+                stuff = _terrainType.DistributeStuff(map);
                 stuffMilliseconds = timer.ElapsedMilliseconds - dataMilliseconds - meshMilliseconds;
-                plants = TerrainPlantDistributor.Distribute(map, stuff,
-                    _plantSettings ?? new TerrainPlantSettings());
+                plants = _terrainType.DistributePlants(map, stuff);
                 plantMilliseconds = timer.ElapsedMilliseconds - dataMilliseconds -
                     meshMilliseconds - stuffMilliseconds;
-
-                surfaceMaterial = new Material(surfaceShader) { name = "Terrain_Experiment_Surface" };
-                surfaceMaterial.SetTexture("_ColorMap", surface.ColorMap);
-                markerMaterial = new Material(markerShader) { name = "Terrain_Experiment_Markers" };
-                plantRenderer = new TerrainPlantRenderer(map, plants, _settings.ChunkCells, markerMaterial);
-                root = new GameObject("Generated Terrain Experiment");
-                root.transform.SetParent(transform, false);
-                CreateSurfaceObjects(root.transform, surface, surfaceMaterial);
-                CreateStuffObjects(root.transform, stuff, markerMaterial);
+                renderer = new TerrainSceneRenderer(transform, map, surface, stuff, plants,
+                    _terrainType, _renderSettings, _settings.ChunkCells);
             }
             catch
             {
-                DisposeGenerated(root, surface, surfaceMaterial, markerMaterial, plantRenderer);
+                if (renderer != null)
+                    renderer.Dispose();
+                else
+                    surface?.Dispose();
                 throw;
             }
 
             Release();
-            _generatedRoot = root;
-            _surface = surface;
-            _surfaceMaterial = surfaceMaterial;
-            _markerMaterial = markerMaterial;
-            _plantRenderer = plantRenderer;
+            _renderer = renderer;
             CurrentMap = map;
             CurrentStuff = stuff;
             CurrentPlants = plants;
 
-            Debug.Log($"Terrain experiment generated: {map.WidthCells}x{map.HeightCells} cells, " +
-                      $"{surface.Chunks.Count} chunks, {stuff.Placements.Count} structures, " +
-                      $"{plants.Placements.Count} plants in {plantRenderer.BatchCount} batches; " +
+            Debug.Log($"Terrain experiment generated ({_terrainType.name}): " +
+                      $"{map.WidthCells}x{map.HeightCells} cells, " +
+                      $"{SurfaceChunkCount} chunks, {stuff.Placements.Count} structures, " +
+                      $"{plants.Placements.Count} plants in {PlantBatchCount} batches; " +
                       $"data {dataMilliseconds} ms, mesh {meshMilliseconds} ms, " +
                       $"structures {stuffMilliseconds} ms, plants {plantMilliseconds} ms, " +
                       $"total {timer.ElapsedMilliseconds} ms.", this);
         }
 
-        // ════════════════════════════════════════════════════════════
-        //  表现提交 — Mesh 与几何占位物消费生成结果
-        // ════════════════════════════════════════════════════════════
-
-        private static void CreateSurfaceObjects(
-            Transform root,
-            TerrainSurfaceResult surface,
-            Material material)
-        {
-            GameObject group = new GameObject("Surface Chunks");
-            group.transform.SetParent(root, false);
-            for (int i = 0; i < surface.Chunks.Count; i++)
-            {
-                TerrainSurfaceChunk chunk = surface.Chunks[i];
-                GameObject child = new GameObject(chunk.Mesh.name);
-                child.transform.SetParent(group.transform, false);
-                child.transform.position = chunk.Position;
-                child.AddComponent<MeshFilter>().sharedMesh = chunk.Mesh;
-                MeshRenderer renderer = child.AddComponent<MeshRenderer>();
-                renderer.sharedMaterial = material;
-                renderer.shadowCastingMode = ShadowCastingMode.Off;
-            }
-        }
-
-        private static void CreateStuffObjects(
-            Transform root,
-            TerrainStuffPlan plan,
-            Material material)
-        {
-            GameObject group = new GameObject("Stuff Markers");
-            group.transform.SetParent(root, false);
-            MaterialPropertyBlock block = new MaterialPropertyBlock();
-
-            for (int i = 0; i < plan.Placements.Count; i++)
-            {
-                TerrainStuffPlacement placement = plan.Placements[i];
-                PrimitiveType primitive = PrimitiveFor(placement.Type);
-                GameObject marker = GameObject.CreatePrimitive(primitive);
-                marker.name = $"{placement.Type}_{i}";
-                marker.transform.SetParent(group.transform, false);
-                marker.transform.localScale = ScaleFor(placement.Type);
-                marker.transform.position = placement.Position + Vector3.up * marker.transform.localScale.y * 0.5f;
-                marker.transform.rotation = Quaternion.Euler(0f, placement.Yaw, 0f);
-
-                Collider collider = marker.GetComponent<Collider>();
-                if (collider != null)
-                    collider.enabled = false;
-                MeshRenderer renderer = marker.GetComponent<MeshRenderer>();
-                renderer.sharedMaterial = material;
-                block.SetColor("_BaseColor", ColorFor(placement.Type));
-                renderer.SetPropertyBlock(block);
-                renderer.shadowCastingMode = ShadowCastingMode.Off;
-            }
-        }
-
-        private static PrimitiveType PrimitiveFor(TerrainStuffType type)
-        {
-            switch (type)
-            {
-                case TerrainStuffType.Windmill: return PrimitiveType.Cylinder;
-                case TerrainStuffType.Tree:
-                case TerrainStuffType.OrchardTree: return PrimitiveType.Capsule;
-                default: return PrimitiveType.Cube;
-            }
-        }
-
-        private static Vector3 ScaleFor(TerrainStuffType type)
-        {
-            switch (type)
-            {
-                case TerrainStuffType.House: return new Vector3(6f, 4f, 6f);
-                case TerrainStuffType.Windmill: return new Vector3(4f, 8f, 4f);
-                case TerrainStuffType.Tree: return new Vector3(2.2f, 5f, 2.2f);
-                case TerrainStuffType.OrchardTree: return new Vector3(2.5f, 4f, 2.5f);
-                default: return Vector3.one;
-            }
-        }
-
-        private static Color ColorFor(TerrainStuffType type)
-        {
-            switch (type)
-            {
-                case TerrainStuffType.House: return new Color(0.78f, 0.33f, 0.25f);
-                case TerrainStuffType.Windmill: return new Color(0.95f, 0.91f, 0.76f);
-                case TerrainStuffType.Tree: return new Color(0.08f, 0.28f, 0.12f);
-                case TerrainStuffType.OrchardTree: return new Color(0.40f, 0.63f, 0.18f);
-                default: return Color.white;
-            }
-        }
-
-        // ════════════════════════════════════════════════════════════
-        //  资源清理 — 编辑模式与播放模式分别销毁实例
-        // ════════════════════════════════════════════════════════════
-
         private void Release()
         {
-            DisposeGenerated(_generatedRoot, _surface, _surfaceMaterial, _markerMaterial, _plantRenderer);
-            _generatedRoot = null;
-            _surface = null;
-            _surfaceMaterial = null;
-            _markerMaterial = null;
-            _plantRenderer = null;
+            _renderer?.Dispose();
+            _renderer = null;
             CurrentMap = null;
             CurrentStuff = null;
             CurrentPlants = null;
-        }
-
-        private static void DisposeGenerated(
-            GameObject root,
-            TerrainSurfaceResult surface,
-            Material surfaceMaterial,
-            Material markerMaterial,
-            TerrainPlantRenderer plantRenderer)
-        {
-            if (root != null)
-            {
-                root.SetActive(false);
-                DestroyGeneratedObject(root);
-            }
-            if (surface != null)
-            {
-                for (int i = 0; i < surface.Chunks.Count; i++)
-                    DestroyGeneratedObject(surface.Chunks[i].Mesh);
-                DestroyGeneratedObject(surface.ColorMap);
-            }
-            plantRenderer?.Dispose();
-            DestroyGeneratedObject(surfaceMaterial);
-            DestroyGeneratedObject(markerMaterial);
-        }
-
-        private static void DestroyGeneratedObject(UnityEngine.Object value)
-        {
-            if (value == null)
-                return;
-            if (Application.isPlaying)
-                UnityEngine.Object.Destroy(value);
-            else
-                UnityEngine.Object.DestroyImmediate(value);
         }
     }
 }
