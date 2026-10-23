@@ -13,6 +13,16 @@
 
 ## 关键架构决策
 
+- **SDF 逐轴归一化（2026-10-23 当前）**：Box / Square 先按每轴半尺寸归一化坐标，再取 `saturate(1-max(abs(q)))`；长短轴各自半程均为0.5，覆盖此前“除最短半尺寸”的约定。该阶段SSC用Box、Y置0只羽化XZ、fade=0.8，Metal 30项GPU读回及8个Pass/关键字组合通过；SSC后续已改为Circle、fade=0.5，见活跃上下文。见 [当前契约与验证](2026-10-23-sdf-axis-normalization.md)。
+
+- **SDF 共享库归一化覆盖度（2026-10-22）**：`Special/HLSL/SDF.hlsl` 改为 `[0,1]` 覆盖度 SDF，中心 1、边界 0、外部 0；新增 `SDF_Circle` / `SDF_Square`，平滑运算同步改为覆盖度最大/最小/差集。规范检查、HLSL 语法编译与中心/边界/外部数值断言通过，Unity/Metal 变体未验。见 [记录](2026-10-22-sdf-normalization.md)。
+
+- **SSC 三档与加性双 HG（2026-10-22）**：Low/Medium/High 保持32步降3、64步降2、128步降1；面板只显示三档，单一GetTier接线。着色改为峰值归一化 `HG(g=.8) + 1.0×HG(0)`；侧向相位0.0038→1.0038，暗部A/B均值约27.67x、亮部约3.29x，519k散射断言与三档623万断言通过，完整恢复。物理步长、太阳光学深度和云内多次散射仍待后续；变更未提交。见 [双HG实现](2026-10-22-ssc-dual-hg.md)。
+
+- **SSC 性能落地（2026-10-20）**：精确Density=1早停、空高度/空密度跳采样、16位sky mask与4bilinear快速重建，HDR/几何保原精细路；target3.5，无新RT/Pass/面板。M2/1080p两场景432样本，当前64步降2普通视角同步墙钟约降25%，降1约29%；覆盖率四档差0、HDR四组及六变体通过。配置仍64/降2，未提交；见 [实现与正式证据](2026-10-20-ssc-performance.md)。
+
+- **SSC 质量修复（2026-10-20）**：远端 SSC 已挂 PC_Renderer，双色权重改 stepShadow³ 增强阴影色；RGBA16F 保覆盖率，固定16tap深度引导B-spline与全分辨率遮挡，0档直通、边界中心积分回退。Metal六变体零消息、0..4档20张控制图/HDR正负控通过；低档变软，运动/XR/性能待验。已先保存并合并远端，修复未提交。见 [记录与对照](2026-10-20-ssc-quality.md)。
+
 - **ScreenWarp（2026-10-19）**：独立屏幕重映射，Barrel/Pincushion/Fisheye/Panini；AfterPost 单 Raster Pass，不改相机、不请求深度法线。PC_Renderer 已接入，现支持可选固定输出 UV 的 RGBA 上层素材，与变形强度独立控制；无素材保持原行为，启用多一次贴图采样。Metal 752 组及真实 URP 52 请求/632 断言通过；Stack/XR/硬件动态分辨率/Picker 逆映射与性能待扩展。见 [遮盖扩展](2026-10-19-screenwarp-overlay.md)；[v1 历史](2026-10-19-screenwarp-v1.md)。
 
 - **HDR Map 生产链（2026-10-19 收尾）**：HDRMapBaker 固定线性 HDR 全景图，Render Layers + Include Sky 决定内容；独立 HDRMapConverter 处理四种 2D 投影、分辨率及全景/室内覆盖。共享 HDRMapFunction 服务天空与室内命中方向；旧脚本保 GUID 归 Legacy，旧图材质 Legacy=4，新经纬图用 0。Metal 80 项功能检查和连续方向梯度通过；不含 FGD / GGX / 反射生产。见 [交付与验证](2026-10-19-hdr-map-pipeline.md)。
@@ -50,12 +60,16 @@
 
 ## 活跃上下文
 
+- SSC 固定自适应高度（2026-10-23 当前）：整体重构维持撤回，仅复用DensityLOD的low决定局部云顶；强度现固定.5，面板字段与接线已移除。用户暂停平方衰减改动，DensityH保留原pow(r,1-thickness)，thickness=.5为sqrt(r)，并非严格半球。Circle boundaryFade保留用户当前.5。Metal8组合消息0；见 [最新裁决](2026-10-23-ssc-fixed-adaptive-height.md)。[此前可调版验证](2026-10-23-ssc-adaptive-height.md)、[结构计划](2026-10-23-ssc-column-density-plan.md)、[逐轴归一化](2026-10-23-sdf-axis-normalization.md) 与 [首次接线](2026-10-23-ssc-sdf-boundary.md) 保留历史。
+
+- SSC 后续重设计（2026-10-20）：性能部分已按用户授权落地，见 [正式结果](2026-10-20-ssc-performance.md)；云结构/积分/面板方案仍未实施。实时RenderScene为1/4宽高+64步，磁盘128步勿覆盖；XZ×高度剖面、无步长alpha、LOD均值与光照距离耦合仍待后续。拟Coverage/Cloud Size/Erosion/Density + 单Quality。前轮探针耗时与旧.995候选保留为历史，勿与正式适配器混算，见 [原诊断与方案](2026-10-20-ssc-redesign-proposal.md)。
+
 - HDR Map 工具已完成拆分、采样接入和最终验证；正式入口 `Tools/HDR Map Baker...` / `Tools/HDR Map Converter...`，测试归 `HDRMapConverter/Validation~/`。见 [2026-10-19 收尾](2026-10-19-hdr-map-pipeline.md)。
 
 - NormalSmoother Baker（2026-10-17）：窗口收敛为标准 Baker —— 输入固定单个 Mesh，固定资产路径 + Bake/Load/Save + 资产所有权，去掉多目标 / 子级 / 场景回写。编译、BakeCore、Save 新建与覆盖保 GUID 冒烟通过；GUI 画面未验收。见 [Baker 记录](2026-10-17-normal-smoother-baker.md)；[批量版记录](2026-10-17-normal-smoother-window.md) 为历史。
 - NormalSmoother 搬运（2026-10-17）：CelToon 法线平滑工具按项目脚本规范落到 Assets/Mine/Scripts/NormalSmoother/，公开 API/参数名保持不变；以原文件作参考实现做 21 例逐通道等价比对全部一致，骨骼权重与 UInt32 索引分支另验；Editor 窗口未搬运、无画面验证。见 [记录](2026-10-17-normal-smoother.md)。
 
-- CelToon 资源与 SSC 替换（2026-10-17）：SSC 以 CelToon 的单循环密度场（多层混合 + middle 分段剖面）与 HG/高度环境光散射替换 Lab 旧路径，保留 URP 17 RenderGraph、三种噪声模式与 ray count；旧 `rotation` 的度→弧度换算一并修正。Unity batchmode 编译零消息；Feature 尚未挂到 Renderer，无画面验证。见 [替换记录](2026-10-17-ssc-celtoon-scattering-merge.md)、[资源审计](2026-10-17-celtoon-asset-audit.md)。
+- CelToon 资源与 SSC 替换（2026-10-17 历史）：SSC 以 CelToon 单循环密度场与 HG/高度环境光散射替换旧路径，修正 rotation；当时仅 batchmode 编译，未挂 Renderer。现已拉取远端挂载版本、收敛为2D R噪声并完成颜色/重建验证，见 [当前记录](2026-10-20-ssc-quality.md)。来源保留于 [替换记录](2026-10-17-ssc-celtoon-scattering-merge.md)、[资源审计](2026-10-17-celtoon-asset-audit.md)。
 
 - 生产工具归属（2026-10-16 当前）：通用框架已归 agent 完整模板，五窗口独立化并编译通过，42 项 Editor 回归及完整模板编译/Bake/释放验证通过。Noise 上轮修复保持；物理点击、不同资产覆盖确认与 GPU 画质仍待验。见 [迁移记录](../meta/2026-10-16-production-tools-agent-templates.md)；[前一轮接手](2026-10-16-production-tool-handover.md) 保持历史语义。
 
@@ -84,6 +98,10 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-22-sdf-normalization.md](2026-10-22-sdf-normalization.md) | 2026-10-22 | SDF 库改为中心 1、边界/外部 0 的覆盖度图元，新增圆/方形；规范、HLSL 语法与数值断言通过。 |
+| [2026-10-20-ssc-performance.md](2026-10-20-ssc-performance.md) | 2026-10-20 | SSC精确早停/空域跳采样/sky mask快速重建；432样本同步墙钟、覆盖率/HDR/薄前景与正式证据，性能已实施，形状/面板未改。 |
+| [2026-10-20-ssc-redesign-proposal.md](2026-10-20-ssc-redesign-proposal.md) | 2026-10-20 | SSC黏连/积分与光照耦合根因、216样本成本对照、候选质量档和参数重设计；生产实现未改。 |
+| [2026-10-20-ssc-quality.md](2026-10-20-ssc-quality.md) | 2026-10-20 | SSC 双色增强、RGBA16F、16tap深度重建及遮挡；Metal六变体/20张控制图/HDR正负控，附对照证据与低档柔化限制。 |
 | [2026-10-19-screenwarp-overlay.md](2026-10-19-screenwarp-overlay.md) | 2026-10-19 | 固定输出 UV 的可选 RGBA 遮盖与独立不透明度；Metal 752 组/URP 52 请求通过，素材槽留空，原相机/场景配置保持。 |
 | [2026-10-19-screenwarp-v1.md](2026-10-19-screenwarp-v1.md) | 2026-10-19 | 四种独立屏幕映射与PC_Renderer接入；Metal432组/URP30请求通过，相机保持，交互逆映射等边界留后续。 |
 | [2026-10-19-hdr-map-pipeline.md](2026-10-19-hdr-map-pipeline.md) | 2026-10-19 | Baker/Converter 拆分、四投影统一方向采样、旧 GUID 迁移；Metal 80 项功能及连续梯度通过，验证源码归档；FGD/GGX/反射排除。 |

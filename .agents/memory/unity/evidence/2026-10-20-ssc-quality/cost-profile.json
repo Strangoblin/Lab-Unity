@@ -1,0 +1,17 @@
+{
+    "device": "Apple M2",
+    "api": "Metal",
+    "unity": "6000.3.14f1",
+    "scene": "Assets/Scenes/RenderScene.unity",
+    "pose": "(26.29, 8.36, -2.08) rotation=(297.82, 270.13, 356.60) fov=60",
+    "settings": "{\"sscShader\":{\"instanceID\":804},\"mainTex2D\":{\"instanceID\":47296},\"rayCount\":0,\"downsample\":2,\"baseColorA\":{\"r\":0.8443396091461182,\"g\":0.963904857635498,\"b\":1.0,\"a\":1.0},\"baseColorB\":{\"r\":0.0,\"g\":0.5101833343505859,\"b\":1.0,\"a\":1.0},\"scale\":4.0,\"speed\":1.0,\"height\":50.0,\"rotation\":0.0,\"thickness\":0.800000011920929,\"middle\":0.20000000298023225,\"threshold\":0.20000000298023225,\"size\":{\"x\":100.0,\"y\":10.0,\"z\":100.0},\"phaseG\":0.0,\"ambientIntensity\":1.0,\"jitter\":1.0,\"showSSC\":false}",
+    "metric": "GPU-synchronized SubmitRenderRequest + 1x1 ReadPixels wall ms; not pure GPU or GameView FPS",
+    "sourceHash": "456DCF3722C79C6EB565EA09C7D91953A517397F7E4BC797A165D787C82194E5",
+    "width": 1920,
+    "height": 1080,
+    "warmup": 8,
+    "samples": 12,
+    "sceneDirtyBefore": false,
+    "sceneDirtyAfter": false,
+    "restored": true
+}

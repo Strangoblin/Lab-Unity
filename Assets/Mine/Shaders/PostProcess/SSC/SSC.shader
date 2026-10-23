@@ -14,6 +14,7 @@ Shader "PostProcess/SSC"
 
         [Header(Scattering)]
         _PhaseG ("Phase G", Range(-1,1)) = 0.8
+        _SecondaryScattering ("Secondary Scattering", Range(0,2)) = 1.0
         _AmbientIntensity ("Ambient Intensity", Range(0,2)) = 1.0
 
         _Jitter ("Jitter", Float) = 0.5
@@ -26,8 +27,10 @@ Shader "PostProcess/SSC"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Filtering.hlsl"
     #include "Assets/Mine/Special/HLSL/DeclareCustomTexture.hlsl"
     #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
+    #include "Assets/Mine/Special/HLSL/SDF.hlsl"
 
     TEXTURE2D_X(_MainTex2D);
     SAMPLER(sampler_MainTex2D);
@@ -38,18 +41,76 @@ Shader "PostProcess/SSC"
         float4 _BaseColorB;
         float4 _CloudParamA;
         float4 _CloudParamB;
+        float4 _SSCTextureSize;
+        float _SSCDownsample;
         float _CloudMiddle;
         float _CloudThreshold;
         float _PhaseG;
+        float _SecondaryScattering;
         float _AmbientIntensity;
         float _Jitter;
         int _Count;
     CBUFFER_END
 
-    float3 ReconstructWorldPos(float2 uv)
+    float3 ReconstructWorldPos(float2 uv, float rawDepth)
     {
-        float rawDepth = SampleSceneDepth(uv);
+        #if !UNITY_REVERSED_Z
+            rawDepth = lerp(UNITY_NEAR_CLIP_VALUE, 1.0, rawDepth);
+        #endif
         return ComputeWorldSpacePosition(uv, rawDepth, UNITY_MATRIX_I_VP);
+    }
+
+    struct SSCRay
+    {
+        float3 cameraPosWS;
+        float3 directionWS;
+        float nearDistance;
+        float farDistance;
+        float sceneDistance;
+    };
+
+    // 积分与全分辨率合成共用同一可见云段，避免低分辨率遮挡扩散到前景。
+    bool CloudRayBounds(float2 uv, float rawDepth, out SSCRay ray)
+    {
+        ray = (SSCRay)0;
+        ray.cameraPosWS = GetCameraPositionWS();
+        float3 rayLengthWS = ReconstructWorldPos(uv, rawDepth) - ray.cameraPosWS;
+        ray.sceneDistance = length(rayLengthWS);
+        ray.directionWS = rayLengthWS / max(ray.sceneDistance, 0.00001);
+
+        float3 cloudPositionWS = float3(0.0, _CloudParamA.w, 0.0);
+        float3 halfSize = _CloudParamB.xyz * 0.5;
+        float3 inverseDirectionWS = 1.0 / ray.directionWS;
+        float3 tMin = (cloudPositionWS - halfSize - ray.cameraPosWS) * inverseDirectionWS;
+        float3 tMax = (cloudPositionWS + halfSize - ray.cameraPosWS) * inverseDirectionWS;
+        float3 t1 = min(tMin, tMax);
+        float3 t2 = max(tMin, tMax);
+        ray.nearDistance = max(max(t1.x, t1.y), t1.z);
+        ray.farDistance = min(min(t2.x, t2.y), t2.z);
+        return min(ray.farDistance, ray.sceneDistance) > max(ray.nearDistance, 0.0);
+    }
+
+    bool IsSkyDepth(float rawDepth)
+    {
+        #if UNITY_REVERSED_Z
+            return rawDepth <= 0.00001;
+        #else
+            return rawDepth >= 0.99999;
+        #endif
+    }
+
+    float CloudDepthWeight(float centerRawDepth, float sampleRawDepth, float centerEyeDepth)
+    {
+        bool centerIsSky = IsSkyDepth(centerRawDepth);
+        bool sampleIsSky = IsSkyDepth(sampleRawDepth);
+        if (centerIsSky || sampleIsSky)
+        {
+            return centerIsSky == sampleIsSky ? 1.0 : 0.0;
+        }
+
+        float sigma = max(0.01, 0.02 * centerEyeDepth);
+        float sampleEyeDepth = LinearEyeDepth(sampleRawDepth, _ZBufferParams);
+        return exp2(-abs(sampleEyeDepth - centerEyeDepth) / sigma);
     }
 
     // 单一噪声路径：XZ 平面上的 2D 循环纹理，R 通道。
@@ -62,7 +123,7 @@ Shader "PostProcess/SSC"
     // ════════════════════════════════════════════════════════════
     //  DensityLOD — 低频与多层高频按 0.5 混合，各层滚动速度递增
     // ════════════════════════════════════════════════════════════
-    float DensityLOD(float3 positionWS, float3 transform, int lod)
+    float DensityLOD(float3 positionWS, float3 transform, int lod, out float columnDensity)
     {
         float scale = transform.x;
         float speed = transform.y;
@@ -74,6 +135,7 @@ Shader "PostProcess/SSC"
         float mid = 0.0;
         float amp = 0.5;
         float low = Noise(pos + offset);
+        columnDensity = low;
         float high = 0.0;
 
         static const float mul[4] = {2.02, 2.23, 2.41, 2.62};
@@ -114,14 +176,33 @@ Shader "PostProcess/SSC"
         return pow(density, power);
     }
 
+    // ════════════════════════════════════════════════════════════
+    //  CalculateDensity — 低频密度自适应云顶，保留原高度剖面、阈值与 Circle 边界
+    // ════════════════════════════════════════════════════════════
     float CalculateDensity(float3 positionWS, float3 cloudTrans, float3 paramUD, float cloudMiddle, float cloudThreshold, int lod)
     {
-        float density = DensityLOD(positionWS, cloudTrans, lod) * DensityH(positionWS, paramUD, cloudMiddle);
-        if (density < cloudThreshold)
+        float2 boundaryPosition = positionWS.xz / max(abs(_CloudParamB.xz) * 0.5, 1e-6);
+        const float boundaryFade = 0.5;
+        float boundaryDensity = smoothstep(0.0, boundaryFade,
+            SDF_Circle(boundaryPosition, 1.0));
+        float heightDensity = DensityH(positionWS, paramUD, cloudMiddle);
+        float density = 0.0;
+        [branch]
+        if (heightDensity > 0.0 && boundaryDensity > 0.0
+            && positionWS.y >= paramUD.y && positionWS.y <= paramUD.x)
         {
-            density = 0.0;
+            float columnDensity = 0.0;
+            float noiseDensity = DensityLOD(positionWS, cloudTrans, lod, columnDensity);
+            float localTop = lerp(paramUD.x,
+                paramUD.y + (paramUD.x - paramUD.y) * saturate(columnDensity), 0.5);
+            heightDensity = 0.0;
+            if (localTop > paramUD.y && positionWS.y <= localTop)
+                heightDensity = DensityH(positionWS, float3(localTop, paramUD.yz), cloudMiddle);
+            density = noiseDensity * heightDensity;
+            if (density < cloudThreshold)
+                density = 0.0;
         }
-        return saturate(density);
+        return saturate(density) * boundaryDensity;
     }
 
     #define RAYMARCH(COUNT, LOD) \
@@ -129,69 +210,59 @@ Shader "PostProcess/SSC"
         [loop] \
         for (int i = 0; i < COUNT; i++) \
         { \
-            if (tCurrent >= tFar || tCurrent >= tScene) \
+            if (tCurrent >= tFar || tCurrent >= tScene || Density >= 1.0) \
             { \
                 break; \
             } \
              \
             step = min(step, (tFar - tCurrent)); \
             float3 localPosWS = cameraPosWS + rayDirWS * tCurrent; \
-            float3 lightPosWS = localPosWS + lightDirWS * step * 20.0; \
             float localDensity = CalculateDensity(localPosWS, cloudTrans, paramUD, cloudMiddle, cloudThreshold, LOD); \
-            float lightDensity = CalculateDensity(lightPosWS, cloudTrans, paramUD, cloudMiddle, cloudThreshold, LOD); \
-            float stepAlpha = localDensity * (1.0 - Density); \
-            float stepShadow = 1.0 - lightDensity; \
-            float heightT = saturate((localPosWS.y - cloudBottom) / (cloudTop - cloudBottom)); \
-            float3 ambient = lerp(unity_AmbientGround.rgb, unity_AmbientSky.rgb, heightT) * ambientIntensity; \
-            float3 albedo = lerp(_BaseColorB.rgb, _BaseColorA.rgb, stepShadow); \
-            float3 directLight = lightColor * stepShadow * phase; \
-            float3 scattering = directLight + ambient; \
-            Diffuse += scattering * albedo * stepAlpha; \
-            Density += stepAlpha; \
+            /* 空密度没有散射/覆盖贡献，不再重复采光照密度。 */ \
+            [branch] \
+            if (localDensity > 0.0) \
+            { \
+                float3 lightPosWS = localPosWS + lightDirWS * step * 20.0; \
+                float lightDensity = CalculateDensity(lightPosWS, cloudTrans, paramUD, cloudMiddle, cloudThreshold, LOD); \
+                float stepAlpha = localDensity * (1.0 - Density); \
+                float stepShadow = 1.0 - lightDensity; \
+                float heightT = saturate((localPosWS.y - cloudBottom) / (cloudTop - cloudBottom)); \
+                float3 ambient = lerp(unity_AmbientGround.rgb, unity_AmbientSky.rgb, heightT) * ambientIntensity; \
+                float colorWeight = stepShadow * stepShadow * stepShadow; \
+                float3 albedo = lerp(_BaseColorB.rgb, _BaseColorA.rgb, colorWeight); \
+                float3 directLight = lightColor * stepShadow * phase; \
+                float3 scattering = directLight + ambient; \
+                Diffuse += scattering * albedo * stepAlpha; \
+                Density += stepAlpha; \
+            } \
             tCurrent += step; \
         } \
         } \
 
     // ════════════════════════════════════════════════════════════
-    //  Frag_SSC — 单次 ray march，累积散射辐亮度与不透明度
+    //  EvaluateCloud — 单次 ray march，累积散射辐亮度与不透明度
     //  RGB 已按 stepAlpha 预乘；A 是前向合成后的覆盖率。
     // ════════════════════════════════════════════════════════════
-    half4 Frag_SSC(Varyings input) : SV_Target
+    float4 EvaluateCloud(float2 uv)
     {
-        float2 uv = input.texcoord;
-        float3 positionWS = ReconstructWorldPos(uv);
-        float3 cameraPosWS = GetCameraPositionWS();
+        SSCRay ray = (SSCRay)0;
+        if (!CloudRayBounds(uv, SampleSceneDepth(uv), ray))
+        {
+            return 0.0;
+        }
 
-        float  cloudHeight = _CloudParamA.w;
+        float3 cameraPosWS = ray.cameraPosWS;
+        float3 rayDirWS = ray.directionWS;
+        float tNear = ray.nearDistance;
+        float tFar = ray.farDistance;
+        float tScene = ray.sceneDistance;
         float3 cloudSize = _CloudParamB.xyz;
-        float3 cloudPosWS = float3(0, cloudHeight, 0);
-
-        float3 rayLenWS = positionWS - cameraPosWS;
-        float3 rayDirWS = normalize(rayLenWS);
-        float3 invDirWS = 1.0 / rayDirWS;
-
-        float3 tMin = (cloudPosWS - cloudSize * 0.5 - cameraPosWS) * invDirWS;
-        float3 tMax = (cloudPosWS + cloudSize * 0.5 - cameraPosWS) * invDirWS;
-
-        float3 t1 = min(tMin, tMax);
-        float3 t2 = max(tMin, tMax);
-
-        float tScene = dot(rayLenWS, rayDirWS);
-        float tNear = max(max(t1.x, t1.y), t1.z);
-        float tFar = min(min(t2.x, t2.y), t2.z);
-
-        if (tNear > tFar || tFar < 0.0)
-        {
-            return 0;
-        }
-
-        if (tScene < tNear)
-        {
-            return 0;
-        }
+        float3 cloudPosWS = float3(0.0, _CloudParamA.w, 0.0);
 
         int Count = 32;
-        #if defined(SSC_RAY_COUNT_64)
+        #if defined(SSC_RAY_COUNT_32)
+            Count = 32;
+        #elif defined(SSC_RAY_COUNT_64)
             Count = 64;
         #elif defined(SSC_RAY_COUNT_128)
             Count = 128;
@@ -218,12 +289,18 @@ Shader "PostProcess/SSC"
         float  cloudThreshold = saturate(_CloudThreshold);
         float  ambientIntensity = max(0.0, _AmbientIntensity);
 
-        // 与 MaskRBR 一致：Core HG 自带 1/(4π)，用峰值归一化消去该常量；
-        // g 由 SSC 自己钳制，避免 g=±1 的奇点。
+        // 双 HG：主 lobe 产生前向亮斑，HG0 作为加法各向同性项近似多次散射。
+        // 两项相加而不是归一化混合，次 lobe 同时补充外圈能量和整体亮度。
+        float cosineTheta = dot(rayDirWS, lightDirWS);
         float g = clamp(_PhaseG, -0.999, 0.999);
-        float phase = HenyeyGreensteinPhaseFunction(g, dot(rayDirWS, lightDirWS))
-                    / HenyeyGreensteinPhaseFunction(g, 1.0);
+        float hgPhase = HenyeyGreensteinPhaseFunction(g, cosineTheta)
+                      / HenyeyGreensteinPhaseFunction(g, 1.0);
+        float isotropicHG = HenyeyGreensteinPhaseFunction(0.0, cosineTheta)
+                          / HenyeyGreensteinPhaseFunction(0.0, 1.0);
+        float phase = hgPhase + isotropicHG * max(0.0, _SecondaryScattering);
 
+        // 只在累计覆盖率精确饱和时结束：余下 stepAlpha 为 0。
+        // 不依赖 half 的舍入模式，HDR 背景与原覆盖率保持同一语义。
         float3 Diffuse = float3(0.0, 0.0, 0.0);
         float Density = 0.0;
 
@@ -237,6 +314,139 @@ Shader "PostProcess/SSC"
     }
     #undef RAYMARCH
 
+    half4 Frag_SSC(Varyings input) : SV_Target
+    {
+        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+        return EvaluateCloud(input.texcoord);
+    }
+
+    // 非负三次 B-spline 同时重建预乘 RGB 与覆盖率，不产生边缘振铃。
+    // 天空中心的深度权重严格为 0/1，压入 16 位掩码，避免 16 个浮点跨分支存活。
+    uint SSCReadSkyMask(float2 basePixel)
+    {
+        uint mask = 0u;
+        [unroll]
+        for (int y = 0; y < 4; ++y)
+        {
+            [unroll]
+            for (int x = 0; x < 4; ++x)
+            {
+                float2 pixel = clamp(basePixel + float2(x - 1, y - 1), 0.0, _SSCTextureSize.zw - 1.0);
+                float2 uv = (pixel + 0.5) * _SSCTextureSize.xy;
+                if (IsSkyDepth(SampleSceneDepth(uv)))
+                    mask |= 1u << (y * 4 + x);
+            }
+        }
+        return mask;
+    }
+
+    float4 SSCSampleSkyBicubic(
+        float2 basePixel, float2 weight0, float2 weight1, float2 weight2, float2 weight3)
+    {
+        // Core BSpline3 weights are grouped into two adjacent pairs per axis.
+        // This is the four-bilinear-tap identity used by Core BicubicFilter;
+        // explicit vectors retain the existing grid and avoid local out arrays.
+        float2 pair0 = weight0 + weight1;
+        float2 pair1 = weight2 + weight3;
+        float2 pixel0 = basePixel - 1.0 + weight1 / pair0;
+        float2 pixel1 = basePixel + 1.0 + weight3 / pair1;
+        float2 minUV = _SSCTextureSize.xy * 0.5;
+        float2 maxUV = 1.0 - minUV;
+        float2 uv0 = clamp((pixel0 + 0.5) * _SSCTextureSize.xy, minUV, maxUV);
+        float2 uv1 = clamp((pixel1 + 0.5) * _SSCTextureSize.xy, minUV, maxUV);
+
+        float4 sample00 = SAMPLE_TEXTURE2D_X_LOD(
+            _SSCTex, sampler_LinearClamp,
+            UnityStereoTransformScreenSpaceTex(float2(uv0.x, uv0.y)), 0);
+        float4 sample10 = SAMPLE_TEXTURE2D_X_LOD(
+            _SSCTex, sampler_LinearClamp,
+            UnityStereoTransformScreenSpaceTex(float2(uv1.x, uv0.y)), 0);
+        float4 sample01 = SAMPLE_TEXTURE2D_X_LOD(
+            _SSCTex, sampler_LinearClamp,
+            UnityStereoTransformScreenSpaceTex(float2(uv0.x, uv1.y)), 0);
+        float4 sample11 = SAMPLE_TEXTURE2D_X_LOD(
+            _SSCTex, sampler_LinearClamp,
+            UnityStereoTransformScreenSpaceTex(float2(uv1.x, uv1.y)), 0);
+
+        // Normalize all four channels together, matching the slow reconstruction.
+        float totalWeight = (pair0.x + pair1.x) * (pair0.y + pair1.y);
+        float4 result = float4(0.0, 0.0, 0.0, 0.0);
+        result = sample00 * pair0.x * pair0.y + sample10 * pair1.x * pair0.y
+            + sample01 * pair0.x * pair1.y + sample11 * pair1.x * pair1.y;
+        result /= totalWeight;
+        return result;
+    }
+
+    float4 ReconstructCloud(float2 uv, float rawDepth, SSCRay centerRay, float backgroundRadiance)
+    {
+        float4 result = float4(0.0, 0.0, 0.0, 0.0);
+        if (_SSCDownsample < 0.5)
+        {
+            result = SAMPLE_TEXTURE2D_X_LOD(
+                _SSCTex, sampler_PointClamp, UnityStereoTransformScreenSpaceTex(uv), 0);
+        }
+        else
+        {
+            float2 sourcePixel = uv * _SSCTextureSize.zw - 0.5;
+            float2 basePixel = floor(sourcePixel);
+            float2 inverseFraction = 1.0 - frac(sourcePixel);
+            float2 weight0 = BSpline3Leftmost(inverseFraction);
+            float2 weight1 = BSpline3MiddleLeft(inverseFraction);
+            float2 weight2 = BSpline3MiddleRight(inverseFraction);
+            float2 weight3 = BSpline3Rightmost(inverseFraction);
+            float4 weightsX = float4(weight0.x, weight1.x, weight2.x, weight3.x);
+            float4 weightsY = float4(weight0.y, weight1.y, weight2.y, weight3.y);
+            // 只有普通亮度的天空才尝试四次双线性重建；HDR 保留原精细路径。
+            bool skyCenter = IsSkyDepth(rawDepth);
+            bool testSkyMask = skyCenter && backgroundRadiance <= 1.0;
+            uint skyMask = 0u;
+            [branch]
+            if (testSkyMask)
+                skyMask = SSCReadSkyMask(basePixel);
+            [branch]
+            if (testSkyMask && skyMask == 65535u)
+            {
+                result = SSCSampleSkyBicubic(basePixel, weight0, weight1, weight2, weight3);
+            }
+            else
+            {
+                float centerEyeDepth = LinearEyeDepth(rawDepth, _ZBufferParams);
+                float4 accumulated = 0.0;
+                float totalWeight = 0.0;
+                bool incompatibleDepth = false;
+                [unroll]
+                for (int y = 0; y < 4; ++y)
+                {
+                    [unroll]
+                    for (int x = 0; x < 4; ++x)
+                    {
+                        float2 samplePixel = clamp(
+                            basePixel + float2(x - 1, y - 1), 0.0, _SSCTextureSize.zw - 1.0);
+                        float2 sampleUV = (samplePixel + 0.5) * _SSCTextureSize.xy;
+                        float depthWeight = 0.0;
+                        [branch]
+                        if (testSkyMask)
+                            depthWeight = (float)((skyMask >> (y * 4 + x)) & 1u);
+                        else
+                            depthWeight = CloudDepthWeight(rawDepth, SampleSceneDepth(sampleUV), centerEyeDepth);
+                        incompatibleDepth = incompatibleDepth || depthWeight < 0.5;
+                        float weight = weightsX[x] * weightsY[y] * depthWeight;
+                        float4 sampleCloud = SAMPLE_TEXTURE2D_X_LOD(
+                            _SSCTex, sampler_PointClamp, UnityStereoTransformScreenSpaceTex(sampleUV), 0);
+                        accumulated += sampleCloud * weight;
+                        totalWeight += weight;
+                    }
+                }
+                if (totalWeight <= 0.0001
+                    || (centerRay.sceneDistance < centerRay.farDistance && incompatibleDepth))
+                    result = EvaluateCloud(uv);
+                else
+                    result = accumulated / totalWeight;
+            }
+        }
+        return result;
+    }
+
     // ════════════════════════════════════════════════════════════
     //  Frag_Composite — 预乘 alpha 合成
     //  cloudColor.rgb 已含覆盖率权重，不能再乘一次 alpha；
@@ -244,9 +454,19 @@ Shader "PostProcess/SSC"
     // ════════════════════════════════════════════════════════════
     half4 Frag_Composite(Varyings input) : SV_Target
     {
-        float4 cloudColor = SampleCustomTexture(_SSCTex, sampler_LinearClamp, input.texcoord);
-        float4 sceneColor = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
+        UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+        float2 uv = input.texcoord;
+        float4 sceneColor = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, uv);
+        float rawDepth = SampleSceneDepth(uv);
+        SSCRay ray = (SSCRay)0;
+        if (!CloudRayBounds(uv, rawDepth, ray))
+        {
+            return sceneColor;
+        }
 
+        float3 sceneMagnitude = abs(sceneColor.rgb);
+        float backgroundRadiance = max(max(sceneMagnitude.r, sceneMagnitude.g), sceneMagnitude.b);
+        float4 cloudColor = ReconstructCloud(uv, rawDepth, ray, backgroundRadiance);
         float alpha = saturate(cloudColor.a);
         float3 composited = sceneColor.rgb * (1.0 - alpha) + cloudColor.rgb;
         return half4(composited, sceneColor.a);
@@ -255,17 +475,18 @@ Shader "PostProcess/SSC"
 
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
+        Tags { "RenderType"="Transparent" "Queue"="Transparent" "RenderPipeline"="UniversalPipeline" }
         LOD 100
         Blend One Zero
+        Cull Off ZWrite Off ZTest Always
 
         Pass
         {
             Name "SSC"
 
             HLSLPROGRAM
-            #pragma multi_compile _ SSC_RAY_COUNT_64 SSC_RAY_COUNT_128 SSC_RAY_COUNT_256
-            #pragma target 2.0
+            #pragma multi_compile _ SSC_RAY_COUNT_32 SSC_RAY_COUNT_64 SSC_RAY_COUNT_128 SSC_RAY_COUNT_256
+            #pragma target 3.5
             #pragma vertex Vert
             #pragma fragment Frag_SSC
             ENDHLSL
@@ -276,7 +497,8 @@ Shader "PostProcess/SSC"
             Name "Composite"
 
             HLSLPROGRAM
-            #pragma target 2.0
+            #pragma multi_compile _ SSC_RAY_COUNT_32 SSC_RAY_COUNT_64 SSC_RAY_COUNT_128 SSC_RAY_COUNT_256
+            #pragma target 3.5
             #pragma vertex Vert
             #pragma fragment Frag_Composite
             ENDHLSL

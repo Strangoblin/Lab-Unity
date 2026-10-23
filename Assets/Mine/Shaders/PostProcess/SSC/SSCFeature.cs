@@ -2,6 +2,7 @@
 //  SSC Feature — screen space clouds
 // ════════════════════════════════════════════════════════════
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
@@ -21,19 +22,55 @@ public sealed class SSCFeature : ScriptableRendererFeature
     {
         COUNT64,
         COUNT128,
-        COUNT256
+        COUNT256,
+        COUNT32 = 3
+    }
+
+    public enum Quality
+    {
+        [InspectorName("Low")] Low,
+        [InspectorName("Medium")] Medium,
+        [InspectorName("High")] High
+    }
+
+    public readonly struct Tier
+    {
+        public readonly RayCount rayCount;
+        public readonly int downsample;
+
+        public Tier(RayCount rayCount, int downsample)
+        {
+            this.rayCount = rayCount;
+            this.downsample = downsample;
+        }
+    }
+
+    public static Tier GetTier(Quality quality)
+    {
+        switch (quality)
+        {
+            case Quality.Low: return new Tier(RayCount.COUNT32, 3);
+            case Quality.High: return new Tier(RayCount.COUNT128, 1);
+            default: return new Tier(RayCount.COUNT64, 2);
+        }
     }
 
     [System.Serializable]
-    public sealed class Settings
+    public sealed class Settings : ISerializationCallbackReceiver
     {
         [Header("Technical")]
         public Shader sscShader;
         public Texture2D mainTex2D;
 
         [Header("Performance")]
-        public RayCount rayCount = RayCount.COUNT128;
-        [Range(0, 4)] public int downsample = 0;
+        public Quality quality = Quality.Medium;
+
+        [SerializeField, HideInInspector, FormerlySerializedAs("downsample")]
+        int _legacyDownsample = -1;
+        [SerializeField, HideInInspector] RayCount _customRayCount = RayCount.COUNT64;
+        [SerializeField, HideInInspector] int _customDownsample = 2;
+        [SerializeField, HideInInspector] bool _preserveCustomBudget;
+        [SerializeField, HideInInspector] Quality _customBudgetQuality = Quality.Medium;
 
         [Header("Artistic")]
         public Color baseColorA = Color.white;
@@ -48,7 +85,10 @@ public sealed class SSCFeature : ScriptableRendererFeature
         [Range(0f, 1f)] public float threshold = 0.2f;
         public Vector3 size = new Vector3(100, 50, 100);
 
+        [Tooltip("HG anisotropy: higher values concentrate direct light into the forward lobe.")]
         [Range(-1f, 1f)] public float phaseG = 0.8f;
+        [Tooltip("Additive isotropic HG0 lobe used to approximate cloud multiple scattering.")]
+        [Range(0f, 2f)] public float secondaryScattering = 1.0f;
         [Range(0f, 2f)] public float ambientIntensity = 1.0f;
 
         [Range(0f, 1f)] public float jitter = 1.0f;
@@ -58,6 +98,72 @@ public sealed class SSCFeature : ScriptableRendererFeature
         [Tooltip("true = 直接输出 SSC 云缓冲，跳过场景合成。")]
         public bool showSSC = false;
 
+        public Tier Budget
+        {
+            get
+            {
+                if (_preserveCustomBudget)
+                {
+                    if (quality == _customBudgetQuality)
+                        return new Tier(_customRayCount, Mathf.Clamp(_customDownsample, 0, 4));
+
+                    _preserveCustomBudget = false;
+                    _customBudgetQuality = quality;
+                }
+
+                return GetTier(quality);
+            }
+        }
+
+        // 验证脚本仍可设置旧组合；正常面板只使用三档。
+        public RayCount rayCount
+        {
+            get => Budget.rayCount;
+            set => SetBudget(value, downsample);
+        }
+
+        public int downsample
+        {
+            get => Budget.downsample;
+            set => SetBudget(rayCount, value);
+        }
+
+        public void SetBudget(RayCount rays, int shift)
+        {
+            _customRayCount = rays;
+            _customDownsample = shift;
+            for (int i = (int)Quality.Low; i <= (int)Quality.High; i++)
+            {
+                Tier tier = GetTier((Quality)i);
+                if (tier.rayCount != rays || tier.downsample != shift) continue;
+                quality = (Quality)i;
+                _customBudgetQuality = quality;
+                _preserveCustomBudget = false;
+                return;
+            }
+
+            _customBudgetQuality = quality;
+            _preserveCustomBudget = true;
+        }
+
+        public void OnBeforeSerialize() { }
+
+        public void OnAfterDeserialize()
+        {
+            if ((int)quality < (int)Quality.Low || quality > Quality.High)
+                quality = Quality.Medium;
+
+            if (_legacyDownsample < 0) return;
+
+            Quality migrated = _legacyDownsample >= 3 ? Quality.Low
+                : _legacyDownsample <= 1 ? Quality.High
+                : Quality.Medium;
+            quality = migrated;
+            _customBudgetQuality = quality;
+            _preserveCustomBudget = false;
+            _legacyDownsample = -1;
+        }
+
         internal static readonly int BaseColorAID = Shader.PropertyToID("_BaseColorA");
         internal static readonly int BaseColorBID = Shader.PropertyToID("_BaseColorB");
         internal static readonly int MainTex2DID = Shader.PropertyToID("_MainTex2D");
@@ -66,9 +172,12 @@ public sealed class SSCFeature : ScriptableRendererFeature
         internal static readonly int CloudMiddleID = Shader.PropertyToID("_CloudMiddle");
         internal static readonly int CloudThresholdID = Shader.PropertyToID("_CloudThreshold");
         internal static readonly int PhaseGID = Shader.PropertyToID("_PhaseG");
+        internal static readonly int SecondaryScatteringID = Shader.PropertyToID("_SecondaryScattering");
         internal static readonly int AmbientIntensityID = Shader.PropertyToID("_AmbientIntensity");
         internal static readonly int JitterID = Shader.PropertyToID("_Jitter");
         internal static readonly int SSCTexID = Shader.PropertyToID("_SSCTex");
+        internal static readonly int TextureSizeID = Shader.PropertyToID("_SSCTextureSize");
+        internal static readonly int DownsampleID = Shader.PropertyToID("_SSCDownsample");
     }
 
     sealed class SSCRenderPass : ScriptableRenderPass
@@ -86,6 +195,7 @@ public sealed class SSCFeature : ScriptableRendererFeature
         const int RayMarchPassIndex = 0;
         const int CompositePassIndex = 1;
 
+        const string RayCount32Keyword = "SSC_RAY_COUNT_32";
         const string RayCount64Keyword = "SSC_RAY_COUNT_64";
         const string RayCount128Keyword = "SSC_RAY_COUNT_128";
         const string RayCount256Keyword = "SSC_RAY_COUNT_256";
@@ -112,7 +222,8 @@ public sealed class SSCFeature : ScriptableRendererFeature
             TextureHandle source = resourceData.activeColorTexture;
             if (!source.IsValid() || _material == null) return;
 
-            ConfigureMaterial();
+            Tier tier = _settings.Budget;
+            ConfigureMaterial(tier);
 
             RenderTextureDescriptor desc = cameraData.cameraTargetDescriptor;
             desc.depthBufferBits = 0;
@@ -121,24 +232,30 @@ public sealed class SSCFeature : ScriptableRendererFeature
             desc.useMipMap = false;
             desc.autoGenerateMips = false;
 
-            int shift = Mathf.Clamp(_settings.downsample, 0, 4);
+            int shift = tier.downsample;
             RenderTextureDescriptor cloudDesc = desc;
             cloudDesc.width = Mathf.Max(1, desc.width >> shift);
             cloudDesc.height = Mathf.Max(1, desc.height >> shift);
+            // 云 RGB 是预乘辐亮度，A 是覆盖率；相机 HDR 格式可能没有 alpha。
+            cloudDesc.graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
+            _material.SetVector(Settings.TextureSizeID, new Vector4(
+                1f / cloudDesc.width, 1f / cloudDesc.height, cloudDesc.width, cloudDesc.height));
+            _material.SetFloat(Settings.DownsampleID, shift);
 
             TextureHandle cloudRT = UniversalRenderer.CreateRenderGraphTexture(
                 renderGraph, cloudDesc, "_SSCCloudRT", false, FilterMode.Bilinear);
             TextureHandle compositeRT = UniversalRenderer.CreateRenderGraphTexture(
                 renderGraph, desc, "_SSCCompositeRT", false, FilterMode.Bilinear);
 
-            AddRayMarchPass(renderGraph, source, cloudRT);
-            AddCompositePass(renderGraph, source, cloudRT, compositeRT);
+            TextureHandle depth = resourceData.cameraDepthTexture;
+            AddRayMarchPass(renderGraph, source, cloudRT, depth);
+            AddCompositePass(renderGraph, source, cloudRT, compositeRT, depth);
 
             // 合成结果直接接管相机颜色，后续 Pass 读取新颜色。
             resourceData.cameraColor = compositeRT;
         }
 
-        void AddRayMarchPass(RenderGraph renderGraph, TextureHandle source, TextureHandle cloudRT)
+        void AddRayMarchPass(RenderGraph renderGraph, TextureHandle source, TextureHandle cloudRT, TextureHandle depth)
         {
             using (var builder = renderGraph.AddUnsafePass<PassData>("SSC Ray March", out var passData))
             {
@@ -147,6 +264,7 @@ public sealed class SSCFeature : ScriptableRendererFeature
                 passData.cloudRT = cloudRT;
 
                 builder.UseTexture(source, AccessFlags.Read);
+                if (depth.IsValid()) builder.UseTexture(depth, AccessFlags.Read);
                 builder.UseTexture(cloudRT, AccessFlags.Write);
                 builder.AllowPassCulling(false);
 
@@ -162,7 +280,8 @@ public sealed class SSCFeature : ScriptableRendererFeature
             RenderGraph renderGraph,
             TextureHandle source,
             TextureHandle cloudRT,
-            TextureHandle compositeRT)
+            TextureHandle compositeRT,
+            TextureHandle depth)
         {
             using (var builder = renderGraph.AddUnsafePass<PassData>("SSC Composite", out var passData))
             {
@@ -173,6 +292,7 @@ public sealed class SSCFeature : ScriptableRendererFeature
                 passData.showSSC = _settings.showSSC;
 
                 builder.UseTexture(source, AccessFlags.Read);
+                if (depth.IsValid()) builder.UseTexture(depth, AccessFlags.Read);
                 builder.UseTexture(cloudRT, AccessFlags.Read);
                 builder.UseTexture(compositeRT, AccessFlags.Write);
                 builder.AllowPassCulling(false);
@@ -197,7 +317,7 @@ public sealed class SSCFeature : ScriptableRendererFeature
         // ════════════════════════════════════════════════════════════
         //  ConfigureMaterial — 每帧把 Inspector 参数与 ray count 变体写入材质
         // ════════════════════════════════════════════════════════════
-        void ConfigureMaterial()
+        void ConfigureMaterial(Tier tier)
         {
             _material.SetColor(Settings.BaseColorAID, _settings.baseColorA);
             _material.SetColor(Settings.BaseColorBID, _settings.baseColorB);
@@ -209,15 +329,18 @@ public sealed class SSCFeature : ScriptableRendererFeature
             _material.SetFloat(Settings.CloudMiddleID, _settings.middle);
             _material.SetFloat(Settings.CloudThresholdID, _settings.threshold);
             _material.SetFloat(Settings.PhaseGID, _settings.phaseG);
+            _material.SetFloat(Settings.SecondaryScatteringID, _settings.secondaryScattering);
             _material.SetFloat(Settings.AmbientIntensityID, _settings.ambientIntensity);
             _material.SetFloat(Settings.JitterID, _settings.jitter);
 
+            _material.DisableKeyword(RayCount32Keyword);
             _material.DisableKeyword(RayCount64Keyword);
             _material.DisableKeyword(RayCount128Keyword);
             _material.DisableKeyword(RayCount256Keyword);
 
-            switch (_settings.rayCount)
+            switch (tier.rayCount)
             {
+                case RayCount.COUNT32:  _material.EnableKeyword(RayCount32Keyword);  break;
                 case RayCount.COUNT64:  _material.EnableKeyword(RayCount64Keyword);  break;
                 case RayCount.COUNT256: _material.EnableKeyword(RayCount256Keyword); break;
                 default:                _material.EnableKeyword(RayCount128Keyword); break;
