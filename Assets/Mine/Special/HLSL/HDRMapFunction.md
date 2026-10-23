@@ -22,6 +22,19 @@ float4 gradient = HDRMapSampleGrad(TEXTURE2D_ARGS(_Map, sampler_Map), direction,
 
 `HDRMapSample` reads mip 0. LOD is an ordinary image mip, clamped to the actual texture mip count. Grad takes derivatives of the unnormalized direction and accounts for projection seams. Converter outputs currently contain only mip 0. Bilinear filtering reconnects octahedral folded edges; equirectangular U wraps and V clamps independently of source sampler settings.
 
+## Reflection sampling
+
+`HDRMapSampleReflection` reuses the same HDR map for object reflections; it does not require a second Cubemap or a reflection-specific projection. The caller supplies a surface normal and a view direction pointing from the surface toward the camera.
+
+```hlsl
+float3 viewWS = GetWorldSpaceNormalizeViewDir(positionWS);
+float3 normalWS = normalize(input.normalWS);
+float4 reflected = HDRMapSampleReflection(
+    TEXTURE2D_ARGS(_Map, sampler_Map), normalWS, viewWS, projection, coverage);
+```
+
+Internally it computes `reflect(-viewWS, normalWS)` and calls `HDRMapSample`. With `coverage == Interior`, reflection directions outside the +Z hemisphere remain transparent, matching the sky-map contract. This convenience function samples mip 0; for an explicit LOD, compute the reflected direction and call `HDRMapSampleLOD` directly. Passing a camera-to-surface direction instead of surface-to-camera reverses the reflection.
+
 `HDRMapDirectionToUV` and `HDRMapUVToDirection` expose the pure mapping pair with an `out valid` mask. Equal-area uses the exact trigonometric formula and a matching inverse; no approximation or bitwise sign optimisation is assumed faster on Metal.
 
 ## Consumers
