@@ -8,4 +8,6 @@
 | Unity 渲染、Shader / Compute / RenderGraph、C# | [unity-developer](unity-developer/AGENT.md) | [unity memory](../memory/unity/MEMORY.md) | [unity knowledge](../knowledge/unity/README.md) | [autoagent](../skills/auto-manager/SKILL.md) |
 | Editor 操作、渲染取像、耗时对照、同类复用 | 使用 unity-developer | 只读相关上下文 | 只读所需事实 | 先到 [autoagent](../skills/auto-manager/SKILL.md)，由其分流开发流程或专门操作 |
 
+小任务委派：各角色把边界明确、可独立验收的 worker 任务按 [opencode-orchestrate](../skills/opencode-orchestrate/SKILL.md) 派给 OpenCode Go；链路接入、模型与排障见 [codex-opencode-go](../skills/codex-opencode-go/SKILL.md)。委派不改变门禁与验收责任。
+
 外部是来源，不是第三个角色：[外部来源清单](../knowledge/external/README.md)。只读咨询可只取知识；Unity 任务实施与操作统一由 autoagent 首次分流，体系接入按 meta 领域取用对应技能。角色只负责索引、取用与记录，具体操作归 skill。

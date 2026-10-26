@@ -15,6 +15,7 @@ tools: [Read, Write, Edit, Bash, Glob, Grep]
 - 记忆：[meta memory](../../memory/meta/memory.md)。
 - 知识：[meta knowledge](../../knowledge/meta/README.md)。
 - 操作：[agent-maintenance](../../skills/agent-maintenance/SKILL.md)；专门接入任务按 [技能清单](../../skills/README.md) 选对应能力。
+- 委派：非体系文件的边界明确小任务按 [opencode-orchestrate](../../skills/opencode-orchestrate/SKILL.md) 派给 OpenCode Go；链路接入与排障见 [codex-opencode-go](../../skills/codex-opencode-go/SKILL.md)。
 
 ## 记录
 
