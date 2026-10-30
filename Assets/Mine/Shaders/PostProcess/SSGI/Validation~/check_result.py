@@ -33,7 +33,22 @@ def main():
                     "multiscale-normal-edge-leakage", "multiscale-invalid-guides-zero",
                     "multiscale-boundary-clamping", "multiscale-confidence-not-denominator",
                     "diffuse-single-scale-history-rejected", "diffuse-previous-sequence-history-rejected",
-                    "diffuse-half-high-history-rejected"}
+                    "diffuse-half-high-history-rejected", "specular-environment-hdr-history-rejected",
+                    "specular-environment-resource-history-rejected", "specular-environment-update-history-rejected",
+                    "specular-default-environment-hdr", "intensity-range-integrated-and-standalone"}
+        required.update({"ao-mode-history-rejected", "ao-radius-history-rejected",
+                         "ao-bias-history-rejected", "ao-angle-history-rejected",
+                         "ao-depth-sigma-history-rejected", "ao-tier-history-rejected",
+                         "ao-intensity-history-preserved", "ao-blend-history-preserved",
+                         "standalone-ao-falloff-history-rejected",
+                         "zero-temporal-no-history-sampling-advances",
+                         "zero-to-nonzero-first-reject-next-recover",
+                         "zero-temporal-mixed-retains-other-histories",
+                         "zero-temporal-two-camera-isolation", "zero-temporal-direct-output-precision",
+                         "all-disabled-skip-queue-other-feature-inputs",
+                         "enabled-uses-actual-pass-instance", "missing-pass-not-enabled-by-shader-setting"})
+        required.update(f"history-{kind}-channel-{channel}"
+                        for kind in ("depthLayouts", "depthScales") for channel in range(3))
         if report.get("passed") is not True or not required.issubset(cases) or len(cases) != payload.get("cases"):
             raise RuntimeError("Incomplete or failed positive test matrix")
     print(json.dumps(payload))

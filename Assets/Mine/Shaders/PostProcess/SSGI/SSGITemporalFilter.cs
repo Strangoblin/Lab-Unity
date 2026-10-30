@@ -19,9 +19,10 @@ internal sealed class SSGITemporalFilter
         readonly Vector4 _sampling;
         readonly int _shaderId;
         readonly int _environmentId;
+        readonly uint _environmentVersion;
 
         public HistoryKey(SSGITraceBackend backend, Vector4 geometry, Vector4 spatial,
-            Vector4 sampling, int shaderId, int environmentId = 0)
+            Vector4 sampling, int shaderId, int environmentId = 0, uint environmentVersion = 0)
         {
             _backend = backend;
             _geometry = geometry;
@@ -29,12 +30,13 @@ internal sealed class SSGITemporalFilter
             _sampling = sampling;
             _shaderId = shaderId;
             _environmentId = environmentId;
+            _environmentVersion = environmentVersion;
         }
 
         public bool Equals(HistoryKey other) => _backend == other._backend
             && _geometry.Equals(other._geometry) && _spatial.Equals(other._spatial)
             && _sampling.Equals(other._sampling) && _shaderId == other._shaderId
-            && _environmentId == other._environmentId;
+            && _environmentId == other._environmentId && _environmentVersion == other._environmentVersion;
     }
 
     sealed class CameraHistory
@@ -52,6 +54,10 @@ internal sealed class SSGITemporalFilter
         public int width;
         public int height;
         public int frameIndex;
+        public int sampleIndex;
+        public bool produced;
+        public int targetWidth;
+        public int targetHeight;
         public int lastFrame = -1;
         public Matrix4x4 previousViewProjection;
         public Matrix4x4 previousViewMatrix;
@@ -109,6 +115,7 @@ internal sealed class SSGITemporalFilter
             height = 0;
             frameIndex = 0;
             lastFrame = -1;
+            stable = false;
         }
     }
 
@@ -145,7 +152,15 @@ internal sealed class SSGITemporalFilter
     int _cameraId;
     TextureHandle _motion;
 
-    public int FrameIndex => _active != null && _active.hasMotion ? _active.frameIndex : 0;
+    public int FrameIndex => _active != null ? _active.sampleIndex : 0;
+
+    public void InvalidateCamera(Camera camera)
+    {
+        if (camera == null || !_histories.TryGetValue(camera.GetInstanceID(), out CameraHistory history))
+            return;
+        for (int channel = 0; channel < 3; ++channel)
+            history.valid[channel] = false;
+    }
 
     public SSGITemporalFilter(Shader shader)
     {
@@ -177,10 +192,8 @@ internal sealed class SSGITemporalFilter
         }
 
         history.camera = camera;
-        history.Ensure(
-            Mathf.Max(cameraData.cameraTargetDescriptor.width, 1),
-            Mathf.Max(cameraData.cameraTargetDescriptor.height, 1),
-            _cameraId);
+        history.targetWidth = Mathf.Max(cameraData.cameraTargetDescriptor.width, 1);
+        history.targetHeight = Mathf.Max(cameraData.cameraTargetDescriptor.height, 1);
         history.currentViewMatrix = cameraData.GetViewMatrix();
         history.currentViewProjection = GL.GetGPUProjectionMatrix(
             cameraData.GetProjectionMatrix(), true) * history.currentViewMatrix;
@@ -192,6 +205,7 @@ internal sealed class SSGITemporalFilter
         history.stable = consecutive && stableCamera && history.hasMotion;
         for (int channel = 0; channel < 3; ++channel)
             history.written[channel] = false;
+        history.produced = false;
         _active = history;
     }
 
@@ -201,23 +215,27 @@ internal sealed class SSGITemporalFilter
         if (_active == null || !current.IsValid())
             return current;
 
-        UniversalResourceData resources = frameData.Get<UniversalResourceData>();
-        _active.EnsureColor(signal, _cameraId);
         int channel = (int)signal;
-        if (signal != Signal.AO)
+        _active.produced = true;
+        if (blend <= 0f)
         {
-            TextureDesc depth = graph.GetTextureDesc(resources.cameraDepthTexture);
-            var layout = new Vector4(depth.width, depth.height, depth.slices, (float)depth.dimension);
-            Vector4 rtScale = RTHandles.rtHandleProperties.rtHandleScale;
-            var scale = new Vector4(rtScale.x, rtScale.y,
-                ScalableBufferManager.widthScaleFactor, ScalableBufferManager.heightScaleFactor);
-            if (!historyKey.Equals(_active.keys[channel])
-                || !layout.Equals(_active.depthLayouts[channel]) || !scale.Equals(_active.depthScales[channel]))
-                _active.valid[channel] = false;
-            _active.keys[channel] = historyKey;
-            _active.depthLayouts[channel] = layout;
-            _active.depthScales[channel] = scale;
+            _active.valid[channel] = false;
+            return current;
         }
+        UniversalResourceData resources = frameData.Get<UniversalResourceData>();
+        _active.Ensure(_active.targetWidth, _active.targetHeight, _cameraId);
+        _active.EnsureColor(signal, _cameraId);
+        TextureDesc depth = graph.GetTextureDesc(resources.cameraDepthTexture);
+        var layout = new Vector4(depth.width, depth.height, depth.slices, (float)depth.dimension);
+        Vector4 rtScale = RTHandles.rtHandleProperties.rtHandleScale;
+        var scale = new Vector4(rtScale.x, rtScale.y,
+            ScalableBufferManager.widthScaleFactor, ScalableBufferManager.heightScaleFactor);
+        if (!historyKey.Equals(_active.keys[channel])
+            || !layout.Equals(_active.depthLayouts[channel]) || !scale.Equals(_active.depthScales[channel]))
+            _active.valid[channel] = false;
+        _active.keys[channel] = historyKey;
+        _active.depthLayouts[channel] = layout;
+        _active.depthScales[channel] = scale;
         int readSide = _active.frameIndex & 1;
         int writeSide = readSide ^ 1;
         TextureHandle historyColor = graph.ImportTexture(_active.color[channel, readSide]);
@@ -304,6 +322,8 @@ internal sealed class SSGITemporalFilter
             _active.lastFrame = Time.frameCount;
             _active.frameIndex++;
         }
+        if (_active.produced)
+            _active.sampleIndex++;
         _active = null;
     }
 

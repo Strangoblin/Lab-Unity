@@ -7,7 +7,7 @@ bash Assets/Mine/Shaders/PostProcess/SSGI/Validation~/run.sh
 bash Assets/Mine/Shaders/PostProcess/SSGI/Validation~/run.sh --compare
 ```
 
-The runner imports its own `RuntimeFixture` through the existing write gate, refuses to overwrite an existing fixture, and removes only its own imported files/metas on exit. It never saves the scene or Renderer, changes Play Mode, or replaces the user's SceneView pose. Outputs go to uniquely named `tmp/sessions/` directories.
+The runner imports its own `RuntimeFixture`, refuses to overwrite an existing fixture, and moves only its own imported files/metas to the project trash on exit. It never saves the scene or Renderer, changes Play Mode, or replaces the user's SceneView pose. Outputs go to uniquely named `tmp/sessions/` directories.
 
 ## Matrix
 
@@ -15,9 +15,16 @@ The runner imports its own `RuntimeFixture` through the existing write gate, ref
 - Shared spatial core: independent CPU/RGBA GPU reference for constant HDR, impulse, depth/normal edges, invalid normals/sky, boundaries, stride/fallback and fractional parity.
 - Diffuse two-scale reconstruction: independent CPU stride-1 followed by stride-2 reference, compared against both GPU stages; constant HDR/confidence, expanded impulse support, checkerboard phase mixing, both fine/coarse protected edges and invalid guide behavior. This synthetic probe round-trips RGBAFloat input/output; its 2e-5 bound does not characterize production RGBA16F precision or directly inspect the production RenderGraph's edges.
 - Unified/standalone entry agreement, exclusive compiled Diffuse tiers and ceil-rounded native Trace dimensions (High divisor 3), Specular frozen-filter regression, AO backend isolation and per-camera/per-channel history rejection, including old single-scale/sequence and half-resolution High signatures. Old High history rejects only Diffuse without reallocating persistent RTs.
-- Four negative controls: corrupted DDA distance, deliberately accepted wrong-backend history, spatial red-channel corruption, and an omitted fine stage on nonconstant input. Controls must fail with the intended diagnostic, not silently succeed.
+- Fast paths: AO parameter/tier/falloff and depth-layout rejection affects only AO; zero temporal skips writes while sample frames advance, preserves allocated histories, and recovers on re-enable; all-off skips the unified pass without suppressing another feature and rejects stale history on re-enable. Mixed channels and two cameras are checked.
+- Experimental HiZ: Diffuse and Specular standalone and unified camera paths, quality tiers, missing compute / partial viewport DDA fallback, Ray isolation and history rejection. Disposable fault fixtures corrupt pyramid reads and must affect production output; Specular also checks the Unity environment fallback. A same-frame probe checks two unified consumers share one pyramid. Dynamic resolution, XR and other graphics APIs remain separate validation targets.
+- Shared Trace: old serialized Diffuse settings migrate to the unified mode, standalone Features migrate their own settings, and the new choice survives reinitialization; unified Ray/DDA/HiZ applies to both GI channels.
+- Five negative controls: corrupted DDA distance, deliberately accepted wrong-backend history, spatial red-channel corruption, an omitted fine stage on nonconstant input, and injected black environment at a reference pixel. Controls must fail with the intended diagnostic, not silently succeed.
+- Unity default environment: a short-distance mirror ray is compared against an independent URP HDR-decoded cubemap reference at flat surface pixels; the reference must be nonzero. Environment texture identity, update counter and HDR-decode signature reject only Specular history without reallocating RTs. This checks the currently bound default environment, not whether a runtime skybox update refreshes Unity's cache.
+- Intensity: all three integrated and standalone bindings accept 10 and clamp 20 to 10; a rendered standalone Specular comparison verifies 1 and 10 produce different pixels. Fresnel and AO saturation still bound their final blend factors.
 
 `check_result.py` rejects empty/incomplete matrices and checks the expected positive or injected-defect result. The two-stage pipeline keeps four Shader Pass indices; only the RenderGraph schedules spatial Pass 1 twice.
+
+The frozen `--compare`, `--sequence` and High-budget comparison baselines support Ray/DDA only; these entries explicitly reject a current HiZ mode rather than silently comparing different tracing implementations. `run_timing.sh` uses the `unified-trace-timing-v2` schema and compares synchronized Ray/Ray against DDA/DDA; historical reports with four independent combinations retain their previous schema.
 
 ## Static comparison
 

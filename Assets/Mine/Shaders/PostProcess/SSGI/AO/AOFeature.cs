@@ -39,7 +39,7 @@ public class AOFeature : ScriptableRendererFeature
     public sealed class Controls : SSGIStandaloneControls
     {
         [Header("Artistic")]
-        [Range(0f, 4f)] public float intensity = 1f;
+        [Range(0f, 10f)] public float intensity = 1f;
         [Range(0f, 4f)] public float falloff;
 
         [Header("Debug")]
@@ -97,7 +97,8 @@ public class AOFeature : ScriptableRendererFeature
             // 若晚于颜色拷贝，透明物体折射到的拷贝不含 AO，水面会盖回未遮蔽的亮度。
             renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
             requiresIntermediateTexture = true;
-            ConfigureInput(ScriptableRenderPassInput.Color | ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
+            ConfigureInput(ScriptableRenderPassInput.Color | ScriptableRenderPassInput.Depth
+                | ScriptableRenderPassInput.Normal | ScriptableRenderPassInput.Motion);
         }
 
         // ════════════════════════════════════════════════════════════
@@ -116,6 +117,17 @@ public class AOFeature : ScriptableRendererFeature
         {
             return Record(renderGraph, frameData, source, true, frameIndex,
                 performance, 1f, 0f, DebugMode.Off);
+        }
+
+        internal SSGITemporalFilter.HistoryKey HistoryKey(SSGIQuality performance, float falloff)
+        {
+            Vector3Int tier = GetTier(performance);
+            return new SSGITemporalFilter.HistoryKey(default,
+                new Vector4((int)_settings.mode, Mathf.Clamp(_settings.radius, 0.1f, 5f),
+                    Mathf.Clamp(_settings.bias, 0.001f, 0.5f),
+                    Mathf.Sin(Mathf.Clamp(_settings.angleBias, 0f, 60f) * Mathf.Deg2Rad)),
+                new Vector4(Mathf.Clamp(_settings.depthSigma, 0.01f, 2f), Mathf.Clamp(falloff, 0f, 4f), 0f, 0f),
+                new Vector4(tier.x, tier.y, tier.z, 0f), _material.shader.GetInstanceID());
         }
 
         private TextureHandle Record(RenderGraph renderGraph, ContextContainer frameData,
@@ -161,7 +173,8 @@ public class AOFeature : ScriptableRendererFeature
                 return resolved;
 
             TextureHandle temporal = _temporal.Resolve(renderGraph, frameData,
-                resolved, SSGITemporalFilter.Signal.AO, _controls.temporalBlend);
+                resolved, SSGITemporalFilter.Signal.AO, _controls.temporalBlend,
+                HistoryKey(performance, falloff));
             var compositeDesc = renderGraph.GetTextureDesc(resources.activeColorTexture);
             compositeDesc.name = "AO.Composite";
             compositeDesc.clearBuffer = false;
@@ -186,7 +199,7 @@ public class AOFeature : ScriptableRendererFeature
                 data.shaderPass = shaderPass;
                 data.parameters = new Vector4(Mathf.Clamp(_settings.radius, 0.1f, 5f),
                     Mathf.Clamp(_settings.bias, 0.001f, 0.5f), Mathf.Clamp(falloff, 0f, 4f),
-                    Mathf.Clamp(intensity, 0f, 4f));
+                    Mathf.Clamp(intensity, 0f, 10f));
                 data.filterParams = new Vector4(Mathf.Clamp(_settings.depthSigma, 0.01f, 2f), 32f,
                     Mathf.Sin(Mathf.Clamp(_settings.angleBias, 0f, 60f) * Mathf.Deg2Rad), 0f);
                 data.sourceSize = size;

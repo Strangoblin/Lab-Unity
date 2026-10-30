@@ -20,10 +20,11 @@ public class SpecularGIFeature : ScriptableRendererFeature
 
         [Header("Resources")]
         public Shader shader;
-        public Cubemap skyCubemap;
+        [HideInInspector] public ComputeShader depthPyramidShader;
 
         [Header("Technical")]
-        public SSGITraceBackend traceBackend = SSGITraceBackend.DDA;
+        [HideInInspector] public SSGITraceBackend traceBackend = SSGITraceBackend.DDA;
+        [HideInInspector] public bool experimentalHiZ;
         [Range(1f, 200f)] public float maxDistance = 50f;
         [Range(0.001f, 0.5f)] public float thickness = 0.05f;
         [Range(0f, 0.2f)] public float normalBias = 0.03f;
@@ -31,25 +32,23 @@ public class SpecularGIFeature : ScriptableRendererFeature
         [Header("Technical · Material Approximation")]
         [Range(0f, 1f)] public float roughness = 0.1f;
 
-        [Header("Technical · Sky Sampling")]
-        [Range(0f, 12f)] public float skyMaxMip = 6f;
-
         internal static readonly int TraceParamsID = Shader.PropertyToID("_TraceParams");
         internal static readonly int RoughnessID = Shader.PropertyToID("_Roughness");
         internal static readonly int IntensityID = Shader.PropertyToID("_Intensity");
-        internal static readonly int SkyCubemapID = Shader.PropertyToID("_SkyCubemap");
-        internal static readonly int SkyMaxMipID = Shader.PropertyToID("_SkyMaxMip");
         internal static readonly int SpatialRadiusID = Shader.PropertyToID("_SpatialRadius");
         internal static readonly int FrameIndexID = Shader.PropertyToID("_FrameIndex");
         internal static readonly int DebugModeID = Shader.PropertyToID("_DebugMode");
         internal static readonly int SpecularTextureID = Shader.PropertyToID("_SpecularGITexture");
+        internal static readonly int PyramidID = Shader.PropertyToID("_ScreenTraceDepthPyramid");
+        internal static readonly int PyramidMipCountID = Shader.PropertyToID("_SSGIPyramidMipCount");
+        internal static readonly int PyramidSizeID = Shader.PropertyToID("_SSGIPyramidSize");
     }
 
     [Serializable]
     public sealed class Controls : SSGIStandaloneControls
     {
         [Header("Artistic")]
-        [Range(0f, 1f)] public float intensity = 1f;
+        [Range(0f, 10f)] public float intensity = 1f;
 
         [Header("Debug")]
         public Settings.DebugMode debug = Settings.DebugMode.Off;
@@ -68,11 +67,12 @@ public class SpecularGIFeature : ScriptableRendererFeature
             public TextureHandle spatial;
             public Vector4 traceParams;
             public float roughness;
-            public float skyMaxMip;
             public float spatialRadius;
             public float frameIndex;
-            public Cubemap skyCubemap;
             public SSGITraceBackend backend;
+            public TextureHandle pyramid;
+            public int pyramidMipCount;
+            public Vector4 pyramidSize;
         }
 
         sealed class CompositeData
@@ -90,13 +90,16 @@ public class SpecularGIFeature : ScriptableRendererFeature
 
         readonly Settings _settings;
         readonly Controls _controls;
+        readonly SSGITraceControls _trace;
         readonly Material _material;
         readonly SSGITemporalFilter _temporal;
+        bool _warnedHiZUnavailable;
 
-        public SpecularGIPass(Shader shader, Settings settings, Controls controls = null)
+        public SpecularGIPass(Shader shader, Settings settings, SSGITraceControls trace, Controls controls = null)
         {
             _settings = settings;
             _controls = controls;
+            _trace = trace;
             _material = CoreUtils.CreateEngineMaterial(shader);
             _temporal = controls != null ? new SSGITemporalFilter(controls.temporalShader) : null;
             renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
@@ -145,8 +148,25 @@ public class SpecularGIFeature : ScriptableRendererFeature
             if (!source.IsValid() || _material == null || camera.camera == null)
                 return TextureHandle.nullHandle;
 
-            SSGITraceBackend backend = _settings.traceBackend == SSGITraceBackend.Ray
+            SSGITraceBackend backend = _trace.mode == SSGITraceMode.Ray
                 ? SSGITraceBackend.Ray : SSGITraceBackend.DDA;
+            TextureHandle pyramid = TextureHandle.nullHandle;
+            int pyramidMipCount = 0;
+            if (_trace.mode == SSGITraceMode.HiZ)
+            {
+                int stage = inputSource.IsValid() ? SSGIDepthPyramid.OpaqueStage : SSGIDepthPyramid.AfterTransparentsStage;
+                SSGIDepthPyramid.TryGet(graph, frameData, resources, camera, _trace.depthPyramidShader,
+                    stage, out pyramid, out pyramidMipCount);
+                if (!pyramid.IsValid() && !_warnedHiZUnavailable)
+                {
+                    Debug.LogWarning("SpecularGI HiZ unavailable for this camera; using DDA. Check the compute shader, depth layout and platform support.");
+                    _warnedHiZUnavailable = true;
+                }
+                else if (pyramid.IsValid())
+                    _warnedHiZUnavailable = false;
+            }
+            else
+                _warnedHiZUnavailable = false;
             GetQuality(performance, out int downsample,
                 out int stepCount, out float spatialRadius);
             RenderTextureDescriptor descriptor = camera.cameraTargetDescriptor;
@@ -177,15 +197,18 @@ public class SpecularGIFeature : ScriptableRendererFeature
                     Mathf.Max(_settings.thickness, 0.0001f),
                     Mathf.Max(_settings.normalBias, 0f), stepCount);
                 data.roughness = Mathf.Clamp01(roughness);
-                data.skyMaxMip = Mathf.Max(_settings.skyMaxMip, 0f);
                 data.spatialRadius = spatialRadius;
                 data.frameIndex = frameIndex;
-                data.skyCubemap = _settings.skyCubemap;
                 data.backend = backend;
+                data.pyramid = pyramid;
+                data.pyramidMipCount = pyramidMipCount;
+                data.pyramidSize = new Vector4(camera.cameraTargetDescriptor.width, camera.cameraTargetDescriptor.height, 0f, 0f);
+                Texture environment = ReflectionProbe.defaultTexture;
                 historyKey = new SSGITemporalFilter.HistoryKey(backend, data.traceParams,
-                    new Vector4(data.roughness, data.skyMaxMip, data.spatialRadius, downsample),
-                    Vector4.zero, _material.shader.GetInstanceID(),
-                    data.skyCubemap != null ? data.skyCubemap.GetInstanceID() : 0);
+                    new Vector4(data.roughness, pyramid.IsValid() ? 1f : 0f, data.spatialRadius, downsample),
+                    ReflectionProbe.defaultTextureHDRDecodeValues, _material.shader.GetInstanceID(),
+                    environment != null ? environment.GetInstanceID() : 0,
+                    environment != null ? environment.updateCount : 0u);
 
                 builder.UseTexture(source, AccessFlags.Read);
                 builder.UseTexture(trace, AccessFlags.ReadWrite);
@@ -193,17 +216,25 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 builder.UseTexture(spatial, AccessFlags.ReadWrite);
                 builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
                 builder.UseTexture(resources.cameraNormalsTexture, AccessFlags.Read);
+                if (pyramid.IsValid())
+                {
+                    builder.UseTexture(pyramid, AccessFlags.Read);
+                    builder.AllowGlobalStateModification(true);
+                }
                 builder.UseAllGlobalTextures(true);
                 builder.SetRenderFunc((TraceData pass, UnsafeGraphContext context) =>
                 {
                     CoreUtils.SetKeyword(pass.material, "SSGI_TRACE_RAY", pass.backend == SSGITraceBackend.Ray);
+                    CoreUtils.SetKeyword(pass.material, "SSGI_TRACE_HIZ", pass.pyramid.IsValid());
                     pass.material.SetVector(Settings.TraceParamsID, pass.traceParams);
                     pass.material.SetFloat(Settings.RoughnessID, pass.roughness);
-                    pass.material.SetFloat(Settings.SkyMaxMipID, pass.skyMaxMip);
                     pass.material.SetFloat(Settings.SpatialRadiusID, pass.spatialRadius);
                     pass.material.SetFloat(Settings.FrameIndexID, pass.frameIndex);
-                    pass.material.SetTexture(Settings.SkyCubemapID, pass.skyCubemap);
+                    pass.material.SetInt(Settings.PyramidMipCountID, pass.pyramidMipCount);
+                    pass.material.SetVector(Settings.PyramidSizeID, pass.pyramidSize);
                     CommandBuffer commandBuffer = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
+                    if (pass.pyramid.IsValid())
+                        commandBuffer.SetGlobalTexture(Settings.PyramidID, pass.pyramid);
                     Blitter.BlitCameraTexture(commandBuffer, pass.source, pass.trace, pass.material, 0);
                     Blitter.BlitCameraTexture(commandBuffer, pass.trace, pass.filtered, pass.material, 1);
                     Blitter.BlitCameraTexture(commandBuffer, pass.filtered, pass.spatial, pass.material, 2);
@@ -232,7 +263,7 @@ public class SpecularGIFeature : ScriptableRendererFeature
                 data.spatial = spatial;
                 data.temporal = temporal;
                 data.target = target;
-                data.intensity = Mathf.Clamp01(intensity);
+                data.intensity = Mathf.Clamp(intensity, 0f, 10f);
                 data.roughness = Mathf.Clamp01(roughness);
                 data.debug = debug;
 
@@ -315,6 +346,8 @@ public class SpecularGIFeature : ScriptableRendererFeature
         }
     }
 
+    [Header("Trace")]
+    public SSGITraceControls trace = new();
     public Settings settings = new();
     public Controls controls = new();
     SpecularGIPass _pass;
@@ -322,8 +355,10 @@ public class SpecularGIFeature : ScriptableRendererFeature
     public override void Create()
     {
         _pass?.Release();
+        trace ??= new SSGITraceControls();
+        trace.Initialize(settings.traceBackend, settings.experimentalHiZ, settings.depthPyramidShader);
         _pass = settings.shader != null
-            ? new SpecularGIPass(settings.shader, settings, controls) : null;
+            ? new SpecularGIPass(settings.shader, settings, trace, controls) : null;
     }
 
     protected override void Dispose(bool disposing)

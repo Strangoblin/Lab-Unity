@@ -43,7 +43,7 @@ Unity 6 / URP 17。RAY、DDA、HiZ 共用几何结果；不包含 BRDF、颜色�
 | `clipPlanes/zBufferParams` | 正的 near/far；raw 透视深度用 `rcp(zBufferParams.z * raw + zBufferParams.w)` |
 | `depthIsLinear/orthographic/reversedZ` | 深度编码；linear 输入是正眼深，raw 输入范围为 `[0,1]` |
 | `pyramidMipCount` | 已绑定且有效的 mip 数；HiZ 必须匹配构建结果，DDA / RAY 不要求金字塔 |
-| `maxSteps/refinementSteps/thickness` | RAY/DDA 样本数或 HiZ 检查上限、三后端二分次数（0..16）、**线性眼深**厚度（非世界射线距离） |
+| `maxSteps/refinementSteps/thickness` | RAY/DDA 样本数；HiZ 的像素步进预算为 `2 × maxSteps`（`maxSteps` 不再表示函数图像采样数）、三后端二分次数（0..16）、**线性眼深**厚度（非世界射线距离） |
 
 构造 `ScreenTraceContext` / `ScreenTraceConfig` 后：
 
@@ -71,11 +71,11 @@ if (RayStep_CreateRay(originWS, directionWS, float2(tMin, tMax), ray))
 
 - **RAY**：沿整个距离范围均匀取 `maxSteps` 次，前→后穿越后二分。`refinementSteps=6` 对应当前 SSGI 基线。耗尽均匀样本返回 MISS，而非 BUDGET；可能跳过薄几何。起点不在有效视口/near 内时直接 LEFT_VIEW，保留旧路径语义。
 - **DDA**：先裁 near/far/屏幕，将完整可见投影线段均分为 `maxSteps` 个样本。预计算屏幕位置、`1/w`、`eyeDepth/w` 增量，循环累加；眼深为 `(eyeDepth/w)/(1/w)`。前→后穿越后在投影参数上二分并检查厚度。无需金字塔，不再逐格或解析 slab 求交。
-- **HiZ**：从 mip 0 出发，复用 DDA 增量，以 `2^mip` 放大步幅；采样在最近深度之前则升级，有穿透嫌疑则回退本步、降级，mip 0 复用 DDA 精炼。粗层穿透仅是降级提示，不锁定一段必须完整扫查的候选区；细层未穿透后仍可重新升级，因此粗层曾观察到穿透也不保证命中。它是旧 SSR 风格采样跳跃，不是保守空单元证明，可能跳过薄前景。
+- **HiZ**：从 mip 0 出发，复用 DDA 增量，但步幅以**屏幕像素**计：mip `m` 每步前进 `2^m` 像素（DDA 单位只是 `L/maxSteps` 像素的换算系数，不再当作 1 像素）。采样点在最近深度之前则升级；粗层有穿透嫌疑则回退本步、降级，把该粗胞元终点记为 `parentEnd` 并逐级细分到 mip 0 再用 DDA 精炼，粗胞元后半段不会被跳过。mip 0 仍按厚度检查，细层假阳性会提前结束该射线。它不是保守空单元证明，薄前景仍可能漏过，但覆盖率不再随 mip 按 `maxSteps/L` 成比例下降。零屏幕投影或像素长度不可用时回退 DDA。
 - DDA / HiZ 拒绝已知表面上/后方起点，比较预留 `1e-6 * max(1,sceneDepth)` 的眼深编码精度，避免 raw 转换自命中；效果仍需法线偏移。允许先裁切视口外或 near 前方起点。零屏幕投影仍沿深度方向取样，不用 RAY 重跑兜底。
 - 基础步幅覆盖完整裁切片段，不恢复历史 `_StepSize=0.2` 缩短覆盖；最后一个样本重定位精确端点，避免累加漂移。距离仍相对原始世界起点。
 - DDA / HiZ 以 `1e-4` 世界距离容差区分结束于裁切边界的 LEFT_VIEW 与 MISS；边界缩短量小于该值时可归为 MISS。起点眼深余量只用于 DDA / HiZ，RAY 保留原精确比较。
-- DDA/HiZ 最多 `maxSteps + refinementSteps + 3` 次深度查询（含起点、二分和候选确认），不恢复旧 `StepCount × BinCount` 嵌套扫描。HiZ 的迭代上限包含回退/细查。
+- RAY/DDA 最多 `maxSteps + refinementSteps + 3` 次深度查询（含起点、二分和候选确认），不恢复旧 `StepCount × BinCount` 嵌套扫描。HiZ 的迭代上限是 `2 × maxSteps`（逐像素上升、回退细分与精查），合计最多 `2 × maxSteps + refinementSteps + 3` 次查询；`2 × maxSteps` 是上界而非平均开销，Low 档（24）的逐像素上升可能接近 DDA 的 24 次查询，不保证更快。
 - 同样样本数不表示同样位置或画质：RAY 世界距离等距，DDA 投影参数等距，均可能跨像素或重复采样；二分在深度阶跃处也不保证真实首命中。零厚度配有限精炼可能 miss，不能按解析交点验收。
 - 使用静态函数选择或 Pass 局部关键字，不要在每次迭代动态选择后端。**有 out 参数副作用的查询不可写在三目表达式里**；用 if/else，避免 HLSL 同时计算两侧并覆盖结果。
 
@@ -117,7 +117,7 @@ bool available = ScreenSpaceDepthPyramid.TryGet(graph, frameData, request, out v
 
 ## 复用来源与验证
 
-RAY 沿用原 SSGI 穿越与 6 次二分；`Validation~/BaselineScreenSpaceTrace.hlsl` 是冻结 RAY 基线，不是论文版源码。DDA / HiZ 主线采用删除前 SSR（`963c0fc^` 的 `RaySampleFunction` / `RayMarchFunction`；`c8f14c6` 同框架）的预计算齐次增量、回退精炼、mip 步幅升级；保留安全裁切、几何/颜色解耦与有界查询，不照搬鱼眼风险或嵌套扫描。原朝向、置信度与影子策略不进公共库。
+RAY 沿用原 SSGI 穿越与 6 次二分；`Validation~/BaselineScreenSpaceTrace.hlsl` 是冻结 RAY 基线，不是论文版源码。DDA 主线采用删除前 SSR（`963c0fc^` 的 `RaySampleFunction` / `RayMarchFunction`；`c8f14c6` 同框架）的预计算齐次增量与回退精炼；HiZ 保留该框架的回退/升级结构，但把旧「放大 `2^mip` 倍 DDA 单位」改为「前进 `2^mip` 像素」（2026-10-30），修复每次只覆盖 `maxSteps/L` 路径导致的漏打。保留安全裁切、几何/颜色解耦与有界查询，不照搬鱼眼风险或嵌套扫描。原朝向、置信度与影子策略不进公共库。
 
 ### 退役方案：仅文档参考
 
@@ -135,9 +135,9 @@ runner 经写入门禁临时导入两个自己管理的 Compute / Shader fixture
 
 验证覆盖：
 
-- 独立 CPU 在世界坐标中裁整条视锥片段并投影采样，按固定投影样本/二分与 mip 回退对照 DDA / HiZ；不再逐像素求交，不宣称完整几何首命中。
+- 独立 CPU 在世界坐标中裁整条视锥片段并投影采样，按固定投影样本/二分对照 DDA；HiZ 另按 GPU 的弦（裁剪端点线性插值）像素路径与 `parentEnd` 细分镜像，不再逐像素求交，不宣称完整几何首命中。
 - 6 种尺寸（13×9、64×32、65×37、1×17、17×1、1×1），linear / raw forward-Z / raw reversed-Z / 两种正交 raw；每组固定 107 条射线。
-- 深度阶跃、常深度、全天空、NaN/Infinity/负深度、水平/垂直/负方向/朝向相机、零投影、near 裁切、tMin、0 厚度、离屏、无效方向与查询上限；HiZ 回退耗尽预算及缺失金字塔。
+- 深度阶跃、常深度、全天空、NaN/Infinity/负深度、水平/垂直/负方向/朝向相机、零投影、near 裁切、tMin、0 厚度、离屏、无效方向与查询上限；HiZ 像素预算耗尽、零投影回退 DDA 及缺失金字塔。
 - 7×5 有效视口从 13×9 源深度裁剪，以及 Y 翻转；刚性世界/视图变换后命中距离仍相对原始世界起点。
 - 冻结的旧 `SST_Trace` 在 raw 深度合成上下文的命中与距离回归；本 runner 只验证旧追踪流程。真实 SSGI 相机接线另由 SSGI `Validation~/run.sh` 验证，stereo/非单位动态有效区及最终画质仍未验收。
 - reflection-hit / shadow-occlusion 两个 fragment 消费者的三后端 GPU 输出；并非改动或验收现有 SSGI / SSSM 效果。

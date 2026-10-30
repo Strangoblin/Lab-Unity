@@ -79,6 +79,10 @@ float4 DiffuseGI_Gather(float2 uv)
         int rayCount = clamp(_GIRayCount, 1, 8);
         int stepCount = _GIStepCount;
     #endif
+    #if defined(SCREENSPACETRACEFUNCTION_HLSL_INCLUDED)
+        ScreenTraceContext traceContext = SST_CreateTraceContext();
+        ScreenTraceConfig traceConfig = SST_CreateTraceConfig(_GITraceParams.y, stepCount);
+    #endif
     [loop]
     for (int rayIndex = 0; rayIndex < rayCount; ++rayIndex)
     {
@@ -86,7 +90,12 @@ float4 DiffuseGI_Gather(float2 uv)
             frac(rayIndex * 0.61803398875 + rotation.y));
         float3 directionWS = DiffuseGI_Direction(xi, normalWS);
         ScreenSpaceTraceHit hit;
-        if (!SST_Trace(originWS, directionWS, _GITraceParams.x, _GITraceParams.y, stepCount, hit))
+        #if defined(SCREENSPACETRACEFUNCTION_HLSL_INCLUDED)
+            bool found = SST_TracePrepared(originWS, directionWS, _GITraceParams.x, traceContext, traceConfig, hit);
+        #else
+            bool found = SST_Trace(originWS, directionWS, _GITraceParams.x, _GITraceParams.y, stepCount, hit);
+        #endif
+        if (!found)
             continue;
         float3 hitNormalWS = DiffuseGI_SampleNormal(hit.uv);
         if (dot(hitNormalWS, -directionWS) <= 0.0 || hit.distance < _GITraceParams.z)

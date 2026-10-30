@@ -3,37 +3,33 @@
 // ═══════════════════════════════════════════════════════════════
 Shader "PostProcess/SpecularGI"
 {
-    Properties
-    {
-        _SkyCubemap ("Sky Cubemap", Cube) = "black" {}
-    }
+    Properties { }
 
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/ImageBasedLighting.hlsl"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
 
-    TEXTURECUBE(_SkyCubemap);
-    SAMPLER(sampler_SkyCubemap);
     TEXTURE2D_X(_SpecularGITexture);
 
     CBUFFER_START(UnityPerMaterial)
         float4 _TraceParams;
+        float4 _SSGIPyramidSize;
+        int _SSGIPyramidMipCount;
         float _Roughness;
         float _Intensity;
-        float _SkyMaxMip;
         float _SpatialRadius;
         float _FrameIndex;
         float _DebugMode;
     CBUFFER_END
 
     #define SCREEN_TRACE_LOAD_DEPTH(pixel) LOAD_TEXTURE2D_X(_CameraDepthTexture, pixel).r
-    #define SCREEN_TRACE_LOAD_PYRAMID(pixel, mip) 0.0
     #include "Assets/Mine/Special/HLSL/RayStepFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl"
     #undef SCREEN_TRACE_LOAD_DEPTH
-    #undef SCREEN_TRACE_LOAD_PYRAMID
     #include "Assets/Mine/Shaders/PostProcess/SSGI/ScreenSpaceTrace.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGISampling.hlsl"
     #include "Assets/Mine/Shaders/PostProcess/SSGI/SpecularGI/SpecularGITrace.hlsl"
@@ -141,7 +137,7 @@ Shader "PostProcess/SpecularGI"
             #pragma target 4.5
             #pragma vertex Vert
             #pragma fragment Frag_Trace
-            #pragma multi_compile_local_fragment _ SSGI_TRACE_RAY
+            #pragma multi_compile_local_fragment _ SSGI_TRACE_RAY SSGI_TRACE_HIZ
             ENDHLSL
         }
 

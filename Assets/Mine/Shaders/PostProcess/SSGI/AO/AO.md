@@ -61,7 +61,7 @@ for i in N:  S = P + cosineHemisphere(xi_i, N) × radius
 V = 1 - Σ atten_i / N
 ```
 
-`bias` 防止共面自遮蔽；距离门限丢弃半径外的遮挡物。半球方向用与 DiffuseGI 相同的 cosine 采样与像素旋转；公共时域历史可用时按帧推进，无历史时保持静态。
+`bias` 防止共面自遮蔽；距离门限丢弃半径外的遮挡物。半球方向用与 DiffuseGI 相同的 cosine 采样与像素旋转；公共时域阶段可用且产生信号时按帧推进，即使时缓权重为零；未指定公共时域 Shader 时保持静态。
 
 ### HBAO（水平线积分）
 
@@ -116,7 +116,7 @@ atten = 1 / (1 + d² × falloff)
 | Technical | angleBias | 10 | HBAO 切线角偏移（度），抑制低模表面的过度自遮蔽（SSAO 不使用） |
 | Technical | depthSigma | 0.15 | 滤波几何深度阈值，单位同线性视深度 |
 | Performance | performance | Medium | 见档位表 |
-| Artistic | intensity | 1 | 遮蔽强度；0 且 Debug=Off 时整体跳过 |
+| Artistic | intensity | 1 | 遮蔽强度 0–10；0 且 Debug=Off 时整体跳过，遮蔽结果饱和到 1 |
 | Artistic | falloff | 0 | 距离衰减系数；0 = 关闭（因子逐位为 1），越大接触阴影越紧 |
 | Debug | debug | Off | Off / AO / Depth / Normal |
 

@@ -3,26 +3,22 @@
 // ═══════════════════════════════════════════════════════════════
 Shader "PostProcess/BaselineSpecular"
 {
-    Properties
-    {
-        _SkyCubemap ("Sky Cubemap", Cube) = "black" {}
-    }
+    Properties { }
 
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/ImageBasedLighting.hlsl"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
 
-    TEXTURECUBE(_SkyCubemap);
-    SAMPLER(sampler_SkyCubemap);
     TEXTURE2D_X(_SpecularGITexture);
 
     CBUFFER_START(UnityPerMaterial)
         float4 _TraceParams;
         float _Roughness;
         float _Intensity;
-        float _SkyMaxMip;
         float _SpatialRadius;
         float _FrameIndex;
         float _DebugMode;

@@ -26,7 +26,13 @@ if not report.get("blocks") or payload.get("blocks") != len(report["blocks"]):
 if report["samplesPerBlock"] < 12 or report["warmupPerBlock"] < 8 or report["rounds"] < 3:
     raise SystemExit("Insufficient timing samples or warmup")
 groups = defaultdict(list)
-variants = {"Ray-Ray", "DDA48-DDA64", "Ray-DDA64", "DDA48-Ray"}
+schema = report.get("schema")
+if schema is None:
+    variants = {"Ray-Ray", "DDA48-DDA64", "Ray-DDA64", "DDA48-Ray"}
+elif schema == "unified-trace-timing-v2":
+    variants = {"Ray-Ray", "DDA48-DDA64"}
+else:
+    raise SystemExit("Unknown timing schema")
 for block in report["blocks"]:
     if block["variant"] not in variants or block["diffuseBudget"] != 48 or block["specularBudget"] != 64:
         raise SystemExit("Unexpected backend or production tier budget")
@@ -41,7 +47,8 @@ for block in report["blocks"]:
         raise SystemExit("Invalid resolution or starting ray frame")
     groups[(block["width"], block["height"], block["variant"])].append(block)
 sizes = {(key[0], key[1]) for key in groups}
-if len(sizes) != 2 or (1920, 1080) not in sizes:
+expected_resolutions = report.get("resolutionCount", 2)
+if expected_resolutions not in (1, 2) or len(sizes) != expected_resolutions or (1920, 1080) not in sizes:
     raise SystemExit("Missing Game View or 1080p timing resolution")
 if len(report["blocks"]) != len(sizes) * len(variants) * report["rounds"]:
     raise SystemExit("Unexpected timing matrix size")

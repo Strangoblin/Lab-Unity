@@ -341,21 +341,95 @@ public static class TraceGpuChecks
             float scene = level.depths[pixelY * level.width + pixelX];
             return (float.IsFinite(scene) && scene > 0 && scene < Far, -position.z - scene);
         }
+        if (hiZ)
+        {
+            // Mirror the GPU's linearized (chord) pixel path: RayStep_ProjectRay stores the
+            // clipped endpoints and interpolates them in homogeneous progress, so the sampled
+            // pixel is not the exact perspective projection used by Sample().
+            double startX = (clipOrigin.x + clipDirection.x * minimum) / startW;
+            double startY = (clipOrigin.y + clipDirection.y * minimum) / startW;
+            double endX = (clipOrigin.x + clipDirection.x * maximum) / endW;
+            double endY = (clipOrigin.y + clipDirection.y * maximum) / endW;
+            Vector2 pixelStart = new((float)((startX * 0.5 + 0.5) * width), (float)((startY * 0.5 + 0.5) * height));
+            Vector2 pixelDelta = new((float)((endX - startX) * 0.5 * width), (float)((endY - startY) * 0.5 * height));
+            double u1 = 0, u2 = 1;
+            bool validChord = Clip(pixelStart.x, pixelDelta.x, ref u1, ref u2)
+                && Clip(width - pixelStart.x, -pixelDelta.x, ref u1, ref u2)
+                && Clip(pixelStart.y, pixelDelta.y, ref u1, ref u2)
+                && Clip(height - pixelStart.y, -pixelDelta.y, ref u1, ref u2) && u1 < u2;
+            double unitPixels = validChord ? Math.Sqrt(pixelDelta.x * pixelDelta.x + pixelDelta.y * pixelDelta.y) * (u2 - u1) / Samples : 0;
+            if (validChord && unitPixels > 1e-6)
+            {
+                double rayPixels = unitPixels * Samples;
+                double Progress(double cursor) => u1 + cursor / rayPixels * (u2 - u1);
+                (bool surface, double delta) Chord(double progress, int mip)
+                {
+                    double distance = Distance(progress);
+                    Vector3 position = origin + direction * (float)distance;
+                    var level = levels[mip];
+                    double uvx = (pixelStart.x + pixelDelta.x * progress) / width;
+                    double uvy = (pixelStart.y + pixelDelta.y * progress) / height;
+                    int pixelX = Math.Clamp((int)Math.Floor(uvx * level.width), 0, level.width - 1);
+                    int pixelY = Math.Clamp((int)Math.Floor(uvy * level.height), 0, level.height - 1);
+                    float scene = level.depths[pixelY * level.width + pixelX];
+                    return (float.IsFinite(scene) && scene > 0 && scene < Far, -position.z - scene);
+                }
+                var initialHit = Chord(u1, 0);
+                bool inFront = initialHit.surface && initialHit.delta < 0;
+                if (initialHit.surface && !inFront) return (false, 0);
+                int mip = 0;
+                double cursor = 0;
+                double parentEnd = -1;
+                int budget = Math.Max(Samples * 2, 1);
+                for (int step = 0; step < budget; step++)
+                {
+                    double limit = parentEnd > 0 ? parentEnd : rayPixels;
+                    double stepPixels = Math.Min(Math.Pow(2, mip), Math.Min(limit - cursor, rayPixels - cursor));
+                    if (!(stepPixels > 0)) stepPixels = Math.Min(rayPixels - cursor, 1);
+                    if (!(stepPixels > 0)) return (false, 0);
+                    double low = Progress(cursor);
+                    double nextCursor = cursor + stepPixels;
+                    double high = Progress(nextCursor);
+                    var current = Chord(high, mip);
+                    if (current.surface && current.delta >= 0)
+                    {
+                        if (mip > 0)
+                        {
+                            parentEnd = Math.Min(cursor + stepPixels, rayPixels);
+                            mip--;
+                            continue;
+                        }
+                        if (!inFront) return (false, 0);
+                        for (int refine = 0; refine < 6; refine++)
+                        {
+                            double middle = (low + high) * 0.5;
+                            var probe = Chord(middle, 0);
+                            if (probe.surface && probe.delta >= 0) high = middle;
+                            else low = middle;
+                        }
+                        var candidate = Chord(high, 0);
+                        return (candidate.surface && candidate.delta >= 0 && candidate.delta <= Thickness, Distance(high));
+                    }
+                    inFront = current.surface && current.delta < 0;
+                    cursor = nextCursor;
+                    if (cursor >= rayPixels) return (false, 0);
+                    if (parentEnd > 0 && cursor >= parentEnd - 1e-4) parentEnd = -1;
+                    if (parentEnd <= 0) mip = Math.Min(mip + 1, levels.Count - 1);
+                }
+                return (false, 0);
+            }
+        }
         var initial = Sample(0);
         bool previousInFront = initial.surface && initial.delta < 0;
         if (initial.surface && !previousInFront) return (false, 0);
-        int mip = 0;
-        double cursor = 0;
         for (int sample = 1; sample <= Samples; sample++)
         {
-            double stride = hiZ ? Math.Min(Math.Pow(2, mip), Samples - cursor) : 1;
-            double progress = (cursor + stride) / Samples;
-            var current = Sample(progress, mip);
+            double progress = (double)sample / Samples;
+            var current = Sample(progress);
             if (current.surface && current.delta >= 0)
             {
-                if (hiZ && mip > 0) { mip--; continue; }
                 if (!previousInFront) return (false, 0);
-                double low = cursor / Samples;
+                double low = (double)(sample - 1) / Samples;
                 double high = progress;
                 for (int refine = 0; refine < 6; refine++)
                 {
@@ -368,9 +442,6 @@ public static class TraceGpuChecks
                 return (candidate.surface && candidate.delta >= 0 && candidate.delta <= Thickness, Distance(high));
             }
             previousInFront = current.surface && current.delta < 0;
-            cursor += stride;
-            if (cursor >= Samples) return (false, 0);
-            if (hiZ) mip = Math.Min(mip + 1, levels.Count - 1);
         }
         return (false, 0);
     }
@@ -378,7 +449,7 @@ public static class TraceGpuChecks
     private static void CheckOutput(Output result, Input ray, bool ortho, string label)
     {
         Require(result.Diagnostic.x >= 0 && result.Diagnostic.x <= 5, label + " invalid status");
-        Require(result.Diagnostic.y <= Samples && result.Diagnostic.z <= Samples + 9, label + " unbounded queries");
+        Require(result.Diagnostic.y <= Samples * 2 && result.Diagnostic.z <= Samples * 2 + 9, label + " unbounded queries");
         Require((result.Diagnostic.x == 0) == (result.Diagnostic.w == 1), label + " inconsistent HIT");
         if (result.Diagnostic.w == 0) return;
         Require(result.Geometry.z >= ray.Origin.w && result.Geometry.z <= ray.Direction.w, label + " distance range");
@@ -450,13 +521,16 @@ public static class TraceGpuChecks
             }
             _trace.SetInt("_TestMaxSteps", 1);
             Output[] exhausted = Dispatch(source, pyramid, new[] { new Input(new Vector3(0, 0, -1), new Vector3(0.8f, 0, -0.1f), 15) }, representation);
-            Require(exhausted[1].Diagnostic.y <= 1 && exhausted[2].Diagnostic.y <= 1, "Budget is unbounded");
+            Require(exhausted[1].Diagnostic.y <= 1 && exhausted[2].Diagnostic.y <= 2, "Budget is unbounded");
             Require(exhausted[1].Diagnostic.x != 3, "Uniform DDA must finish its sample schedule");
+            Require(exhausted[2].Diagnostic.x != 3 || exhausted[2].Diagnostic.y == 2, "HiZ BUDGET must consume the budget");
             if (width == 13 && height == 9 && representation == 0 && !flipped)
             {
                 _trace.SetInt("_TestMaxSteps", 2);
                 Output[] rollback = Dispatch(source, pyramid, new[] { new Input(new Vector3(0, 0, -1), Vector3.back, 15) }, representation);
-                Require(rollback[2].Diagnostic.x == 3 && rollback[2].Diagnostic.y == 2, "HiZ rollback must consume its iteration budget");
+                Require(rollback[2].Diagnostic.x != 3 && rollback[2].Diagnostic.y <= 4, "Zero-projection HiZ must fall back to DDA");
+                Require(rollback[2].Diagnostic.x == rollback[1].Diagnostic.x && rollback[2].Diagnostic.w == rollback[1].Diagnostic.w
+                    && rollback[2].Diagnostic.y == rollback[1].Diagnostic.y, "Zero-projection HiZ must match DDA");
             }
             SetContext(_trace.SetVector, _trace.SetMatrix, _trace.SetInt, width, height, representation, 0, mapping);
             Output[] missing = Dispatch(source, pyramid, new[] { rays[0] }, representation);
