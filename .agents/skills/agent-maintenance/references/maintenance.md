@@ -14,6 +14,11 @@
 | 路径残留 | `rg -n "旧路径" <本次活动文档范围>`，历史来源另按迁移记录解释 |
 | 模板 API | [template-validation](template-validation.md) |
 
+## 移除一个环节
+
+「去掉 X」的执行口径：**环节类引用**（工作流步骤、验证手段、清理目标）全清；**工具事实文档**
+（命令清单、激活条件）保留 —— 删后者会让文档失真，还会破坏 skill 的激活条件。
+
 ## E5：门禁演进
 
 涉及门禁判定 / 路径时读取 `python3 .mcp/validation/gate_cli.py report`；review 提案形成具体待办。

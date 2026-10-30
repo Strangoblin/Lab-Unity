@@ -7,6 +7,7 @@ Unity 任务首次分派到 [autoagent](auto-manager/SKILL.md)，再由其选择
 | Skill / 目录 | 工作范围 | 状态 / 来源 |
 |---|---|---|
 | [agent-maintenance](agent-maintenance/SKILL.md) | 体系编辑、索引与引用核验、平台同步、迁移 | 本项目维护 |
+| [structure-selfcheck](structure-selfcheck/SKILL.md) | 体系周期自检：记忆归档、垃圾桶分流、历史日志 | 本项目维护 |
 | [autoagent](auto-manager/SKILL.md) / `auto-manager` | Unity 统一任务分流、开发模式与验证编排 | 本项目维护 |
 | [unity-editor](unity-editor/SKILL.md) | Editor 连接、CLI、编译、场景、运行、日志与测试 | 本项目维护 |
 | [unity-feature-reuse](unity-feature-reuse/SKILL.md) | 同类实现比较、公共流程与函数复用 | 本项目维护 |

@@ -117,6 +117,11 @@ Assets/Mine/Special/HLSL/
   - `#pragma shader_feature_local`（本地功能开关）
   - `#pragma multi_compile`（全局多编译变体）
 
+**投射阴影的 Pass 要有专用材质。** 默认材质没有 ShadowCaster pass，`material.FindPass(...)`
+只会拿到 `-1`，整条阴影静默失效 —— 这类"什么都没发生"的失败要先查材质而不是查管线。
+做法是给 caster 一个独立材质（`Hidden/...` 专用 shader），由极简标记组件注册进自定义阴影管线；
+参考 `Assets/Mine/Shaders/PostProcess/POSS/POSSShadowCaster.shader`。
+
 ### 6. 代码编排细节
 
 - Properties 按功能使用 `[Header]` 和 `[Space]` 分组

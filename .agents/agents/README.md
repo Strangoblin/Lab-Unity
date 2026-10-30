@@ -4,7 +4,7 @@
 
 | 任务 | Agent | 记忆库 | 知识库 | 技能入口 |
 |---|---|---|---|---|
-| 体系、索引、角色 / 技能、平台接口 | [meta-developer](meta-developer/AGENT.md) | [meta memory](../memory/meta/memory.md) | [meta knowledge](../knowledge/meta/README.md) | [agent-maintenance](../skills/agent-maintenance/SKILL.md) |
+| 体系、索引、角色 / 技能、平台接口 | [meta-developer](meta-developer/AGENT.md) | [meta memory](../memory/meta/memory.md) | [meta knowledge](../knowledge/meta/README.md) | [agent-maintenance](../skills/agent-maintenance/SKILL.md)、[structure-selfcheck](../skills/structure-selfcheck/SKILL.md) |
 | Unity 渲染、Shader / Compute / RenderGraph、C# | [unity-developer](unity-developer/AGENT.md) | [unity memory](../memory/unity/MEMORY.md) | [unity knowledge](../knowledge/unity/README.md) | [autoagent](../skills/auto-manager/SKILL.md) |
 | Editor 操作、渲染取像、耗时对照、同类复用 | 使用 unity-developer | 只读相关上下文 | 只读所需事实 | 先到 [autoagent](../skills/auto-manager/SKILL.md)，由其分流开发流程或专门操作 |
 

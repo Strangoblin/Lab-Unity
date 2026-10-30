@@ -8,6 +8,8 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-30-selfcheck-round2.md](2026-10-30-selfcheck-round2.md) | 2026-10-30 | **自检第二轮**：unity 域 7 条 living 子系统记录（PCSS / POSS / FGD / 交互 / SSR DDA / 屏幕调试 / 角场）退役，结论分入项目文档与 3 份新知识（`standard/shader/angle-field`、`screen-space-marching`、`standard/compute/gpu-simulation`）。**纠正**：`history.md` 不匹配 `_MEMORY_RECORD`，自检收尾的 `memory: MISS` 是预期 warn，不是缺陷；首轮通过的真正原因是那轮写了技能落地记录。**R3 证据区**：32 个证据目录经核对全被活记录引用、两份大目录有书面保留契约，只删 `.DS_Store`；实删 `ssc-opt-c1/output/*.rgba32f`（95M，记录声明可重建）与 198 个未登记老会话（59M），`tmp/sessions` 268M → 113M。 |
+| [2026-10-30-structure-selfcheck-skill.md](2026-10-30-structure-selfcheck-skill.md) | 2026-10-30 | **结构自检技能落地**：记忆按三把锁（≥60 天 + 零活文档入链 + 有归宿）归档、垃圾桶按四类分流，逐日 `history.md` 替代 dated 记录。`inventory.py` 只读盘点。首轮基线：22 条退役候选 / 21 桶 / 3 条孤儿。 |
 | [2026-10-26-opencode-go-route-all-agents.md](2026-10-26-opencode-go-route-all-agents.md) | 2026-10-26 | 用户要求让 OpenCode Go 路由到达所有 agent：本机 macOS 缺 2026-10-17 的全局薄路由，已重建两侧逐字节相同的 `opencode-go` skill 并补齐 `CLAUDE.md` / `AGENTS.md` / `agents/default.md` / `memory/GLOBAL.md` 入口；Unity Lab 两个角色与清单补委派路由；strict 全绿、本机 `ocw` 冒烟 exit 0、会话已发现 skill。 |
 | [2026-10-17-global-unity-route.md](2026-10-17-global-unity-route.md) | 2026-10-17 | 全局路由补 Unity：Codex 全局 AGENTS.md + Claude 全局 CLAUDE.md / MEMORY.md 三处明文指向 Lab/.agents 的 agents 清单与 autoagent；只路由能力库，资产 / Editor 操作仍留在当前工程；strict 全绿。 |
 | [2026-10-17-global-opencode-go-route.md](2026-10-17-global-opencode-go-route.md) | 2026-10-17 | 全局可达性：Codex / Claude 两侧各一份**逐字节相同**的薄路由 skill `opencode-go` + 三个明文路由入口（`~/.codex/AGENTS.md`、`~/.claude/CLAUDE.md`、`~/.claude/MEMORY.md`）；正文仍唯一留在仓库、不恢复副本；顺带修正 2026-10-15「已加路由」实际未落地（该文件为 0 字节）。strict 全绿、隔离 MCP 4/4、本机链路实跑 exit 0。 |
@@ -56,21 +58,7 @@
 | [2026-09-04-fgd-window-placement.md](2026-09-04-fgd-window-placement.md) | 2026-09-04 | FGD LUT Baker Window 保留 GUID 归位功能 Editor 目录，并清除最后一个全局 EditorWindow 遗留路径 |
 | [2026-09-03-template-conventions-promoted.md](2026-09-03-template-conventions-promoted.md) | 2026-09-03 | 模板/库编写规则提升为活动规范 — layer-conventions Template 层刷新 + 新增 template-conventions.md 细则 + 索引 |
 | [2026-09-03-template-reference-taxonomy.md](2026-09-03-template-reference-taxonomy.md) | 2026-09-03 | 模板与知识库按实际职责重组：standard / script / shader，后处理允许混合 .cs/.shader/.compute/.md |
-| [2026-08-27-feature-screen-debug-retired.md](2026-08-27-feature-screen-debug-retired.md) | 2026-08-27 | feature-screen-debug 临时脚本/引用退役 → 固定 DebugOutputFeature；屏幕调试方法并入 script-structure.md；SSL Volume 方法归档 volume-component.md |
-| [2026-08-25-gate-consequence-verification.md](2026-08-25-gate-consequence-verification.md) | 2026-08-25 | 门禁收敛为后果验证 v2 — 链统一 [g_entry, g_knowledge]、知识证据真实文件校验、write_gated 内容规范检查、Codex 经 check_norm CLI 对等 |
-| [2026-08-25-codex-direct-read.md](2026-08-25-codex-direct-read.md) | 2026-08-25 | Codex 接入模型 — 直接读 .claude/ 权威源（编译镜像退役）、同样执行开发任务、AGENTS.md 改入口指引 |
-| [2026-08-25-gate-recipe-layering.md](2026-08-25-gate-recipe-layering.md) | 2026-08-25 | 按模式分层门禁链 — Quick 不再零门禁、g_knowledge 每链必含、dormant 语义、g_script NONE |
-| [2026-08-25-feature-screen-debug.md](../unity/2026-08-25-feature-screen-debug.md) | 2026-08-25 | RendererFeature 屏幕调试 — 真实 RenderGraph 中间 RT + Game View 观察，替代 Probe/Pixel Probe |
-| [2026-08-25-no-screenshot-validation.md](2026-08-25-no-screenshot-validation.md) | 2026-08-25 | 移除活动流程中的截图验证提示，视觉结果改由 Editor 人工观察 |
-| [2026-08-24-references-relocation.md](2026-08-24-references-relocation.md) | 2026-08-24 | references 归 agent — 顶层 references/ 迁入 unity-developer + rules 瘦身 + 合并 legacy 重复 |
-| [2026-08-24-mcp-gate-audit.md](2026-08-24-mcp-gate-audit.md) | 2026-08-24 | .claude↔.mcp 门禁审计 — g_knowledge + settings deny + 顺序校验 |
-| [2026-08-24-screenshot-removal.md](2026-08-24-screenshot-removal.md) | 2026-08-24 | 移除截图环节 — 验证统一为结构化 + 人工观测 |
-| [2026-08-24-knowledge-internalization.md](2026-08-24-knowledge-internalization.md) | 2026-08-24 | 知识库内化 — MarkDowns → references/ + [G1.5] 硬门禁 |
-| [2026-08-07-mcp-server.md](2026-08-07-mcp-server.md) | 2026-08-07 | Unity Gate MCP Server — 配方驱动门禁系统 |
-| [2026-08-07-ecs-decoupling.md](2026-08-07-ecs-decoupling.md) | 2026-08-07 | .claude ECS 式三层解耦 |
-| [2026-08-03-experiment-mode.md](2026-08-03-experiment-mode.md) | 2026-08-03 | Experiment Mode 加入 unity-developer |
-| [2026-07-28-references-bootstrap.md](2026-07-28-references-bootstrap.md) | 2026-07-28 | Harness 参考库补全 |
-| [2026-07-28-architecture-init.md](2026-07-28-architecture-init.md) | 2026-07-28 | .claude 7 层架构初始化 |
+| [history.md](history.md) | — | 已归档记忆时间线：2026-07 至 08 的体系史，逐日一句 |
 
 ---
 

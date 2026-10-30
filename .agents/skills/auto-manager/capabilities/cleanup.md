@@ -21,4 +21,6 @@
 
 调试日志、临时 GameObject、注释代码、空目录和未引用资源先确认业务用途；不要从名称推导删除或改层级。场景整理须在任务范围内，并遵循 [scene-setup.md](scene-setup.md)。
 
+场景内物体用 `unityctl` 脚本 `DestroyImmediate` 销毁，不靠删资产文件；设计文档（`Plan.md` 一类）属于项目资产，清理时保留。
+
 正式查询/整理脚本见 [脚本索引](../../unity-editor/scripts/roslyn/README.md)。Git 回退和验证基线见 [backup.md](backup.md)。
