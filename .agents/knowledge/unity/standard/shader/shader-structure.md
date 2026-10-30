@@ -67,11 +67,12 @@ SubShader                       —— 仅包含 Pass 定义
 - 对于未来可能复用或涉及复杂计算的功能，单独拆分为函数管理。
 - **拆库裁决**：按 [公共函数归属表](../../../../skills/auto-manager/templates/shader/hlsl/README.md#公共函数归属)区分项目公共与通用公共；调用次数不决定归属。
   - 单效果私有数学/形状、项目或功能族的公共流程 → 保留在功能目录（可自持 CBUFFER / static const）。
-  - 只有通用公共函数 → `Assets/Mine/Special/HLSL/`（零 CBUFFER、零兄弟 include、调用方 Assets 全路径 include），例如:
+  - 只有通用公共函数 → `Assets/Mine/Special/HLSL/`（零 CBUFFER、调用方 Assets 全路径 include；共享库默认不 include 兄弟库，唯一例外是 PBR 家族入口 `PBRFunction.hlsl` 聚合 `HairFunction.hlsl` / `FabricFunction.hlsl`），例如:
     - `RimLightFunction.hlsl` — 边缘光
     - `ShadowFunction.hlsl` — 阴影处理
     - `ENVFunction.hlsl` — 环境反射
-    - `PBRFunction.hlsl` — PBR 光照
+    - `PBRFunction.hlsl` — PBR 光照（BRDF / BTDF / BSDF）
+    - `HairFunction.hlsl` — 毛发高光瓣（2026-10-30 自 PBRFunction 拆出）
     - `NormalFunction.hlsl` — 法线计算
     - `LightFunction.hlsl` — 通用光照
   - 完整决策表 → [render 选型节](../../../../skills/auto-manager/templates/shader/render/README.md) + [hlsl 三档依赖表](../../../../skills/auto-manager/templates/shader/hlsl/README.md)

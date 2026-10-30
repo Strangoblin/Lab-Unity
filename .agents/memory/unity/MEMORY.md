@@ -13,6 +13,8 @@
 
 ## 关键架构决策
 
+- **PBRFunction 拆分与代表模型（2026-10-30）**：毛发段拆为 `Special/HLSL/HairFunction.hlsl`，PBRFunction 升为 PBR 家族入口，聚合 HairFunction 与 FabricFunction（「零兄弟 include」的唯一例外，已同步知识库与技能模板）；同时补入 Oren-Nayar / Minnaert / Ashikhmin-Shirley / Wrap 漫射，Blinn-Phong / Beckmann / GTR1 / Charlie 分布，Smith 高度相关 / Kelemen / Neubelt 可见性，F90 菲涅耳与 Sheen 组合。Charlie 取感知粗糙度、其余 D 取 `roughness²`，是刻意保留的语义分叉。见 [记录](2026-10-30-pbrfunction-models-split.md)。
+
 - **SDF 逐轴归一化（2026-10-23 当前）**：Box / Square 先按每轴半尺寸归一化坐标，再取 `saturate(1-max(abs(q)))`；长短轴各自半程均为0.5，覆盖此前“除最短半尺寸”的约定。该阶段SSC用Box、Y置0只羽化XZ、fade=0.8，Metal 30项GPU读回及8个Pass/关键字组合通过；SSC后续已改为Circle、fade=0.5，见活跃上下文。见 [当前契约与验证](2026-10-23-sdf-axis-normalization.md)。
 
 - **SDF 共享库归一化覆盖度（2026-10-22）**：`Special/HLSL/SDF.hlsl` 改为 `[0,1]` 覆盖度 SDF，中心 1、边界 0、外部 0；新增 `SDF_Circle` / `SDF_Square`，平滑运算同步改为覆盖度最大/最小/差集。规范检查、HLSL 语法编译与中心/边界/外部数值断言通过，Unity/Metal 变体未验。见 [记录](2026-10-22-sdf-normalization.md)。
