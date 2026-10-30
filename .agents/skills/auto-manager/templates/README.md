@@ -18,6 +18,6 @@ A `.cs` file belongs under `shader/` when it is a RendererFeature, RenderPass, V
 
 ## Project inputs
 
-Resolve resource IDs with `python3 .mcp/validation/project_resources.py path <id>` and intersect the result with the user's authorized workspace before copying a template.
+Resolve resource IDs with `python3 .mcp/lib/validation/project_resources.py path <id>` and intersect the result with the user's authorized workspace before copying a template.
 `<category.Script>`, `<category.Render>` and `YOUR_AUTHORIZED_*_PATH` are explicit substitution inputs, never literal output/include defaults. Asset-producing EditorWindow output uses a fixed registered path (Save and Load share one source), not a per-run free choice.
 Historical source paths inside provenance comments/tables are examples from this project's past layout; use the resource interface for current addresses. Templates do not grant asset write or workspace expansion permission.

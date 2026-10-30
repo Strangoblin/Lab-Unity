@@ -41,7 +41,7 @@
 
 ## 验证清单（模板 / 库文件新增或修改后）
 
-1. `python3 .mcp/validation/check_norm.py <file>`（Codex 产出走同一 CLI 自查）—— error 级违规阻断
+1. `python3 .mcp/bin/cli.py close` 核对本次写入无规范违规（`close.norm`）；单文件自查直接看 hook 的拒绝理由
 2. 模板 API 核验：`python3 .agents/skills/agent-maintenance/scripts/check_api_refs.py <dir>` —— 词法 + 过时 API；流程与边界见 [template-validation.md](../../skills/agent-maintenance/references/template-validation.md)
 3. `ls` 族目录：独特族只有 README.md 是 markdown
 4. grep 残留（占位句 / 旧文件名）零输出；README 相对链全部可解析（broken: NONE）

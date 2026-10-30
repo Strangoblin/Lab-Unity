@@ -1,82 +1,76 @@
-# MCP 门禁工具速查（unity-gate server）
+# MCP 使用事实（判定核 + 证据账本）
 
-> **`Assets/Mine/` 写入必须走 `write_gated`、删除走 `delete_gated`、移动/改名走 `move_gated`**。
-> 原生 Write/Edit 已被 settings deny，且连带命中 Bash（`rm`/`mv`/`cp`、写入型 `sed` 被拦，只读 `sed -n` 放行；MCP 调用与子进程不受该规则约束）。会话内工具名带前缀 `mcp__unity-gate__*`。
-> **权威来源**：`.mcp/README.md`（架构、判定理由、规则数据）。**本页只做操作速查，不重复理由。**
+> **写入一律用平台原生 `Write` / `Edit`（PreToolUse hook 判定）；删除走 `cli.py delete`，其余（移动、改名、批量处理）用原生命令。**
+> 没有 `cli.py write`，也没有 MCP 服务（`.mcp.json` 为空）—— 会话里不会出现 `mcp__*` 工具。
+> **权威来源**：`.mcp/README.md`（架构、理由、规则数据）。**本页只做操作速查，不重复理由。**
 
-## 工具
+## 命令
 
-| 工具 | 作用 | 何时 |
+| 命令 | 作用 | 何时 |
 |------|------|------|
-| `gate_status()` | 配方 + 工作目录 + 已过门禁 + 审计 | **任务第一步** |
-| `gate_set_recipe(name)` | 声明模式：Production/Research/Experiment/Debug/Minimal/Quick | 任务第一步 |
-| `gate_set_workspace(path)` | 声明**本次任务的工作目录**（写/删/移边界） | 任务第一步；未指定先问用户 |
-| `gate_request_workspace(path, reason)` | 申请扩展工作目录（**只登记，不授权**） | 需动边界外文件时 |
-| `gate_pass(gate_id, ...)` | 通过 `g_entry` / `g_knowledge` | 各一次 |
-| `gate_reset()` / `gate_list()` | 清空状态 / 列全部门禁与配方 | 切任务 / 不确定时 |
-| `script_list()` | 列出 scripts/roslyn/ | 需要脚本决策时 |
-| `write_gated` / `delete_gated` / `move_gated` | 写 / 删 / 移的**唯一通道**；`moves=[{"from","to"}]`；删目录传 `recursive=True` | 对应操作时 |
+| `cli.py open --task … --profile … --workspace …` | 声明任务、沙箱、业务线；返回 playbook | **任务第一步**，只一次 |
+| `cli.py expand --workspace … --reason …` | 用户指出新地址后扩充沙箱（对话确认，命令只留痕） | 中途用户加目录 |
+| `cli.py status` | 当前会话、分区视图、策略档位 | 不确定边界时 |
+| `cli.py close` | 出口验收，按 profile 核对证据 | 收尾 |
+| `cli.py delete <路径…> --reason …` | 删除 → `.mcp/trash/`（可恢复） | 删文件/目录时 |
+| `cli.py move <源> <目标> --reason …` | 批量改名 / 跨目录搬，`.meta` 成对 | 一次搬多对时 |
+| `cli.py trash` / `cli.py restore <id>` | 查垃圾桶 / 取回 | 撤销删除 |
+| `cli.py report` | 摩擦账本聚合，产出策略提案 | 维护时（人读后决定） |
 
-## 标准流程（详见 `../../../skills/auto-manager/SKILL.md` 的 [G0]–[G3]）
-
-```
-gate_set_recipe → gate_set_workspace → gate_pass(g_entry) → gate_pass(g_knowledge) → write_gated
-  模式声明     →      任务边界       →      身份       →   知识证据（须命中真实文件）  →   全量内容，可连续写
-```
-
-## 当前档位（2026-10-09 降级后）
-
-| 档位 | 检查 | 行为 |
-|---|---|---|
-| **block（硬闸）** | `scope.path`、`scope.workspace`、`norm.shader-decl` / `norm.cs-type-decl` / `norm.region-added`、`placement.root.new`、`deletion.*`、`move.presafety`、**`ceremony.knowledge_resolvable`（编造文件名）** | 违规 → DENIED |
-| **warn（放行 + `warnings`）** | `ceremony.recipe_gate`（链未过）、`ceremony.knowledge_high_priority`（漏申报）、`norm.divider-added`、`placement.category`、`placement.root.existing` | 放行并记账 |
-
-含义：**未过配方链也能写**（携带 `ceremony.recipe_gate` warning、`recipe` 记 `null`）—— agent 自主性档位，观察期一个任务周期，
-质量下滑即升回 block；硬闸（作用域/工作目录/规范/落点/删除移动安全/编造文件名）不变。被放宽的检查仍留 warning 与 `friction.jsonl`（降级不静默）。
-
-## 工作目录边界（任务级）
-
-`Assets/Mine/**` 的写/删/移须落在 `gate_set_workspace` 声明的目录内（`tmp/` 暂存不受限）；边界**只能收窄**；
-移动**两端**都要在边界内。未声明 → `WORKSPACE_NOT_SET`；越界 → `WORKSPACE_VIOLATION`。
-扩展：`gate_request_workspace(<目录>, <原因>)` 登记 → **由用户** `workspace approve <id>`。
-**agent 不得自行 approve/reject**（hook C3 封闭 + 写入摩擦账本）。
-
-## g_knowledge
-
-- **先真实读取**再申报 `status="COMPLETE"` —— 声明条目会被解析校验，不是仪式
-- 高优先级必读（两者都申报）：`unity/standard/shader/shader-structure.md` + `unity/standard/script/script-structure.md`；参考实现用项目相对路径声明
-- 编造文件名 → `G15_UNRESOLVED_FILE` **仍 DENIED**（防幻觉未随仪式降级）
-
-## DENIED 响应解读
-
-| error | 含义 | 处理 |
-|-------|------|------|
-| `WORKSPACE_NOT_SET` | 未声明工作目录 | 先 `gate_set_workspace(<用户指定目录>)` |
-| `WORKSPACE_VIOLATION` | 超出本次工作目录 | 改回边界内；确需扩展走 `gate_request_workspace` + 人工批准 |
-| `WORKSPACE_NOT_ALLOWED` | 工作目录本身越出基础作用域 | 只能声明基础作用域内的目录（如 `Assets/Mine/**`） |
-| `NORM_VIOLATION` | 违反结构规范或文件落点 | 按 `violations[].id` / `.source` 修正后重试 |
-| `G15_UNRESOLVED_FILE` | 声明条目解析不到真实文件 | 对照 references/ 或项目路径修正（防编造的硬闸） |
-| `MISSING_REASON` | delete / move / 申请扩展没给原因 | 补 `reason`（必填，进审计） |
-| `DELETION_UNSAFE` | 删除不可恢复 / 目录形状不成立 | `tracked-dirty` 先提交或还原；`guid-referenced` 先解除引用；`directory-not-empty` 加 `recursive`；`symlink` / `protected-root` 改走明确目标 |
-| `DELETE_FAILED` | 预检后路径被改动或 I/O 失败 | 整批零改动或部分完成见 `deleted`；重新核对后再执行 |
-| `MOVE_UNSAFE` | 移动预检不通过 | `TARGET_EXISTS` 要替换走 write_gated；`GUID_TAKEN` 先解除占用；`CHAINED_MOVE` 拆批 |
-| `BAD_MOVE_SHAPE` | `moves` 元素缺 `from`/`to` | 传 `[{"from": ..., "to": ...}]` |
-| `NO_RECIPE` / `GATE_NOT_PASSED` | **仅 `ceremony.recipe_gate` 为 `block` 时**出现 | 当前已放宽为 warn，正常见不到；见到即策略被收紧，按 `missing` 补过链 |
-| `GATE_NOT_IN_RECIPE` / `INVALID_*` | 调了退役门禁 / 名字拼错 | 模式走 recipe，脚本分类走注解；名字对照 `gate_list` |
-
-## CLI 对等通道（Codex / MCP 工具表冻结时）
+`status` / `report` 之外都返回 JSON；退出码 `0` 通过 / `1` 被拦或未达出口 / `2` 用法。
 
 ```bash
-python3 .mcp/validation/gate_cli.py <write|delete|move|workspace|status|report> ...   # delete 支持 --recursive/--dry-run
-python3 .mcp/validation/check_norm.py <file>          # 单文件规范自查（不写盘）
+python3 .mcp/bin/cli.py open --task "修复 SSC 云边缘" --profile shader \
+    --workspace Assets/Mine/Shaders/PostProcess/SSC --workspace Assets/Mine/Special/HLSL
+# 用平台 Write / Edit / mv 直接改
+python3 .mcp/bin/cli.py close
 ```
 
-`write_gated.py` / `delete_gated.py` / `move_gated.py` 是等价兼容入口。与 MCP 同一判定核
-（`validation/judgement.py`）、同一错误码；状态读 `.mcp/state.json`。退出码 `0` 通过 / `1` 被拦 / `2` 用法。
+## profile 与出口义务
+
+| profile | 必读 | 出口义务 |
+|---|---|---|
+| `shader` / `compute` | shader 结构规范 + HLSL / compute API | knowledge, norm, compile, verify, memory |
+| `script` / `tooling` | 脚本结构规范 | knowledge, norm, compile, memory |
+| `benchmark` | 渲染基准契约 | knowledge, compile, verify, memory |
+| `meta` | — | memory |
+| `research` | — | 无 |
+
+义务逐项查证据：`knowledge` 由 PostToolUse 记录的真实 `Read` 满足；`compile` 读 `unityctl logs`；
+`verify` 要晚于最后一次写入的产物；`memory` 只在本次有实质改动时要求。
+
+## 分区
+
+| zone | 路径 | 规则 |
+|---|---|---|
+| `asset` | `Assets/Mine/**` | 沙箱内自由写；已入库的沙箱外也放行（git 兜底）；新建 / 未跟踪仍须沙箱 |
+| `memory` | `.agents/memory/**` | 随时可写，**既有记录也能原地改** |
+| `system` | `.agents/{agents,knowledge,skills}`、`.mcp`、平台目录 | 可写，只记录 |
+| `scratch` | `tmp/**`、`.mcp/trash/**` | 自由 |
+| 分区表之外 | `AGENTS.md`、`.mcp.json`、`.gitignore` 等 | **已入库即放行**（git 兜底）；未入库拒 |
+
+分区表是数据：`.mcp/config/zones.json`。加目录、换平台、调整哪几个区吃 git 兜底（`git_protected.allow_zones`）都改数据。
+
+## 被拒时的处理
+
+| error | 含义 | 处理 |
+|---|---|---|
+| `SANDBOX_NOT_SET` | 资产区还没开沙箱，且文件未入库 | 跑 `cli.py open --workspace <用户指定目录>` |
+| `SANDBOX_VIOLATION` | 未入库文件落在本次沙箱外（含新建） | 沙箱内重试；确需另一个目录，**请用户在对话里确认**后 `cli.py expand` |
+| `ZONE_DENIED` | 不在分区表内，且不在 git 里（没有兜底） | 请示用户；生成目录、仓库外都属此列 |
+| `NORM_VIOLATION` | 结构规范或落点 | 按 `violations[].check` 修正后重试 |
+| `MISSING_REASON` | delete / move / waive / expand 没给原因 | 补 `--reason`（进审计） |
+| `MOVE_UNSAFE` | 目标已存在 / GUID 被占 / 批内链式 | 替换目标直接写；`GUID_TAKEN` 先解除占用；链式拆两批 |
+| `TRASH_UNSAFE` | 软链或作用域根 | 改走明确目标；软链不跟随、不搬运 |
+
+**误拦不要就地改策略**：记原因交 meta 复核；行为疑问用 `.mcp/tests/run_isolated.py` 验证。
 
 ## 提醒
 
-- **为什么要有 CLI**：MCP 工具表按会话冻结（服务器跑新代码但工具调不到，须 `/mcp` 重连）；三条操作都有 CLI，冻结时都不再断。
-- **状态语义**：CLI 只读 `.mcp/state.json`，MCP 服务端内存态独立 —— 刚跑过测试（末尾 `gate_reset` 清文件）时 CLI 可能报 `NO_RECIPE` 而 `gate_status` 正常。
-- **审计有意不对称**：写入只在会话内存（最近 100 条）；删除 / 移动另落盘 `.mcp/{deletes,moves}.jsonl` —— 删除不留产物、移动丢的是「哪个变成了哪个」，日志是唯一痕迹。
-- **策略可调**（`.mcp/policy.json`）：agent **不自行改级别**；疑似误拦交 meta-developer 复核，行为疑问用 `.mcp/tests/run_isolated.py` 验证。
+- **失败语义**：资产区与未入库路径失败即拒（判定核崩了也拒），记忆区与暂存区失败即放行。看到 `hook 判定失败` 先查 `.mcp/lib/hooks.py` 能否手工运行。
+- **Bash 只封三条红线**：`git stash --all`、`rm -rf Assets/Mine/`、删除证据账本。
+  **移动 / 改名 / 其他操作直接用原生命令**（`mv` 会顺带搬 `.meta`，GUID 不变）；
+  只有**删除与清空**会被引导去 `cli.py delete`（留底可 restore）。**不通用拦截** Bash 写入其他区 —— 约束来自规则本身，不是 hook 兜底。
+- **审计**：`writes.jsonl` / `reads.jsonl` / `deletes.jsonl` / `moves.jsonl` 是证据来源；`close` 只认账本，不认申报。
+- **策略可调**（`.mcp/config/policy.json`）：只能放宽不能收紧；agent 不自行改级别。
+- **历史工具**：`gate_set_recipe` / `gate_pass` / `gate_cli.py` / `write_gated` / `check_norm.py` 已移入 `.mcp/trash/`，可恢复但不应启用。

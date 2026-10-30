@@ -5,7 +5,7 @@ import sys
 import tempfile
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
 from validation.project_resources import ResourceError, load_resources, resource_path
 
 
@@ -23,7 +23,9 @@ class ResourceTests(unittest.TestCase):
         self.temp.cleanup()
 
     def bind(self, resources):
-        (self.root / ".mcp/project-resources.json").write_text(json.dumps({"version": 1, "resources": resources}))
+        config = self.root / ".mcp/config/project-resources.json"
+        config.parent.mkdir(parents=True, exist_ok=True)
+        config.write_text(json.dumps({"version": 1, "resources": resources}))
 
     def test_remap_to_project_without_assets(self):
         self.bind({"unity.debug-output-feature": "content/target.cs"})
@@ -60,10 +62,19 @@ class ResourceTests(unittest.TestCase):
         self.assertEqual(validate_decision("USE deliberately-missing.cs")["status"], "DENIED")
 
     def test_locations_do_not_authorize_writes(self):
-        from validation.project_paths import validate_path
+        """资源绑定是只读的 —— 声明「这个 ID 指向哪」不发写入权限。
+
+        v4 里写入边界由 zones.py 按分区判定，与资源绑定毫无关系；这条测试守着
+        「加一条资源绑定不会悄悄拓宽可写范围」。
+        """
+        import sys
+        from pathlib import Path as _Path
+        sys.path.insert(0, str(_Path(__file__).resolve().parents[1] / "lib"))
+        import zones
         self.bind({"asset.root": "content"})
         self.assertEqual(resource_path("asset.root", project_root=self.root), self.root / "content")
-        self.assertEqual(validate_path(str(self.root / "content/new.cs"))["status"], "DENIED")
+        # 绑定到 content/ 不会让 content/ 变成可写分区
+        self.assertEqual(zones.zone_of("content/target.cs"), "denied")
 
 
 if __name__ == "__main__":

@@ -25,9 +25,9 @@ class IsolatedRunnerTests(unittest.TestCase):
             self.put(relative + "/fixture.md", "fixture\n")
         for name in runner.SUITES:
             self.put(".mcp/tests/" + name, "def test_fixture():\n    pass\n")
-        self.put(".mcp/policy.json", "{}\n")
+        self.put(".mcp/config/policy.json", "{}\n")
         for name in runner.AUDIT_NAMES:
-            self.put(".mcp/" + name, "production sentinel\n")
+            self.put(".mcp/state/" + name, "production sentinel\n")
         self.task = self.root / "tmp/sessions/test-task"
         self.task.mkdir(parents=True)
         self.sentinel = self.task / "fixtures" / "preexisting"
@@ -50,7 +50,7 @@ class IsolatedRunnerTests(unittest.TestCase):
     def run_stub(self, fail=False, retain=False):
         def command(*args):
             code = self.fake_command(*args)
-            return 7 if fail and str(args[0][-1]).endswith("test_recipes.py") else code
+            return 7 if fail and str(args[0][-1]).endswith("test_zones.py") else code
 
         with patch.object(runner, "run_command", side_effect=command), redirect_stdout(io.StringIO()):
             code, report = runner.run_isolated(self.root, self.task, Path(sys.executable), 30, retain)
@@ -58,18 +58,18 @@ class IsolatedRunnerTests(unittest.TestCase):
 
     def test_copy_excludes_production_and_caches(self):
         for relative in (".mcp/.venv/secret.py", ".mcp/__pycache__/old.py",
-                         ".mcp/.pytest_cache/cache.json", ".mcp/state.json.tmp"):
+                         ".mcp/.pytest_cache/cache.json", ".mcp/state/session.json.tmp"):
             self.put(relative, "must not copy\n")
         fixture = self.task / "copy-fixture"
         fixture.mkdir()
         copied = runner.copy_fixture(self.root, fixture)
-        self.assertIn(".mcp/policy.json", copied)
+        self.assertIn(".mcp/config/policy.json", copied)
         for name in runner.AUDIT_NAMES:
-            self.assertFalse((fixture / ".mcp" / name).exists())
+            self.assertFalse((fixture / ".mcp" / "state" / name).exists())
         self.assertFalse((fixture / ".mcp/.venv").exists())
         self.assertFalse((fixture / ".mcp/__pycache__").exists())
         self.assertFalse((fixture / ".mcp/.pytest_cache").exists())
-        self.assertFalse((fixture / ".mcp/state.json.tmp").exists())
+        self.assertFalse((fixture / ".mcp/state/session.json.tmp").exists())
 
     def test_success_cleans_only_owned_fixture_and_keeps_evidence(self):
         before = runner.fingerprints(self.root)
@@ -90,7 +90,7 @@ class IsolatedRunnerTests(unittest.TestCase):
         self.assertEqual(report["results"][0]["exit_code"], 7)
         self.assertTrue(report["fixture_retained"])
         self.assertTrue(Path(report["fixture"]).is_dir())
-        self.assertTrue(report["real_gate_state_and_audit_unchanged"])
+        self.assertTrue(report["real_ledger_unchanged"])
 
     def test_failure_cleans_fixture_by_default(self):
         code, report, _ = self.run_stub(fail=True)
@@ -100,15 +100,15 @@ class IsolatedRunnerTests(unittest.TestCase):
 
     def test_live_state_change_is_detected(self):
         def command(*args):
-            self.put(".mcp/state.json", "concurrent external update\n")
+            self.put(".mcp/state/session.json", "concurrent external update\n")
             return self.fake_command(*args)
 
         with patch.object(runner, "run_command", side_effect=command), redirect_stdout(io.StringIO()):
             code, path = runner.run_isolated(self.root, self.task, Path(sys.executable), 30)
         report = json.loads(path.read_text())
         self.assertEqual(code, 1)
-        self.assertFalse(report["real_gate_state_and_audit_unchanged"])
-        self.assertEqual((self.root / ".mcp/state.json").read_text(), "concurrent external update\n")
+        self.assertFalse(report["real_ledger_unchanged"])
+        self.assertEqual((self.root / ".mcp/state/session.json").read_text(), "concurrent external update\n")
 
     def test_escaping_input_symlink_is_rejected(self):
         outside = Path(self.temporary.name) / "external.py"
@@ -126,7 +126,7 @@ class IsolatedRunnerTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("no automatic install", report["error"])
         self.assertNotIn("fixture", report)
-        self.assertTrue(report["real_gate_state_and_audit_unchanged"])
+        self.assertTrue(report["real_ledger_unchanged"])
 
     def test_task_directory_cannot_escape_sessions(self):
         with redirect_stderr(io.StringIO()):
@@ -146,7 +146,7 @@ class IsolatedRunnerTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("inside this task", report["error"])
         self.assertEqual(list(outside.iterdir()), [])
-        self.assertTrue(report["real_gate_state_and_audit_unchanged"])
+        self.assertTrue(report["real_ledger_unchanged"])
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """模板 API 核验 CLI — 「模板里写下的 API 确实存在且没过时」的机械检查。
 
-归属: agent-maintenance skill 维护 templates/ 时的自查工具，**不属门禁链**（模板写入不经 write_gated）。
+归属: agent-maintenance skill 维护 templates/ 时的自查工具，**不在自动判定链上**（模板写入由 hook 只做分区与规范判定）。
 
 为什么是 API 核验而不是「必须能编译」:
   模板是给人**拷贝**的参考实现, 不要求自足编译(骨架本就有占位符, 且 .shader/.hlsl

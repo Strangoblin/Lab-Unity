@@ -1,0 +1,69 @@
+{
+  "_comment": "分区表 —— 路径属于哪个区、这个区允许怎么改。**有序**：先命中先得。顺序是语义，不是装饰（比如 .mcp/trash 必须排在 .mcp 之前，否则垃圾桶会被当体系区记录）。改这里 = 改边界，不必改判定代码。",
+  "version": 5,
+  "zones": [
+    {
+      "zone": "scratch",
+      "prefix": "tmp",
+      "why": "会话临时区。截图、基准输出、隔离 fixture 都在这儿，随时可丢。"
+    },
+    {
+      "zone": "scratch",
+      "prefix": ".mcp/trash",
+      "why": "垃圾桶在 .mcp 之下，必须排在 .mcp 之前命中，否则删除留底本身会被当成体系区写入记录。"
+    },
+    {
+      "zone": "asset",
+      "prefix": "Assets/Mine",
+      "why": "工程资产。受本次会话沙箱约束，且受内容规范与落点规则管辖 —— 但已入库的文件由 git 兜底，不受沙箱拦截。"
+    },
+    {
+      "zone": "memory",
+      "prefix": ".agents/memory",
+      "why": "记忆库。随时可写，既有记录也允许原地改 —— 收尾写记忆曾被工作目录边界挡在界外（实测 2 次），绕路新建反而不如原地修正。"
+    },
+    {
+      "zone": "system",
+      "prefix": ".agents/agents",
+      "why": "角色定义。可写，只记录。"
+    },
+    {
+      "zone": "system",
+      "prefix": ".agents/knowledge",
+      "why": "共享知识库正文。可写，只记录。"
+    },
+    {
+      "zone": "system",
+      "prefix": ".agents/skills",
+      "why": "技能正文（唯一副本）。可写，只记录。"
+    },
+    {
+      "zone": "system",
+      "prefix": ".mcp",
+      "why": "判定核与策略。可写，只记录 —— 框架自身的演进不该被框架挡住。"
+    },
+    {
+      "zone": "system",
+      "prefix": "PLATFORM_CLAUDE_DIR",
+      "why": "平台目录（settings / hooks 注册）。两平台对称列出，判定核本身对平台无偏好。"
+    },
+    {
+      "zone": "system",
+      "prefix": "PLATFORM_CODEX_DIR",
+      "why": "平台目录（config / hooks 注册）。与上一个对称。"
+    }
+  ],
+  "platform_dir_tokens": {
+    "_comment": "平台目录名集中在这里，收益是「换平台只改数据」。判定核本身对平台无偏好 —— 两个平台只是恰好都存判定配置。",
+    "PLATFORM_CLAUDE_DIR": ".claude",
+    "PLATFORM_CODEX_DIR": ".codex"
+  },
+  "git_protected": {
+    "_comment": "git 保护 = 可随意编辑（2026-10-28 用户裁决）。分区表之外/未声明的路径，问一次 git：已入库就放行并记录。兜底是版本库而不是信任；未入库（含新建）仍按原规则拒。",
+    "allow_zones": [
+      "denied",
+      "asset"
+    ]
+  },
+  "managed_extensions": [".shader", ".hlsl", ".cs", ".compute", ".md"]
+}

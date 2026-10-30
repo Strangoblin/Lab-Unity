@@ -6,7 +6,7 @@
 
 ## 归属
 
-通用画面诊断工具集中到 `Assets/Mine/Special/Debug/`：Feature、调试 Shader 与 README 共处，避免把工具归为正式 PostProcess 效果。迁移前来源与目标见下表。现有受管落点允许 Special，不需要增加根目录或放宽门禁。
+通用画面诊断工具集中到 `Assets/Mine/Special/Debug/`：Feature、调试 Shader 与 README 共处，避免把工具归为正式 PostProcess 效果。迁移前来源与目标见下表。现有受管落点允许 Special，不需要增加根目录或放宽沙箱。
 
 功能专属的 Debug 分支、辅助输出或 `Validation~/` 留在各功能目录；自动化取像脚本仍归 unity-developer 的 scripts，skill 仍归共享 skills，不全部搬入 Assets。
 
@@ -32,5 +32,5 @@
 - 所有文件 `.meta` GUID 唯一且保持原值，C# 逐字节未改。`PC_Renderer.asset` 的脚本绑定保持 GUID `b3dcbe7b74f544b58bb86d2e2f92a478`，磁盘哈希未变。
 - 迁移时两个 Shader 菜单已改为 Debug 前缀；当前只保留 `Debug/DebugOutput`，专用验证 Shader 已按上方退役记录删除。
 - skill / Roslyn CLI 活动入口已同步，历史 dated memory 保持原快照；资源 README 指向统一调试 skill。
-- Assets 经 move / write / delete 门禁执行；自动导入在成对迁移期间暂缓后恢复，无门禁判定或策略改动。
+- Assets 经平台 `Write` / `Edit` / `mv` 与 `cli.py delete` 执行；自动导入在成对迁移期间暂缓后恢复，无判定或策略改动。
 - Unity C# 编译通过；两个 Shader 默认无关键字 Pass 0 经真实 PC Renderer 输出完整 640×360 PNG，编译消息为空。Feature 设置与 Active 已恢复，原 Edit Mode、场景 dirty=false / Renderer dirty=true 保持。

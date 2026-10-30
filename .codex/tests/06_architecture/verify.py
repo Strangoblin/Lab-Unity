@@ -171,6 +171,11 @@ def in_source_scope(path: Path) -> bool:
         return False
     if relp != LEGACY_TMP_README and relp.startswith(GENERATED_PREFIXES):
         return False
+    # `.mcp/trash/` 是「可 restore 的删除留底」——被删掉的东西连同它当时的样子一起
+    # 保存在这里，不是当前的架构源。扫它只会让每次删除都在报告里堆噪音：一条旧产物
+    # 里的机器绝对路径与被删除的旧模块名，都代表不了现在的布局。
+    if relp == ".mcp/trash" or relp.startswith(".mcp/trash/"):
+        return False
     if relp == ".mcp/tmp":
         return False
     if len(parts) >= 4 and parts[:2] == (".codex", "tests"):
@@ -304,22 +309,43 @@ def skill_drift(texts: dict[Path, str]) -> list[str]:
     return drift
 
 
-PLATFORM_HOOKS = (".claude/hooks/guard-bash.sh", ".codex/hooks/guard-bash.sh")
+PLATFORM_HOOK_REGISTRATIONS = (".claude/settings.json", ".codex/hooks.json")
+# 唯一 hook 传输层。判定核是 .mcp/lib/hooks.py，传输是 .mcp/bin/hooks.sh —— 一份就不存在漂移。
+HOOK_TRANSPORT = ".mcp/bin/hooks.sh"
+# 旧的两平台副本。逐字一致曾经靠人记着同步、再由下面的检查守着，那是补丁；
+# v4 把它们并进判定核，这里断言它们不再回来。
+RETIRED_PLATFORM_GUARDS = (".claude/hooks/guard-bash.sh", ".codex/hooks/guard-bash.sh")
 
 
 def platform_hook_drift() -> list[str]:
-    """两平台的 Bash guard 必须逐字一致 —— 否则红线会静默分叉。
+    """两平台必须注册**同一个** hook 传输层，且不得各自留一份规则副本。
 
-    与 skill_drift 同类：同一份规则在两个平台各存一份，靠人记着同步必然漂移
-    （2026-09-21 的 codex-opencode-go skill 就是这么漂的）。改一侧必须同步另一侧，
-    规则见 .agents/knowledge/rules/meta-architecture.md §链路保障。
+    v3 把 Bash 红线写成两平台各一份 guard-bash.sh，靠逐字一致维持等价 —— 那需要
+    一个检查来守，而检查只能发现已经发生的漂移。v4 改结构：规则只有一份
+    （.mcp/lib/hooks.py），平台侧只留注册。于是「漂移」这件事不再可能有。
     """
-    paths = [ROOT / name for name in PLATFORM_HOOKS]
-    existing = [path for path in paths if path.is_file()]
-    if len(existing) < 2:
-        return []
-    digests = {hashlib.sha256(path.read_bytes()).hexdigest() for path in existing}
-    return list(PLATFORM_HOOKS) if len(digests) > 1 else []
+    errors: list[str] = []
+    for retired in RETIRED_PLATFORM_GUARDS:
+        if (ROOT / retired).exists():
+            errors.append(f"retired per-platform guard is back: {retired}")
+
+    transports = set()
+    for registration in PLATFORM_HOOK_REGISTRATIONS:
+        path = ROOT / registration
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            errors.append(f"hook registration missing: {registration}")
+            continue
+        if HOOK_TRANSPORT not in text:
+            errors.append(f"{registration} does not route to {HOOK_TRANSPORT}")
+            continue
+        transports.add(registration)
+    if len(transports) != len(PLATFORM_HOOK_REGISTRATIONS):
+        return errors
+    if not (ROOT / HOOK_TRANSPORT).is_file():
+        errors.append(f"hook transport missing: {HOOK_TRANSPORT}")
+    return errors
 
 
 def mcp_hardcodes(texts: dict[Path, str]) -> list[dict[str, object]]:

@@ -10,7 +10,7 @@
 | 验证 | 命令 / 入口 |
 |---|---|
 | 架构、活动断链、零软链、角色归属 | `python3 .codex/tests/06_architecture/verify.py --strict` |
-| 执行契约 | `python3 .mcp/tests/run_isolated.py`（隔离项目，不 reset 生产） |
+| 执行契约 | `python3 .mcp/tests/run_isolated.py --task-dir tmp/sessions/<date-task-id>`（隔离项目，不 reset 生产） |
 | 路径残留 | `rg -n "旧路径" <本次活动文档范围>`，历史来源另按迁移记录解释 |
 | 模板 API | [template-validation](template-validation.md) |
 
@@ -19,7 +19,13 @@
 「去掉 X」的执行口径：**环节类引用**（工作流步骤、验证手段、清理目标）全清；**工具事实文档**
 （命令清单、激活条件）保留 —— 删后者会让文档失真，还会破坏 skill 的激活条件。
 
-## E5：门禁演进
+## E5：判定核演进
 
-涉及门禁判定 / 路径时读取 `python3 .mcp/validation/gate_cli.py report`；review 提案形成具体待办。
-策略调整优先改 policy 数据，须人工确认并记录依据、观察窗口；判定改动改唯一核，经隔离契约验证。不能以本次迁移为由放宽权限，生产状态与审计不作为 fixture 清理。
+```bash
+python3 .mcp/bin/cli.py report          # 摩擦账本聚合：哪条检查在真实操作上反复拒绝、哪项出口义务总是缺失
+python3 .mcp/bin/cli.py report --json   # 机器可读
+```
+
+review 提案形成具体待办。策略调整优先改 `policy.json` 数据，须人工确认并记录依据、观察窗口；
+判定改动改唯一核（`judgement.py` / `close.py` / `zones.py`），经隔离契约验证。报告**只提案不自动生效**。
+不能以本次迁移为由放宽权限，生产状态与审计不作为 fixture 清理。

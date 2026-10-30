@@ -6,13 +6,13 @@ description: 在 Unity 中新增同类功能、扩展 Shader/HLSL/Compute/C# 变
 # 同类功能关联与复用
 
 目标：同类功能沿用可解释的共同流程与接口，必要差异显式保留；整合同时处理重复算法，而不止合并文件与参数。
-在方案设计、首次实现或宣称“无库内方案”前执行。适用于所有开发模式，不新增 MCP 门禁。
+在方案设计、首次实现或宣称“无库内方案”前执行。适用于所有开发模式，不新增检查项。
 
 ## 1. 找到关联实现
 
 - 新增/扩展：从目标目录、最近的同类实现与相关库索引开始，读候选函数实现和实际调用点；选定可沿用的基线，说明需要偏离之处。
 - 整合：读取全部待整合来源及其资源/参数绑定，不以搬入新目录视为完成。
-- Shader/HLSL：先查 [HLSL 库索引与分工](../auto-manager/templates/shader/hlsl/README.md)，再用 `python3 .mcp/validation/project_resources.py path library.hlsl.shared` 解析库地址，读候选实源、合同注释及相关说明。
+- Shader/HLSL：先查 [HLSL 库索引与分工](../auto-manager/templates/shader/hlsl/README.md)，再用 `python3 .mcp/lib/validation/project_resources.py path library.hlsl.shared` 解析库地址，读候选实源、合同注释及相关说明。
 - 按计算机制检索，如网格/周期随机/TRS、采样核/半径换算，而不只按功能名。名字不同也可能实现相同流程。
 - 无候选时，在相邻功能与相关库做一轮机制/同义词补查，然后说明未找到；不扫描全工程或默认搜索历史聊天。
 - C#/Compute 同样沿类型索引寻找最近实现与共用模块，不套用 HLSL 的目录规则。
@@ -58,4 +58,4 @@ description: 在 Unity 中新增同类功能、扩展 Shader/HLSL/Compute/C# 变
 只读/规划任务在回复或现有计划记录关联；实施任务在已有功能 README 或库索引/合同注释记录沿用的实源/通用函数、项目公共入口、保留差异与验证结果，写入范围沿用任务授权。
 不复制算法正文或新建通用清单；后续同类实现从这一关联基线继续，库索引失效时以实源为准。
 
-项目已有的 Hash 迁移/消费合同验证器是项目专属内容，按资源绑定 `validation.hash.guide` 取用（`python3 .mcp/validation/project_resources.py path validation.hash.guide`）；只在该项目合同适用时取用，不当作任意随机算法的通用检验器。
+项目已有的 Hash 迁移/消费合同验证器是项目专属内容，按资源绑定 `validation.hash.guide` 取用（`python3 .mcp/lib/validation/project_resources.py path validation.hash.guide`）；只在该项目合同适用时取用，不当作任意随机算法的通用检验器。

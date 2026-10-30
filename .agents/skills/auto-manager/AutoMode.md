@@ -5,9 +5,10 @@
 ## 一次性启动
 
 1. 取用 [Unity 角色](../../agents/unity-developer/AGENT.md) 与任务相关上下文；已加载的内容直接复用，不重读整库。
-2. 读取 [执行契约](capabilities/execution-contract.md)，按 [模式选择](capabilities/mode-selection.md) 确定模式，输出 `[G1] Mode + Reason`。任务开始仅初始化一次 `gate_set_recipe(mode)`。
-3. 按执行契约通过 g_entry 并登记用户已授权的工作区；已有明确授权直接沿用，资源位置不等于写入授权。缺少必需授权时再按契约询问。
-4. 进入选定模式，按其实际阶段加载知识、形成设计与实施验证。模式及后续迭代不重新初始化入口；知识与设计结论已有则复用，范围或假设变化时更新。
+2. 读取 [执行契约](capabilities/execution-contract.md)，按 [模式选择](capabilities/mode-selection.md) 确定模式与 profile。
+3. 按执行契约跑一次 `cli.py open --task ... --profile ... --workspace <用户指定目录>`；返回的 playbook 就是本轮必读与出口义务。已有明确授权直接沿用，资源位置不等于写入授权。中途用户指出新目录用 `cli.py expand` 扩充，不要重新 `open`。
+4. 进入选定模式，按其实际阶段加载知识、形成设计与实施验证。入口只开一次；知识与设计结论已有则复用，范围或假设变化时更新。
+5. 收尾跑 `cli.py close` 核对证据。缺失项按提示补齐，确属不必要的用 `--waive <项> --reason <理由>` 留痕。
 
 Research 的假设、Production 的修改计划与 Experiment 的阶段 Plan 分别承载本轮设计判断。
 首次新功能、能力扩展和结构重构在各模式实施前取用可持续开发能力；局部小修按实际影响简化。
@@ -18,7 +19,7 @@ Research 的假设、Production 的修改计划与 Experiment 的阶段 Plan 分
 
 | 资源 | 何时取用 |
 |---|---|
-| [知识预加载](capabilities/knowledge.md) | 选定模式的知识阶段，申报真实已读材料 |
+| [知识预加载](capabilities/knowledge.md) | 选定模式的知识阶段；读到的文件由 hook 观测，不必申报 |
 | [可持续开发判断](capabilities/sustainable-development.md) | 首次实施前明确基线、约定、暂定选择、变化边界与验证 |
 | [完整性核验](capabilities/completeness.md) | Production 设计阶段，对照本次实际范围 |
 | [脚本决策](capabilities/script-decision.md) | 需要复用或新增脚本 |

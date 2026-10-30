@@ -29,7 +29,7 @@ description: 对比 Unity 渲染效果、Shader 或 RendererFeature 改前/改�
 
 ## 现有适配器
 
-SSGI 适配器与计时合同分别通过 `python3 .mcp/validation/project_resources.py path benchmark.ssgi.adapter` 和 `path benchmark.ssgi.contract` 解析：比较当前 RAY/DDA，前置条件与报告由其验证器检查。它不是任意效果或单遍/多遍对照的即用入口；需要新维度时由对应开发任务扩展适配器。本 skill 不搬迁、不复制这些效果专属脚本。
+SSGI 适配器与计时合同分别通过 `python3 .mcp/lib/validation/project_resources.py path benchmark.ssgi.adapter` 和 `path benchmark.ssgi.contract` 解析：比较当前 RAY/DDA，前置条件与报告由其验证器检查。它不是任意效果或单遍/多遍对照的即用入口；需要新维度时由对应开发任务扩展适配器。本 skill 不搬迁、不复制这些效果专属脚本。
 
 ## 交付限制
 

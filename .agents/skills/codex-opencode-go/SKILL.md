@@ -325,7 +325,7 @@ ocw -m opencode-go/deepseek-v4-pro "任务文本"
 
 **实测耗时**（deepseek-v4-flash，2026-09-21）：纯文本 **7s**；带一次文件写入的 agent 循环 **9s**。→ **短任务不慢**，别把长会话的上下文压缩问题误当成基础延迟。
 
-> ⚠️ **`--auto` 会绕过门禁**：它放行一切「未被显式禁止」的操作（写文件、执行命令）。在 `Unity/Lab` 里直接派它写 `Assets/Mine/` 会**跳过 `write_gated`**，违反项目规则。受门禁保护的源码只在**隔离副本或非门禁目录**生成草稿，再由主 agent 经该项目的门禁通道合入（Codex 走 `gate_cli.py write|delete|move`，Claude 走 MCP 工具，同一判定核）。不要假定某一侧只能靠另一侧代合入。
+> ⚠️ **`--auto` 会绕过判定**：它放行一切「未被显式禁止」的操作（写文件、执行命令），而 `.mcp` 的 hook 只挂在 Claude Code / Codex 的工具调用上，**管不到 opencode 进程内部的写入**。所以受管源码只在**隔离副本或 `tmp/` 任务目录**里生成草稿，再由主 agent 用平台 `Write` / `Edit` 合入（判定核会在那一刻照常判分区、沙箱与规范）。不要假定某一侧只能靠另一侧代合入。
 
 ## 关键验证命令
 
@@ -347,9 +347,9 @@ curl -s "https://opencode.ai/zen/go/v1/models" -H "Authorization: Bearer $OPENAI
 
 ## Unity/Lab 委派边界
 
-- `ocw` / `opencode` 默认带 `--auto`，放行一切未被显式禁止的写操作，**绕过 `.mcp` 判定核**。
-- 受管源码（`Assets/Mine/**`）不得由 opencode 直接写入：先在隔离副本或 `tmp/sessions/<date-task-id>/` 生成草稿，再由主 agent 经 `gate_cli.py write|delete|move` 或对应 MCP 工具合入。
-- 委派不改变工作区授权、人工批准通道与 policy 档位；不能以「worker 已经写了」为由跳过门禁。
+- `ocw` / `opencode` 默认带 `--auto`，放行一切未被显式禁止的写操作，**绕过 `.mcp` 判定核**（hook 只挂在平台工具调用上）。
+- 受管源码（`Assets/Mine/**`）不得由 opencode 直接写入：先在隔离副本或 `tmp/sessions/<date-task-id>/` 生成草稿，再由主 agent 用平台 `Write` / `Edit` 合入（hook 判定沙箱与规范）；删除用 `python3 .mcp/bin/cli.py delete`，移动用 `mv`。
+- 委派不改变沙箱、批准权与 policy 档位；不能以「worker 已经写了」为由绕过判定。
 - 委派说明必须给出目标、允许修改的文件、约束与验收标准；主 agent 复核完整 diff 并对结果负责。
 
 ## 全局可达性与本机（Windows）现状（2026-10-17 实测）
@@ -384,7 +384,7 @@ curl -s "https://opencode.ai/zen/go/v1/models" -H "Authorization: Bearer $OPENAI
 ## 关联
 
 - Agent 清单：`.agents/agents/README.md`
-- 门禁事实与控制模型：`.agents/knowledge/meta/enforcement-policy.md`
+- 判定事实与控制模型：`.agents/knowledge/meta/enforcement-policy.md`
 - 技能总索引：`.agents/skills/README.md`
 
 ## 与 CC-Switch 的关系

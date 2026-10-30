@@ -2,11 +2,25 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Write|Edit|NotebookEdit|Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "'/Users/xiaokangji/Unity/Lab/.codex/hooks/guard-bash.sh'"
+            "command": "bash /Users/xiaokangji/Unity/Lab/.mcp/bin/hooks.sh PreToolUse",
+            "timeout": 30,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|NotebookEdit|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/xiaokangji/Unity/Lab/.mcp/bin/hooks.sh PostToolUse",
+            "timeout": 30
           }
         ]
       }

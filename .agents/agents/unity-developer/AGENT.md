@@ -19,4 +19,4 @@ Shader / HLSL / Compute / RenderGraph / C# 与 Metal 渲染。判断任务和证
 
 ## 记录
 
-实际变更或可复用诊断写入 `.agents/memory/unity/YYYY-MM-DD-<slug>.md`，更新同库 `MEMORY.md`；区分已验证、推断与未验证项，不覆盖历史。纯只读不另建记录；API 事实回知识库，流程和工具回技能库。
+实际变更或可复用诊断写入 `.agents/memory/unity/YYYY-MM-DD-<slug>.md`（用平台 Write/Edit；记忆区不设沙箱，既有记录也能原地改），更新同库 `MEMORY.md`；区分已验证、推断与未验证项。纯只读不另建记录；API 事实回知识库，流程和工具回技能库。

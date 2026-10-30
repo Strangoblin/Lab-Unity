@@ -4,12 +4,12 @@
 
 ## 接口
 
-项目集成层提供资源解析器；本仓库实现为 `.mcp/validation/project_resources.py`，位置绑定为 `.mcp/project-resources.json`。
+项目集成层提供资源解析器；本仓库实现为 `.mcp/lib/validation/project_resources.py`，位置绑定为 `.mcp/config/project-resources.json`。
 
 | 用途 | 接口 |
 |---|---|
-| 查询可用绑定 | `python3 .mcp/validation/project_resources.py list` |
-| 取仓库相对路径 | `python3 .mcp/validation/project_resources.py path <resource-id>` |
+| 查询可用绑定 | `python3 .mcp/lib/validation/project_resources.py list` |
+| 取仓库相对路径 | `python3 .mcp/lib/validation/project_resources.py path <resource-id>` |
 | 指定项目 / 绝对路径 | `--project-root <root>` / `--absolute` |
 | Python 工具 | `resource_path(id, project_root=..., must_exist=True)` |
 
@@ -19,7 +19,7 @@
 
 | ID | 含义 |
 |---|---|
-| `asset.root` | 当前项目业务资源根；实际授权仍由门禁独立校验 |
+| `asset.root` | 当前项目业务资源根；实际授权仍由沙箱独立校验 |
 | `category.PostProcess` / `category.Render` / `category.Graph` / `category.Script` | 各功能族候选落点；须与用户工作区取交集 |
 | `library.hlsl.shared` | 项目通用 HLSL 库候选入口 |
 | `unity.debug-output-feature` | 可选项目调试显示适配器 |
@@ -32,4 +32,4 @@
 
 ## 权限边界
 
-资源配置不能改变 `.mcp/validation/project_paths.py`、policy 或平台权限。取得路径不是写入授权；用户任务范围、写删移门禁与人工批准要求仍照原规则执行。缺少绑定不得回退到更宽的资产根。
+资源配置不能改变 `.mcp/lib/validation/project_paths.py`、policy 或平台权限。取得路径不是写入授权；用户任务沙箱、写删移判定与人工批准要求仍照原规则执行。缺少绑定不得回退到更宽的资产根。

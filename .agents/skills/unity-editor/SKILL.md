@@ -24,7 +24,7 @@ description: Control Unity Editor from the command line and choose between unity
 1. 从 [CLI 索引](references/cli/README.md) 选择命令；查询前后状态使用 snapshot、logs 或 script eval。
 2. 需要脚本先查 [Roslyn 库](scripts/roslyn/README.md)，按 [脚本决策](../auto-manager/capabilities/script-decision.md) 复用或新建；脚本用文件编辑工具写入。
 3. 根据任务模式执行编译/运行；日志、结构和视觉质量分别报告。画面质量由人工在 Editor 判断。
-4. 场景/资源地址来自用户输入或 `python3 .mcp/validation/project_resources.py path <id>`；配置不赋予额外修改权限。
+4. 场景/资源地址来自用户输入或 `python3 .mcp/lib/validation/project_resources.py path <id>`；配置不赋予额外修改权限。
 5. 仅恢复本流程改过的状态；关闭/重启 Editor 需考虑未保存内容和任务授权。
 
 完整相机 PNG 用 [unity-render-debug](../unity-render-debug/SKILL.md)，相对耗时用 [unity-render-benchmark](../unity-render-benchmark/SKILL.md)。

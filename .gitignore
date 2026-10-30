@@ -10,18 +10,13 @@ __MACOSX/
 /.codex/config.toml
 /.codex/config.toml.bak-*
 /.codex/auth.json
-/.mcp/.venv/
 
-# 门禁运行时状态 — 进程内存 + state.json 双份, 不入库
-.mcp/state.json
-.mcp/state.json.tmp
-# 删除审计 — 删除不留产物, 这份日志是唯一痕迹 (运行时状态, 不入库)
-.mcp/deletes.jsonl
-# 移动审计 — 新位置有产物, 但「哪个变成了哪个」在文件系统里查不回来, 故也落盘
-.mcp/moves.jsonl
-# 摩擦账本 — 门禁自观测信号（运行时状态，不入库；框架级结论提炼进 memory）
-.mcp/friction.jsonl
-.mcp/friction.jsonl.tmp
+# 判定核运行时状态与证据账本 — 整个 state/ 都是「这台机器上发生了什么」，
+# 不是仓库内容。会话状态、写入、读取、删除、移动、摩擦六本账全在这里；
+# 框架级结论提炼进 memory，账本本身不入库。
+/.mcp/state/
+# 删除留底 — 内容和当时的样子都在，属于本机可恢复层，不入库。
+/.mcp/trash/
 
 # Codex / Unity 本地运行产物
 .codex/tmp/*
