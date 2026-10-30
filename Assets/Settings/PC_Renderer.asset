@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44f6d307490e7be45bade008fd49f400, type: 3}
   m_Name: SSCFeature
   m_EditorClassIdentifier: Assembly-CSharp::SSCFeature
-  m_Active: 1
+  m_Active: 0
   settings:
     sscShader: {fileID: 4800000, guid: 3784ad67eb3b5304b9245dd051049729, type: 3}
     mainTex2D: {fileID: 2800000, guid: b666157111b634ea093168db198dda8a, type: 2}
@@ -28,13 +28,15 @@ MonoBehaviour:
     speed: 1
     height: 50
     rotation: 0
-    thickness: 0.8
-    middle: 0.25
+    thickness: 0.5
+    middle: 0.2
     threshold: 0.2
     size: {x: 500, y: 20, z: 500}
     phaseG: 0.8
     secondaryScattering: 1
     ambientIntensity: 1
+    lightDistance: 5
+    softness: 0.5
     jitter: 1
     showSSC: 0
 --- !u!114 &-6861971581733455524
@@ -197,7 +199,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 4294967295
     kernel: 1
-    quality: 2
+    quality: 1
     radiusMode: 1
     blurRadius: 5
     normalizedRadius: 0.05
@@ -279,6 +281,10 @@ MonoBehaviour:
   settings:
     compositeShader: {fileID: 4800000, guid: 0c2cf0c88542b4f5daa3ac19dd7493ff, type: 3}
     temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
+    trace:
+      mode: 0
+      depthPyramidShader: {fileID: 7200000, guid: 855e73d9dac9a4e8b8208d1022f4f4f3, type: 3}
+      _initialized: 1
     ao:
       shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
       mode: 1
@@ -288,20 +294,22 @@ MonoBehaviour:
       depthSigma: 0.15
     diffuseGI:
       shader: {fileID: 4800000, guid: 0f1271be0061c430aa91678b9a119c1b, type: 3}
+      depthPyramidShader: {fileID: 7200000, guid: 855e73d9dac9a4e8b8208d1022f4f4f3, type: 3}
       traceBackend: 0
+      experimentalHiZ: 1
       maxDistance: 5
       thickness: 0.15
       normalBias: 0.03
       depthSigma: 0.15
     specularGI:
       shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
-      skyCubemap: {fileID: 0}
+      depthPyramidShader: {fileID: 0}
       traceBackend: 0
+      experimentalHiZ: 0
       maxDistance: 50
       thickness: 0.05
       normalBias: 0.03
-      roughness: 0.1
-      skyMaxMip: 6
+      roughness: 0
     performance:
       ao: 1
       diffuseGI: 1
