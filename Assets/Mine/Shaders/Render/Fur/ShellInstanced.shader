@@ -56,7 +56,7 @@ Shader "Render/ShellInstanced"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ShaderVariablesFunctions.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Assets/Mine/Special/HLSL/PBRFunction.hlsl"
+            #include "Assets/Mine/Special/HLSL/HairFunction.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseColor;
@@ -146,7 +146,7 @@ Shader "Render/ShellInstanced"
                 return output;
             }
 
-            // ---- Marschner via PBRFunction.hlsl ----
+            // ---- Marschner via HairFunction.hlsl ----
             half4 frag(Varyings input) : SV_Target
             {
                 float4 furColor = SAMPLE_TEXTURE2D(_FurMap, sampler_FurMap, input.uv * _FurScale);
@@ -161,7 +161,7 @@ Shader "Render/ShellInstanced"
                 float3 albedo = baseColor.rgb * _BaseColor.rgb;
                 float occlusion = lerp(1.0 - _Occlusion, 1.0, input.layer);
 
-                // ---- Marschner hair (via PBRFunction.hlsl) ----
+                // ---- Marschner hair (via HairFunction.hlsl) ----
                 float3 N = normalize(input.worldNormal);
                 float3 V = normalize(GetCameraPositionWS() - input.worldPos);
 
