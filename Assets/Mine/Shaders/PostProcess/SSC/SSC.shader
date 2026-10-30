@@ -17,6 +17,14 @@ Shader "PostProcess/SSC"
         _SecondaryScattering ("Secondary Scattering", Range(0,2)) = 1.0
         _AmbientIntensity ("Ambient Intensity", Range(0,2)) = 1.0
 
+        [Header(Integration)]
+        // 光照探针沿光线方向的世界距离。旧实现是 step * 20，而 step 随视线穿过云盒
+        // 的长度变化（俯视约 0.3、平视约 7.8），等效距离在 6~156 间漂移。
+        // 超过 10 世界单位后探针基本离开层体，画面不再变化，故范围为 0~10。
+        _LightDistance ("Light Distance", Range(0,10)) = 10
+        // Beer-Lambert 的消光长度：光学厚度 = 密度 * 步长 / softness。越大越柔。
+        _Softness ("Softness", Range(0,10)) = 8
+
         _Jitter ("Jitter", Float) = 0.5
         _Count ("Count", Int) = 64
     }
@@ -48,6 +56,8 @@ Shader "PostProcess/SSC"
         float _PhaseG;
         float _SecondaryScattering;
         float _AmbientIntensity;
+        float _LightDistance;
+        float _Softness;
         float _Jitter;
         int _Count;
     CBUFFER_END
@@ -123,7 +133,7 @@ Shader "PostProcess/SSC"
     // ════════════════════════════════════════════════════════════
     //  DensityLOD — 低频与多层高频按 0.5 混合，各层滚动速度递增
     // ════════════════════════════════════════════════════════════
-    float DensityLOD(float3 positionWS, float3 transform, int lod, out float columnDensity)
+    float DensityLOD(float3 positionWS, float3 transform, int lod)
     {
         float scale = transform.x;
         float speed = transform.y;
@@ -135,7 +145,6 @@ Shader "PostProcess/SSC"
         float mid = 0.0;
         float amp = 0.5;
         float low = Noise(pos + offset);
-        columnDensity = low;
         float high = 0.0;
 
         static const float mul[4] = {2.02, 2.23, 2.41, 2.62};
@@ -156,14 +165,17 @@ Shader "PostProcess/SSC"
 
     // ════════════════════════════════════════════════════════════
     //  DensityH — 以 middle 为峰值，向上下边界线性衰减
+    //  top/bottom 既可以是全局层，也可以是某一列的局部区间。
+    //  两者重合时区间退化，max 兜底让剖面对所有高度都归零。
     // ════════════════════════════════════════════════════════════
-    float DensityH(float3 positionWS, float3 paramUD, float cloudMiddle)
+    float DensityH(float3 positionWS, float3 paramUD, float cloudMiddle, float noiseDensity)
     {
         float top = paramUD.x;
         float bottom = paramUD.y;
         float thickness = paramUD.z;
-        float height = saturate((positionWS.y - bottom) / (top - bottom));
         float middle = saturate(cloudMiddle);
+        float height = saturate((positionWS.y - bottom) / max(top - bottom, 0.000001));
+
         float leftRange = max(0.00001, middle);
         float rightRange = max(0.00001, 1.0 - middle);
 
@@ -171,13 +183,14 @@ Shader "PostProcess/SSC"
             ? (height / leftRange)
             : ((1.0 - height) / rightRange);
 
-        density = saturate(density);
         float power = max(0.00001, 1.0 - thickness);
-        return pow(density, power);
+        return saturate(pow(density, power));
     }
 
     // ════════════════════════════════════════════════════════════
-    //  CalculateDensity — 低频密度自适应云顶，保留原高度剖面、阈值与 Circle 边界
+    //  CalculateDensity — 列密度决定局部云顶，剖面只在局部区间内取值
+    //  不做域内早退：光照探针沿光方向偏移后必须完整采样，出层的部分
+    //  由剖面自身的 saturate 归零（局部顶之上、层底之下高度权重恒为 0）。
     // ════════════════════════════════════════════════════════════
     float CalculateDensity(float3 positionWS, float3 cloudTrans, float3 paramUD, float cloudMiddle, float cloudThreshold, int lod)
     {
@@ -185,23 +198,12 @@ Shader "PostProcess/SSC"
         const float boundaryFade = 0.5;
         float boundaryDensity = smoothstep(0.0, boundaryFade,
             SDF_Circle(boundaryPosition, 1.0));
-        float heightDensity = DensityH(positionWS, paramUD, cloudMiddle);
-        float density = 0.0;
-        [branch]
-        if (heightDensity > 0.0 && boundaryDensity > 0.0
-            && positionWS.y >= paramUD.y && positionWS.y <= paramUD.x)
-        {
-            float columnDensity = 0.0;
-            float noiseDensity = DensityLOD(positionWS, cloudTrans, lod, columnDensity);
-            float localTop = lerp(paramUD.x,
-                paramUD.y + (paramUD.x - paramUD.y) * saturate(columnDensity), 0.5);
-            heightDensity = 0.0;
-            if (localTop > paramUD.y && positionWS.y <= localTop)
-                heightDensity = DensityH(positionWS, float3(localTop, paramUD.yz), cloudMiddle);
-            density = noiseDensity * heightDensity;
-            if (density < cloudThreshold)
-                density = 0.0;
-        }
+
+        float noiseDensity = DensityLOD(positionWS, cloudTrans, lod);
+        float heightDensity = DensityH(positionWS, paramUD, cloudMiddle, noiseDensity);
+        float density = noiseDensity * heightDensity;
+        if (density < cloudThreshold)
+            density = 0.0;
         return saturate(density) * boundaryDensity;
     }
 
@@ -218,13 +220,13 @@ Shader "PostProcess/SSC"
             step = min(step, (tFar - tCurrent)); \
             float3 localPosWS = cameraPosWS + rayDirWS * tCurrent; \
             float localDensity = CalculateDensity(localPosWS, cloudTrans, paramUD, cloudMiddle, cloudThreshold, LOD); \
-            /* 空密度没有散射/覆盖贡献，不再重复采光照密度。 */ \
             [branch] \
             if (localDensity > 0.0) \
             { \
-                float3 lightPosWS = localPosWS + lightDirWS * step * 20.0; \
+                float3 lightPosWS = localPosWS + lightDirWS * lightDistance; \
                 float lightDensity = CalculateDensity(lightPosWS, cloudTrans, paramUD, cloudMiddle, cloudThreshold, LOD); \
-                float stepAlpha = localDensity * (1.0 - Density); \
+                float opticalDepth = localDensity * step / softness; \
+                float stepAlpha = (1.0 - exp(-opticalDepth)) * (1.0 - Density); \
                 float stepShadow = 1.0 - lightDensity; \
                 float heightT = saturate((localPosWS.y - cloudBottom) / (cloudTop - cloudBottom)); \
                 float3 ambient = lerp(unity_AmbientGround.rgb, unity_AmbientSky.rgb, heightT) * ambientIntensity; \
@@ -288,6 +290,8 @@ Shader "PostProcess/SSC"
         float  cloudMiddle = saturate(_CloudMiddle);
         float  cloudThreshold = saturate(_CloudThreshold);
         float  ambientIntensity = max(0.0, _AmbientIntensity);
+        float  lightDistance = max(0.0, _LightDistance);
+        float  softness = max(_Softness, 0.001);
 
         // 双 HG：主 lobe 产生前向亮斑，HG0 作为加法各向同性项近似多次散射。
         // 两项相加而不是归一化混合，次 lobe 同时补充外圈能量和整体亮度。

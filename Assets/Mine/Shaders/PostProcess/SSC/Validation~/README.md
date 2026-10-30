@@ -5,6 +5,7 @@ Run against the open SampleScene, PC_RPAsset / PC_Renderer and active SSCFeature
 ```sh
 unityctl script execute Assets/Mine/Shaders/PostProcess/SSC/Validation~/QualityCheck.cs
 unityctl script execute Assets/Mine/Shaders/PostProcess/SSC/Validation~/HDRCheck.cs
+unityctl script execute Assets/Mine/Shaders/PostProcess/SSC/Validation~/SSCCompileCheck.cs
 ```
 
 The tilde directory is excluded from Unity compilation. Execute one script at a time through Roslyn.
@@ -19,6 +20,10 @@ The script renders downsample 0..4, with/without the cube, for two shaders: curr
 an in-memory control that replaces only ReconstructCloud with bilinear sampling. Colors, ray integration,
 RGBA16F buffer and full-resolution center occlusion are identical. At downsample=0 both should match.
 Finally it synchronously compiles both passes for the 64/128/256 keywords and returns shader messages.
+
+SSCCompileCheck only reimports nothing and compiles both passes for all four ray keywords, then prints every
+message. Run it after editing the shader: `AssetDatabase` can keep a stale import, and a compile run against the
+stale asset reports 0 messages. Force `unityctl asset import <path>` first when the file was changed on disk.
 
 HDRCheck uses a solid background and cullingMask=0 to avoid unrelated scene material animation and
 path-dependent geometry differences. It checks RGB111110Float (no output alpha) and ARGBHalf:
@@ -44,16 +49,47 @@ bit operations. RGB/A stay premultiplied and normalized together; downsample=0 b
 Full-resolution cloud-box occlusion protects foregrounds. Missing compatible neighbors, or depth discontinuity
 inside the cloud volume, fall back to the same EvaluateCloud center ray. No extra RT/pass/history is added.
 
-Ray integration skips noise at zero height density and skips lighting at zero local density. It terminates
-only at Density >= 1, when all remaining stepAlpha contributions are exactly zero. Approximate transmittance
-thresholds were rejected after HDR testing; correctness does not depend on half conversion rounding.
-The density formula, light-probe positions and color ramp remain; the three quality tiers now integrate with 32/64/128 rays.
-Low resolutions become smoother and softer; this does not recover missing detail or provide temporal AA.
-Cloud RGBA16F and guided reconstruction have a cost. Synchronized request-wall A/B was measured on M2;
-pure GPU/Pass timing, continuous FPS, XR and dynamic resolution remain unmeasured.
+Ray integration skips noise outside the cloud slab (a cheap normalized-height test) and skips lighting at zero
+local density. It terminates only at Density >= 1, when all remaining stepAlpha contributions are exactly zero.
+Approximate transmittance thresholds were rejected after HDR testing; correctness does not depend on half
+conversion rounding. Light-probe positions and the color ramp remain; the three quality tiers integrate with
+32/64/128 rays. Low resolutions become smoother and softer; this does not recover missing detail or provide
+temporal AA. Cloud RGBA16F and guided reconstruction have a cost. Synchronized request-wall A/B was measured
+on M2; pure GPU/Pass timing, continuous FPS, XR and dynamic resolution remain unmeasured.
 
 Baseline: 5900bb7, with the remote SSC and local ScreenWarp both retained.
 Visual evidence and verified conditions: .agents/memory/unity/2026-10-20-ssc-quality.md.
+
+# Density experiment (2026-10-27, archived — shader reverted)
+
+The adaptive-height rework was measured and then reverted. `SSC.shader` is back to the pre-experiment state:
+`DensityLOD(..., out float columnDensity)` returning `low * 0.5 + high * 0.5`, and
+`CalculateDensity` doing `localTop = lerp(globalTop, bottom + span * saturate(columnDensity), 0.5)` with the
+threshold applied to `noise × height`. The reworked version is kept out of the runtime path as a fixture:
+`Fixtures/SSC-adaptive-height-2026-10-27.shader.txt`. To test it, rename to `.shader`, give it a unique
+`Shader "..."` name (for example `PostProcess/SSC.AdaptiveHeight`), and point the SSC feature's shader field
+at it — do not overwrite `SSC.shader`, or the baseline is lost again.
+
+What the fixture changes: `Noise()` encodes the sample back to the 8-bit data value; `DensityLOD` normalizes
+the octaves by `1 - 2^-lod` and drops the `out` parameter; `DensityH` takes a global `heightT` plus `topScale`;
+`CalculateDensity` thresholds column coverage instead of `noise × height` and sets the local top to the
+coverage itself.
+
+Why the live render read as "every cloud spans the slab top to bottom", measured with `SSCColumnProfile.cs`
+against the real Voronoi asset (threshold 0.2, thickness 0.8, middle 0.25, size.y 20, 400x400 columns):
+
+- The encoded noise domain is narrow: p05 0.363, p25 0.427, p50 0.468, p75 0.509, p95 0.568.
+- Coverage at threshold 0.2 leaves **0.0% holes** — every column carries cloud, none of the sky is clear.
+- The `lerp(1, coverage, 0.5)` envelope holds `topScale` inside 0.60–0.73, so every column is 60–73% thick.
+- With `thickness` 0.8 (power 0.2) the vertical profile is nearly a box, so the result is a solid slab.
+
+Two consequences for the fixture, both confirmed by rendering: the threshold has to be compared in the
+encoded domain (`0.2` encodes to 0.485, still the noise median, so the tuned value keeps its meaning), and
+the coverage denominator has to be an achievable dense value (~0.60) rather than `1 - threshold` — with
+`1 - threshold` the coverage span collapses to 0–0.16 and the sky renders bare.
+
+`thickness` controls only the profile shape; at 0.8 the profile is nearly a box, and 0.4–0.6 is the softer
+range. The shader Properties default for `_CloudThreshold` is still 0.2; the live value comes from PC_Renderer.
 
 # Three-tier performance budget
 

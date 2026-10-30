@@ -91,6 +91,12 @@ public sealed class SSCFeature : ScriptableRendererFeature
         [Range(0f, 2f)] public float secondaryScattering = 1.0f;
         [Range(0f, 2f)] public float ambientIntensity = 1.0f;
 
+        [Header("Integration")]
+        [Tooltip("Light probe offset along the light direction, in world units. The previous code used step * 20, so the effective distance drifted with the view ray's span through the cloud box. Above 10 world units the probe leaves the slab and the value stops changing the image.")]
+        [Range(0f, 10f)] public float lightDistance = 10.0f;
+        [Tooltip("Beer-Lambert extinction length: optical depth = density * march step / softness. 0 keeps the old hard integration, larger is softer; past 10 the cloud becomes translucent enough that the image stops changing.")]
+        [Range(0f, 10f)] public float softness = 8.0f;
+
         [Range(0f, 1f)] public float jitter = 1.0f;
 
         [Header("Debug")]
@@ -174,6 +180,8 @@ public sealed class SSCFeature : ScriptableRendererFeature
         internal static readonly int PhaseGID = Shader.PropertyToID("_PhaseG");
         internal static readonly int SecondaryScatteringID = Shader.PropertyToID("_SecondaryScattering");
         internal static readonly int AmbientIntensityID = Shader.PropertyToID("_AmbientIntensity");
+        internal static readonly int LightDistanceID = Shader.PropertyToID("_LightDistance");
+        internal static readonly int SoftnessID = Shader.PropertyToID("_Softness");
         internal static readonly int JitterID = Shader.PropertyToID("_Jitter");
         internal static readonly int SSCTexID = Shader.PropertyToID("_SSCTex");
         internal static readonly int TextureSizeID = Shader.PropertyToID("_SSCTextureSize");
@@ -331,6 +339,8 @@ public sealed class SSCFeature : ScriptableRendererFeature
             _material.SetFloat(Settings.PhaseGID, _settings.phaseG);
             _material.SetFloat(Settings.SecondaryScatteringID, _settings.secondaryScattering);
             _material.SetFloat(Settings.AmbientIntensityID, _settings.ambientIntensity);
+            _material.SetFloat(Settings.LightDistanceID, _settings.lightDistance);
+            _material.SetFloat(Settings.SoftnessID, _settings.softness);
             _material.SetFloat(Settings.JitterID, _settings.jitter);
 
             _material.DisableKeyword(RayCount32Keyword);
