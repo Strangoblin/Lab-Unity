@@ -49,7 +49,7 @@ flowchart LR
 - [x] 0.4 完成实现文件规范对照、模板加载与门禁准备。
   - 确定C#位于Shaders/PostProcess/Weather、Shader/HLSL位于PostProcess/Weather。
   - 明确静态2D噪声与相机`_X`资源契约，解决门禁规则中宽泛纹理要求的适用边界。
-  - 新产物先按项目流程暂存，自查check_norm，并走Assets/Mine合法合入通道。
+  - 新产物先按项目流程暂存，再用平台 Write/Edit 合入（hook 判分区、沙箱与规范）。
   - _Requirements: REQ-03, REQ-06, REQ-10_
 
 阶段出口：有可复现的真实基线及可落地的文件清单。回退点：保留当前工作副本，不改原三套功能文件。
