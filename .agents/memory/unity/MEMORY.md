@@ -13,11 +13,22 @@
 
 ## 关键架构决策
 
+- **SSGI 统一 Trace（2026-10-30）**：统一入口的 DDA / Ray / HiZ 与深度金字塔资源移至顶层并同步两路；同帧 HiZ 共用金字塔，旧值以 Diffuse 迁移。2026-10-28 在线试验与共享探针通过；2026-10-30 Editor 全量回归通过（92 组 / 1,153,512 断言 + 5 负控），动态画质待验。见 [记录](2026-10-30-ssgi-shared-trace.md)。
+
+- **HiZ 像素步幅（2026-10-30）**：旧实现把 DDA 单位（屏幕 `L/maxSteps` 像素）当 1 像素再乘 `2^mip`，每步只覆盖 `maxSteps/L` 路径，是漏打的根因。改为按像素前进 `2^mip`、`parentEnd` 细分到 mip 0、预算 `2 × maxSteps`、零投影回退 DDA。GPU 与新参考模型一致（库 39 组 / 88,826；SSGI 92 组 / 1,153,512）；**不等于画面漏打减少**，仍需人工看。见 [记录](2026-10-30-hiz-pixel-stride.md)。
+
 - **PBRFunction 拆分与代表模型（2026-10-30）**：毛发段拆为 `Special/HLSL/HairFunction.hlsl`，PBRFunction 升为 PBR 家族入口，聚合 HairFunction 与 FabricFunction（「零兄弟 include」的唯一例外，已同步知识库与技能模板）；同时补入 Oren-Nayar / Minnaert / Ashikhmin-Shirley / Wrap 漫射，Blinn-Phong / Beckmann / GTR1 / Charlie 分布，Smith 高度相关 / Kelemen / Neubelt 可见性，F90 菲涅耳与 Sheen 组合。Charlie 取感知粗糙度、其余 D 取 `roughness²`，是刻意保留的语义分叉。见 [记录](2026-10-30-pbrfunction-models-split.md)。
+
+- **织物层（2026-10-30）**：织物 BSDF 已是 PBRToon 的 `ENABLE_FABRIC` 分支，独立 `Render/Fabric` 退役；Frag 切成「本体层 / 织物层 / 表面层」三段，合成在 `Special/HLSL/FabricFunction.hlsl`（`Fabric_ShadeLayer` 一次调用），只留织物色/覆盖度/绒面三个参数加 LUT。**Rg 只能是反射率 `baseColor·(1−metallic)`，不能是风格化后的最终色**（第一版拿着色结果当 Rg 被用户否掉）；rim/specular 被 `eff` 压住是按能量流的有意决定（本体层的光流进织物层），不是近似。Baker 已按生产工具标准规范化（固定路径 + Bake/Load/Save + 所有权 + 原位保存）。六条工具坑（shader 与 Editor 脚本外部写盘都要 ForceUpdate 重导入、`DisplayDialog` 原生模态顶死桥、`_CameraOpaqueTexture` 取不到、附加光为 PerVertex、close 的 verify 永远 MISS）与两条建模结论（SGGX 球面竖带、标量 K/S 需给透射补偏色）见 [记录](2026-10-30-fabric-km-sggx.md)。演示场景已删，只留 `Fabric.mat` 参考材质与 `FabricLut.asset`，验证图在 `Validation~/2026-10-30-pbrtoon-fabric/`。
+
+- **Diffuse HiZ 实验（2026-10-28）**：默认 DDA，实验开关复用公共金字塔与追踪；不支持布局回退、切换只失效 Diffuse 历史。真实相机三档与粗层负控通过；M2 Metal 1080p High 隔离克隆三轮同步墙钟较低约 25–41%，其余尺寸波动大未分辨，画质仍需人工看运动场景。见 [记录](2026-10-28-diffuse-hiz.md)。
+
+- **SSGI 快路径（2026-10-27）**：AO 历史按参数独立失效；零时缓不写历史但采样继续，三路全关不入队并使该相机历史失效；Diffuse 跨射线共享追踪准备。94 组及五个负控制通过，Metal A/B 波动大未分辨性能收益；见 [记录](2026-10-27-ssgi-fast-paths.md)。
 
 - **SDF 逐轴归一化（2026-10-23 当前）**：Box / Square 先按每轴半尺寸归一化坐标，再取 `saturate(1-max(abs(q)))`；长短轴各自半程均为0.5，覆盖此前“除最短半尺寸”的约定。该阶段SSC用Box、Y置0只羽化XZ、fade=0.8，Metal 30项GPU读回及8个Pass/关键字组合通过；SSC后续已改为Circle、fade=0.5，见活跃上下文。见 [当前契约与验证](2026-10-23-sdf-axis-normalization.md)。
 
 - **SDF 共享库归一化覆盖度（2026-10-22）**：`Special/HLSL/SDF.hlsl` 改为 `[0,1]` 覆盖度 SDF，中心 1、边界 0、外部 0；新增 `SDF_Circle` / `SDF_Square`，平滑运算同步改为覆盖度最大/最小/差集。规范检查、HLSL 语法编译与中心/边界/外部数值断言通过，Unity/Metal 变体未验。见 [记录](2026-10-22-sdf-normalization.md)。
+| [2026-10-21-ssc-quality-tiers.md](2026-10-21-ssc-quality-tiers.md) | 2026-10-21 | SSC 三档面板（32/64/128 步，降 3/2/1）与 HG 外圈过暗修复；三档同步墙钟 3.44/9.19/40.24ms，6.2M 断言通过。HG 部分已由加性双 HG 取代。 |
 
 - **SSC 三档与加性双 HG（2026-10-22）**：Low/Medium/High 保持32步降3、64步降2、128步降1；面板只显示三档，单一GetTier接线。着色改为峰值归一化 `HG(g=.8) + 1.0×HG(0)`；侧向相位0.0038→1.0038，暗部A/B均值约27.67x、亮部约3.29x，519k散射断言与三档623万断言通过，完整恢复。物理步长、太阳光学深度和云内多次散射仍待后续；变更未提交。见 [双HG实现](2026-10-22-ssc-dual-hg.md)。
 
@@ -62,6 +73,14 @@
 
 ## 活跃上下文
 
+- SSGI环境与强度（2026-10-27）：Specular改用URP默认环境Cubemap和HDR解码，移除自定义天空字段；三路统一/独立强度均0–10，Specular与AO合成权重仍饱和。71组/五负控通过，实景克隆的Specular 1→10可见变化；默认环境是Unity缓存，动态Skybox不保证实时同步。见 [记录](2026-10-27-ssgi-unity-environment-intensity.md)。
+
+- SurfaceDither（2026-10-26）：在 `Render/SurfaceDither` 新增表面稳定分形 Bayer 抖动材质；8×8 基点的 128×128×64 3D 图案、UV0/Object Space 双坐标、四 Pass 与五变体零消息，近/远边缘密度比 0.996。主光/阴影仅编译，真实场景画面未独立验证。见 [记录](2026-10-26-surface-dither.md)。
+
+- SurfaceLines（2026-10-27）：在 `Render/SurfaceLines` 新增纯解析线条材质；UV0/Object/World 三坐标、主轴投影、导数抗锯齿、最小屏幕线宽、可选交叉线与 `_MinShade` 风格化着色。四 Pass + alpha/shadow 变体零错误零消息；球体 Game View 冒烟后已恢复原位置与 SurfaceDither 材质。见 [记录](2026-10-27-surface-lines.md)。
+
+- ExteriorMapping（2026-10-26）：在 `InteriorMapping/` 新增实体方块面片映射，逐像素取 ray-AABB 近交点并采样六面纹理；新增 `_CubeSpace`，默认 `Object Transform` 使 billboard 只转窗口、方块吃对象世界 TRS（位置、旋转、含非均匀缩放），`Quad Relative` 保留随面片转的旧行为。CPU 面 UV/旋转/内部远交点复算、规范检查、Unity 6000.3.14f1 Pass 0 编译零消息通过。`RenderScene` 已放置 `ExteriorMapping_NoiseQuad`（Scale 3×3×3），六面分别挂 Perlin/Noise/Noise1/NoiseWave/Noise2DRG/Voronoi；三姿态、对象旋转 180° 与 Z Scale 3→1 对照确认行为，场景已保存。见 [记录](2026-10-26-exterior-mapping.md)。
+
 - SSC 固定自适应高度（2026-10-23 当前）：整体重构维持撤回，仅复用DensityLOD的low决定局部云顶；强度现固定.5，面板字段与接线已移除。用户暂停平方衰减改动，DensityH保留原pow(r,1-thickness)，thickness=.5为sqrt(r)，并非严格半球。Circle boundaryFade保留用户当前.5。Metal8组合消息0；见 [最新裁决](2026-10-23-ssc-fixed-adaptive-height.md)。[此前可调版验证](2026-10-23-ssc-adaptive-height.md)、[结构计划](2026-10-23-ssc-column-density-plan.md)、[逐轴归一化](2026-10-23-sdf-axis-normalization.md) 与 [首次接线](2026-10-23-ssc-sdf-boundary.md) 保留历史。
 
 - SSC 后续重设计（2026-10-20）：性能部分已按用户授权落地，见 [正式结果](2026-10-20-ssc-performance.md)；云结构/积分/面板方案仍未实施。实时RenderScene为1/4宽高+64步，磁盘128步勿覆盖；XZ×高度剖面、无步长alpha、LOD均值与光照距离耦合仍待后续。拟Coverage/Cloud Size/Erosion/Density + 单Quality。前轮探针耗时与旧.995候选保留为历史，勿与正式适配器混算，见 [原诊断与方案](2026-10-20-ssc-redesign-proposal.md)。
@@ -100,6 +119,11 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-30-fabric-km-sggx.md](2026-10-30-fabric-km-sggx.md) | 2026-10-30 | 织物层：KM 双流 + SGGX + R/T LUT；Rg 只能是反射率不能是风格化最终色；三段式合成在 `FabricFunction.hlsl`，重构后成图逐像素一致。外部改 shader 必须 ForceUpdate、`_CameraOpaqueTexture` 取不到、PC_RPAsset 附加光是 PerVertex、SGGX 球面竖带、标量 K/S 要补偏色。 |
+| [2026-10-27-ssgi-unity-environment-intensity.md](2026-10-27-ssgi-unity-environment-intensity.md) | 2026-10-27 | Specular改接Unity默认环境/HDR，去掉自定义天空，三路强度0–10；71组/五负控及实景克隆对照通过。 |
+| [2026-10-27-surface-lines.md](2026-10-27-surface-lines.md) | 2026-10-27 | 纯解析表面线条材质：UV0/Object/World、导数抗锯齿、最小线宽、交叉线；四 Pass/变体零消息，球体冒烟后恢复场景。 |
+| [2026-10-26-surface-dither.md](2026-10-26-surface-dither.md) | 2026-10-26 | 表面稳定分形 Bayer 抖动材质、3D 图案生成器与隔离验证；四 Pass/五变体零消息，近远边缘密度比 0.996。 |
+| [2026-10-26-exterior-mapping.md](2026-10-26-exterior-mapping.md) | 2026-10-26 | 实体方块面片映射、六面纹理与 billboard/fixed 双模式；CPU、规范与 Unity Pass 0 编译通过，画面未验。 |
 | [2026-10-22-sdf-normalization.md](2026-10-22-sdf-normalization.md) | 2026-10-22 | SDF 库改为中心 1、边界/外部 0 的覆盖度图元，新增圆/方形；规范、HLSL 语法与数值断言通过。 |
 | [2026-10-20-ssc-performance.md](2026-10-20-ssc-performance.md) | 2026-10-20 | SSC精确早停/空域跳采样/sky mask快速重建；432样本同步墙钟、覆盖率/HDR/薄前景与正式证据，性能已实施，形状/面板未改。 |
 | [2026-10-20-ssc-redesign-proposal.md](2026-10-20-ssc-redesign-proposal.md) | 2026-10-20 | SSC黏连/积分与光照耦合根因、216样本成本对照、候选质量档和参数重设计；生产实现未改。 |
