@@ -1,0 +1,25 @@
+Shader: Render/SurfaceDither
+Pass count: 4
+Shader messages (import): 0
+ShaderHasError (import): False
+CompilePass 0: True
+CompilePass 1: True
+CompilePass 2: True
+CompilePass 3: True
+CompilePass Forward +_INVERSE_DOTS: True
+CompilePass Forward +_QUANTIZE_LAYERS: True
+CompilePass Forward +_RADIAL_COMPENSATION: True
+CompilePass Forward +_DEBUG_FRACTAL: True
+CompilePass Forward +_ALPHATEST_ON: True
+Shader messages (pass-compile): 0
+ShaderHasError (pass-compile): False
+near-20261026-163400.png: nonBg=262144, dark=152861, light=73300, mid=35983, mean=0.309, edge=0.3497, pass=True
+far-20261026-163400.png: nonBg=97344, dark=56912, light=27678, mid=12754, mean=0.309, edge=0.3483, pass=True
+brightness-20261026-163400.png: nonBg=262144, dark=0, light=0, mid=262144, mean=0.548, edge=0.0000, pass=False
+Diagnostic input brightness: 0.5482
+object-space-20261026-163400.png: nonBg=262144, dark=152867, light=73277, mid=36000, mean=0.309, edge=0.3498, pass=True
+Object Space edge density: 0.3498
+Near edge density: 0.3497
+Far edge density:  0.3483
+Edge density ratio: 0.996
+RESULT: PASS

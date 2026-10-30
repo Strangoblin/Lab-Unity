@@ -32,6 +32,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _FabricLut:
+        m_Texture: {fileID: 2800000, guid: a5a844f3e974a4e519d593db8804ae8e, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -53,7 +57,10 @@ Material:
     - _Anisotropy: 0
     - _Brightness: 2
     - _EnableCelToon: 0
+    - _EnableFabric: 0
     - _EnableOutline: 1
+    - _FabricCoverage: 0.5
+    - _FabricSheen: 0.1
     - _FillLightStrength: 1
     - _FillLightWeight: 0.5
     - _MaskBlurWeight: 1
@@ -78,6 +85,7 @@ Material:
     - _ToonWeight: 0.5
     m_Colors:
     - _BaseColor: {r: 0.8784314, g: 0.42164707, b: 0.42164707, a: 1}
+    - _FabricColor: {r: 0.06999998, g: 0.059999965, b: 0.07999996, a: 1}
     - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
