@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Fabric
+  m_Shader: {fileID: 4800000, guid: a4461b5f140ab3e43bfec3486c752ef3, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - ENABLE_FABRIC
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AOTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FabricLut:
+        m_Texture: {fileID: 2800000, guid: a5a844f3e974a4e519d593db8804ae8e, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SSSLut:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ThicknessTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Absorption: 10
+    - _Anisotropy: 0.6
+    - _BackgroundReflectance: 0.45
+    - _Brightness: 1
+    - _Coverage: 0.65
+    - _Cull: 2
+    - _DebugMode: 0
+    - _Density: 1
+    - _DstBlend: 10
+    - _EnableCelToon: 0
+    - _EnableFabric: 1
+    - _EnableOutline: 0
+    - _FabricCoverage: 0.5
+    - _FabricSheen: 0.65
+    - _FiberWidth: 0.22
+    - _FillLightStrength: 0
+    - _FillLightWeight: 1
+    - _LutMaxAbsorption: 16
+    - _LutMaxOpticalDepth: 8
+    - _MaskBlurWeight: 1
+    - _Metallic: 0
+    - _OutlineColor: 0.5
+    - _OutlineScale: 0.2
+    - _RimRange: 0.5
+    - _RimStrength: 0
+    - _Roughness: 0.5
+    - _SSSScatter: 0.15
+    - _SSSWeight: 0
+    - _Scattering: 0.6
+    - _SheenStrength: 0.65
+    - _SrcBlend: 5
+    - _Thickness: 0.02
+    - _ToonRange: 1
+    - _ToonSmoothness: 1
+    - _ToonWeight: 1
+    - _TransmissionStrength: 1
+    - _TransparentBlend: 1
+    - _UseFabricLut: 1
+    - _UseOpaqueBackdrop: 0
+    - _ZWrite: 0
+    m_Colors:
+    - _BaseColor: {r: 0.86, g: 0.63, b: 0.52, a: 1}
+    - _FabricColor: {r: 0.07, g: 0.06, b: 0.08, a: 1}
+    - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SheenColor: {r: 0.85, g: 0.87, b: 0.95, a: 1}
+    - _SkinColor: {r: 1, g: 0.7423212, b: 0.6179246, a: 1}
+    - _TransmissionTint: {r: 1, g: 0.9, b: 0.82, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

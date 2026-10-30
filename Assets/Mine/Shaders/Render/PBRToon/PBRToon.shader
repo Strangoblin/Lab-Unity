@@ -23,6 +23,13 @@ Shader "Render/PBRToon"
         _SSSScatter ("SSS Scatter", Range(0.0, 1.0)) = 0.15
         _SSSWeight ("SSS Weight", Range(0.0, 1.0)) = 0.5
 
+        [Header(Fabric Layer)]
+        [Toggle(ENABLE_FABRIC)]_EnableFabric ("Enable Fabric", Float) = 0
+        _FabricLut ("KM R/T Lut", 2D) = "grey" {}
+        _FabricColor ("Fabric Color", Color) = (0.07, 0.06, 0.08, 1.0)
+        _FabricCoverage ("Fabric Coverage", Range(0.0, 1.0)) = 0.5
+        _FabricSheen ("Fabric Sheen", Range(0.0, 1.0)) = 0.4
+
         [Header(Additional Fill Light)]
         _FillLightStrength ("Fill Light Strength", Range(0.0, 2.0)) = 1.0
         _FillLightWeight ("Fill Light Direction Weight", Range(0.0, 1.0)) = 1.0
@@ -70,6 +77,8 @@ Shader "Render/PBRToon"
     SAMPLER(sampler_AOTex);
     TEXTURE2D(_EmissionTex);
     SAMPLER(sampler_EmissionTex);
+    TEXTURE2D(_FabricLut);
+    SAMPLER(sampler_FabricLut);
     CBUFFER_START(UnityPerMaterial)
         float4 _BaseColor;
         float4 _MainTex_ST;
@@ -78,6 +87,7 @@ Shader "Render/PBRToon"
         float4 _EmissionTex_ST;
         float _EnableCelToon;
         float _EnableOutline;
+        float _EnableFabric;
         float _Brightness;
         float _Roughness;
         float _Metallic;
@@ -94,9 +104,13 @@ Shader "Render/PBRToon"
         float _OutlineColor;
         float _OutlineScale;
         float _MaskBlurWeight;
+        float _FabricCoverage;
+        float _FabricSheen;
         float4 _ShadowColor;
         float4 _FresnelColor;
+        float4 _FabricColor;
         float4 _SSSLut_TexelSize;
+        float4 _FabricLut_TexelSize;
     CBUFFER_END
 
     float3 _LightDirection;
@@ -277,7 +291,20 @@ Shader "Render/PBRToon"
         float3 fresnel     = lerp(1.0, _FresnelColor.rgb, fresnelArea);
         float3 emission    = SAMPLE_TEXTURE2D(_EmissionTex, sampler_EmissionTex, TRANSFORM_TEX(input.uv, _EmissionTex)).rgb;
 
-        float3 color = (Diffuse + Specular + Ambient + rim) * fresnel * _Brightness + emission;
+        float3 bodyRadiance = Diffuse + Specular + Ambient + rim;
+        float3 color;
+
+        #if defined(ENABLE_FABRIC)
+            float3 bodyReflectance = saturate(baseColor.rgb * (1.0 - _Metallic));
+            color = Fabric_ShadeLayer(
+                TEXTURE2D_ARGS(_FabricLut, sampler_FabricLut), _FabricLut_TexelSize.xx,
+                normalWS, viewDirWS, _FabricColor.rgb, _FabricCoverage, _FabricSheen,
+                bodyReflectance, bodyRadiance, radiance1, SampleSH(normalWS), emission,
+                NdotV, NdotL);
+            color *= fresnel * _Brightness;
+        #else
+            color = bodyRadiance * fresnel * _Brightness + emission;
+        #endif
         return half4(MixFog(color, input.fogFactor), 1.0);
     }
 
@@ -372,6 +399,7 @@ Shader "Render/PBRToon"
             #pragma instancing_options renderinglayer
             #pragma multi_compile_fog
             #pragma shader_feature_local ENABLE_CELTOON
+            #pragma shader_feature_local ENABLE_FABRIC
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH

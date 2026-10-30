@@ -45,6 +45,54 @@ PC_Renderer 已接入该 Feature。原来的 PBRToon 光照和描边算法保留
 - 当前 Main Camera 渲染通过，场景中两个使用本 Shader 的对象无新增 Shader 错误。
 - 未完成所有灯光、XR、构建平台组合的视觉验收；阴影轮廓的自动检查使用零偏置的受控条件。
 
+## 织物层（2026-10-30）
+
+`ENABLE_FABRIC` 在 Forward 片元里追加一层 KM 双流薄层，替代原先独立的 `Render/Fabric` 材质：
+单物体、单材质、不透明队列即可，不需要第二个物体或透明混合。
+
+Frag 按语义分三段，织物层夹在中间，只看得到「反射率」和「辐亮度」：
+
+| 段 | 内容 | 交给织物层的部分 |
+|---|---|---|
+| ① 本体层 | `Diffuse + Specular + Ambient + rim`（已含 cel 阶梯 / SSS / AO / 补光） | `bodyRadiance`；另给 `bodyReflectance = baseColor·(1−metallic)` |
+| ② 织物层 | `Fabric_ShadeLayer(...)`，实现在 `FabricFunction.hlsl` | 一次调用返回薄层之上的总辐射 |
+| ③ 表面层 | `fresnel · _Brightness` 全局调色 | 合成之后统一乘 |
+
+契约（重要）：**双流公式里的 Rg 只能是反射率**。风格化后的最终色含 rim、emission、`_Brightness`
+和 cel 阶梯，既不是反射率，也会让亮部的 `1−R·Rg` 失控。因此：
+
+| 成分 | 处理 |
+|---|---|
+| 本体反射率 `baseColor·(1−metallic)` | 只进 `1−R·Rg` 分母，不参与着色 |
+| 本体辐亮度 `Diffuse + Specular + Ambient + rim` | 整体乘 `eff = T²/(1−R·Rg)`，即透过薄层 |
+| 自发光 `emission` | 产生在薄层之下、不受外部光照，只走单程 `T` |
+| 全局调色 `fresnel · _Brightness` | 在合成之后乘；织物路径下 emission 也会被乘（非织物路径保持原样） |
+| 织物自身反射 | `fabricColor·R·(radiance1 + SampleSH)` |
+| 绒面 | `pow(1−NdotV, 3)` 的掠射项，只吃 `radiance1`，不吃环境光 |
+
+织物自身反射用 `radiance1`（含 cel 阶梯、SSS、AO、补光）而不是裸的 `NdotL`，
+否则同一块 cel 面上织物会出现连续的明暗过渡，和本体风格割裂。
+
+- 参数：`_FabricColor`、`_FabricCoverage`、`_FabricSheen`，加 LUT `_FabricLut`。
+- 库函数（零 CBUFFER）：`Fabric_EvaluateLayer` 采样 R/T、`Fabric_CompositeLayer` 纯合成、
+  `Fabric_ShadeLayer` 一次做完；LUT 以 `TEXTURE2D_PARAM` 传入，要求 SM4.5+ 独立采样器。
+- 常量：`FABRIC_FIBER_WIDTH`（0.55）、`FABRIC_MAX_OPTICAL`（0.06）、`FABRIC_MAX_KS`（16）、
+  `FABRIC_LUT_MAX_SD`（8）、`FABRIC_SHEEN_COLOR`、`FABRIC_TINT_GAIN/BIAS`、`FABRIC_SHEEN_POWER/BASE`。
+  `FABRIC_MAX_KS` / `FABRIC_LUT_MAX_SD` 必须与 `Tools/Fabric Lut Baker...` 的 Max K/S、Max S*d 一致，
+  否则 LUT 采样域对不上。
+- 计算：覆盖度 × 基础光程经 SGGX 投影面积放大成视线方向光学厚度；
+  LUT 返回 R（黑底反射率）/ T（透射率）；透射乘 `saturate(fabricColor*3+0.35)` 近似光谱吸收
+  （标量 K/S 本身无色）；边缘取 `pow(1−NdotV, 3)` 的 Fresnel 绒面光。
+- 近似与边界：`eff` 同时套在镜面与边缘光上——这是**有意为之**，不是近似：从能量流看，本体层的光就是流进织物层、被它压住的。
+  织物与皮肤之间只做一阶反弹，没有真正的多次散射；织物层不参与
+  ShadowCaster / Depth / DepthNormals，也不支持逐像素附加光源（项目 RPAsset 为 PerVertex）；
+  纤维方向用任意正交基，纤维宽度低于 0.4 会在球面出现竖向加厚带，要更细必须让纤维跟 UV 走。
+
+LUT 资产 `Assets/Mine/Shaders/Render/Fabric/FabricLut.asset`（128²，RGBAHalf，
+R/T/R∞ 三通道）；`Assets/Mine/Shaders/Render/Fabric/Fabric.mat` 是本 Shader + `ENABLE_FABRIC` 的参考材质。
+演示场景已按用户要求移除，验证图留在 `Validation~/2026-10-30-pbrtoon-fabric/`。
+三段式重构后用同一套验证场景复渲，与重构前成图逐像素一致（最大通道差 0）。
+
 ## 模板来源
 
 通用结构来自共享 standard/shader 模板契约；本文件作为材质算法与迁移案例，不作为完整 URP Lit 替代模板。
