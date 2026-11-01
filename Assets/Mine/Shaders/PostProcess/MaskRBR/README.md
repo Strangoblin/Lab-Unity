@@ -4,7 +4,7 @@
 
 ## 共享遮罩
 
-对象遮罩的 R8 描述符与 RendererList／RenderGraph 流程复用 [ScreenMaskRenderer](../../../Special/Rendering/Mask/README.md)，深度可见性与标量组合复用 [MaskFunction](../../../Special/HLSL/MaskFunction.md)。本效果继续用原 `MaskRBRMask` 覆盖材质及 source 选择；背景／对象联合保留 Pass 0，径向核、主光 HG／角窗和合成仍由本效果负责。
+对象遮罩的 R8 描述符与 RendererList／RenderGraph 流程复用 [ScreenMaskRenderer](../../../Special/Renderer/Mask/README.md)，深度可见性与标量组合复用 [MaskFunction](../../../Special/HLSL/MaskFunction.md)。本效果继续用原 `MaskRBRMask` 覆盖材质及 source 选择；背景／对象联合保留 Pass 0，径向核、主光 HG／角窗和合成仍由本效果负责。
 
 2026-10-13 公共 Mask 迁移：真实 URP 的 22 项旧版／新版全图 RGBA 对照全部通过、最大误差为 0；MaskRBR 既有 47 项 GPU／32 项真实 URP 控制复跑通过。归档输入与复跑入口见公共模块 README。
 
