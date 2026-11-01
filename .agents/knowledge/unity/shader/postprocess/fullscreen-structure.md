@@ -153,6 +153,12 @@ public class XxxFeature : ScriptableRendererFeature
     {
         // 面板参数
         internal static readonly int ParamID = Shader.PropertyToID("_Param");  // PropertyToID 预处理
+
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingTransparents;
+
+        [Header("Debug")]
+        public bool debug;
     }
 
     class XxxPass : ScriptableRenderPass
@@ -170,7 +176,12 @@ public class XxxFeature : ScriptableRendererFeature
 
     public Settings settings = new Settings();
     public override void Create() { /* 初始化 */ }
-    public override void AddRenderPasses(...) { /* 入队 */ }
+    public override void AddRenderPasses(...)
+    {
+        // 事件每帧从面板读取，保证运行时切换立即生效
+        xxxPass.renderPassEvent = settings.passEvent;
+        renderer.EnqueuePass(xxxPass);
+    }
 }
 ```
 

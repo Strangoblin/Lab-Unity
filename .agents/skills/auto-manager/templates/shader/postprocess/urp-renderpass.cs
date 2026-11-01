@@ -16,6 +16,7 @@ using UnityEngine.Rendering.Universal;
 public class YourEffectPass : ScriptableRenderPass
 {
     const string k_PassName = "YourEffect";
+    readonly Settings m_Settings;
     Material m_Material;
 
     // ═══ PassData — RenderGraph 要求独立的 class ═══
@@ -26,10 +27,12 @@ public class YourEffectPass : ScriptableRenderPass
         // ⚠️ public TextureHandle extraTex;
     }
 
-    public YourEffectPass(Material material)
+    public YourEffectPass(Settings settings)
     {
-        m_Material = material;
-        renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+        m_Settings = settings;
+        m_Material = CoreUtils.CreateEngineMaterial(settings.shader);
+        // 默认值只作构造回退；实际事件每帧由 AddRenderPasses 按 settings.passEvent 覆盖
+        renderPassEvent = settings.passEvent;
         // ⚠️ 可选: AfterRenderingOpaques, AfterRenderingSkybox,
         //         AfterRenderingPostProcessing, BeforeRenderingPostProcessing
     }
@@ -97,3 +100,38 @@ public class YourEffectPass : ScriptableRenderPass
     //     }
     // }
 }
+
+// ═══ Feature 侧 — Settings 与入队（含 Events）═══
+// public class YourEffectFeature : ScriptableRendererFeature
+// {
+//     [System.Serializable]
+//     public class Settings
+//     {
+//         [Header("Resources")]
+//         public Shader shader;
+//
+//         // ... 参数按 Technical → Performance → Artistic 分组 ...
+//
+//         [Header("Event")]
+//         [Tooltip("该 Pass 在帧内的位置；按它读写哪些纹理来决定。")]
+//         public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingTransparents;
+//
+//         [Header("Debug")]
+//         public bool debug;
+//     }
+//
+//     public Settings settings = new Settings();
+//     YourEffectPass m_Pass;
+//
+//     public override void Create() => m_Pass = settings.shader != null
+//         ? new YourEffectPass(settings) : null;
+//
+//     public override void AddRenderPasses(ScriptableRenderer renderer,
+//                                          ref RenderingData renderingData)
+//     {
+//         if (m_Pass == null) return;
+//         // 运行时改面板立即生效：事件按帧覆盖，而不是只在构造时读一次
+//         m_Pass.renderPassEvent = settings.passEvent;
+//         renderer.EnqueuePass(m_Pass);
+//     }
+// }

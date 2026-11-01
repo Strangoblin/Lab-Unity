@@ -15,6 +15,7 @@
 
 - `PropertyToID` 在 `Settings` 内以 `static readonly int` 预计算
 - 每个 Feature 配一个 Debug 开关，控制中间结果可视化
+- 每个 Feature 的面板在 `Debug` 之前保留 `[Header("Event")] public RenderPassEvent passEvent`，默认值等于改造前硬编码的事件；`AddRenderPasses` 里每帧 `pass.renderPassEvent = settings.passEvent` 后再 `EnqueuePass`，这样面板改动立刻生效
 - `ConfigureInput` 声明所需纹理（Color / Depth / Normal）
 - RenderGraph 模式下使用 `UnsafePass` + `SetRenderFunc` + `PassData`
 

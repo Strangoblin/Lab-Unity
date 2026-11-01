@@ -13,6 +13,12 @@
 
 ## 关键架构决策
 
+- **后处理 Event 面板（2026-11-02）**：所有后处理 Feature 的 `Settings` 在 `Debug` 前加 `[Header("Event")] passEvent`，默认值等于改造前硬编码事件，`AddRenderPasses` 每帧覆盖后再入队；PCSS/POSS 的投射 Pass 仍固定在 `AfterRenderingShadows`，SSGI 三模块共用一个事件（按模块拆分已因时域滤波与 HiZ 双双分裂回退）。模板与 parameter-panel 规范已同步。见 [记录](2026-11-02-postprocess-event.md)。
+
+- **透明深度合并（2026-11-01）**：`TransparentDepthMergeFeature` 在 `AfterRenderingOpaques` 把透明队列 depth-only 重绘进 URP 的 `_CameraDepthTexture` 拷贝（绑成深度附件 + 强制 ZWrite），相机深度附件不动、彩色输出逐像素不变；已挂 `PC_Renderer`。三个静默失败点：`RendererListParams` 必须 `isPassTagName = false`、Unlit 只匹配 `SRPDefaultUnlit`、`ConfigureInput(Depth)` 才能保证拷贝提前于本 pass。见 [记录](2026-11-01-transparent-depth-merge.md)。
+
+- **渲染管线归并（2026-11-01）**：`Scripts/CustomRenderer`、`Special/Rendering/{Mask,ScreenSpaceTrace}` 合并为 `Special/Renderer/` 三子目录；`Special/UniversalFunction/PreparationRenderer` 删除（三个类自带 `[Obsolete]` 指向 CustomRenderer，且无 GUID 引用），`.meta` 成对搬移故 `IA_Renderer` / `PC_Renderer` 引用不变。命名空间不动。**移动后必须同步写死路径**：SSGI 三份 Validation、两份模块 Validation、`RayStepFunction.hlsl` 注释与相关 README。`cli.py move` 不支持目录（`[Errno 13]`），目录用 `mv` + `.meta`。见 [记录](2026-11-01-renderer-consolidation.md)。
+
 - **SSGI 统一 Trace（2026-10-30）**：统一入口的 DDA / Ray / HiZ 与深度金字塔资源移至顶层并同步两路；同帧 HiZ 共用金字塔，旧值以 Diffuse 迁移。2026-10-28 在线试验与共享探针通过；2026-10-30 Editor 全量回归通过（92 组 / 1,153,512 断言 + 5 负控），动态画质待验。见 [记录](2026-10-30-ssgi-shared-trace.md)。
 
 - **HiZ 像素步幅（2026-10-30）**：旧实现把 DDA 单位（屏幕 `L/maxSteps` 像素）当 1 像素再乘 `2^mip`，每步只覆盖 `maxSteps/L` 路径，是漏打的根因。改为按像素前进 `2^mip`、`parentEnd` 细分到 mip 0、预算 `2 × maxSteps`、零投影回退 DDA。GPU 与新参考模型一致（库 39 组 / 88,826；SSGI 92 组 / 1,153,512）；**不等于画面漏打减少**，仍需人工看。见 [记录](2026-10-30-hiz-pixel-stride.md)。
@@ -119,6 +125,8 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-11-01-renderer-consolidation.md](2026-11-01-renderer-consolidation.md) | 2026-11-01 | 三条渲染管线归入 `Special/Renderer`（CustomRenderer / Mask / ScreenSpaceTrace），保留 Unity 6 版 CustomRenderer，删除自标 `[Obsolete]` 且无人引用的 `UniversalFunction/PreparationRenderer`。`.meta` 成对搬移 → GUID 与资产引用不变；命名空间不改。写死路径（SSGI 与模块 Validation、HLSL 注释、README）须同步。`cli.py move` 不支持目录。 |
+| [2026-11-01-weather-layer.md](2026-11-01-weather-layer.md) | 2026-11-01 | 天气层从 PBRToon 分离并拆成 `RainEffect` / `SnowEffect`：水痕取噪声等值带、布料吸水按 Voronoi 遮罩衰减细节、积雪闪烁只乘稳定雪面。`Properties` 未声明的贴图会让 `SetTexture` 静默失效；外部改 shader 必须 ForceUpdate；切材质/光照后至少 5 张丢弃帧再取像；「参数对但图没变」先做同机位 A/B。 |
 | [2026-10-30-fabric-km-sggx.md](2026-10-30-fabric-km-sggx.md) | 2026-10-30 | 织物层：KM 双流 + SGGX + R/T LUT；Rg 只能是反射率不能是风格化最终色；三段式合成在 `FabricFunction.hlsl`，重构后成图逐像素一致。外部改 shader 必须 ForceUpdate、`_CameraOpaqueTexture` 取不到、PC_RPAsset 附加光是 PerVertex、SGGX 球面竖带、标量 K/S 要补偏色。 |
 | [2026-10-27-ssgi-unity-environment-intensity.md](2026-10-27-ssgi-unity-environment-intensity.md) | 2026-10-27 | Specular改接Unity默认环境/HDR，去掉自定义天空，三路强度0–10；71组/五负控及实景克隆对照通过。 |
 | [2026-10-27-surface-lines.md](2026-10-27-surface-lines.md) | 2026-10-27 | 纯解析表面线条材质：UV0/Object/World、导数抗锯齿、最小线宽、交叉线；四 Pass/变体零消息，球体冒烟后恢复场景。 |

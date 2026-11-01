@@ -5,7 +5,7 @@ These code templates form the pieces of a fullscreen postprocess feature. This d
 | Template | Actual role |
 |---|---|
 | [fullscreen-postprocess.shader](fullscreen-postprocess.shader) | Fullscreen URP Shader (sole canonical template) |
-| [urp-renderpass.cs](urp-renderpass.cs) | Unity 6 RenderGraph postprocess pass (single-pass skeleton; multi-pass as comment) |
+| [urp-renderpass.cs](urp-renderpass.cs) | Unity 6 RenderGraph postprocess pass (single-pass skeleton; multi-pass as comment) + Feature 侧 `Settings` / `Event` 入队骨架 |
 | [volume-template.cs](volume-template.cs) | VolumeComponent integration |
 | [compute-template.compute](compute-template.compute) | Screen-space depth Compute template |
 | [spatial-filter-budget.hlsl](spatial-filter-budget.hlsl) | Blur/SNN/Kuwahara/Resolve 的质量档采样预算与独立半径骨架 |
@@ -18,7 +18,7 @@ Writing a feature documentation `.md` (`.agents/knowledge/unity/shader/postproce
 
 1. **功能概述** — 2-3 句说明用途与整体行为
 2. **架构** — 数据流图(输入 → Pass A (MRT) → … → 屏幕输出)+ 类关系表(`XxxFeature` → 面板参数 + Pass 注册 / `XxxPass` → 渲染逻辑 / 其他 MonoBehaviour)
-3. **配置参数** — 分 Feature 面板参数表 与 Shader 参数表(参数/类型/默认值/说明)
+3. **配置参数** — 分 Feature 面板参数表 与 Shader 参数表(参数/类型/默认值/说明);面板表必须含 `Event → passEvent`(默认值与它决定能读写哪些纹理)
 4. **渲染管线** — Pass 编排表(顺序/Pass 名称/类型/目标/说明)+ RT 规格表(RT/格式/分辨率/生命周期/说明)
 5. **使用方式** — 前置条件(管线、Renderer 添加 Feature、场景要求)/ 运行时行为(每帧流程、交互→Readback 更新)/ Debug 模式(枚举视图显示什么)
 6. **性能** — 指标表(DrawCall、RT 数量、Readback 延迟、取值上限)

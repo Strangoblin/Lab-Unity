@@ -21,9 +21,14 @@
 | Technical | 几何、投影、深度偏移 | 正确性（漏光/痤疮/覆盖） | 连续可调 + `[Range]` | `Technical · <子域>` |
 | Performance | 纯成本，不需要微调 | 帧率 | **档位（枚举）** | `Performance` |
 | Artistic | 每个参数对应一个观感维度 | 画面好看与否 | 连续可调 | `Artistic` |
+| Event | 仅在 RendererFeature 上出现：Pass 在帧内的位置 | 决定能读写哪些纹理（深度/透明/法线） | `RenderPassEvent` 枚举 | `Event` |
 | Debug | 中间结果可视化 | 排障 | 枚举 / 布尔 | `Debug` |
 
 `Debug` 与前三组**正交**：它不调效果，只改「显示什么」。每个 Feature 必须有一个。
+
+`Event` 排在 `Debug` 之前，默认值必须等于改造前硬编码的事件（默认行为不变），
+并在 `AddRenderPasses` 里每帧 `pass.renderPassEvent = settings.passEvent` 后再入队，
+使面板改动在运行时立即生效。MonoBehaviour / VolumeComponent 没有 Pass，不设此组。
 
 ## 规则
 
