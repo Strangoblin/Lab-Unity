@@ -206,15 +206,17 @@ void Fabric_EvaluateLayer(TEXTURE2D_PARAM(lutTex, lutSampler), float2 lutTexelSi
 
 /// <summary>薄层合成：本体辐亮度 × T²/(1−R·Rg)，加织物自身反射、绒面与单程透射的自发光。</summary>
 float3 Fabric_CompositeLayer(real reflectance, real transmittance,
-    real3 fabricColor, real sheenStrength,
+    real3 fabricColor, real sheenStrength, real coverage,
     real3 bodyReflectance, real3 bodyRadiance, real3 directionalLight, real3 ambientLight,
     real3 emission, real NdotV, real NdotL)
 {
     float3 rg = saturate(bodyReflectance);
     float3 through = (transmittance * transmittance) / max(1.0 - reflectance * rg, 1e-3);
-    float3 veilTint = saturate(fabricColor * FABRIC_TINT_GAIN + FABRIC_TINT_BIAS);
+    float3 veilTint = lerp(float3(1.0, 1.0, 1.0),
+        saturate(fabricColor * FABRIC_TINT_GAIN + FABRIC_TINT_BIAS),
+        saturate(1.0 - transmittance));
     float3 fiberReflection = fabricColor * reflectance * (directionalLight + ambientLight);
-    float3 sheen = sheenStrength * FABRIC_SHEEN_COLOR * directionalLight
+    float3 sheen = sheenStrength * saturate(coverage) * FABRIC_SHEEN_COLOR * directionalLight
         * pow(saturate(1.0 - NdotV), FABRIC_SHEEN_POWER)
         * (FABRIC_SHEEN_BASE + (1.0 - FABRIC_SHEEN_BASE) * NdotL);
 
@@ -237,7 +239,7 @@ float3 Fabric_ShadeLayer(TEXTURE2D_PARAM(lutTex, lutSampler), float2 lutTexelSiz
     Fabric_EvaluateLayer(TEXTURE2D_ARGS(lutTex, lutSampler), lutTexelSize, fabricColor, coverage,
         viewDirWS, tangentWS, bitangentWS, normalWS, reflectance, transmittance);
 
-    return Fabric_CompositeLayer(reflectance, transmittance, fabricColor, sheenStrength,
+    return Fabric_CompositeLayer(reflectance, transmittance, fabricColor, sheenStrength, coverage,
         bodyReflectance, bodyRadiance, directionalLight, ambientLight, emission, NdotV, NdotL);
 }
 

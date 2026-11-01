@@ -64,11 +64,11 @@ Frag 按语义分三段，织物层夹在中间，只看得到「反射率」和
 | 成分 | 处理 |
 |---|---|
 | 本体反射率 `baseColor·(1−metallic)` | 只进 `1−R·Rg` 分母，不参与着色 |
-| 本体辐亮度 `Diffuse + Specular + Ambient + rim` | 整体乘 `eff = T²/(1−R·Rg)`，即透过薄层 |
+| 本体辐亮度 `Diffuse + Specular + Ambient + rim` | 整体乘 `eff = T²/(1−R·Rg) · veilTint`，即透过薄层 |
 | 自发光 `emission` | 产生在薄层之下、不受外部光照，只走单程 `T` |
 | 全局调色 `fresnel · _Brightness` | 在合成之后乘；织物路径下 emission 也会被乘（非织物路径保持原样） |
-| 织物自身反射 | `fabricColor·R·(radiance1 + SampleSH)` |
-| 绒面 | `pow(1−NdotV, 3)` 的掠射项，只吃 `radiance1`，不吃环境光 |
+| 织物自身反射 | `fabricColor·R·(radiance1 + ambient)`，`ambient` 为完整 `BRDF_Env`（环境镜面 + 漫射） |
+| 绒面 | `pow(1−NdotV, 3)` 的掠射项，只吃 `radiance1`，不吃环境光；强度乘 `saturate(coverage)` |
 
 织物自身反射用 `radiance1`（含 cel 阶梯、SSS、AO、补光）而不是裸的 `NdotL`，
 否则同一块 cel 面上织物会出现连续的明暗过渡，和本体风格割裂。
@@ -81,8 +81,12 @@ Frag 按语义分三段，织物层夹在中间，只看得到「反射率」和
   `FABRIC_MAX_KS` / `FABRIC_LUT_MAX_SD` 必须与 `Tools/Fabric Lut Baker...` 的 Max K/S、Max S*d 一致，
   否则 LUT 采样域对不上。
 - 计算：覆盖度 × 基础光程经 SGGX 投影面积放大成视线方向光学厚度；
-  LUT 返回 R（黑底反射率）/ T（透射率）；透射乘 `saturate(fabricColor*3+0.35)` 近似光谱吸收
-  （标量 K/S 本身无色）；边缘取 `pow(1−NdotV, 3)` 的 Fresnel 绒面光。
+  LUT 返回 R（黑底反射率）/ T（透射率）；标量 K/S 本身无色，用 `saturate(fabricColor*3+0.35)`
+  近似光谱吸收，但按实际吸收量 `saturate(1−T)` 加权——T=1（无吸收）时不染色，
+  白色织物即使满覆盖也不染色；边缘取 `pow(1−NdotV, 3)` 的 Fresnel 绒面光。
+- 边界行为：`_FabricCoverage = 0` 时 `R=0`、`T=1`、`veilTint=1`、绒面为 0，合成退化为
+  `bodyRadiance + emission`，与关闭 `ENABLE_FABRIC` 一致；唯一差异是 emission 仍走
+  `T · fresnel · _Brightness` 路径。
 - 近似与边界：`eff` 同时套在镜面与边缘光上——这是**有意为之**，不是近似：从能量流看，本体层的光就是流进织物层、被它压住的。
   织物与皮肤之间只做一阶反弹，没有真正的多次散射；织物层不参与
   ShadowCaster / Depth / DepthNormals，也不支持逐像素附加光源（项目 RPAsset 为 PerVertex）；
@@ -92,6 +96,22 @@ LUT 资产 `Assets/Mine/Shaders/Render/Fabric/FabricLut.asset`（128²，RGBAHal
 R/T/R∞ 三通道）；`Assets/Mine/Shaders/Render/Fabric/Fabric.mat` 是本 Shader + `ENABLE_FABRIC` 的参考材质。
 演示场景已按用户要求移除，验证图留在 `Validation~/2026-10-30-pbrtoon-fabric/`。
 三段式重构后用同一套验证场景复渲，与重构前成图逐像素一致（最大通道差 0）。
+
+2026-11-01：`veilTint` 改为按吸收量加权、绒面强度乘覆盖度；`_FabricCoverage = 0` 不再被织物色压暗，
+成图经用户目视确认可保留。
+
+## 天气层（2026-11-01）
+
+天气层已从 `PBRToon` 分离：`ENABLE_WEATHER` 变体、`_WeatherNoise` 与全部 `_Wet*` / `_Snow*` 参数暂时移除，
+改由两个独立 shader 提供：雨天 `Render/RainEffect`（湿身、水滴、水痕、涟漪）与雪天 `Render/SnowEffect`（积雪、闪烁），
+分别在 `WeatherEffect/Test/RainEffectTest.unity` 与 `Test/SnowEffectTest.unity` 验证，共用 `WeatherFunction.hlsl`。
+确认无误后再把同一组函数与参数并回本 shader，届时湿身仍作为进入光照前的表面输入，
+积雪仍覆盖 albedo / roughness / metallic / 法线并按遮罩让出织物覆盖度。
+参数、合成顺序、投影方式与近似见 [WeatherEffect.md](../WeatherEffect/WeatherEffect.md)
+（雨天 [RainEffect.md](../WeatherEffect/RainEffect.md)、雪天 [SnowEffect.md](../WeatherEffect/SnowEffect.md)）。
+
+历史验证（分离前）：预览场景四态成图（干燥 / 湿身 / 积雪 / 湿+积雪），`ShaderUtil` 无消息；
+噪声原先只按世界 XZ 采样，在接近竖直的雪线上被拉成竖向条纹，后续改为双轴投影并在独立版本中迁到物体空间。
 
 ## 模板来源
 

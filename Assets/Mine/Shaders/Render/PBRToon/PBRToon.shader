@@ -280,7 +280,7 @@ Shader "Render/PBRToon"
             * PI * radiance1 * (1.0 - _Metallic) * (1.0 - F);
         float3 Specular = Spec_Unity(NdotH, LdotH, VdotH, TdotH, BdotH, roughness, _Anisotropy)
             * PI * radiance2 * F;
-        float3 Ambient  = BRDF_Env(baseColor.rgb, NdotV, normalWS, viewDirWS, roughness, _Metallic, unity_SpecCube0, samplerunity_SpecCube0);
+        float3 ambient  = BRDF_Env(baseColor.rgb, NdotV, normalWS, viewDirWS, roughness, _Metallic, unity_SpecCube0, samplerunity_SpecCube0);
 
         float  rimLight    = RimLightDepth(normalWS, screenUV, _RimRange * 10);
         float  rimFresnel  = pow(1.0 - NdotV, 4);
@@ -291,7 +291,7 @@ Shader "Render/PBRToon"
         float3 fresnel     = lerp(1.0, _FresnelColor.rgb, fresnelArea);
         float3 emission    = SAMPLE_TEXTURE2D(_EmissionTex, sampler_EmissionTex, TRANSFORM_TEX(input.uv, _EmissionTex)).rgb;
 
-        float3 bodyRadiance = Diffuse + Specular + Ambient + rim;
+        float3 bodyRadiance = Diffuse + Specular + ambient + rim;
         float3 color;
 
         #if defined(ENABLE_FABRIC)
@@ -299,7 +299,7 @@ Shader "Render/PBRToon"
             color = Fabric_ShadeLayer(
                 TEXTURE2D_ARGS(_FabricLut, sampler_FabricLut), _FabricLut_TexelSize.xx,
                 normalWS, viewDirWS, _FabricColor.rgb, _FabricCoverage, _FabricSheen,
-                bodyReflectance, bodyRadiance, radiance1, SampleSH(normalWS), emission,
+                bodyReflectance, bodyRadiance, radiance1, ambient, emission,
                 NdotV, NdotL);
             color *= fresnel * _Brightness;
         #else

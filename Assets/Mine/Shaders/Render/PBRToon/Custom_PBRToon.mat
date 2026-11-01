@@ -52,13 +52,18 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _WeatherNoise:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _Anisotropy: 0
-    - _Brightness: 2
+    - _Brightness: 1
     - _EnableCelToon: 0
     - _EnableFabric: 0
     - _EnableOutline: 1
+    - _EnableWeather: 0
     - _FabricCoverage: 0.5
     - _FabricSheen: 0.1
     - _FillLightStrength: 1
@@ -74,6 +79,15 @@ Material:
     - _SSSScatter: 0.15
     - _SSSStrength: 2
     - _SSSWeight: 0.5
+    - _SnowAmount: 0
+    - _SnowNoiseScale: 6
+    - _SnowNormalBlend: 0.6
+    - _SnowRoughness: 0.85
+    - _SnowSoftness: 0.3
+    - _SnowSparkle: 0.5
+    - _SnowSparkleDensity: 0.08
+    - _SnowSparkleScale: 32
+    - _SnowThreshold: 0.25
     - _ToonBrightness: 0.25
     - _ToonRange: 0.5
     - _ToonRemap: 0.42
@@ -83,10 +97,18 @@ Material:
     - _ToonSmoothness: 0.5
     - _ToonStep: 1.9
     - _ToonWeight: 0.5
+    - _WetDarken: 0.55
+    - _WetNormalFlatten: 0.5
+    - _WetRoughness: 0.15
+    - _WetSaturation: 1.25
+    - _WetSheenScale: 0.3
+    - _WetSpecular: 0.6
+    - _Wetness: 0
     m_Colors:
-    - _BaseColor: {r: 0.8784314, g: 0.42164707, b: 0.42164707, a: 1}
+    - _BaseColor: {r: 1, g: 0.722406, b: 0.65882355, a: 1}
     - _FabricColor: {r: 0.06999998, g: 0.059999965, b: 0.07999996, a: 1}
     - _FresnelColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SnowColor: {r: 0.92, g: 0.95, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
