@@ -46,6 +46,9 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         [Range(0f, 1f)] public float jitterStrength = 0f;
         [Range(0f, 1f)] public float intensity = 0.25f;
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingSkybox;
+
         [Header("Debug")]
         public DebugMode debug = DebugMode.Off;
 
@@ -112,7 +115,7 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
             _material = CoreUtils.CreateEngineMaterial(settings.shader);
             _maskMaterial = CoreUtils.CreateEngineMaterial(settings.maskShader);
             _maskMaterial.enableInstancing = true;
-            renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+            renderPassEvent = settings.passEvent;
             requiresIntermediateTexture = true;
             ConfigureInput(ScriptableRenderPassInput.Depth);
         }
@@ -318,6 +321,7 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
             || (camera.cameraType != CameraType.Game && camera.cameraType != CameraType.SceneView)
             || (settings.debug == DebugMode.Off && (settings.intensity <= 0f || settings.length <= 0f)))
             return;
+        _pass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(_pass);
     }
 }

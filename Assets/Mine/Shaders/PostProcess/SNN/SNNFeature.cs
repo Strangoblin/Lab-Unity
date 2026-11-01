@@ -27,6 +27,9 @@ public sealed class SNNFeature : ScriptableRendererFeature
         [Header("Artistic")]
         [Range(1, 10)] public int Radius = 3;
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingPostProcessing;
+
         [Header("Debug")]
         [Tooltip("Off = 正常滤波输出；Selection = 只输出被选中的四个邻域均值（不含中心），用于观察滤波取向。")]
         public DebugMode debug = DebugMode.Off;
@@ -54,7 +57,7 @@ public sealed class SNNFeature : ScriptableRendererFeature
         {
             _settings = settings;
             _material = CoreUtils.CreateEngineMaterial(settings.snnShader);
-            renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
+            renderPassEvent = settings.passEvent;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -122,6 +125,7 @@ public sealed class SNNFeature : ScriptableRendererFeature
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
         if (snnPass == null) return;
+        snnPass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(snnPass);
     }
 }

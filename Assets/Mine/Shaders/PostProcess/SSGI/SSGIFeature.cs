@@ -35,6 +35,9 @@ public class SSGIFeature : ScriptableRendererFeature
         [Header("Temporal")]
         public SSGITemporalControls temporal = new();
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+
         [Header("Debug")]
         public DebugMode debug = DebugMode.Off;
     }
@@ -89,7 +92,7 @@ public class SSGIFeature : ScriptableRendererFeature
             if (settings.specularGI.shader != null)
                 _specularPass = new SpecularGIFeature.SpecularGIPass(settings.specularGI.shader, settings.specularGI, settings.trace);
 
-            renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+            renderPassEvent = settings.passEvent;
             requiresIntermediateTexture = true;
             ConfigureInput(ScriptableRenderPassInput.Color
                 | ScriptableRenderPassInput.Depth
@@ -234,6 +237,7 @@ public class SSGIFeature : ScriptableRendererFeature
             _pass.InvalidateCamera(camera.camera);
             return;
         }
+        _pass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(_pass);
     }
 }

@@ -30,6 +30,10 @@ public class POSSFeature : ScriptableRendererFeature
         [Header("Resources")]
         public ComputeShader resolveComputeShader;
 
+        [Header("Event")]
+        [Tooltip("Resolve Pass 的事件；阴影投射 Pass 固定在 AfterRenderingShadows。")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingTransparents;
+
         [Header("Debug")]
         public bool showShadowOnly = false;
 
@@ -272,7 +276,7 @@ public class POSSFeature : ScriptableRendererFeature
         {
             m_S = s; m_CS = cs; m_Caster = caster;
             if (m_CS != null) m_Kernel = m_CS.FindKernel("POSS_Resolve");
-            renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+            renderPassEvent = s.passEvent;
             profilingSampler = new ProfilingSampler("POSS Resolve");
         }
 
@@ -413,7 +417,10 @@ public class POSSFeature : ScriptableRendererFeature
         if (m_CasterPass == null) return;
         renderer.EnqueuePass(m_CasterPass);
         if (settings.resolveComputeShader != null)
+        {
+            m_ResolvePass.renderPassEvent = settings.passEvent;
             renderer.EnqueuePass(m_ResolvePass);
+        }
     }
 
     protected override void Dispose(bool disposing)

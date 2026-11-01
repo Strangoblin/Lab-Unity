@@ -29,6 +29,9 @@ public sealed class DDOFFeature : ScriptableRendererFeature
         [Range(0f, 50f)] public float focusRange = 2.0f;
         [Range(0f, 5f)] public float blurScale = 2.5f;
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+
         [Header("Debug")]
         [Tooltip("Off = 正常合成；CoC = 输出失焦遮罩；Blur = 输出模糊结果。Debug 分支复用本 Pass 已生成的中间纹理。")]
         public DebugMode debug = DebugMode.Off;
@@ -65,7 +68,7 @@ public sealed class DDOFFeature : ScriptableRendererFeature
         {
             _settings = settings;
             _material = CoreUtils.CreateEngineMaterial(settings.ddofShader);
-            renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+            renderPassEvent = settings.passEvent;
             ConfigureInput(ScriptableRenderPassInput.Depth);
         }
 
@@ -175,6 +178,7 @@ public sealed class DDOFFeature : ScriptableRendererFeature
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
         if (ddofPass == null) return;
+        ddofPass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(ddofPass);
     }
 }

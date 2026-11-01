@@ -24,6 +24,9 @@ namespace Mine.Weather
             [Header("Technical · Cameras")]
             public bool showInSceneView = true;
 
+            [Header("Event")]
+            public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingPostProcessing;
+
             [Header("Debug")]
             public WeatherDebugMode debug = WeatherDebugMode.Off;
 
@@ -367,6 +370,7 @@ namespace Mine.Weather
             if (!EnsureMaterial())
                 return;
 
+            _pass.renderPassEvent = settings.passEvent;
             _pass.Prepare(parameters, settings.noiseTexture, debug);
             renderer.EnqueuePass(_pass);
         }

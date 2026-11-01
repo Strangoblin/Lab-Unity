@@ -39,6 +39,9 @@ namespace Mine.ScreenWarp
             [Tooltip("0 = 关闭遮盖；未指定素材时不启用。不会随变形强度缩小不透明区域。")]
             [Range(0f, 1f)] public float overlayOpacity = 1f;
 
+            [Header("Event")]
+            public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingPostProcessing;
+
             [Header("Debug")]
             public DebugMode debug = DebugMode.Off;
 
@@ -248,6 +251,7 @@ namespace Mine.ScreenWarp
             Parameters parameters = new Parameters(settings);
             if (!parameters.Active || !EnsureMaterial())
                 return;
+            _pass.renderPassEvent = settings.passEvent;
             _pass.Prepare(parameters);
             renderer.EnqueuePass(_pass);
         }

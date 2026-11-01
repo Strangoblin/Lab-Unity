@@ -37,6 +37,10 @@ public class PCSSFeature : ScriptableRendererFeature
         [Header("Technical · Resources")]
         public ComputeShader pcssComputeShader;
 
+        [Header("Event")]
+        [Tooltip("主渲染 Pass 的事件；阴影投射 Pass 固定在 AfterRenderingShadows。")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingTransparents;
+
         [Header("Technical · Bias & Split")]
         [Tooltip("PSSM 混合因子：越接近 1 越按对数切分（近处 texel 更密），越接近 0 越均匀")]
         [Range(0f, 1f)] public float pssmLambda = 0.75f;
@@ -871,6 +875,8 @@ public class PCSSFeature : ScriptableRendererFeature
     {
         if (m_CasterPass == null) return;
         renderer.EnqueuePass(m_CasterPass);
+        if (m_PCSSPass == null) return;
+        m_PCSSPass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(m_PCSSPass);
     }
 

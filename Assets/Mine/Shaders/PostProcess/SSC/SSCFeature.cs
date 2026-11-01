@@ -99,6 +99,9 @@ public sealed class SSCFeature : ScriptableRendererFeature
 
         [Range(0f, 1f)] public float jitter = 1.0f;
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingTransparents;
+
         [Header("Debug")]
         [FormerlySerializedAs("SSCFeature")]
         [Tooltip("true = 直接输出 SSC 云缓冲，跳过场景合成。")]
@@ -215,7 +218,7 @@ public sealed class SSCFeature : ScriptableRendererFeature
         {
             _settings = settings;
             _material = CoreUtils.CreateEngineMaterial(settings.sscShader);
-            renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+            renderPassEvent = settings.passEvent;
             ConfigureInput(ScriptableRenderPassInput.Depth);
         }
 
@@ -384,6 +387,7 @@ public sealed class SSCFeature : ScriptableRendererFeature
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
         if (sscPass == null) return;
+        sscPass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(sscPass);
     }
 }

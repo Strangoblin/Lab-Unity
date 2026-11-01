@@ -68,6 +68,9 @@ public sealed class SSOFeature : ScriptableRendererFeature
         [Range(0f, 1f)] public float jitter = 1.0f;
         public Color OutlineColor = Color.white;
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingOpaques;
+
         [Header("Debug")]
         [FormerlySerializedAs("SSOFeature")]
         [Tooltip("Off = 正常合成；Outline = 直接输出轮廓 / 条纹中间结果，便于人工观测。")]
@@ -123,7 +126,7 @@ public sealed class SSOFeature : ScriptableRendererFeature
         {
             _settings = settings;
             _material = CoreUtils.CreateEngineMaterial(settings.ssoShader);
-            renderPassEvent = RenderPassEvent.AfterRenderingOpaques;
+            renderPassEvent = settings.passEvent;
             ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
         }
 
@@ -251,6 +254,7 @@ public sealed class SSOFeature : ScriptableRendererFeature
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
         if (ssoPass == null) return;
+        ssoPass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(ssoPass);
     }
 }

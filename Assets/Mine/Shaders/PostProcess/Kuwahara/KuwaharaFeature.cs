@@ -47,6 +47,9 @@ public sealed class KuwaharaFeature : ScriptableRendererFeature
         [Range(1.0f, 2000.0f)] public float weightScale = 1000.0f;
         [Range(0.01f, 2.0f)] public float alpha = 1.0f;
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingPostProcessing;
+
         [Header("Debug")]
         [Tooltip("Off = 正常输出；StructureTensor = 输出特征向量场（RG 方向, B 角度, A 各向异性）。"
                  + "仅 Anisotropic 模式的张量链会生成该中间纹理，Basic / Generalized 下不生效。")]
@@ -125,7 +128,7 @@ public sealed class KuwaharaFeature : ScriptableRendererFeature
         {
             _settings = settings;
             _material = CoreUtils.CreateEngineMaterial(settings.kuwaharaShader);
-            renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
+            renderPassEvent = settings.passEvent;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -298,6 +301,7 @@ public sealed class KuwaharaFeature : ScriptableRendererFeature
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
         if (kuwaharaPass == null) return;
+        kuwaharaPass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(kuwaharaPass);
     }
 }

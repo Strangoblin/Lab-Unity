@@ -24,6 +24,9 @@ public class SSSMFeature : ScriptableRendererFeature
         public BilateralIntensity  bilateralIntensity = BilateralIntensity.Medium;
         public bool                bilateralNormal    = false;
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingTransparents;
+
         [Header("Debug")]
         public bool SSSMFeature = true;
 
@@ -55,7 +58,7 @@ public class SSSMFeature : ScriptableRendererFeature
             settings = s;
             if (shader != null)
                 material = CoreUtils.CreateEngineMaterial(shader);
-            renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+            renderPassEvent = s.passEvent;
             ConfigureInput(ScriptableRenderPassInput.Color | ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
         }
 
@@ -155,6 +158,7 @@ public class SSSMFeature : ScriptableRendererFeature
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
         if (sssmPass == null) return;
+        sssmPass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(sssmPass);
     }
 }

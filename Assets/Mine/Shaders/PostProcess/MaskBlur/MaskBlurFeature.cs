@@ -39,6 +39,9 @@ public sealed class MaskBlurFeature : ScriptableRendererFeature
         [Range(0f, 1f)] public float jitterStrength = 1f;
         [Range(0f, 1f)] public float intensity = 0.5f;
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingSkybox;
+
         [Header("Debug")]
         public DebugMode debug = DebugMode.Off;
 
@@ -107,7 +110,7 @@ public sealed class MaskBlurFeature : ScriptableRendererFeature
         {
             _settings = settings;
             _material = CoreUtils.CreateEngineMaterial(settings.shader);
-            renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+            renderPassEvent = settings.passEvent;
             requiresIntermediateTexture = true;
             ConfigureInput(ScriptableRenderPassInput.Depth);
         }
@@ -349,6 +352,7 @@ public sealed class MaskBlurFeature : ScriptableRendererFeature
             || (camera.cameraType != CameraType.Game && camera.cameraType != CameraType.SceneView)
             || (settings.intensity <= 0f && settings.debug == DebugMode.Off))
             return;
+        _pass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(_pass);
     }
 }

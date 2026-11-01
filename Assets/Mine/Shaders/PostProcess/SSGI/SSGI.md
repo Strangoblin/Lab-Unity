@@ -4,7 +4,7 @@
 
 ## 帧内顺序
 
-`AfterRenderingSkybox` 获取不透明场景色、深度、法线和运动向量；三个模块都从同一场景色读取，不从其它模块已合成的颜色再次追踪。
+整个 SSGI 是一个入队 Pass，事件由总面板 `Event → passEvent` 控制（默认 `BeforeRenderingPostProcessing` 550）。三个模块读同一事件处的场景色、深度、法线和运动向量，不从其它模块已合成的颜色再次追踪。事件早于透明深度合并的写回就看到未合并的 `_CameraDepthTexture`（只有不透明物），晚于则看到含透明面的版本；默认 550 配合 `TransparentDepthMergeFeature` 在 500 的合并，三个模块都能作用到透明表面上。
 
 ```text
 Opaque + Skybox
@@ -14,8 +14,10 @@ Opaque + Skybox
               ↓
         SSGI.Composite（写回 cameraColor 一次）
               ↓
-        URP 拷贝 _CameraOpaqueTexture → 透明物体
+        URP 后处理
 ```
+
+曾经试过按模块拆成各自带事件的 Pass（AO/DiffuseGI 读未合并深度、SpecularGI 读合并后深度）：可行，但三份模块无法共用一份时域滤波——帧序号与深度历史会在一帧内推进多次，重投影直接错位；拆开后每帧最多写三份全分辨率深度历史，HiZ 金字塔也要按事件分版本重建。收益不足以抵消，因此保留单 Pass + 一个总事件。
 
 RenderGraph 在统一 Feature 内直接传递三张 `TextureHandle`，合成 Pass 对每张实际启用的纹理声明读依赖。`SSGITemporalFilter` 每相机只保留一对眼深度历史，每个启用的模块各保留一对颜色历史；三路复用同一个 Shader 的运动向量重投影、深度拒绝与失效判定；每路使用独立 Material，避免 RenderGraph 中不同 Blend 参数串用。Specular 默认采样 Unity 环境反射图并按 URP 解码 HDR，不再配置自定义 Cubemap，也不使用 `SampleSH`。
 
@@ -31,7 +33,7 @@ DiffuseGI 同日后续采样试验保持两级核与预算，采用块级平移�
 
 统一入口在三路空间结果之后调用 `SSGITemporalFilter.Resolve`，将结果直接写入各自历史纹理的另一侧，再写一次全分辨率深度历史。当前档位使用 AO 0.85、DiffuseGI 0.9、SpecularGI 0.5 的最大历史权重；各值可单独调节至 0（关闭历史混合）。相机断帧、尺寸变化、明显矩阵跳变、运动向量缺失或前帧深度不匹配时，本帧直接采用空间结果。模块关闭再开启时也会检查其颜色历史是否仍在正确的双缓冲侧。
 
-采样帧计数与历史双缓冲计数分离；公共时域 Shader 可用且产生信号时，即使权重为 0 或运动向量不可用也推进采样序列。独立 Feature 需要指定 `SSGITemporal.shader` 才启用公共时域阶段。某路权重为 0 时直接使用空间结果，跳过该路历史写入并使旧历史失效；若所有路均为 0，也跳过共享深度历史写入。已有纹理不会因零权重释放，重新启用首帧拒绝历史，次帧在条件满足时恢复。三路强度均为 0 时统一 Pass 不入队，并使该相机历史失效；不改变其他 Feature 的输入请求。历史颜色为 AO 的 RHalf 与两路 GI 的 ARGBHalf，深度为 RHalf；透明几何仍不参与追踪。
+采样帧计数与历史双缓冲计数分离；公共时域 Shader 可用且产生信号时，即使权重为 0 或运动向量不可用也推进采样序列。独立 Feature 需要指定 `SSGITemporal.shader` 才启用公共时域阶段。某路权重为 0 时直接使用空间结果，跳过该路历史写入并使旧历史失效；若所有路均为 0，也跳过共享深度历史写入。已有纹理不会因零权重释放，重新启用首帧拒绝历史，次帧在条件满足时恢复。三路强度均为 0 时统一 Pass 不入队，并使该相机历史失效；不改变其他 Feature 的输入请求。历史颜色为 AO 的 RHalf 与两路 GI 的 ARGBHalf，深度为 RHalf；透明几何本身仍不参与追踪（只有读了合并深度的模块会看到透明面）。
 
 各路历史按实际参数和深度布局比较配置签名。AO 包含模式、有效半径、偏移、角度、深度滤波、采样档位和独立模式的距离衰减；GI 包含后端、几何参数、采样档位和空间滤波。SpecularGI 包含 Roughness、默认环境纹理身份、更新计数和 HDR 解码参数，独立 DiffuseGI 包含 Distance Falloff。签名变化只拒绝受影响通道本帧的旧颜色，不清空或重新分配历史，也不改变共享深度双缓冲。Unity 纹理更新计数不保证覆盖所有原地 GPU 更新。深度描述符与 RTHandle/动态比例变化逐通道检查；只改最终合成强度、接收反照率或非零 Temporal Blend 不失效。
 
@@ -41,7 +43,7 @@ DiffuseGI 同日后续采样试验保持两级核与预算，采用块级平移�
 
 旧统一配置首次初始化时以 Diffuse 的旧后端、HiZ 开关和金字塔资源为准，合并为新的统一 Trace；若旧的 Diffuse 与 Specular 选择不同，Specular 会同步到 Diffuse 的旧选择。独立 Feature 分别迁移各自的旧设置，初始化后的新选择不再被旧字段覆盖。
 
-`ScreenSpaceTrace.hlsl` 保留 `SST_Trace` 调用签名，适配 [通用步进库](../../../Special/Rendering/ScreenSpaceTrace/README.md) 的 `ScreenTrace_TraceDDA/TraceRay`；追踪 shader 显式 include RayStep → ScreenTrace 后再 include SST。Diffuse 在多射线循环外准备共享追踪上下文和配置，单射线入口仍兼容 `SST_Trace`；公共库仍逐射线验证输入。AO、Temporal、Composite 仍只使用原 SST 深度辅助，不新增追踪依赖。Trace Pass 需 shader target 4.5，本轮只在 Metal 验证，不作为低规格平台回退保证。
+`ScreenSpaceTrace.hlsl` 保留 `SST_Trace` 调用签名，适配 [通用步进库](../../../Special/Renderer/ScreenSpaceTrace/README.md) 的 `ScreenTrace_TraceDDA/TraceRay`；追踪 shader 显式 include RayStep → ScreenTrace 后再 include SST。Diffuse 在多射线循环外准备共享追踪上下文和配置，单射线入口仍兼容 `SST_Trace`；公共库仍逐射线验证输入。AO、Temporal、Composite 仍只使用原 SST 深度辅助，不新增追踪依赖。Trace Pass 需 shader target 4.5，本轮只在 Metal 验证，不作为低规格平台回退保证。
 
 | 档位 | Diffuse Trace 宽高比例 | Specular Trace 宽高比例 | Diffuse 射线数 | Diffuse RAY/DDA 样本 | Specular RAY/DDA 样本 |
 |---|---:|---:|---:|---:|---:|
@@ -53,9 +55,9 @@ DiffuseGI 同日后续采样试验保持两级核与预算，采用块级平移�
 
 DDA 按旧 SSR 框架预计算屏幕位置、`1/w` 与 `eyeDepth/w` 增量，循环累加，按固定投影样本检测穿越并二分；采样真实有效相机深度，不逐格，也不做解析 slab 求交。近平面/视口裁切后距离仍相对原世界起点，基础采样覆盖完整可见片段，不恢复旧 StepSize 缩短覆盖。厚度为线性眼深单位。RAY 保留原等世界距离样本和 6 次二分。预算数值统一，但位置分布及薄前景漏追风险不同，不保证等画质。
 
-RAY/DDA 完成固定采样无命中返回 `MISS` 或 `LEFT_VIEW`，不再将未覆盖的像素解释为 `BUDGET`；HiZ 的回退/细查仍可能耗尽预算并返回 `BUDGET`。效果层的 Diffuse 零贡献、Specular 环境反射回退不变，不自动重跑 RAY。诊断字段只供按需使用，不新增调试 RT。DDA 不调用深度金字塔服务；HiZ 为实验性模式。退役论文版仅保留 [文档参考](../../../Special/Rendering/ScreenSpaceTrace/README.md#退役方案仅文档参考)，不留并行源码。
+RAY/DDA 完成固定采样无命中返回 `MISS` 或 `LEFT_VIEW`，不再将未覆盖的像素解释为 `BUDGET`；HiZ 的回退/细查仍可能耗尽预算并返回 `BUDGET`。效果层的 Diffuse 零贡献、Specular 环境反射回退不变，不自动重跑 RAY。诊断字段只供按需使用，不新增调试 RT。DDA 不调用深度金字塔服务；HiZ 为实验性模式。退役论文版仅保留 [文档参考](../../../Special/Renderer/ScreenSpaceTrace/README.md#退役方案仅文档参考)，不留并行源码。
 
-使用 `HiZ` 时，需在同一个 Trace 面板将 `Assets/Mine/Special/Rendering/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute` 指定到 `Depth Pyramid Shader`。统一入口的两路同帧共享一份正眼深金字塔；独立 Specular 在透明物之后执行，使用单独的深度阶段标识。缺资源、部分视口、动态尺寸、XR 数组或未 resolve 的 MSAA 等不支持条件回退 DDA，并发出一次警告；Shader 另外核对实际深度尺寸和 UV 比例，不匹配时使用 DDA。统一模式切换会分别失效受影响的 Diffuse 与 Specular 历史，不影响 AO。实验性的 HiZ 现以屏幕像素步进（mip `m` 前进 `2^m` 像素，回退时细分到 mip 0），仍可能漏过薄几何；迭代预算为 `2 × maxSteps`，不保证与 DDA 等画质或更快。
+使用 `HiZ` 时，需在同一个 Trace 面板将 `Assets/Mine/Special/Renderer/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute` 指定到 `Depth Pyramid Shader`。统一入口的两路同帧共享一份正眼深金字塔；独立 Specular 在透明物之后执行，使用单独的深度阶段标识。缺资源、部分视口、动态尺寸、XR 数组或未 resolve 的 MSAA 等不支持条件回退 DDA，并发出一次警告；Shader 另外核对实际深度尺寸和 UV 比例，不匹配时使用 DDA。统一模式切换会分别失效受影响的 Diffuse 与 Specular 历史，不影响 AO。实验性的 HiZ 现以屏幕像素步进（mip `m` 前进 `2^m` 像素，回退时细分到 mip 0），仍可能漏过薄几何；迭代预算为 `2 × maxSteps`，不保证与 DDA 等画质或更快。
 
 ## 合成语义
 

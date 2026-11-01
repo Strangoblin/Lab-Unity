@@ -53,6 +53,9 @@ public sealed class SSLFeature : ScriptableRendererFeature
         [Range(0f, 1f)] public float jitterScale = 0.5f;
         [Range(0f, 5f)] public float blurScale = 0.5f;
 
+        [Header("Event")]
+        public RenderPassEvent passEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+
         [Header("Debug")]
         [FormerlySerializedAs("SSLFeature")]
         [Tooltip("Off = 正常合成；Light = 直接把 _SSLTex 输出到屏幕，便于人工观测中间结果。")]
@@ -120,7 +123,7 @@ public sealed class SSLFeature : ScriptableRendererFeature
         {
             _settings = settings;
             _material = CoreUtils.CreateEngineMaterial(settings.sslShader);
-            renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
+            renderPassEvent = settings.passEvent;
             ConfigureInput(ScriptableRenderPassInput.Color | ScriptableRenderPassInput.Depth);
         }
 
@@ -291,6 +294,7 @@ public sealed class SSLFeature : ScriptableRendererFeature
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
         if (sslPass == null) return;
+        sslPass.renderPassEvent = settings.passEvent;
         renderer.EnqueuePass(sslPass);
     }
 }
