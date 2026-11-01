@@ -6,6 +6,6 @@
 
 | 脚本 | 用途 | 用法 |
 |------|------|------|
-| [check_api_refs.py](check_api_refs.py) | 模板 API 核验：写下的 API 存在且没过时（词法 + 过时 API，`--compile` 可选真编译）。**不属门禁链** —— 模板写入不经 `write_gated` | `python3 .agents/skills/agent-maintenance/scripts/check_api_refs.py <dir>` |
+| [check_api_refs.py](check_api_refs.py) | 模板 API 核验：写下的 API 存在且没过时（词法 + 过时 API，`--compile` 可选真编译）。**不在自动判定链上** —— 模板写入由 hook 只做分区与规范判定，API 是否过时须显式跑这条 | `python3 .agents/skills/agent-maintenance/scripts/check_api_refs.py <dir>` |
 
 判据、边界与控制组要求见 [../references/template-validation.md](../references/template-validation.md)。

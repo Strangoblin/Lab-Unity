@@ -83,11 +83,11 @@ bash Assets/Mine/Shaders/PostProcess/SSGI/Validation~/run_timing.sh --isolated-s
 
 显式入口写入 `isolatedSSGI=true` 和原始 Feature/Active 清单，克隆以外的配置不变；默认入口不会自动降级成 isolated 模式。
 
-验证入口复用 `CameraChecks.cs` 的 RendererScope、真实 Game camera 请求与 Capture。两入口都要求实际 Main Camera 使用 Renderer 索引 0、原 Renderer 唯一 SSGI、Medium 双 GI，当前 Game View 尺寸与 1920×1080 两种不同尺寸；临时相机复制原相机姿态和 UniversalAdditionalCameraData，并渲染原场景。
+验证入口复用 `CameraChecks.cs` 的 RendererScope、真实 Game camera 请求与 Capture。两入口都要求实际 Main Camera 使用 Renderer 索引 0、原 Renderer 唯一 SSGI、Medium 双 GI，采集当前 Game View 尺寸与 1920×1080，若尺寸相同则去重；临时相机复制原相机姿态和 UniversalAdditionalCameraData，并渲染原场景。
 
 当前入口不生成预算控制 shader；`prepare_timing.py` 只记录实际生产源 SHA256 与预期档位，runner 拒绝遗留 `TimingRuntimeFixture`，不保存场景或 Renderer。finally 校验原 Renderer 实例/Feature 引用/Active、原 Settings 和场景 dirty。
 
-当前矩阵为 RAY/RAY、DDA48/DDA64、RAY/DDA64、DDA48/RAY，所有模式读取真实生产 shader。两尺寸 × 四组合 × 三轮 = 24 块 / 288 样本；`check_timing.py` 检查 success/result、请求入口对应的 isolated 模式、非空完整矩阵、实际 48/64 档位、提交/同步计时均有限、同步段不短于提交段、相同起始射线帧与状态恢复。结果写入 `tmp/sessions/`；退出码 0 或只有元数据不能证明成功。当前入口不能复现退役源码，只能测当前主线。
+统一 Trace 后，当前 `unified-trace-timing-v2` 矩阵为 RAY/RAY 和 DDA48/DDA64，所有模式读取真实生产 shader。两尺寸时共 12 块 / 144 样本，尺寸相同时为 6 块；`check_timing.py` 检查请求模式、完整轮次、实际 48/64 档位、有效计时、相同起始射线帧与状态恢复。历史四组合报告仍按旧合同检查，但当前入口不能再独立切换两路，也不能复现退役源码。结果写入 `tmp/sessions/`；退出码 0 或只有元数据不能证明成功。
 
 验证脚本依赖当前 Unity 的 Newtonsoft.Json；曾发现 Roslyn 动态类型的 `JsonUtility` 报告遗漏嵌套采样列表，初次只有元数据的报告不作为证据。现已改用实际验证过的 JSON 序列化路径。
 

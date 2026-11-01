@@ -18,6 +18,9 @@ public class SSGIFeature : ScriptableRendererFeature
         public Shader compositeShader;
         public Shader temporalShader;
 
+        [Header("Trace")]
+        public SSGITraceControls trace = new();
+
         [Header("Technical · Modules")]
         public AOFeature.Settings ao = new();
         public DiffuseGIFeature.Settings diffuseGI = new();
@@ -81,10 +84,10 @@ public class SSGIFeature : ScriptableRendererFeature
             if (settings.diffuseGI.shader != null)
             {
                 _diffuseMaterial = CoreUtils.CreateEngineMaterial(settings.diffuseGI.shader);
-                _diffusePass = new DiffuseGIFeature.DiffuseGIPass(_diffuseMaterial, settings.diffuseGI);
+                _diffusePass = new DiffuseGIFeature.DiffuseGIPass(_diffuseMaterial, settings.diffuseGI, settings.trace);
             }
             if (settings.specularGI.shader != null)
-                _specularPass = new SpecularGIFeature.SpecularGIPass(settings.specularGI.shader, settings.specularGI);
+                _specularPass = new SpecularGIFeature.SpecularGIPass(settings.specularGI.shader, settings.specularGI, settings.trace);
 
             renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
             requiresIntermediateTexture = true;
@@ -119,7 +122,8 @@ public class SSGIFeature : ScriptableRendererFeature
 
             if (ao.IsValid())
                 ao = _temporal.Resolve(graph, frameData, ao,
-                    SSGITemporalFilter.Signal.AO, _settings.temporal.ao);
+                    SSGITemporalFilter.Signal.AO, _settings.temporal.ao,
+                    _aoPass.HistoryKey(_settings.performance.ao, 0f));
             if (diffuse.IsValid())
                 diffuse = _temporal.Resolve(graph, frameData, diffuse,
                     SSGITemporalFilter.Signal.DiffuseGI, _settings.temporal.diffuseGI, diffuseHistoryKey);
@@ -144,9 +148,9 @@ public class SSGIFeature : ScriptableRendererFeature
                 data.diffuse = diffuse;
                 data.specular = specular;
                 data.parameters = new Vector4(
-                    Mathf.Clamp(_settings.intensity.ao, 0f, 4f),
-                    Mathf.Clamp(_settings.intensity.diffuseGI, 0f, 4f),
-                    Mathf.Clamp01(_settings.intensity.specularGI),
+                    Mathf.Clamp(_settings.intensity.ao, 0f, 10f),
+                    Mathf.Clamp(_settings.intensity.diffuseGI, 0f, 10f),
+                    Mathf.Clamp(_settings.intensity.specularGI, 0f, 10f),
                     0f);
                 data.flags = new Vector4(ao.IsValid() ? 1f : 0f, diffuse.IsValid() ? 1f : 0f,
                     specular.IsValid() ? 1f : 0f, 0f);
@@ -183,6 +187,12 @@ public class SSGIFeature : ScriptableRendererFeature
             resources.cameraColor = output;
         }
 
+        public bool HasEnabledModule => (_aoPass != null && _settings.intensity.ao > 0f)
+            || (_diffusePass != null && _settings.intensity.diffuseGI > 0f)
+            || (_specularPass != null && _settings.intensity.specularGI > 0f);
+
+        public void InvalidateCamera(Camera camera) => _temporal.InvalidateCamera(camera);
+
         public void Release()
         {
             _aoPass?.Release();
@@ -201,6 +211,9 @@ public class SSGIFeature : ScriptableRendererFeature
     public override void Create()
     {
         _pass?.Release();
+        settings.trace ??= new SSGITraceControls();
+        settings.trace.Initialize(settings.diffuseGI.traceBackend, settings.diffuseGI.experimentalHiZ,
+            settings.diffuseGI.depthPyramidShader);
         _pass = settings.compositeShader != null ? new SSGIPass(settings) : null;
     }
 
@@ -216,6 +229,11 @@ public class SSGIFeature : ScriptableRendererFeature
         if (_pass == null || camera.renderType == CameraRenderType.Overlay
             || (camera.cameraType != CameraType.Game && camera.cameraType != CameraType.SceneView))
             return;
+        if (!_pass.HasEnabledModule)
+        {
+            _pass.InvalidateCamera(camera.camera);
+            return;
+        }
         renderer.EnqueuePass(_pass);
     }
 }

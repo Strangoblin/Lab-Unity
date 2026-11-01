@@ -14,7 +14,7 @@ description: 在 Unity 6 / URP 17 中调试全屏 Shader、RendererFeature 中�
 | 目标 | 使用方式 |
 |---|---|
 | Feature 自身的 Trace / Mask / Resolve 等中间结果 | 使用其 Debug 分支，将本帧实际中间纹理写到 camera color |
-| 独立全屏材质或 Shader | 用 `python3 .mcp/validation/project_resources.py path unity.debug-output-feature` 解析现有 DebugOutputFeature；优先 `settings.debugMaterial`，保留参数、贴图与关键字；没有材质时使用 `debugShader` |
+| 独立全屏材质或 Shader | 用 `python3 .mcp/lib/validation/project_resources.py path unity.debug-output-feature` 解析现有 DebugOutputFeature；优先 `settings.debugMaterial`，保留参数、贴图与关键字；没有材质时使用 `debugShader` |
 | 当前最终相机画面 | 保持正常输出，不额外启用 Debug Feature |
 | 隔离网格材质 / 近远距离对照 | 按 [载体选择](../auto-manager/capabilities/shader-validation.md) 建临时预览场景，继续使用真实 Renderer 配置 |
 

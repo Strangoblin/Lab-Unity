@@ -15,9 +15,9 @@ Create a standard framework, or select an existing HDRMapBaker (including a lega
 | Capture Frame | Position and orientation of the image, with +Y up / +Z forward |
 | Asset Path | Shared Save/Load path; default `Assets/Textures/HDRPanorama.asset` |
 
-`Nothing + Include Sky` captures only the sky. `Nothing + no sky` produces transparent pixels. Render Layers is a **GameObject LayerMask**, not URP light Rendering Layers. The range is a clipping-distance guide, not an exact volume stencil; objects inside that far distance may be captured even outside the box.
+`Nothing + Include Sky` captures only the sky. `Nothing + no sky` produces transparent pixels. Render Layers is a **GameObject LayerMask**, not URP light Rendering Layers. The selected URP Renderer also applies its opaque/transparent layer filters; the camera mask does not override them. The range is a clipping-distance guide, not an exact volume stencil; objects inside that far distance may be captured even outside the box.
 
-Output UV uses bottom-left origin, `u = atan2(x,z)/(2π)+0.5`, `v = asin(y)/π+0.5`; forward is the panorama centre. The capture frame is applied once. Six URP SingleCameraRequests render to a temporary GPU cube, followed by a GPU panorama projection and one final HDR readback. Post processing is disabled while capturing. HDR must be enabled on the active URP Asset.
+Output UV uses bottom-left origin, `u = atan2(x,z)/(2π)+0.5`, `v = asin(y)/π+0.5`; forward is the panorama centre. The capture frame is applied once. Six URP SingleCameraRequests render into a reusable 2D HDR face target. A GPU copy corrects its vertical orientation into a temporary cube; GPU panorama projection then performs one final HDR readback. Post processing is disabled while capturing. HDR must be enabled on the active URP Asset.
 
 ## Assets and conversion
 
@@ -29,6 +29,6 @@ Camera settings, transform, URP camera overrides, active render target and tempo
 
 ## Legacy
 
-Old script names and GUIDs remain as thin adapters for existing scenes. `InteriorMapTextureBaker.Bake` delegates to the HDR capture/conversion services. New workflows use HDR Map Baker and HDR Map Converter; room geometry is chosen by the consuming InteriorMapping material rather than this Baker.
+Old script names and GUIDs remain as thin adapters for existing scenes. `InteriorMapTextureBaker.Bake` delegates to the HDR capture/conversion services. New workflows use HDR Map Baker and HDR Map Converter; room geometry is chosen by the consuming InteriorMapping material rather than this Baker. Compatibility API Box results use corrected angular latitude, so newly baked Box images must use material Map Projection = 0 (Equirectangular). Material Legacy = 4 is reserved for previously baked images.
 
 See the [Converter validation entry](../HDRMapConverter/Validation~/README.md) for reproducible checks and evidence boundaries.

@@ -65,7 +65,7 @@ namespace Mine.HDRMaps.Editor
             window.Show();
         }
 
-        /// <summary>打开窗口并把 source 设为源；不克隆、不销毁 source，也不改变其所有权。</summary>
+        /// <summary>打开窗口并设置源；临时图像复制为独立快照，持久资产共享引用，原图保持不变。</summary>
         public static void OpenWithSource(Texture2D source)
         {
             var window = GetWindow<HDRMapConverterWindow>(false, "HDR Map Converter", true);

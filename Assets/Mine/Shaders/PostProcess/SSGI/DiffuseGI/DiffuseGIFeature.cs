@@ -15,9 +15,11 @@ public class DiffuseGIFeature : ScriptableRendererFeature
     {
         [Header("Technical · Resources")]
         public Shader shader;
+        [HideInInspector] public ComputeShader depthPyramidShader;
 
         [Header("Technical · Geometry")]
-        public SSGITraceBackend traceBackend = SSGITraceBackend.DDA;
+        [HideInInspector] public SSGITraceBackend traceBackend = SSGITraceBackend.DDA;
+        [HideInInspector] public bool experimentalHiZ;
         [Range(0.1f, 50f)] public float maxDistance = 5f;
         [Range(0.001f, 1f)] public float thickness = 0.15f;
         [Range(0.001f, 0.5f)] public float normalBias = 0.03f;
@@ -34,13 +36,16 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         internal static readonly int DebugModeID = Shader.PropertyToID("_GIDebugMode");
         internal static readonly int TextureID = Shader.PropertyToID("_GITexture");
         internal static readonly int TraceTextureID = Shader.PropertyToID("_GITraceTexture");
+        internal static readonly int PyramidID = Shader.PropertyToID("_ScreenTraceDepthPyramid");
+        internal static readonly int PyramidMipCountID = Shader.PropertyToID("_SSGIPyramidMipCount");
+        internal static readonly int PyramidSizeID = Shader.PropertyToID("_SSGIPyramidSize");
     }
 
     [System.Serializable]
     public sealed class Controls : SSGIStandaloneControls
     {
         [Header("Artistic")]
-        [Range(0f, 4f)] public float intensity = 1f;
+        [Range(0f, 10f)] public float intensity = 1f;
         [Range(0f, 4f)] public float distanceFalloff;
         [ColorUsage(false, false)]
         public Color receiverAlbedo = new(0.8f, 0.8f, 0.8f, 1f);
@@ -69,7 +74,9 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         private readonly Material _material;
         private readonly Settings _settings;
         private readonly Controls _controls;
+        private readonly SSGITraceControls _trace;
         private readonly SSGITemporalFilter _temporal;
+        private bool _warnedHiZUnavailable;
 
         class PassData
         {
@@ -87,13 +94,18 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             public int frameIndex;
             public TextureHandle signal;
             public SSGITraceBackend backend;
+            public TextureHandle pyramid;
+            public int pyramidMipCount;
+            public bool useHiZ;
+            public Vector4 pyramidSize;
         }
 
-        public DiffuseGIPass(Material material, Settings settings, Controls controls = null)
+        public DiffuseGIPass(Material material, Settings settings, SSGITraceControls trace, Controls controls = null)
         {
             _material = material;
             _settings = settings;
             _controls = controls;
+            _trace = trace;
             _temporal = controls != null ? new SSGITemporalFilter(controls.temporalShader) : null;
             // 事件选择：采集输入只允许"不透明 + 天空盒"，且合成必须落在 URP 拷贝
             // _CameraOpaqueTexture（AfterRenderingSkybox 处的颜色拷贝）之前。
@@ -139,8 +151,24 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 || !resources.cameraDepthTexture.IsValid() || !resources.cameraNormalsTexture.IsValid())
                 return TextureHandle.nullHandle;
 
-            SSGITraceBackend backend = _settings.traceBackend == SSGITraceBackend.Ray
+            SSGITraceBackend backend = _trace.mode == SSGITraceMode.Ray
                 ? SSGITraceBackend.Ray : SSGITraceBackend.DDA;
+            TextureHandle pyramid = TextureHandle.nullHandle;
+            int pyramidMipCount = 0;
+            if (_trace.mode == SSGITraceMode.HiZ)
+            {
+                SSGIDepthPyramid.TryGet(renderGraph, frameData, resources, camera, _trace.depthPyramidShader,
+                    SSGIDepthPyramid.OpaqueStage, out pyramid, out pyramidMipCount);
+                if (!pyramid.IsValid() && !_warnedHiZUnavailable)
+                {
+                    Debug.LogWarning("DiffuseGI HiZ unavailable for this camera; using DDA. Check the compute shader, depth layout and platform support.");
+                    _warnedHiZUnavailable = true;
+                }
+                else if (pyramid.IsValid())
+                    _warnedHiZUnavailable = false;
+            }
+            else
+                _warnedHiZUnavailable = false;
             Vector3Int tier = GetTier(performance);
             RenderTextureDescriptor fullDesc = camera.cameraTargetDescriptor;
             fullDesc.depthBufferBits = 0;
@@ -162,15 +190,17 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             TextureHandle source = integrated ? inputSource : resources.activeColorTexture;
 
             PassData traceData = AddPass(renderGraph, resources, "DiffuseGI.Trace", source, trace, 0, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug, backend);
+                intensity, distanceFalloff, receiverAlbedo, debug, backend, 1f, pyramid, pyramidMipCount);
+            Vector4 historyFilter = traceData.filterParams;
+            historyFilter.w = pyramid.IsValid() ? 1f : 0f;
             historyKey = new SSGITemporalFilter.HistoryKey(backend, traceData.traceParams,
-                traceData.filterParams, new Vector4(tier.x, tier.y, tier.z, 3f), _material.shader.GetInstanceID());
+                historyFilter, new Vector4(tier.x, tier.y, tier.z, 3f), _material.shader.GetInstanceID());
             AddPass(renderGraph, resources, "DiffuseGI.SpatialResolve.Fine", trace, fine, 1, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug, backend);
+                intensity, distanceFalloff, receiverAlbedo, debug, backend, useHiZ: pyramid.IsValid(), pyramidMipCount: pyramidMipCount);
             AddPass(renderGraph, resources, "DiffuseGI.SpatialResolve.Coarse", fine, filtered, 1, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug, backend, 2f);
+                intensity, distanceFalloff, receiverAlbedo, debug, backend, 2f, useHiZ: pyramid.IsValid(), pyramidMipCount: pyramidMipCount);
             AddPass(renderGraph, resources, "DiffuseGI.Resolve", filtered, resolved, 2, tier, size, frameIndex, TextureHandle.nullHandle,
-                intensity, distanceFalloff, receiverAlbedo, debug, backend);
+                intensity, distanceFalloff, receiverAlbedo, debug, backend, useHiZ: pyramid.IsValid(), pyramidMipCount: pyramidMipCount);
             if (integrated)
                 return resolved;
 
@@ -181,7 +211,8 @@ public class DiffuseGIFeature : ScriptableRendererFeature
             compositeDesc.clearBuffer = false;
             TextureHandle composite = renderGraph.CreateTexture(compositeDesc);
             AddPass(renderGraph, resources, "DiffuseGI.Composite", source, composite, 3,
-                tier, size, frameIndex, temporal, intensity, distanceFalloff, receiverAlbedo, debug, backend);
+                tier, size, frameIndex, temporal, intensity, distanceFalloff, receiverAlbedo, debug, backend,
+                useHiZ: pyramid.IsValid(), pyramidMipCount: pyramidMipCount);
             resources.cameraColor = composite;
             return TextureHandle.nullHandle;
         }
@@ -192,7 +223,8 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         private PassData AddPass(RenderGraph graph, UniversalResourceData resources, string name,
             TextureHandle source, TextureHandle target, int shaderPass, Vector3Int tier, Vector4 size,
             int frameIndex, TextureHandle signal, float intensity, float distanceFalloff,
-            Color receiverAlbedo, DebugMode debug, SSGITraceBackend backend, float spatialStride = 1f)
+            Color receiverAlbedo, DebugMode debug, SSGITraceBackend backend, float spatialStride = 1f,
+            TextureHandle pyramid = default, int pyramidMipCount = 0, bool useHiZ = false)
         {
             using (var builder = graph.AddRasterRenderPass<PassData>(name, out var data))
             {
@@ -207,17 +239,27 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                 data.sourceSize = size;
                 Color albedo = receiverAlbedo.linear;
                 data.receiverAlbedo = new Color(Mathf.Clamp01(albedo.r), Mathf.Clamp01(albedo.g), Mathf.Clamp01(albedo.b), 1f);
-                data.intensity = Mathf.Clamp(intensity, 0f, 4f);
+                data.intensity = Mathf.Clamp(intensity, 0f, 10f);
                 data.rayCount = tier.y;
                 data.stepCount = tier.z;
                 data.debugMode = (int)debug;
                 data.frameIndex = frameIndex;
                 data.signal = signal;
                 data.backend = backend;
+                data.pyramid = pyramid;
+                data.pyramidMipCount = pyramidMipCount;
+                data.useHiZ = useHiZ || pyramid.IsValid();
+                data.pyramidSize = new Vector4(resources.cameraDepthTexture.IsValid() ? graph.GetTextureDesc(resources.cameraDepthTexture).width : 0,
+                    resources.cameraDepthTexture.IsValid() ? graph.GetTextureDesc(resources.cameraDepthTexture).height : 0, 0f, 0f);
 
                 builder.UseTexture(source, AccessFlags.Read);
                 builder.UseTexture(resources.cameraDepthTexture, AccessFlags.Read);
                 builder.UseTexture(resources.cameraNormalsTexture, AccessFlags.Read);
+                if (pyramid.IsValid())
+                {
+                    builder.UseTexture(pyramid, AccessFlags.Read);
+                    builder.AllowGlobalStateModification(true);
+                }
                 builder.SetRenderAttachment(target, 0, AccessFlags.Write);
                 if (shaderPass == 0)
                     builder.SetGlobalTextureAfterPass(target, Settings.TraceTextureID);
@@ -235,6 +277,7 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                     CoreUtils.SetKeyword(pass.material, "DIFFUSE_GI_MEDIUM", pass.rayCount == 6);
                     CoreUtils.SetKeyword(pass.material, "DIFFUSE_GI_HIGH", pass.rayCount == 8);
                     CoreUtils.SetKeyword(pass.material, "SSGI_TRACE_RAY", pass.backend == SSGITraceBackend.Ray);
+                    CoreUtils.SetKeyword(pass.material, "SSGI_TRACE_HIZ", pass.useHiZ);
                     pass.material.SetVector(Settings.TraceParamsID, pass.traceParams);
                     pass.material.SetVector(Settings.FilterParamsID, pass.filterParams);
                     pass.material.SetVector(Settings.SourceSizeID, pass.sourceSize);
@@ -244,6 +287,10 @@ public class DiffuseGIFeature : ScriptableRendererFeature
                     pass.material.SetInt(Settings.StepCountID, pass.stepCount);
                     pass.material.SetInt(Settings.DebugModeID, pass.debugMode);
                     pass.material.SetInt(Settings.FrameIndexID, pass.frameIndex);
+                    pass.material.SetInt(Settings.PyramidMipCountID, pass.pyramidMipCount);
+                    pass.material.SetVector(Settings.PyramidSizeID, pass.pyramidSize);
+                    if (pass.pyramid.IsValid())
+                        context.cmd.SetGlobalTexture(Settings.PyramidID, pass.pyramid);
                     if (pass.signal.IsValid())
                         context.cmd.SetGlobalTexture(Settings.TextureID, pass.signal);
                     Blitter.BlitTexture(context.cmd, pass.source, new Vector4(1f, 1f, 0f, 0f), pass.material, pass.shaderPass);
@@ -253,8 +300,11 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         }
 
         public void Release() => _temporal?.Release();
+
     }
 
+    [Header("Trace")]
+    public SSGITraceControls trace = new();
     public Settings settings = new Settings();
     public Controls controls = new Controls();
     private Material _material;
@@ -270,8 +320,10 @@ public class DiffuseGIFeature : ScriptableRendererFeature
         _material = null;
         _pass = null;
         if (settings.shader == null) return;
+        trace ??= new SSGITraceControls();
+        trace.Initialize(settings.traceBackend, settings.experimentalHiZ, settings.depthPyramidShader);
         _material = CoreUtils.CreateEngineMaterial(settings.shader);
-        _pass = new DiffuseGIPass(_material, settings, controls);
+        _pass = new DiffuseGIPass(_material, settings, trace, controls);
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)

@@ -15,6 +15,8 @@ public static partial class SSGICameraChecks
         var pipeline = (UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline;
         var rendererData = (ScriptableRendererData[])Field(pipeline, "m_RendererDataList");
         SSGIFeature source = rendererData[0].rendererFeatures.OfType<SSGIFeature>().Single();
+        Require(source.settings.trace.mode != SSGITraceMode.HiZ,
+            "High budget frozen comparison supports only Ray/DDA; select one before running");
         Camera original = Camera.main;
         Camera observation = SceneView.lastActiveSceneView != null ? SceneView.lastActiveSceneView.camera : original;
         Require(original != null && observation != null, "Main and observation cameras required");
@@ -80,7 +82,7 @@ public static partial class SSGICameraChecks
                                     && traceSize.w == (size.y + divisor - 1) / divisor, "High budget native Trace dimensions");
                                 Require(material.shader == source.settings.diffuseGI.shader
                                     && material.IsKeywordEnabled("DIFFUSE_GI_HIGH"), "High budget production Shader and tier");
-                                Require(material.IsKeywordEnabled("SSGI_TRACE_RAY") == (source.settings.diffuseGI.traceBackend == SSGITraceBackend.Ray),
+                                Require(material.IsKeywordEnabled("SSGI_TRACE_RAY") == (source.settings.trace.mode == SSGITraceMode.Ray),
                                     "High budget production backend");
                                 var submitted = new double[12];
                                 var synchronized = new double[12];
@@ -133,7 +135,7 @@ public static partial class SSGICameraChecks
                     renderer.Use(feature);
                     feature.Create();
                     quality.Add(MeasureMultiscaleNoise(camera, feature, qualitySize, label, SSGIQuality.High,
-                        source.settings.diffuseGI.traceBackend, ref shaderTime, 64));
+                        (SSGITraceBackend)source.settings.trace.mode, ref shaderTime, 64));
                 }
             }
         }
@@ -166,7 +168,7 @@ public static partial class SSGICameraChecks
             timingProjection = new { original.orthographic, original.fieldOfView, original.orthographicSize, original.nearClipPlane, original.farClipPlane },
             qualityProjection = new { observation.orthographic, observation.fieldOfView, observation.orthographicSize, observation.nearClipPlane, observation.farClipPlane },
             shaderTime = new[] { shaderTime.Value.x, shaderTime.Value.y, shaderTime.Value.z, shaderTime.Value.w },
-            backend = source.settings.diffuseGI.traceBackend.ToString(), isolatedSSGI = true, temporalBlend = 0.5f,
+            backend = source.settings.trace.mode.ToString(), isolatedSSGI = true, temporalBlend = 0.5f,
             quality = "High", warmup = 8, samples = 12, rounds = 3,
             timingSizes = sizes.Select(size => new { width = size.x, height = size.y }).ToArray(), blocks,
             results = quality, noiseReduction = 1 - quality[1].frameRms / quality[0].frameRms,
@@ -182,6 +184,7 @@ public static partial class SSGICameraChecks
     static void ConfigureBudgetFeature(ScriptableRendererFeature feature, SSGIFeature source)
     {
         JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(source.settings.diffuseGI), Field(feature, "settings"));
+        CopyTrace(source.settings.trace, (SSGITraceControls)Field(feature, "trace"));
         object controls = Field(feature, "controls");
         var common = (SSGIStandaloneControls)controls;
         common.performance = SSGIQuality.High;

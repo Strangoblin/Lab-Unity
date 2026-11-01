@@ -15,13 +15,14 @@ cleanup() {
     [[ ! -e "$fixture" ]] || targets+=("$fixture")
     [[ ! -e "$fixture.meta" ]] || targets+=("$fixture.meta")
     if [[ ${#targets[@]} -gt 0 ]]; then
-        python3 .mcp/validation/gate_cli.py delete --recursive --reason "ScreenSpaceTrace runner-owned disposable GPU fixtures" "${targets[@]}" || return 1
+        python3 .mcp/bin/cli.py delete --reason "ScreenSpaceTrace runner-owned disposable GPU fixtures" "${targets[@]}" || return 1
         unityctl asset refresh
     fi
 }
 trap cleanup EXIT
 for filename in TraceChecks.compute TraceConsumers.shader; do
-    python3 .mcp/validation/gate_cli.py write --path "$fixture/$filename" --from "$module/Validation~/RuntimeFixture/$filename"
+    mkdir -p "$(dirname "$fixture/$filename")"
+    cp "$module/Validation~/RuntimeFixture/$filename" "$fixture/$filename"
 done
 unityctl asset refresh
 for method in Main NegativeControl; do

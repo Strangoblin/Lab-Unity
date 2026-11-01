@@ -4,8 +4,13 @@
 
 | 任务 | Agent | 记忆库 | 知识库 | 技能入口 |
 |---|---|---|---|---|
-| 体系、索引、角色 / 技能、平台接口 | [meta-developer](meta-developer/AGENT.md) | [meta memory](../memory/meta/memory.md) | [meta knowledge](../knowledge/meta/README.md) | [agent-maintenance](../skills/agent-maintenance/SKILL.md) |
+| 体系、索引、角色 / 技能、平台接口 | [meta-developer](meta-developer/AGENT.md) | [meta memory](../memory/meta/memory.md) | [meta knowledge](../knowledge/meta/README.md) | [agent-maintenance](../skills/agent-maintenance/SKILL.md)、[structure-selfcheck](../skills/structure-selfcheck/SKILL.md) |
 | Unity 渲染、Shader / Compute / RenderGraph、C# | [unity-developer](unity-developer/AGENT.md) | [unity memory](../memory/unity/MEMORY.md) | [unity knowledge](../knowledge/unity/README.md) | [autoagent](../skills/auto-manager/SKILL.md) |
 | Editor 操作、渲染取像、耗时对照、同类复用 | 使用 unity-developer | 只读相关上下文 | 只读所需事实 | 先到 [autoagent](../skills/auto-manager/SKILL.md)，由其分流开发流程或专门操作 |
+
+小任务委派：各角色把边界明确、可独立验收的 worker 任务按 [opencode-orchestrate](../skills/opencode-orchestrate/SKILL.md) 派给 OpenCode Go；链路接入、模型与排障见 [codex-opencode-go](../skills/codex-opencode-go/SKILL.md)。委派不改变验收责任。
+
+写入通道只有一条：平台 `Write` / `Edit`（移动等用原生命令），由 `.mcp` hook 按分区判定。`Assets/Mine/**` 的新建与未跟踪文件受本次任务沙箱约束，已入库的靠 git 兜底；
+`agents/` `memory/` `knowledge/` `skills/` 随时可写，分区表之外的已入库文件同样放行（见 [架构约定](../knowledge/meta/architecture.md) §项目集成）。
 
 外部是来源，不是第三个角色：[外部来源清单](../knowledge/external/README.md)。只读咨询可只取知识；Unity 任务实施与操作统一由 autoagent 首次分流，体系接入按 meta 领域取用对应技能。角色只负责索引、取用与记录，具体操作归 skill。

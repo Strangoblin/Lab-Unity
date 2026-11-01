@@ -4,7 +4,7 @@ using Mine.HDRMaps;
 /// <summary>Legacy API adapter. Capture and projection use the HDR tools' shared implementations.</summary>
 public static class InteriorMapTextureBaker
 {
-    public static Texture2D Bake(InteriorMapBaker framework, int faceResolution,
+    public static Texture2D Bake(InteriorMapBaker framework, int faceResolution = 256,
         int cullingMask = -1, InteriorMapBakeType bakeType = InteriorMapBakeType.Box)
     {
         if (framework == null || !framework.IsInitialized)

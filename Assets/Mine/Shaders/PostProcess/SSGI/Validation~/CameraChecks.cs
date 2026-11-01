@@ -22,6 +22,7 @@ public partial class Script
     public static object NegativeControl() => SSGICameraChecks.Run(true);
     public static object HistoryNegativeControl() => SSGICameraChecks.HistoryNegativeControl();
     public static object SpatialNegativeControl() => SSGICameraChecks.Run(false, true);
+    public static object EnvironmentNegativeControl() => SSGICameraChecks.Run(false, false, true);
     public static object MultiscaleNegativeControl() => SSGICameraChecks.MultiscaleNegativeControl();
     public static object SequenceComparison() => SSGICameraChecks.SequenceComparison();
     public static object MultiscaleComparison() => SSGICameraChecks.MultiscaleComparison();
@@ -163,7 +164,6 @@ public static partial class SSGICameraChecks
         public readonly Camera Camera;
         public readonly Material Material;
         public readonly List<GameObject> Geometry = new();
-        public readonly Cubemap Sky;
 
         public SceneScope(int renderer)
         {
@@ -199,11 +199,6 @@ public static partial class SSGICameraChecks
             light.intensity = 2f;
             light.shadows = LightShadows.None;
             light.transform.rotation = Quaternion.Euler(25, -20, 0);
-            Sky = new Cubemap(8, TextureFormat.RGBAFloat, true);
-            foreach (CubemapFace face in Enum.GetValues(typeof(CubemapFace)))
-                if (face != CubemapFace.Unknown)
-                    Sky.SetPixels(Enumerable.Repeat(new Color(0.2f, 0.4f, 0.6f, 1), 64).ToArray(), face);
-            Sky.Apply(true, false);
         }
 
         public GameObject AddCube(Vector3 position, Vector3 scale)
@@ -219,13 +214,12 @@ public static partial class SSGICameraChecks
 
         public void Dispose()
         {
-            UnityEngine.Object.DestroyImmediate(Sky);
             UnityEngine.Object.DestroyImmediate(Material);
             EditorSceneManager.ClosePreviewScene(Scene);
         }
     }
 
-    public static object Run(bool injectFault, bool injectSpatialFault = false)
+    public static object Run(bool injectFault, bool injectSpatialFault = false, bool injectEnvironmentFault = false)
     {
         _assertions = 0;
         Cases.Clear();
@@ -264,7 +258,9 @@ public static partial class SSGICameraChecks
                     scene.AddCube(new Vector3(0.9f, -0.1f, 2.8f), new Vector3(0.7f, 1.2f, 0.7f));
                     scene.AddCube(new Vector3(0, -1.2f, 3), new Vector3(10, 0.15f, 8));
                     CheckConsumers(renderer, scene);
+                    CheckEnvironmentAndIntensity(renderer, scene, adapter, injectEnvironmentFault);
                     CheckHistory(renderer, scene);
+                    CheckFastPaths(renderer, scene);
                 }
             }
             Require(SceneManager.GetActiveScene().isDirty == sceneDirty, "Active scene dirty state changed");
@@ -272,13 +268,16 @@ public static partial class SSGICameraChecks
                 throw new InvalidOperationException("Injected camera distance fault was not detected");
             if (injectSpatialFault)
                 throw new InvalidOperationException("Injected spatial filter fault was not detected");
+            if (injectEnvironmentFault)
+                throw new InvalidOperationException("Injected black environment was not detected");
             WriteResult(true, false, null);
             return new { passed = true, assertions = _assertions, cases = Cases.Count, output = _output };
         }
         catch (Exception exception)
         {
             bool detected = injectFault && exception.Message.StartsWith("DDA world distance")
-                || injectSpatialFault && exception.Message.StartsWith("Spatial reference");
+                || injectSpatialFault && exception.Message.StartsWith("Spatial reference")
+                || injectEnvironmentFault && exception.Message.StartsWith("Default environment HDR");
             WriteResult(false, detected, exception.Message);
             if (detected)
                 return new { detected = true, assertions = _assertions, error = exception.Message, output = _output };
@@ -296,6 +295,8 @@ public static partial class SSGICameraChecks
     {
         public bool passed;
         public string metric = "GPU-synchronized render-request wall milliseconds; not GPU timestamps";
+        public string schema = "unified-trace-timing-v2";
+        public string comparison = "Shared trace mode: Ray/Ray versus DDA/DDA; independent cross combinations are unavailable";
         public string device;
         public string scene;
         public string settings;
@@ -305,6 +306,7 @@ public static partial class SSGICameraChecks
         public int samplesPerBlock = 12;
         public int warmupPerBlock = 8;
         public int rounds = 3;
+        public int resolutionCount;
         public List<TimingBlock> blocks = new();
         public string error;
     }
@@ -368,7 +370,8 @@ public static partial class SSGICameraChecks
             Require(source.settings.performance.diffuseGI == SSGIQuality.Medium
                 && source.settings.performance.specularGI == SSGIQuality.Medium,
                 "Timing comparisons require the observed Medium configuration");
-            var sizes = new[] { new Vector2Int(original.pixelWidth, original.pixelHeight), new Vector2Int(1920, 1080) }.Distinct();
+            var sizes = new[] { new Vector2Int(original.pixelWidth, original.pixelHeight), new Vector2Int(1920, 1080) }.Distinct().ToArray();
+            report.resolutionCount = sizes.Length;
             foreach (string path in new[] { "DiffuseGI/DiffuseGI.shader", "SpecularGI/SpecularGI.shader" })
             {
                 foreach (var message in ShaderUtil.GetShaderMessages(Load(path)))
@@ -395,6 +398,7 @@ public static partial class SSGICameraChecks
                 cameraData.renderType = CameraRenderType.Base;
                 foreach (Vector2Int size in sizes)
                     TimeResolution(camera, feature, source, size, report);
+                ValidateTimingReport(report, sizes);
             }
         }
         catch (Exception error) { report.error = error.ToString(); }
@@ -404,11 +408,216 @@ public static partial class SSGICameraChecks
             if (preview.IsValid()) EditorSceneManager.ClosePreviewScene(preview);
             report.sceneAndSettingsRestored = sceneDirty == SceneManager.GetActiveScene().isDirty
                 && source != null && report.settings == EditorJsonUtility.ToJson(source);
-            report.passed = report.error == null && report.sceneAndSettingsRestored && report.blocks.Count >= 24;
+            report.passed = report.error == null && report.sceneAndSettingsRestored && report.resolutionCount > 0
+                && report.blocks.Count == report.resolutionCount * 2 * report.rounds;
             File.WriteAllText(_output + "/timing.json", Newtonsoft.Json.JsonConvert.SerializeObject(report, Newtonsoft.Json.Formatting.Indented));
         }
         Require(report.passed, "Timing failed; see " + _output + "/timing.json: " + report.error);
         return new { passed = report.passed, reportPath = _output + "/timing.json", blocks = report.blocks.Count };
+    }
+
+    sealed class QueueProbeFeature : ScriptableRendererFeature
+    {
+        public SSGIFeature target;
+        public bool sawTarget;
+        public int recorded;
+        sealed class ProbePass : ScriptableRenderPass
+        {
+            readonly QueueProbeFeature owner;
+            public ProbePass(QueueProbeFeature owner)
+            {
+                this.owner = owner;
+                ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
+                renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+            }
+            public override void RecordRenderGraph(RenderGraph graph, ContextContainer frameData)
+            {
+                var resources = frameData.Get<UniversalResourceData>();
+                Require(resources.cameraDepthTexture.IsValid() && resources.cameraNormalsTexture.IsValid(),
+                    "Other feature receives its own depth and normal inputs");
+                owner.recorded++;
+            }
+        }
+        ProbePass pass;
+        public override void Create() => pass = new ProbePass(this);
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData data)
+        {
+            var queue = (IList)typeof(ScriptableRenderer).GetField("m_ActiveRenderPassQueue", InstanceFields).GetValue(renderer);
+            sawTarget = queue.Contains(Field(target, "_pass"));
+            renderer.EnqueuePass(pass);
+        }
+    }
+
+    static void CheckFastPaths(RendererScope renderer, SceneScope scene)
+    {
+        var feature = ScriptableObject.CreateInstance<SSGIFeature>();
+        feature.settings.compositeShader = Load("SSGIComposite.shader");
+        feature.settings.temporalShader = Load("SSGITemporal.shader");
+        feature.settings.ao.shader = Load("AO/AO.shader");
+        feature.settings.diffuseGI.shader = Load("DiffuseGI/DiffuseGI.shader");
+        feature.settings.specularGI.shader = Load("SpecularGI/SpecularGI.shader");
+        feature.settings.performance.ao = feature.settings.performance.diffuseGI = feature.settings.performance.specularGI = SSGIQuality.Low;
+        var probe = ScriptableObject.CreateInstance<QueueProbeFeature>();
+        probe.target = feature;
+        renderer.Use(feature, probe);
+        var size = new Vector2Int(189, 101);
+        feature.settings.temporal.ao = feature.settings.temporal.diffuseGI = feature.settings.temporal.specularGI = 0f;
+        Capture(scene.Camera, size);
+        object temporal = Field(Field(feature, "_pass"), "_temporal");
+        IDictionary histories = (IDictionary)Field(temporal, "_histories");
+        object history = histories[scene.Camera.GetInstanceID()];
+        Require(((RTHandle[,])Field(history, "color")).Cast<RTHandle>().All(value => value == null)
+            && ((RTHandle[])Field(history, "depth")).All(value => value == null), "Zero blend allocates no histories");
+        int sample = (int)Field(history, "sampleIndex");
+        Capture(scene.Camera, size);
+        Require((int)Field(history, "sampleIndex") == sample + 1, "All-zero temporal advances sampling sequence");
+        Cases.Add("zero-temporal-no-history-sampling-advances");
+
+        feature.settings.temporal.ao = 0.5f;
+        Capture(scene.Camera, size);
+        Material[] materials = (Material[])Field(temporal, "_signalMaterials");
+        Close(materials[0].GetFloat("_SSGIHistoryValid"), 0f, 0f, "Zero to nonzero rejects first AO history");
+        Capture(scene.Camera, size);
+        Close(materials[0].GetFloat("_SSGIHistoryValid"), 1f, 0f, "AO history recovers on second frame");
+        Cases.Add("zero-to-nonzero-first-reject-next-recover");
+        feature.settings.temporal.diffuseGI = 0.5f;
+        feature.settings.temporal.specularGI = 0.5f;
+        Capture(scene.Camera, size);
+        Capture(scene.Camera, size);
+        Flags(feature, 1, 1, 1, "Mixed warmup");
+        var originalColors = ((RTHandle[,])Field(history, "color")).Cast<RTHandle>().ToArray();
+        var originalDepth = ((RTHandle[])Field(history, "depth")).ToArray();
+        feature.settings.temporal.ao = 0f;
+        Capture(scene.Camera, size);
+        Require(!((bool[])Field(history, "valid"))[0], "Zero blend invalidates AO");
+        Close(materials[1].GetFloat("_SSGIHistoryValid"), 1f, 0f, "Diffuse survives AO zero");
+        Close(materials[2].GetFloat("_SSGIHistoryValid"), 1f, 0f, "Specular survives AO zero");
+        Require(originalColors.SequenceEqual(((RTHandle[,])Field(history, "color")).Cast<RTHandle>())
+            && originalDepth.SequenceEqual((RTHandle[])Field(history, "depth")), "Zero blend retains existing histories");
+        feature.settings.temporal.ao = 0.5f;
+        Capture(scene.Camera, size);
+        Flags(feature, 0, 1, 1, "Mixed zero to nonzero");
+        Capture(scene.Camera, size);
+        Flags(feature, 1, 1, 1, "Mixed history recovery");
+        Cases.Add("zero-temporal-mixed-retains-other-histories");
+
+        var secondObject = new GameObject("SSGI.Validation.MixedCamera");
+        SceneManager.MoveGameObjectToScene(secondObject, scene.Scene);
+        try
+        {
+            Camera second = secondObject.AddComponent<Camera>();
+            second.CopyFrom(scene.Camera);
+            second.scene = scene.Scene;
+            second.enabled = false;
+            second.GetUniversalAdditionalCameraData().SetRenderer(renderer.Index);
+            feature.settings.temporal.ao = 0f;
+            Capture(second, size);
+            object secondHistory = histories[second.GetInstanceID()];
+            Require(!((bool[])Field(secondHistory, "valid"))[0] && ((bool[])Field(history, "valid"))[0],
+                "Second camera zero blend does not invalidate first camera");
+            feature.settings.temporal.ao = 0.5f;
+            Capture(scene.Camera, size);
+            Flags(feature, 1, 1, 1, "First camera remains warm");
+            Capture(second, size);
+            Flags(feature, 0, 1, 1, "Second camera alone rejects AO");
+            Capture(second, size);
+            Flags(feature, 1, 1, 1, "Second camera recovers AO");
+            Cases.Add("zero-temporal-two-camera-isolation");
+        }
+        finally { UnityEngine.Object.DestroyImmediate(secondObject); }
+
+        feature.settings.intensity.diffuseGI = feature.settings.intensity.specularGI = 0f;
+        feature.settings.debug = SSGIFeature.DebugMode.AO;
+        int fixedSample = (int)Field(history, "sampleIndex");
+        feature.settings.temporal.ao = 0f;
+        Color[] direct = Capture(scene.Camera, size);
+        history.GetType().GetField("sampleIndex", InstanceFields).SetValue(history, fixedSample);
+        feature.settings.temporal.ao = 0.5f;
+        Color[] copied = Capture(scene.Camera, size);
+        Compare(direct, copied, 0.001f, "AO zero direct versus invalid-history resolve");
+        Cases.Add("zero-temporal-direct-output-precision");
+
+        feature.settings.intensity.ao = feature.settings.intensity.diffuseGI = feature.settings.intensity.specularGI = 0f;
+        feature.settings.debug = SSGIFeature.DebugMode.AO;
+        sample = (int)Field(history, "sampleIndex");
+        int records = probe.recorded;
+        Capture(scene.Camera, size);
+        Require(!probe.sawTarget && probe.recorded > records && (int)Field(history, "sampleIndex") == sample,
+            "All disabled skip SSGI queue without suppressing another feature");
+        Cases.Add("all-disabled-skip-queue-other-feature-inputs");
+        feature.settings.intensity.ao = 1f;
+        feature.settings.ao.shader = null; // Existing pass remains live until Create.
+        Capture(scene.Camera, size);
+        Require(probe.sawTarget, "Live pass is used even if settings shader changes");
+        Close(materials[0].GetFloat("_SSGIHistoryValid"), 0f, 0f, "Reenabled AO rejects history after all-disabled frame");
+        Capture(scene.Camera, size);
+        Close(materials[0].GetFloat("_SSGIHistoryValid"), 1f, 0f, "Reenabled AO history recovers");
+        Cases.Add("enabled-uses-actual-pass-instance");
+
+        var absent = ScriptableObject.CreateInstance<SSGIFeature>();
+        absent.settings.compositeShader = Load("SSGIComposite.shader");
+        absent.settings.temporalShader = Load("SSGITemporal.shader");
+        absent.settings.intensity.diffuseGI = absent.settings.intensity.specularGI = 0f;
+        probe.target = absent;
+        renderer.Use(absent, probe);
+        Capture(scene.Camera, size);
+        absent.settings.ao.shader = Load("AO/AO.shader"); // Settings alone do not create a pass.
+        Capture(scene.Camera, size);
+        Require(!probe.sawTarget, "Missing pass is not inferred from settings shader");
+        Cases.Add("missing-pass-not-enabled-by-shader-setting");
+
+        var standalone = ScriptableObject.CreateInstance<AOFeature>();
+        standalone.settings.shader = Load("AO/AO.shader");
+        standalone.controls.temporalShader = Load("SSGITemporal.shader");
+        standalone.controls.performance = SSGIQuality.Low;
+        renderer.Use(standalone);
+        Capture(scene.Camera, size);
+        Capture(scene.Camera, size);
+        object standaloneTemporal = Field(Field(standalone, "_pass"), "_temporal");
+        var standaloneMaterials = (Material[])Field(standaloneTemporal, "_signalMaterials");
+        Close(standaloneMaterials[0].GetFloat("_SSGIHistoryValid"), 1f, 0f, "Standalone AO warmup");
+        standalone.controls.falloff = 1f;
+        Capture(scene.Camera, size);
+        Close(standaloneMaterials[0].GetFloat("_SSGIHistoryValid"), 0f, 0f, "Standalone falloff rejects AO history");
+        Capture(scene.Camera, size);
+        Close(standaloneMaterials[0].GetFloat("_SSGIHistoryValid"), 1f, 0f, "Standalone falloff history recovers");
+        Cases.Add("standalone-ao-falloff-history-rejected");
+    }
+
+    static void ValidateTimingReport(TimingReport report, Vector2Int[] sizes)
+    {
+        string[] variants = { "Ray-Ray", "DDA48-DDA64" };
+        Require(report.blocks.Count == sizes.Length * variants.Length * report.rounds, "Timing matrix size");
+        foreach (Vector2Int size in sizes)
+        {
+            var blocks = report.blocks.Where(block => block.width == size.x && block.height == size.y).ToArray();
+            Require(size.x > 0 && size.y > 0 && blocks.Length == variants.Length * report.rounds,
+                "Timing resolution matrix");
+            Require(blocks.Select(block => block.firstRayFrame).Distinct().Count() == 1
+                && blocks.All(block => block.firstRayFrame >= 0), "Timing matched starting ray frames");
+            foreach (string variant in variants)
+            {
+                var rounds = blocks.Where(block => block.variant == variant).ToArray();
+                Require(rounds.Length == report.rounds
+                    && rounds.Select(block => block.round).OrderBy(value => value)
+                        .SequenceEqual(Enumerable.Range(0, report.rounds)), "Timing complete mode rounds");
+            }
+            foreach (TimingBlock block in blocks)
+            {
+                Require(block.diffuseBudget == 48 && block.specularBudget == 64
+                    && block.submitMilliseconds.Length == report.samplesPerBlock
+                    && block.synchronizedMilliseconds.Length == report.samplesPerBlock,
+                    "Timing budgets and sample counts");
+                for (int sample = 0; sample < report.samplesPerBlock; sample++)
+                {
+                    double submit = block.submitMilliseconds[sample];
+                    double total = block.synchronizedMilliseconds[sample];
+                    Require(!double.IsNaN(submit) && !double.IsInfinity(submit)
+                        && !double.IsNaN(total) && !double.IsInfinity(total)
+                        && submit >= 0 && total > 0 && total >= submit, "Timing finite synchronized samples");
+                }
+            }
+        }
     }
 
     static void TimeResolution(Camera camera, SSGIFeature feature, SSGIFeature source,
@@ -428,13 +637,12 @@ public static partial class SSGICameraChecks
             Require(RenderPipeline.SupportsRenderRequest(camera, request), "Timing request support");
             for (int round = 0; round < report.rounds; round++)
             {
-                for (int sequence = 0; sequence < 4; sequence++)
+                for (int sequence = 0; sequence < 2; sequence++)
                 {
-                    int variant = (sequence + round) % 4;
+                    int variant = (sequence + round) % 2;
                     feature.settings.diffuseGI.shader = source.settings.diffuseGI.shader;
                     feature.settings.specularGI.shader = source.settings.specularGI.shader;
-                    feature.settings.diffuseGI.traceBackend = variant == 0 || variant == 2 ? SSGITraceBackend.Ray : SSGITraceBackend.DDA;
-                    feature.settings.specularGI.traceBackend = variant == 0 || variant == 3 ? SSGITraceBackend.Ray : SSGITraceBackend.DDA;
+                    feature.settings.trace.mode = variant == 0 ? SSGITraceMode.Ray : SSGITraceMode.DDA;
                     feature.Create();
                     for (int warmup = 0; warmup < report.warmupPerBlock; warmup++)
                     {
@@ -444,8 +652,8 @@ public static partial class SSGICameraChecks
                     }
                     Material diffuse = (Material)Field(Field(feature, "_pass"), "_diffuseMaterial");
                     Material specular = (Material)Field(Field(Field(feature, "_pass"), "_specularPass"), "_material");
-                    Require(diffuse.IsKeywordEnabled("SSGI_TRACE_RAY") == (feature.settings.diffuseGI.traceBackend == SSGITraceBackend.Ray)
-                        && specular.IsKeywordEnabled("SSGI_TRACE_RAY") == (feature.settings.specularGI.traceBackend == SSGITraceBackend.Ray),
+                    Require(diffuse.IsKeywordEnabled("SSGI_TRACE_RAY") == (feature.settings.trace.mode == SSGITraceMode.Ray)
+                        && specular.IsKeywordEnabled("SSGI_TRACE_RAY") == (feature.settings.trace.mode == SSGITraceMode.Ray),
                         "Actual backend keyword differs from timing case");
                     Require(diffuse.shader == feature.settings.diffuseGI.shader && specular.shader == feature.settings.specularGI.shader,
                         "Actual timing shader differs");
@@ -454,7 +662,7 @@ public static partial class SSGICameraChecks
                         "Actual timing budget differs from the configured Medium tier");
                     var block = new TimingBlock
                     {
-                        variant = new[] { "Ray-Ray", "DDA48-DDA64", "Ray-DDA64", "DDA48-Ray" }[variant],
+                        variant = new[] { "Ray-Ray", "DDA48-DDA64" }[variant],
                         width = size.x, height = size.y, round = round,
                         diffuseBudget = 48,
                         specularBudget = 64,
@@ -475,7 +683,7 @@ public static partial class SSGICameraChecks
                         if (sample == 0) block.firstRayFrame = diffuse.GetInt("_DiffuseGIFrameIndex");
                     }
                     report.blocks.Add(block);
-                    if (round == 0 && (variant == 0 || variant == 1))
+                    if (round == 0)
                         Finite(Capture(camera, size, block.variant + "-" + size.x + "x" + size.y + ".png"), "Timing image finite");
                 }
             }
@@ -1423,6 +1631,9 @@ public static partial class SSGICameraChecks
         SSGIFeature source = rendererData[0].rendererFeatures.OfType<SSGIFeature>().Single();
         string originalSettings = EditorJsonUtility.ToJson(source);
         bool originalDirty = SceneManager.GetActiveScene().isDirty;
+        // Frozen comparison baselines have no HiZ shader variant or depth-pyramid implementation.
+        Require(source.settings.trace.mode != SSGITraceMode.HiZ,
+            "Frozen comparison baseline cannot represent HiZ; use DDA or Ray for a valid comparison");
         Camera original = SceneView.lastActiveSceneView != null ? SceneView.lastActiveSceneView.camera : Camera.main;
         Require(original != null, "Sequence camera required");
         Vector3 position = original.transform.position;
@@ -1467,6 +1678,7 @@ public static partial class SSGICameraChecks
                 {
                     var feature = ScriptableObject.CreateInstance<DiffuseGIFeature>();
                     JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(source.settings.diffuseGI), feature.settings);
+                    CopyTrace(source.settings.trace, feature.trace);
                     feature.settings.shader = label == "candidate" ? source.settings.diffuseGI.shader : Load("RuntimeFixture/SequenceBaseline.shader");
                     feature.controls.temporalShader = source.settings.temporalShader;
                     feature.controls.performance = source.settings.performance.diffuseGI;
@@ -1512,7 +1724,7 @@ public static partial class SSGICameraChecks
             device = SystemInfo.graphicsDeviceName + " / " + SystemInfo.graphicsDeviceType,
             width = size.x, height = size.y, traceWidth = traceSize.x, traceHeight = traceSize.y,
             position = new[] { position.x, position.y, position.z }, rotation = new[] { rotation.x, rotation.y, rotation.z, rotation.w },
-            quality = source.settings.performance.diffuseGI.ToString(), backend = source.settings.diffuseGI.traceBackend.ToString(),
+            quality = source.settings.performance.diffuseGI.ToString(), backend = source.settings.trace.mode.ToString(),
             temporalBlend = 0.5f, format = "R16G16B16A16_SFloat", originalSettings, editorFrame,
             shaderTime = new[] { shaderTime.Value.x, shaderTime.Value.y, shaderTime.Value.z, shaderTime.Value.w },
             results, raw = SequenceComparisonMetric(results[0].rawTrace, results[1].rawTrace),
@@ -1582,7 +1794,7 @@ public static partial class SSGICameraChecks
                 Vector4 sourceSize = material.GetVector("_GISourceSize");
                 Require(sourceSize.z == traceSize.x && sourceSize.w == traceSize.y, "Raw export native Trace size");
                 Require(blend == 0.5f, "Sequence weak history blend");
-                Require(material.IsKeywordEnabled("SSGI_TRACE_RAY") == (feature.settings.traceBackend == SSGITraceBackend.Ray), "Sequence backend");
+                Require(material.IsKeywordEnabled("SSGI_TRACE_RAY") == (feature.trace.mode == SSGITraceMode.Ray), "Sequence backend");
                 result.frames.Add(material.GetInt("_DiffuseGIFrameIndex"));
                 result.historyValid.Add(temporalMaterial.GetFloat("_SSGIHistoryValid"));
                 result.rays.Add(rays); result.steps.Add(steps); result.blends.Add(blend);
@@ -1670,6 +1882,9 @@ public static partial class SSGICameraChecks
         SSGIFeature source = rendererData[0].rendererFeatures.OfType<SSGIFeature>().Single();
         string originalSettings = EditorJsonUtility.ToJson(source);
         bool originalDirty = SceneManager.GetActiveScene().isDirty;
+        // Frozen comparison baselines have no HiZ shader variant or depth-pyramid implementation.
+        Require(source.settings.trace.mode != SSGITraceMode.HiZ,
+            "Frozen comparison baseline cannot represent HiZ; use DDA or Ray for a valid comparison");
         Camera original = SceneView.lastActiveSceneView != null ? SceneView.lastActiveSceneView.camera : Camera.main;
         Require(original != null, "A comparison camera is required");
         Vector3 position = original.transform.position;
@@ -1710,6 +1925,11 @@ public static partial class SSGICameraChecks
                     var feature = (ScriptableRendererFeature)ScriptableObject.CreateInstance(featureType);
                     object settings = Field(feature, "settings");
                     JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(source.settings.diffuseGI), settings);
+                    if (feature is DiffuseGIFeature current)
+                        CopyTrace(source.settings.trace, current.trace);
+                    else
+                        settings.GetType().GetField("traceBackend").SetValue(settings,
+                            (SSGITraceBackend)source.settings.trace.mode);
                     object controls = Field(feature, "controls");
                     var commonControls = (SSGIStandaloneControls)controls;
                     commonControls.temporalShader = source.settings.temporalShader;
@@ -1723,7 +1943,7 @@ public static partial class SSGICameraChecks
                     renderer.Use(feature);
                     feature.Create();
                     results.Add(MeasureMultiscaleNoise(camera, feature, size, featureType.Name,
-                        source.settings.performance.diffuseGI, source.settings.diffuseGI.traceBackend, ref shaderTime));
+                        source.settings.performance.diffuseGI, (SSGITraceBackend)source.settings.trace.mode, ref shaderTime));
                 }
             }
         }
@@ -1745,7 +1965,7 @@ public static partial class SSGICameraChecks
             originalSettings, editorFrame,
             shaderTime = new[] { shaderTime.Value.x, shaderTime.Value.y, shaderTime.Value.z, shaderTime.Value.w },
             temporalBlend = 0.5f, quality = source.settings.performance.diffuseGI.ToString(),
-            backend = source.settings.diffuseGI.traceBackend.ToString(), assertions = _assertions, results,
+            backend = source.settings.trace.mode.ToString(), assertions = _assertions, results,
             noiseReduction = 1.0 - results[1].frameRms / results[0].frameRms,
             meanChange = results[1].meanLuminance / results[0].meanLuminance - 1.0,
             restored = true, maskMatches = true,
@@ -1898,7 +2118,6 @@ public static partial class SSGICameraChecks
         diffuse.controls.receiverAlbedo = Color.white;
         diffuse.controls.debug = DiffuseGIFeature.DebugMode.Indirect;
         var specular = ScriptableObject.CreateInstance<SpecularGIFeature>();
-        specular.settings.skyCubemap = scene.Sky;
         specular.controls.debug = SpecularGIFeature.Settings.DebugMode.Spatial;
         var integrated = ScriptableObject.CreateInstance<SSGIFeature>();
         traceMaterial.SetInt("_TestMode", 8);
@@ -1908,7 +2127,6 @@ public static partial class SSGICameraChecks
         integrated.settings.ao.shader = Load("AO/AO.shader");
         integrated.settings.diffuseGI.shader = Load("DiffuseGI/DiffuseGI.shader");
         integrated.settings.specularGI.shader = Load("SpecularGI/SpecularGI.shader");
-        integrated.settings.specularGI.skyCubemap = scene.Sky;
         integrated.settings.intensity.ao = 0;
         foreach (SSGIQuality quality in Enum.GetValues(typeof(SSGIQuality)))
         {
@@ -1917,7 +2135,7 @@ public static partial class SSGICameraChecks
             integrated.settings.performance.diffuseGI = quality;
             integrated.settings.performance.specularGI = quality;
             diffuse.settings.shader = Load("RuntimeFixture/BaselineDiffuse.shader");
-            diffuse.settings.traceBackend = SSGITraceBackend.Ray;
+            diffuse.trace.mode = SSGITraceMode.Ray;
             renderer.Use(diffuse, traceExport);
             Color[] baselineDiffuse = Capture(scene.Camera, size);
             diffuse.settings.shader = Load("DiffuseGI/DiffuseGI.shader");
@@ -1926,7 +2144,7 @@ public static partial class SSGICameraChecks
             Compare(rayDiffuse, baselineDiffuse, 0.012f, "Diffuse RAY trace production regression " + quality);
             Require(Energy(rayDiffuse) > 0.00001, "Diffuse regression input must actually gather radiance");
             specular.settings.shader = Load("RuntimeFixture/BaselineSpecular.shader");
-            specular.settings.traceBackend = SSGITraceBackend.Ray;
+            specular.trace.mode = SSGITraceMode.Ray;
             renderer.Use(specular);
             Color[] baselineSpecular = Capture(scene.Camera, size);
             specular.settings.shader = Load("SpecularGI/SpecularGI.shader");
@@ -1935,7 +2153,7 @@ public static partial class SSGICameraChecks
             Compare(raySpecular, baselineSpecular, 0.012f, "Specular RAY production regression " + quality);
             foreach (SSGITraceBackend backend in Enum.GetValues(typeof(SSGITraceBackend)))
             {
-                diffuse.settings.traceBackend = backend;
+                diffuse.trace.mode = (SSGITraceMode)backend;
                 renderer.Use(diffuse);
                 Color[] standaloneDiffuse = Capture(scene.Camera, size,
                     quality == SSGIQuality.Medium ? "diffuse-" + backend + ".png" : null);
@@ -1950,7 +2168,7 @@ public static partial class SSGICameraChecks
                 Close(diffuseMaterial.GetVector("_GIFilterParams").z, 1f,
                     0, "Diffuse final-pass guide stride matches the multiscale contract");
                 Require(diffuseMaterial.IsKeywordEnabled("SSGI_TRACE_RAY") == (backend == SSGITraceBackend.Ray), "Diffuse actual backend keyword");
-                specular.settings.traceBackend = backend;
+                specular.trace.mode = (SSGITraceMode)backend;
                 renderer.Use(specular);
                 Color[] standaloneSpecular = Capture(scene.Camera, size,
                     quality == SSGIQuality.Medium ? "specular-" + backend + ".png" : null);
@@ -1960,8 +2178,7 @@ public static partial class SSGICameraChecks
                 int expectedSpecularSteps = new[] { 32, 64, 96 }[tierIndex];
                 Close(specularMaterial.GetVector("_TraceParams").w, expectedSpecularSteps, 0, "Specular effective budget");
                 Require(specularMaterial.IsKeywordEnabled("SSGI_TRACE_RAY") == (backend == SSGITraceBackend.Ray), "Specular actual backend keyword");
-                integrated.settings.diffuseGI.traceBackend = backend;
-                integrated.settings.specularGI.traceBackend = backend;
+                integrated.settings.trace.mode = (SSGITraceMode)backend;
                 integrated.settings.debug = SSGIFeature.DebugMode.DiffuseGI;
                 renderer.Use(integrated);
                 Color[] combinedDiffuse = Capture(scene.Camera, size);
@@ -1977,11 +2194,9 @@ public static partial class SSGICameraChecks
         integrated.settings.intensity.ao = 1;
         integrated.settings.debug = SSGIFeature.DebugMode.AO;
         renderer.Use(integrated);
-        integrated.settings.diffuseGI.traceBackend = SSGITraceBackend.Ray;
-        integrated.settings.specularGI.traceBackend = SSGITraceBackend.Ray;
+        integrated.settings.trace.mode = SSGITraceMode.Ray;
         Color[] rayAO = Capture(scene.Camera, size);
-        integrated.settings.diffuseGI.traceBackend = SSGITraceBackend.DDA;
-        integrated.settings.specularGI.traceBackend = SSGITraceBackend.DDA;
+        integrated.settings.trace.mode = SSGITraceMode.DDA;
         Color[] ddaAO = Capture(scene.Camera, size);
         Compare(ddaAO, rayAO, 0.00001f, "AO unaffected by GI backend");
         Cases.Add("ao-backend-isolation");
@@ -1990,11 +2205,11 @@ public static partial class SSGICameraChecks
         specular.controls.performance = SSGIQuality.Medium;
         foreach (SSGITraceBackend backend in Enum.GetValues(typeof(SSGITraceBackend)))
         {
-            diffuse.settings.traceBackend = backend;
+            diffuse.trace.mode = (SSGITraceMode)backend;
             renderer.Use(diffuse);
             Color[] diffuseDisplay = Capture(scene.Camera, displaySize, "diffuse-medium-640-" + backend + ".png");
             Finite(diffuseDisplay, "Medium 640 diffuse " + backend);
-            specular.settings.traceBackend = backend;
+            specular.trace.mode = (SSGITraceMode)backend;
             renderer.Use(specular);
             Color[] specularDisplay = Capture(scene.Camera, displaySize, "specular-medium-640-" + backend + ".png");
             Finite(specularDisplay, "Medium 640 specular " + backend);
@@ -2013,6 +2228,107 @@ public static partial class SSGICameraChecks
                 == (quality == keywordQuality), "Diffuse exclusive compiled tier " + keywordQuality);
     }
 
+    static void CheckEnvironmentAndIntensity(RendererScope renderer, SceneScope scene, Material referenceMaterial, bool injectFault)
+    {
+        var size = new Vector2Int(189, 101);
+        bool previousOrthographic = scene.Camera.orthographic;
+        float previousOrthographicSize = scene.Camera.orthographicSize;
+        try
+        {
+            scene.Camera.orthographic = true;
+            scene.Camera.orthographicSize = 2f;
+            var specular = ScriptableObject.CreateInstance<SpecularGIFeature>();
+            specular.settings.shader = Load("SpecularGI/SpecularGI.shader");
+            specular.settings.maxDistance = 0.001f;
+            specular.settings.roughness = 0f;
+            specular.controls.debug = SpecularGIFeature.Settings.DebugMode.Trace;
+            renderer.Use(specular);
+            Color[] trace = Capture(scene.Camera, size);
+            referenceMaterial.SetInt("_TestMode", 9);
+            var reference = ScriptableObject.CreateInstance<DebugOutputFeature>();
+            reference.settings.debug = true;
+            reference.settings.requireDepth = true;
+            reference.settings.debugMaterial = referenceMaterial;
+            renderer.Use(specular, reference);
+            Color[] expected = Capture(scene.Camera, size);
+            foreach (Vector2Int point in new[] { new Vector2Int(size.x / 4, size.y * 3 / 4),
+                new Vector2Int(size.x / 4, size.y / 2) })
+            {
+                int index = point.y * size.x + point.x;
+                if (injectFault) trace[index] = Color.black;
+                Require(expected[index].r + expected[index].g + expected[index].b > 0.001f,
+                    "Unity default environment has nonzero reference signal");
+                Close(trace[index].r, expected[index].r, 0.03f, "Default environment HDR red");
+                Close(trace[index].g, expected[index].g, 0.03f, "Default environment HDR green");
+                Close(trace[index].b, expected[index].b, 0.03f, "Default environment HDR blue");
+            }
+            Cases.Add("specular-default-environment-hdr");
+
+            specular.controls.debug = SpecularGIFeature.Settings.DebugMode.Off;
+            renderer.Use(specular);
+            specular.controls.intensity = 1f;
+            Color[] one = Capture(scene.Camera, size);
+            specular.controls.intensity = 10f;
+            Color[] ten = Capture(scene.Camera, size);
+            Material specularMaterial = (Material)Field(Field(specular, "_pass"), "_material");
+            Close(specularMaterial.GetFloat("_Intensity"), 10f, 0f, "Standalone Specular intensity 10");
+            Require(one.Zip(ten, (first, second) => Math.Abs(first.r - second.r)
+                + Math.Abs(first.g - second.g) + Math.Abs(first.b - second.b)).Max() > 0.001,
+                "Standalone Specular intensity 10 changes rendered output");
+            specular.controls.intensity = 20f;
+            Capture(scene.Camera, size);
+            Close(specularMaterial.GetFloat("_Intensity"), 10f, 0f, "Standalone Specular intensity clamps at 10");
+
+            var diffuse = ScriptableObject.CreateInstance<DiffuseGIFeature>();
+            diffuse.settings.shader = Load("DiffuseGI/DiffuseGI.shader");
+            diffuse.controls.intensity = 10f;
+            renderer.Use(diffuse);
+            Capture(scene.Camera, size);
+            Material diffuseMaterial = (Material)Field(Field(diffuse, "_pass"), "_material");
+            Close(diffuseMaterial.GetFloat("_GIIntensity"), 10f, 0f, "Standalone Diffuse intensity 10");
+            diffuse.controls.intensity = 20f;
+            Capture(scene.Camera, size);
+            Close(diffuseMaterial.GetFloat("_GIIntensity"), 10f, 0f, "Standalone Diffuse intensity clamps at 10");
+
+            var ao = ScriptableObject.CreateInstance<AOFeature>();
+            ao.settings.shader = Load("AO/AO.shader");
+            ao.controls.intensity = 10f;
+            renderer.Use(ao);
+            Capture(scene.Camera, size);
+            Material aoMaterial = (Material)Field(Field(ao, "_pass"), "_material");
+            Close(aoMaterial.GetVector("_AOParams").w, 10f, 0f, "Standalone AO intensity 10");
+            ao.controls.intensity = 20f;
+            Capture(scene.Camera, size);
+            Close(aoMaterial.GetVector("_AOParams").w, 10f, 0f, "Standalone AO intensity clamps at 10");
+
+            var integrated = ScriptableObject.CreateInstance<SSGIFeature>();
+            integrated.settings.compositeShader = Load("SSGIComposite.shader");
+            integrated.settings.ao.shader = Load("AO/AO.shader");
+            integrated.settings.diffuseGI.shader = Load("DiffuseGI/DiffuseGI.shader");
+            integrated.settings.specularGI.shader = Load("SpecularGI/SpecularGI.shader");
+            renderer.Use(integrated);
+            foreach (float intensity in new[] { 1f, 5f, 10f, 20f })
+            {
+                integrated.settings.intensity.ao = intensity;
+                integrated.settings.intensity.diffuseGI = intensity;
+                integrated.settings.intensity.specularGI = intensity;
+                Capture(scene.Camera, size);
+                Material composite = (Material)Field(Field(integrated, "_pass"), "_compositeMaterial");
+                Vector4 parameters = composite.GetVector("_SSGIParams");
+                float expectedIntensity = Mathf.Min(intensity, 10f);
+                Close(parameters.x, expectedIntensity, 0f, "Integrated AO intensity");
+                Close(parameters.y, expectedIntensity, 0f, "Integrated Diffuse intensity");
+                Close(parameters.z, expectedIntensity, 0f, "Integrated Specular intensity");
+            }
+            Cases.Add("intensity-range-integrated-and-standalone");
+        }
+        finally
+        {
+            scene.Camera.orthographic = previousOrthographic;
+            scene.Camera.orthographicSize = previousOrthographicSize;
+        }
+    }
+
     static void CheckHistory(RendererScope renderer, SceneScope scene)
     {
         var feature = ScriptableObject.CreateInstance<SSGIFeature>();
@@ -2021,7 +2337,6 @@ public static partial class SSGICameraChecks
         feature.settings.ao.shader = Load("AO/AO.shader");
         feature.settings.diffuseGI.shader = Load("DiffuseGI/DiffuseGI.shader");
         feature.settings.specularGI.shader = Load("SpecularGI/SpecularGI.shader");
-        feature.settings.specularGI.skyCubemap = scene.Sky;
         feature.settings.performance.ao = SSGIQuality.Low;
         feature.settings.performance.diffuseGI = SSGIQuality.Low;
         feature.settings.performance.specularGI = SSGIQuality.Low;
@@ -2056,6 +2371,25 @@ public static partial class SSGICameraChecks
             Flags(feature, 1, 1, 1, label + " recovered");
             Cases.Add(label);
         };
+        change(() => feature.settings.ao.mode = AOFeature.Mode.SSAO, 0, 1, 1, "ao-mode-history-rejected");
+        change(() => feature.settings.ao.radius = 2f, 0, 1, 1, "ao-radius-history-rejected");
+        change(() => feature.settings.ao.bias = 0.1f, 0, 1, 1, "ao-bias-history-rejected");
+        change(() => feature.settings.ao.angleBias = 25f, 0, 1, 1, "ao-angle-history-rejected");
+        change(() => feature.settings.ao.depthSigma = 0.5f, 0, 1, 1, "ao-depth-sigma-history-rejected");
+        change(() => feature.settings.performance.ao = SSGIQuality.Medium, 0, 1, 1, "ao-tier-history-rejected");
+        change(() => feature.settings.intensity.ao = 0.5f, 1, 1, 1, "ao-intensity-history-preserved");
+        change(() => feature.settings.temporal.ao = 0.3f, 1, 1, 1, "ao-blend-history-preserved");
+        for (int channel = 0; channel < 3; channel++)
+        {
+            int selected = channel;
+            foreach (string name in new[] { "depthLayouts", "depthScales" })
+                change(() =>
+                {
+                    var values = (Vector4[])Field(history, name);
+                    values[selected].x += 1f;
+                }, selected == 0 ? 0 : 1, selected == 1 ? 0 : 1, selected == 2 ? 0 : 1,
+                    "history-" + name + "-channel-" + selected);
+        }
         change(() =>
         {
             object previousKey = spatialKeys.GetValue(1);
@@ -2089,10 +2423,8 @@ public static partial class SSGICameraChecks
         Capture(scene.Camera, size);
         Capture(scene.Camera, size);
         Flags(feature, 1, 1, 1, "Restored Low history warmup");
-        change(() => feature.settings.diffuseGI.traceBackend = SSGITraceBackend.Ray, 1, 0, 1, "diffuse-backend-ray");
-        change(() => feature.settings.diffuseGI.traceBackend = SSGITraceBackend.DDA, 1, 0, 1, "diffuse-backend-dda");
-        change(() => feature.settings.specularGI.traceBackend = SSGITraceBackend.Ray, 1, 1, 0, "specular-backend-ray");
-        change(() => feature.settings.specularGI.traceBackend = SSGITraceBackend.DDA, 1, 1, 0, "specular-backend-dda");
+        change(() => feature.settings.trace.mode = SSGITraceMode.Ray, 1, 0, 0, "unified-backend-ray");
+        change(() => feature.settings.trace.mode = SSGITraceMode.DDA, 1, 0, 0, "unified-backend-dda");
         change(() => feature.settings.diffuseGI.maxDistance = 4, 1, 0, 1, "diffuse-distance");
         change(() => feature.settings.diffuseGI.thickness = 0.2f, 1, 0, 1, "diffuse-thickness");
         change(() => feature.settings.diffuseGI.normalBias = 0.04f, 1, 0, 1, "diffuse-bias");
@@ -2100,8 +2432,28 @@ public static partial class SSGICameraChecks
         change(() => feature.settings.performance.diffuseGI = SSGIQuality.Medium, 1, 0, 1, "diffuse-quality");
         change(() => feature.settings.specularGI.roughness = 0.2f, 1, 1, 0, "specular-roughness");
         change(() => feature.settings.performance.specularGI = SSGIQuality.Medium, 1, 1, 0, "specular-quality");
-        change(() => feature.settings.specularGI.skyMaxMip = 5, 1, 1, 0, "specular-sky-mip");
-        change(() => feature.settings.specularGI.skyCubemap = null, 1, 1, 0, "specular-sky-resource");
+        change(() =>
+        {
+            object previousKey = spatialKeys.GetValue(2);
+            Vector4 previousSampling = (Vector4)Field(previousKey, "_sampling");
+            previousSampling.x += 1f;
+            previousKey.GetType().GetField("_sampling", InstanceFields).SetValue(previousKey, previousSampling);
+            spatialKeys.SetValue(previousKey, 2);
+        }, 1, 1, 0, "specular-environment-hdr-history-rejected");
+        change(() =>
+        {
+            object previousKey = spatialKeys.GetValue(2);
+            uint previousVersion = (uint)Field(previousKey, "_environmentVersion");
+            previousKey.GetType().GetField("_environmentVersion", InstanceFields).SetValue(previousKey, previousVersion + 1u);
+            spatialKeys.SetValue(previousKey, 2);
+        }, 1, 1, 0, "specular-environment-update-history-rejected");
+        change(() =>
+        {
+            object previousKey = spatialKeys.GetValue(2);
+            int previousEnvironment = (int)Field(previousKey, "_environmentId");
+            previousKey.GetType().GetField("_environmentId", InstanceFields).SetValue(previousKey, previousEnvironment + 1);
+            spatialKeys.SetValue(previousKey, 2);
+        }, 1, 1, 0, "specular-environment-resource-history-rejected");
         change(() => feature.settings.intensity.diffuseGI = 0.5f, 1, 1, 1, "composite-intensity-does-not-invalidate");
         change(() => feature.settings.temporal.diffuseGI = 0.2f, 1, 1, 1, "blend-does-not-invalidate");
         var secondObject = new GameObject("SSGI.Validation.SecondCamera");
@@ -2136,7 +2488,7 @@ public static partial class SSGICameraChecks
         Type keyType = ((Array)Field(history, "keys")).GetType().GetElementType();
         MethodInfo equals = keyType.GetMethod("Equals", new[] { keyType });
         object[] arguments = { SSGITraceBackend.DDA, new Vector4(1, 2, 3, 4),
-            new Vector4(5, 6, 7, 8), new Vector4(9, 10, 11, 12), 13, 14 };
+            new Vector4(5, 6, 7, 8), new Vector4(9, 10, 11, 12), 13, 14, 16777216u };
         object baseline = Activator.CreateInstance(keyType, arguments);
         object same = Activator.CreateInstance(keyType, arguments);
         Require((bool)equals.Invoke(baseline, new[] { same }), "Equal effective history keys");
@@ -2150,6 +2502,7 @@ public static partial class SSGICameraChecks
                 vector.x += 0.000001f;
                 changed[index] = vector;
             }
+            else if (index == 6) changed[index] = (uint)changed[index] + 1u;
             else changed[index] = (int)changed[index] + 1;
             object other = Activator.CreateInstance(keyType, changed);
             Require(!(bool)equals.Invoke(baseline, new[] { other }), "Exact history key field " + index);
@@ -2189,9 +2542,9 @@ public static partial class SSGICameraChecks
                 poisoned.GetType().GetField("_backend", InstanceFields).SetValue(poisoned, SSGITraceBackend.Ray);
                 poisoned.GetType().GetField("_sampling", InstanceFields).SetValue(poisoned, new Vector4(8, 4, 24, 3));
                 keys.SetValue(poisoned, 1);
-                feature.settings.diffuseGI.traceBackend = SSGITraceBackend.Ray;
+                feature.settings.trace.mode = SSGITraceMode.Ray;
                 Capture(scene.Camera, size);
-                Flags(feature, 1, 0, 1, "Injected wrong-backend history acceptance");
+                Flags(feature, 1, 0, 0, "Injected wrong-backend history acceptance");
             }
             throw new InvalidOperationException("Poisoned history contract was not detected");
         }
@@ -2202,6 +2555,15 @@ public static partial class SSGICameraChecks
             if (!detected) throw;
             return new { detected, assertions = _assertions, error = exception.Message, output = _output };
         }
+    }
+
+    // Bypass legacy initialization on these disposable comparison Features: the current
+    // unified controls, including the compute reference, are the source of truth.
+    static void CopyTrace(SSGITraceControls source, SSGITraceControls destination)
+    {
+        destination.mode = source.mode;
+        destination.depthPyramidShader = source.depthPyramidShader;
+        typeof(SSGITraceControls).GetField("_initialized", InstanceFields).SetValue(destination, true);
     }
 
     static object Field(object target, string name)

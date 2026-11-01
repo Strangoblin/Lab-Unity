@@ -47,7 +47,7 @@ PY
             [[ ! -e "$fixture" ]] || targets+=("$fixture")
             [[ ! -e "$fixture.meta" ]] || targets+=("$fixture.meta")
             if [[ ${#targets[@]} -gt 0 ]]; then
-                python3 .mcp/validation/gate_cli.py delete --recursive \
+                python3 .mcp/bin/cli.py delete \
                     --reason 'SSGI High budget runner-owned disposable baseline fixture' "${targets[@]}" || result=1
                 unityctl asset refresh || result=1
             fi
@@ -66,10 +66,10 @@ for target in "$fixture" "$fixture.meta"; do
     fi
 done
 fixture_owned=1
-python3 .mcp/validation/gate_cli.py write --path "$fixture/HalfHighDiffuseGIFeature.cs" \
-    --from "$run/input/HalfHighDiffuseGIFeature.cs"
+mkdir -p "$(dirname "$fixture/HalfHighDiffuseGIFeature.cs")"
+cp "$run/input/HalfHighDiffuseGIFeature.cs" "$fixture/HalfHighDiffuseGIFeature.cs"
 if ! cmp -s "$run/input/HalfHighDiffuseGIFeature.cs" "$fixture/HalfHighDiffuseGIFeature.cs"; then
-    printf '%s\n' 'Gate did not install the prepared baseline exactly'
+    printf '%s\n' 'Staging did not copy the prepared baseline exactly'
     exit 1
 fi
 unityctl asset refresh

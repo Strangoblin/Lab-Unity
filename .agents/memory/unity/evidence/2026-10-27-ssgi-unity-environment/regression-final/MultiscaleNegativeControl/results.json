@@ -1,0 +1,1 @@
+{"passed":false,"negativeControlDetected":true,"device":"Metal","assertions":15,"cases":[],"metrics":[],"error":"Multiscale reference checkerboard coarse stride-2 from fine maximum channel difference 1.70879745"}

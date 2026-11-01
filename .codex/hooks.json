@@ -1,15 +1,29 @@
 {
-  "description": "Project-local Bash safety guard.",
+  "description": "Project-local write gate: PreToolUse/PostToolUse -> .mcp/bin/hooks.sh.",
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Write|Edit|NotebookEdit|Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$(git rev-parse --show-toplevel)/.codex/hooks/guard-bash.sh\"",
-            "commandWindows": "\"C:/Program Files/Git/bin/bash.exe\" \"C:/Programs/Unity/Unity Project/Lab/.codex/hooks/guard-bash.sh\"",
-            "statusMessage": "Checking Bash command"
+            "command": "bash \"$(git rev-parse --show-toplevel)/.mcp/bin/hooks.sh\" PreToolUse",
+            "commandWindows": "\"C:/Program Files/Git/bin/bash.exe\" \"C:/Programs/Unity/Unity Project/Lab/.mcp/bin/hooks.sh\" PreToolUse",
+            "timeout": 30,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|NotebookEdit|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.mcp/bin/hooks.sh\" PostToolUse",
+            "commandWindows": "\"C:/Program Files/Git/bin/bash.exe\" \"C:/Programs/Unity/Unity Project/Lab/.mcp/bin/hooks.sh\" PostToolUse",
+            "timeout": 30
           }
         ]
       }

@@ -60,8 +60,9 @@ float3 SpecularGI_CreateRayDirection(float2 uv, float3 normalWS, float3 viewDire
 
 float3 SpecularGI_SampleSky(float3 directionWS)
 {
-    float mipLevel = saturate(_Roughness) * max(_SkyMaxMip, 0.0);
-    return SAMPLE_TEXTURECUBE_LOD(_SkyCubemap, sampler_SkyCubemap, directionWS, mipLevel).rgb;
+    float mipLevel = PerceptualRoughnessToMipmapLevel(saturate(_Roughness));
+    float4 encoded = SAMPLE_TEXTURECUBE_LOD(_GlossyEnvironmentCubeMap, sampler_GlossyEnvironmentCubeMap, directionWS, mipLevel);
+    return DecodeHDREnvironment(encoded, _GlossyEnvironmentCubeMap_HDR);
 }
 
 #endif

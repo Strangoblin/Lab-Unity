@@ -11,7 +11,7 @@
 | `knowledge/` | 事实、规范与合同；meta / unity 为领域，external 只登记来源 |
 | `skills/` | 工作流、脚本、命令参考、模板与技能局部说明 |
 
-平台只维护配置、权限和明文路由；`.mcp` 持有实际门禁和项目资源绑定。Unity 运行时内容归功能，不依赖 agent 库。
+平台只维护配置、权限和明文路由；`.mcp` 持有判定核与证据账本。Unity 运行时内容归功能，不依赖 agent 库。
 
 ## 单向取用
 
@@ -36,10 +36,20 @@ AGENT 只含元数据 name / description（平台支持时可加 tools / model�
 
 ## 项目集成
 
-资源位置按 [输入合同](interfaces/project-resources.md) 取得，与写入授权分离；取得位置不授权修改。实际权限和人工批准仍由原门禁 / 平台机制执行。
+资源位置按 [输入合同](interfaces/project-resources.md) 取得，与写入授权分离；取得位置不授权修改。实际权限和人工批准仍由平台机制与沙箱执行。
 
-写入通道按域分：Unity 受管资产（`Assets/Mine/**`）走 `.mcp` 门禁三通道；体系库（`agents/` `memory/` `knowledge/` `skills/`）
-走平台文件工具，不经 Unity MCP —— 边界由 `.mcp/tests/test_recipes.py::test_meta_bypass_boundary` 钉住，
-拓宽门禁作用域来"解决"体系写入是把两个域混成一个。
-策略强度与判定实现分离，不用目录迁移改变 block/warn/off。资产 GUID、业务功能与专属验证器由项目功能管理。
+写入通道只有一条：平台原生 `Write` / `Edit`（以及 `mv` 这类原生命令），由 `.mcp/lib/hooks.py` 在 PreToolUse 按**分区**判定。
+分区表（`.mcp/config/zones.json`）把路径分成 `asset` / `memory` / `system` / `scratch`，未命中即 `denied`：
+
+- `asset`（`Assets/Mine/**`）受本次任务沙箱约束，且受内容规范与落点约束；沙箱管新建与未跟踪，已入库的靠 git 兜底。
+- `memory`（`.agents/memory/**`）随时可写，既有记录也能原地改 —— 历史由 git 兜底。
+- `system`（`agents/` `knowledge/` `skills/` `.mcp` 平台目录）可写，只记录。
+- `scratch`（`tmp/`、`.mcp/trash/`）自由。
+- `denied` 之外，**已入库的仓库文件**（`AGENTS.md`、`.mcp.json`、`.gitignore` 等）按体系区放行并记录；
+  未入库（生成目录、仓库外、新建）仍需人工。
+
+判据是**兜底**而不是信任：能 `git checkout` 或从 trash `restore` 回来的就是可逆操作，放行并留痕；不能的才拒。
+删除走 `cli.py delete`：内容进 `.mcp/trash/`，可 `restore`。于是「不可恢复」不再是拒绝删除的理由。
+策略强度与判定实现分离，不用目录迁移改变 block/warn/off；交付合格与否由 `cli.py close` 按证据核对，不由申报。
+资产 GUID、业务功能与专属验证器由项目功能管理。
 临时与长期产物遵循 [生命周期合同](interfaces/task-artifacts.md)。

@@ -17,14 +17,19 @@ import tempfile
 import traceback
 from uuid import uuid4
 
-AUDIT_NAMES = ("state.json", "deletes.jsonl", "moves.jsonl", "friction.jsonl")
-EXCLUDED_PARTS = {".venv", "__pycache__", ".pytest_cache", ".git", ".DS_Store"}
-SUITES = ("test_recipes.py", "test_knowledge_paths.py", "test_directory_deletion.py", "test_project_resources.py")
+AUDIT_NAMES = ("session.json", "writes.jsonl", "reads.jsonl", "deletes.jsonl",
+               "moves.jsonl", "friction.jsonl")
+# `state/` 装的是真账本；fixture 从空账本开始，不继承生产痕迹。
+EXCLUDED_PARTS = {".venv", "__pycache__", ".pytest_cache", ".git", ".DS_Store", "trash", "state"}
+SUITES = ("test_zones.py", "test_trash_close.py", "test_knowledge_paths.py",
+          "test_project_resources.py")
 FIXTURE_TREES = (
     ".agents/knowledge/rules",
     ".agents/knowledge/unity",
     ".agents/knowledge/meta",
     ".agents/skills/unity-editor/scripts/roslyn",
+    # 记忆区是 v5 的可写分区之一；既要能新建当日记录，也要能原地改既有记录。
+    ".agents/memory/meta",
 )
 FIXTURE_FILES = (
     "AGENTS.md", ".agents/README.md", ".codex/AGENTS.md",
@@ -57,8 +62,8 @@ def project_root(configured: str | None = None) -> Path:
 def fingerprints(root: Path) -> dict:
     result = {}
     for name in AUDIT_NAMES:
-        path = root / ".mcp" / name
-        result[f".mcp/{name}"] = {
+        path = root / ".mcp" / "state" / name
+        result[f".mcp/state/{name}"] = {
             "exists": path.exists(),
             "sha256": hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None,
         }
@@ -90,14 +95,16 @@ def copy_fixture(root: Path, fixture: Path) -> list[str]:
                     yield Path(current) / name
 
     for source in source_files(root / ".mcp"):
-        if source.name not in AUDIT_NAMES and source.suffix in {".py", ".json", ".toml"}:
+        # `.sh` 也在列：hooks.sh 是判定核的传输层，不是可执行产物 ——
+        # 少拷它，fixture 里的 hook 契约测试会全部无法运行。
+        if source.name not in AUDIT_NAMES and source.suffix in {".py", ".json", ".toml", ".sh"}:
             copy_file(source)
     for relative in FIXTURE_TREES:
         for source in source_files(root / relative):
             copy_file(source)
     for relative in FIXTURE_FILES:
         copy_file(root / relative)
-    # g_knowledge tests project-relative file resolution; no production Assets input is needed.
+    # 知识 ID 解析需要一个 project-relative 的真实文件；具体 Assets 输入不需要。
     synthetic = fixture / "Assets/Mine/Shaders/Render/PBRToon/PBRToon.shader"
     synthetic.parent.mkdir(parents=True, exist_ok=True)
     synthetic.write_text("// synthetic knowledge-resolution fixture\n", encoding="utf-8")
@@ -160,7 +167,8 @@ def run_isolated(root: Path, task: Path, interpreter: Path,
     report = {
         "status": "FAIL", "project_root": str(root), "interpreter": str(interpreter),
         "task_directory": str(task), "run_id": run_id, "results": [], "real_before": before,
-        "boundary": "Copied project inputs, independent Git root and TMPDIR; no production gate reset.",
+        "boundary": ("Copied project inputs, independent Git root and TMPDIR; "
+                     "no production session, ledger or trash touched."),
     }
     fixture = None
     exit_code = 1
@@ -178,16 +186,26 @@ def run_isolated(root: Path, task: Path, interpreter: Path,
         git_log = evidence / "git-init.log"
         if run_command(["git", "init", "-q", str(fixture)], fixture, env, git_log, timeout):
             raise RuntimeError(f"Fixture git init failed; see {git_log}")
+        # fixture 必须真的有入库文件：v5 的「git 保护 = 可随意编辑」是靠 `git ls-files`
+        # 判的，空仓库会让所有分区外路径都落回拒绝侧，测出来的东西与生产不同。
+        commit = ["git",
+                  "-c", "user.name=mcp-fixture", "-c", "user.email=fixture@invalid",
+                  "commit", "-q", "--allow-empty", "-m", "fixture baseline"]
+        if (run_command(["git", "add", "-A"], fixture, env, evidence / "git-add.log", timeout)
+                or run_command(commit, fixture, env, evidence / "git-commit.log", timeout)):
+            raise RuntimeError(f"Fixture git baseline failed; see {evidence / 'git-commit.log'}")
         preflight = (
-            "import sys, pathlib, mcp; "
-            "root=pathlib.Path.cwd(); sys.path.insert(0,str(root/'.mcp')); "
-            "from validation.project_paths import PROJECT_ROOT; "
+            "import sys, pathlib; "
+            "root=pathlib.Path.cwd(); sys.path.insert(0,str(root/'.mcp/lib')); "
+            "import zones, session, profiles, judgement, close; "
             "from validation.knowledge_paths import find_project_root; "
-            "from gate_center import STATE_FILE; "
-            "assert pathlib.Path(PROJECT_ROOT)==root; "
+            "assert pathlib.Path(zones.PROJECT_ROOT)==root; "
             "assert find_project_root(root/'.mcp')==root; "
-            "assert pathlib.Path(STATE_FILE)==root/'.mcp/state.json'; "
-            "print(sys.executable); print(mcp.__file__); print(PROJECT_ROOT)"
+            "assert pathlib.Path(session.session_file())==root/'.mcp/state/session.json'; "
+            "assert pathlib.Path(zones.ZONES_FILE)==root/'.mcp/config/zones.json'; "
+            "assert zones.zone_prefixes(), 'zone table must load'; "
+            "assert profiles.names(), 'profiles must load'; "
+            "print(sys.executable); print(zones.PROJECT_ROOT)"
         )
         preflight_log = evidence / "preflight.log"
         if run_command([str(interpreter), "-c", preflight], fixture, env, preflight_log, timeout):
@@ -213,7 +231,7 @@ def run_isolated(root: Path, task: Path, interpreter: Path,
     finally:
         after = fingerprints(root)
         unchanged = before == after
-        report.update(real_after=after, real_gate_state_and_audit_unchanged=unchanged)
+        report.update(real_after=after, real_ledger_unchanged=unchanged)
         if not unchanged:
             exit_code = 1
         if fixture is not None:
@@ -240,7 +258,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project-root", help="Project root (default: PROJECT_ROOT or this script's repository)")
     parser.add_argument("--task-dir", help="Existing/new session directory under tmp/sessions")
-    parser.add_argument("--python", dest="interpreter", help="Python with MCP installed (default: .mcp/.venv/bin/python)")
+    parser.add_argument("--python", dest="interpreter", help="Interpreter to run the suites with (default: MCP_TEST_PYTHON, else the one running this script)")
     parser.add_argument("--timeout", type=float, default=300, help="Seconds per subprocess (default: 300)")
     parser.add_argument("--retain-on-failure", action="store_true", help="Keep only this run's failed fixture for diagnosis")
     args = parser.parse_args(argv)
@@ -261,8 +279,11 @@ def main(argv: list[str] | None = None) -> int:
         else:
             prefix = datetime.now().strftime("%Y-%m-%d") + "-mcp-tests-"
             task = Path(tempfile.mkdtemp(prefix=prefix, dir=sessions))
+        # 判定核只用标准库（v4 拆掉 MCP server 后没有第三方依赖），所以默认就用
+        # 跑本脚本的解释器。旧默认 `.mcp/.venv/bin/python` 随 venv 一起删了 ——
+        # 留着一个指向不存在路径的默认值，失败信息会指向错误的方向。
         configured = args.interpreter or os.environ.get("MCP_TEST_PYTHON")
-        interpreter = Path(configured).expanduser().absolute() if configured else root / ".mcp/.venv/bin/python"
+        interpreter = Path(configured).expanduser().absolute() if configured else Path(sys.executable)
         return run_isolated(root, task, interpreter, args.timeout, args.retain_on_failure)[0]
     except (OSError, ValueError) as error:
         print(f"ERROR: {error}", file=sys.stderr)

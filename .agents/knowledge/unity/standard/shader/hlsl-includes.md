@@ -31,6 +31,15 @@
 提供 `Vert()` / `Varyings` / `_BlitTexture` / `sampler_LinearClamp` — 不需要手写。
 **Unity 2022 → 6**：`_MainTex` → `_BlitTexture`，`_MainTex_ST` 不再需要。
 
+### 自定义 include 的展开顺序
+
+自定义库是**文本线性展开**，不共享声明作用域：include 内引用的全局（配置宏如
+`SDF_POINT_COUNT`、`_Points`、CBUFFER 参数）必须在该 `#include` **之前**声明，
+否则报 `undeclared identifier`。
+
+所以「调用方先定义配置宏与参数 → 再 include 库」是接口约定，不是代码风格；
+库的可复用性也依赖它 —— 库只声明依赖，不替调用方定义。
+
 ### CBUFFER 约定
 
 ```hlsl

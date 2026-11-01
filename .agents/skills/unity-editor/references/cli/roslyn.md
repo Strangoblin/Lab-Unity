@@ -33,5 +33,5 @@ eval 使用独立反射程序集，internal 成员不可达；带 lambda/局部�
 Shader 编译错误由 ShaderUtil 持有，可能不在控制台日志中。刷新后对任务目标 Shader 读取 ShaderUtil.GetShaderMessages；Shader 名称从实际目标取得，不固定某个效果。
 
 - RendererFeature 约定见 [feature-script-structure](../../../../knowledge/unity/shader/postprocess/feature-script-structure.md)。
-- 固定调试输出资源：`python3 .mcp/validation/project_resources.py path unity.debug-output-feature`；实际配置按 [渲染调试](../../../unity-render-debug/SKILL.md)。
+- 固定调试输出资源：`python3 .mcp/lib/validation/project_resources.py path unity.debug-output-feature`；实际配置按 [渲染调试](../../../unity-render-debug/SKILL.md)。
 - [场景配置](../../../auto-manager/capabilities/scene-setup.md)、[脚本决策](../../../auto-manager/capabilities/script-decision.md) 与 [清理](../../../auto-manager/capabilities/cleanup.md)。

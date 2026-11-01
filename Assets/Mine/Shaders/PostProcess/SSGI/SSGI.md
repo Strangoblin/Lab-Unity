@@ -17,7 +17,7 @@ Opaque + Skybox
         URP 拷贝 _CameraOpaqueTexture → 透明物体
 ```
 
-RenderGraph 在统一 Feature 内直接传递三张 `TextureHandle`，合成 Pass 对每张实际启用的纹理声明读依赖。`SSGITemporalFilter` 每相机只保留一对眼深度历史，每个启用的模块各保留一对颜色历史；三路复用同一个 Shader 的运动向量重投影、深度拒绝与失效判定；每路使用独立 Material，避免 RenderGraph 中不同 Blend 参数串用。没有 Cubemap 时环境回退为黑色，不使用 `SampleSH`。
+RenderGraph 在统一 Feature 内直接传递三张 `TextureHandle`，合成 Pass 对每张实际启用的纹理声明读依赖。`SSGITemporalFilter` 每相机只保留一对眼深度历史，每个启用的模块各保留一对颜色历史；三路复用同一个 Shader 的运动向量重投影、深度拒绝与失效判定；每路使用独立 Material，避免 RenderGraph 中不同 Blend 参数串用。Specular 默认采样 Unity 环境反射图并按 URP 解码 HDR，不再配置自定义 Cubemap，也不使用 `SampleSH`。
 
 DiffuseGI / SpecularGI 的低分辨率空间阶段共用家族私有 `SSGISpatialFilter.hlsl`：固定 5×5 重尾核、眼深尺度 0.5、法线幂 32。Specular 保留单遍 2/2/1 步幅；Diffuse 三档改为 Fine 步幅 1 → Coarse 步幅 2，后者读取前者输出，两级都以原相机几何作 guide。先连接相邻像素再扩大范围，不是单遍步幅 2 或 mip 金字塔。Diffuse 相较单遍增加一张低分辨率 RT、一次 Raster Pass，空间循环共 50 tap；没有改变采样、步进、时缓或增加方差图，不承诺 GPU 提速。两级配置写入本通道历史签名，旧单遍历史不可沿用。
 
@@ -31,15 +31,17 @@ DiffuseGI 同日后续采样试验保持两级核与预算，采用块级平移�
 
 统一入口在三路空间结果之后调用 `SSGITemporalFilter.Resolve`，将结果直接写入各自历史纹理的另一侧，再写一次全分辨率深度历史。当前档位使用 AO 0.85、DiffuseGI 0.9、SpecularGI 0.5 的最大历史权重；各值可单独调节至 0（关闭历史混合）。相机断帧、尺寸变化、明显矩阵跳变、运动向量缺失或前帧深度不匹配时，本帧直接采用空间结果。模块关闭再开启时也会检查其颜色历史是否仍在正确的双缓冲侧。
 
-AO 和 DiffuseGI 只在有运动向量、公共时域 Shader 可用时推进逐帧采样旋转；独立 Feature 需要把 `SSGITemporal.shader` 指定给自己的 `temporalShader` 才启用历史。SpecularGI 的独立入口同样使用公共时域阶段。历史颜色为 AO 的 RHalf 与两路 GI 的 ARGBHalf，深度为 RHalf；透明几何仍不参与追踪。
+采样帧计数与历史双缓冲计数分离；公共时域 Shader 可用且产生信号时，即使权重为 0 或运动向量不可用也推进采样序列。独立 Feature 需要指定 `SSGITemporal.shader` 才启用公共时域阶段。某路权重为 0 时直接使用空间结果，跳过该路历史写入并使旧历史失效；若所有路均为 0，也跳过共享深度历史写入。已有纹理不会因零权重释放，重新启用首帧拒绝历史，次帧在条件满足时恢复。三路强度均为 0 时统一 Pass 不入队，并使该相机历史失效；不改变其他 Feature 的输入请求。历史颜色为 AO 的 RHalf 与两路 GI 的 ARGBHalf，深度为 RHalf；透明几何仍不参与追踪。
 
-GI 的历史另按实际录制的后端、几何参数、采样/分辨率档位、空间滤波参数和 Shader 比较精确配置签名；SpecularGI 包含 Roughness 与环境 Cubemap/mip，独立 DiffuseGI 包含 Distance Falloff。变化只拒绝受影响 GI 通道本帧的旧颜色，不清空或重新分配历史，也不改变共享深度双缓冲。深度描述符与 RTHandle/动态比例变化另行检查；只改最终合成强度、接收反照率或 Temporal Blend 不失效。AO 不加入本轮 GI 签名逻辑。
+各路历史按实际参数和深度布局比较配置签名。AO 包含模式、有效半径、偏移、角度、深度滤波、采样档位和独立模式的距离衰减；GI 包含后端、几何参数、采样档位和空间滤波。SpecularGI 包含 Roughness、默认环境纹理身份、更新计数和 HDR 解码参数，独立 DiffuseGI 包含 Distance Falloff。签名变化只拒绝受影响通道本帧的旧颜色，不清空或重新分配历史，也不改变共享深度双缓冲。Unity 纹理更新计数不保证覆盖所有原地 GPU 更新。深度描述符与 RTHandle/动态比例变化逐通道检查；只改最终合成强度、接收反照率或非零 Temporal Blend 不失效。
 
 ## 几何追踪后端
 
-DiffuseGI 与 SpecularGI 各自的 Technical Settings 提供 `traceBackend`，统一与独立入口读取同一个设置。默认 `DDA=0`，`Ray=1` 保留对照；旧序列化资源缺少该字段时也使用 DDA。后端为 Trace Pass 局部关键字变体，参数与关键字先存入 PassData，再在执行阶段绑定。
+统一 SSGI 面板的 `Trace` 提供 `DDA`、`Ray`、`HiZ` 三种模式，同时控制 DiffuseGI 与 SpecularGI；默认 DDA。独立 DiffuseGI / SpecularGI Feature 在各自顶层提供同样的 Trace 设置。射线长度、厚度与偏移仍由各分量分别配置。后端为 Trace Pass 局部关键字变体，参数与关键字先存入 PassData，再在执行阶段绑定。
 
-`ScreenSpaceTrace.hlsl` 保留 `SST_Trace` 调用签名，适配 [通用步进库](../../../Special/Rendering/ScreenSpaceTrace/README.md) 的 `ScreenTrace_TraceDDA/TraceRay`；追踪 shader 显式 include RayStep → ScreenTrace 后再 include SST。AO、Temporal、Composite 仍只使用原 SST 深度辅助，不新增追踪依赖。Trace Pass 需 shader target 4.5，本轮只在 Metal 验证，不作为低规格平台回退保证。
+旧统一配置首次初始化时以 Diffuse 的旧后端、HiZ 开关和金字塔资源为准，合并为新的统一 Trace；若旧的 Diffuse 与 Specular 选择不同，Specular 会同步到 Diffuse 的旧选择。独立 Feature 分别迁移各自的旧设置，初始化后的新选择不再被旧字段覆盖。
+
+`ScreenSpaceTrace.hlsl` 保留 `SST_Trace` 调用签名，适配 [通用步进库](../../../Special/Rendering/ScreenSpaceTrace/README.md) 的 `ScreenTrace_TraceDDA/TraceRay`；追踪 shader 显式 include RayStep → ScreenTrace 后再 include SST。Diffuse 在多射线循环外准备共享追踪上下文和配置，单射线入口仍兼容 `SST_Trace`；公共库仍逐射线验证输入。AO、Temporal、Composite 仍只使用原 SST 深度辅助，不新增追踪依赖。Trace Pass 需 shader target 4.5，本轮只在 Metal 验证，不作为低规格平台回退保证。
 
 | 档位 | Diffuse Trace 宽高比例 | Specular Trace 宽高比例 | Diffuse 射线数 | Diffuse RAY/DDA 样本 | Specular RAY/DDA 样本 |
 |---|---:|---:|---:|---:|---:|
@@ -51,11 +53,13 @@ DiffuseGI 与 SpecularGI 各自的 Technical Settings 提供 `traceBackend`，�
 
 DDA 按旧 SSR 框架预计算屏幕位置、`1/w` 与 `eyeDepth/w` 增量，循环累加，按固定投影样本检测穿越并二分；采样真实有效相机深度，不逐格，也不做解析 slab 求交。近平面/视口裁切后距离仍相对原世界起点，基础采样覆盖完整可见片段，不恢复旧 StepSize 缩短覆盖。厚度为线性眼深单位。RAY 保留原等世界距离样本和 6 次二分。预算数值统一，但位置分布及薄前景漏追风险不同，不保证等画质。
 
-RAY/DDA 完成固定采样无命中返回 `MISS` 或 `LEFT_VIEW`，不再将未覆盖的像素解释为 `BUDGET`；通用 HiZ 的回退/细查仍可能耗尽预算并返回 `BUDGET`。效果层的 Diffuse 零贡献、Specular Cubemap 回退不变，不自动重跑 RAY。诊断字段只供按需使用，不新增调试 RT。DDA 不调用深度金字塔服务；生产 HiZ 尚未接线。退役论文版仅保留 [文档参考](../../../Special/Rendering/ScreenSpaceTrace/README.md#退役方案仅文档参考)，不留并行源码。
+RAY/DDA 完成固定采样无命中返回 `MISS` 或 `LEFT_VIEW`，不再将未覆盖的像素解释为 `BUDGET`；HiZ 的回退/细查仍可能耗尽预算并返回 `BUDGET`。效果层的 Diffuse 零贡献、Specular 环境反射回退不变，不自动重跑 RAY。诊断字段只供按需使用，不新增调试 RT。DDA 不调用深度金字塔服务；HiZ 为实验性模式。退役论文版仅保留 [文档参考](../../../Special/Rendering/ScreenSpaceTrace/README.md#退役方案仅文档参考)，不留并行源码。
+
+使用 `HiZ` 时，需在同一个 Trace 面板将 `Assets/Mine/Special/Rendering/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute` 指定到 `Depth Pyramid Shader`。统一入口的两路同帧共享一份正眼深金字塔；独立 Specular 在透明物之后执行，使用单独的深度阶段标识。缺资源、部分视口、动态尺寸、XR 数组或未 resolve 的 MSAA 等不支持条件回退 DDA，并发出一次警告；Shader 另外核对实际深度尺寸和 UV 比例，不匹配时使用 DDA。统一模式切换会分别失效受影响的 Diffuse 与 Specular 历史，不影响 AO。实验性的 HiZ 现以屏幕像素步进（mip `m` 前进 `2^m` 像素，回退时细分到 mip 0），仍可能漏过薄几何；迭代预算为 `2 × maxSteps`，不保证与 DDA 等画质或更快。
 
 ## 合成语义
 
-AO 输出可见度 `V`，DiffuseGI 输出尚未乘接收反照率和强度的间接辐亮度近似，SpecularGI 输出空间与时间滤波后的反射辐亮度；屏幕反射低置信度时直接回退到显式 Cubemap，不再计算假平面反射。统一 Shader 按以下顺序合成：
+AO 输出可见度 `V`，DiffuseGI 输出尚未乘接收反照率和强度的间接辐亮度近似，SpecularGI 输出空间与时间滤波后的反射辐亮度；屏幕反射低置信度时回退到 Unity 默认环境反射图，不再计算假平面反射。统一 Shader 按以下顺序合成：
 
 ```text
 AOFactor = 1 - saturate((1 - V) × AOIntensity)
@@ -66,11 +70,13 @@ Color    = lerp(Color, SpecularGI, saturate(SpecularIntensity × Fresnel))
 
 AO 固定乘到原场景色和新增 DiffuseGI。Forward 后处理无法拆出场景色中的直接光与环境光，因此这里不是严格的“仅遮蔽间接光”。DiffuseGI 使用白色接收反照率近似；不能把已经受光的场景色当作材质反照率，否则会重复计入光照。相较旧版 0.8 的全局颜色，DiffuseGI 可能变亮，可用统一强度调节。SpecularGI 沿用原有 Fresnel 混合，不把反射辐亮度当成无条件加法项。
 
+统一和独立入口的 AO、Diffuse、Specular 强度范围均为 0–10，运行时也按该范围钳制。AO 遮蔽量和 Specular 的 `Intensity × Fresnel` 混合权重仍饱和到 1；Diffuse 保持线性加法。强度 1 的既有合成公式不变。
+
 ## Renderer 配置与调试
 
 初次集成曾在 `Assets/Settings/PC_Renderer.asset` 启用统一 SSGI。2026-10-12 接线核对时 PC Renderer 未包含 SSGI；2026-10-13 性能排查时已配置并启用统一 Feature。两轮验证均未保存或改写场景 / Renderer 配置。使用时在实际相机使用的 Renderer 上绑定统一 Feature，勿与独立 GI Feature 同开。统一 Debug 提供 AO、DiffuseGI、SpecularGI 分量视图，各子模块原有 Debug 只在独立 Feature 使用。
 
-统一 Inspector 的「Technical · Modules」只保留各模块的 Shader、追踪几何与滤波参数；SpecularGI 的 Cubemap 与 Sky Max Mip 也在这里。三个模块的性能档位集中在 Performance，强度集中在 Intensity，历史权重集中在 Temporal。三路 Trace 工作尺寸在 Low 为宽高各 1/8、Medium 各 1/4；High 的 Diffuse 为各 1/3，AO/Specular 仍为各 1/2，非整除尺寸统一向上取整；各路的射线或步进预算仍独立。统一面板不再暴露 Artistic 组：AO/DiffuseGI 的距离衰减固定为 0，Scene AO 固定为 1，接收反照率固定为白色；全局 Specular Roughness 是缺少逐像素材质数据时的近似值，保留在 SpecularGI 技术设置中。每路 Intensity = 0 即跳过该路追踪和历史解析，无额外启用开关。Debug 是统一合成的分量视图。独立 AO、DiffuseGI、SpecularGI Feature 各自保留 Settings（技术参数）和 Controls（性能、强度、时缓、艺术与独立调试），供单模块对照。\n\n性能档位决定固定采样预算和工作分辨率；AO 世界半径只控制遮蔽覆盖，不改变循环次数。
+统一 Inspector 的「Technical · Modules」只保留各模块的 Shader、追踪几何与滤波参数；Specular 天空使用 Unity 默认环境反射图。三个模块的性能档位集中在 Performance，强度集中在 Intensity，历史权重集中在 Temporal。三路 Trace 工作尺寸在 Low 为宽高各 1/8、Medium 各 1/4；High 的 Diffuse 为各 1/3，AO/Specular 仍为各 1/2，非整除尺寸统一向上取整；各路的射线或步进预算仍独立。统一面板不再暴露 Artistic 组：AO/DiffuseGI 的距离衰减固定为 0，Scene AO 固定为 1，接收反照率固定为白色；全局 Specular Roughness 是缺少逐像素材质数据时的近似值，保留在 SpecularGI 技术设置中。每路 Intensity = 0 即跳过该路追踪和历史解析，无额外启用开关。Debug 是统一合成的分量视图。独立 AO、DiffuseGI、SpecularGI Feature 各自保留 Settings（技术参数）和 Controls（性能、强度、时缓、艺术与独立调试），供单模块对照。\n\n性能档位决定固定采样预算和工作分辨率；AO 世界半径只控制遮蔽覆盖，不改变循环次数。
 
 ## 验证与限制
 
@@ -109,3 +115,9 @@ bash Assets/Mine/Shaders/PostProcess/SSGI/Validation~/run.sh
 Metal 实际验证：公共库 **39 组 / 89,095 断言**、SSGI 相机/入口/历史 **39 组 / 1,152,441 断言**通过；库距离、SSGI 距离与错误后端历史三个负控制确实被识别。冻结 RAY 生产回归：Diffuse 三档最大 RGB 差异分别为 0、`1.52587891e-5`、`3.05175781e-5`，Specular 三档为 0；统一/独立信号及 AO 后端隔离差异均为 0。这是当前验证场景与容差内的回归，不是 XR/动态有效区位精确保证。编译无错误；冻结基线与其它已有代码仍有警告，不宣称全项目零消息。
 
 原 Renderer 此时内存状态是 MaskRBR 开启、SSGI 关闭。用户批准只用一次性 SSGI-only 克隆计时，原场景、Renderer、Feature Active 保持；24 块 / 288 样本，1920×1080 双 RAY 中位数 **9.290 ms**、双 DDA **9.190 ms**，波动重叠，不宣称显著提速。它不是当前 Game View 配置的性能，也不是退役算法的同配置等画质对比；方法、完整表格和显式入口见 [Timing.md](Timing.md)。连续运动/薄几何画质仍待人工确认。
+
+### 2026-10-30 HiZ 像素步幅
+
+旧 HiZ 把 DDA 单位（`L/maxSteps` 像素）当作 1 像素，再乘以 `2^mip`，实际每步只覆盖 `maxSteps/L` 的路径，mip 越大漏得越多。本轮按用户要求直接把步幅改为屏幕像素：mip `m` 前进 `2^m` 像素，粗层命中时记录 `parentEnd` 细分到 mip 0，预算改为 `2 × maxSteps`，零投影回退 DDA。公共库 README 与三个模块文档同步；采样、BRDF、空间/时域滤波和默认 DDA 不变。
+
+Unity 6000.3.14f1 / Metal：公共库 **39 组 / 88,826 断言**通过，GPU DDA 距离注入 0.5 的负控制被识别；SSGI 相机/入口/历史 **92 组 / 1,153,512 断言**通过，5 个负控制（DDA 距离、错误后端历史、空间参考、多尺度参考、默认环境 HDR）均被识别。CPU 参考模型同步为「弦像素路径 + `parentEnd` 细分」，因此这组结果证明 GPU 与新参考一致、预算有界，不证明画面漏打减少；画质与薄几何覆盖仍需在 Game View 人工确认。

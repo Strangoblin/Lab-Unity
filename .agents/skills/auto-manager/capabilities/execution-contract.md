@@ -1,54 +1,96 @@
 # Unity 执行契约
 
-本文件统一所有模式的工作区、门禁同步和后果验证。策略档位由 `.mcp/policy.json` 与判定核决定，skill 不自行降级。
+本文件统一所有模式的沙箱、通道与出口验收。策略档位由 `.mcp/config/policy.json` 与判定核决定，skill 不自行降级。
 
-## 任务范围
+2026-10-28 起，`.mcp` 是**判定核 + 证据账本**，不是门禁（见 [MCP 使用事实](../../../knowledge/unity/mcp-gate-usage.md)、
+`.mcp/README.md`）。入口只声明一次，写入走平台原生工具，交付由 `close` 按证据核对。
 
-- 禁止 `git stash --all`。保护已有用户工作；重大改动前按 [backup.md](backup.md) 明确 Git 基准和脏改动。
-- 项目资源用 `python3 .mcp/validation/project_resources.py path <id>` 解析。`asset.root` 是资源/门禁作用域；不等于本次获准修改的全部范围。
-- `[G0.5] Workspace — Path: <用户授权目录> | Source: user`：将现有明确授权的目录交 `gate_set_workspace`。没有目录授权先问用户，不自行决定。tmp 暂存沿用门禁的既有例外。
-- 多工作区由 `gate_request_workspace(path, reason)` 登记；扩展须用户批准。`gate_cli.py workspace approve` 是人的通道，agent 不执行。
-- 存量删除/移动按根 AGENTS.md 准备精确清单并取得确认；已明确授权的同一清单不重复确认。runner 自建可重建 fixture 按 [产物规范](../../../knowledge/meta/interfaces/task-artifacts.md) 自动收尾。
+## 两种分类，不要混
 
-## 结构化决策与 MCP 同步
-
-每个节点输出作为后续步骤输入；统一配方链为 `[g_entry, g_knowledge]`。先选定模式，任务开始仅调用一次 `gate_set_recipe(mode)`，再通过 g_entry、登记工作区、提交知识。再次初始化会清空已通过门禁，不能在 G1 或迭代中重复调用。
-
-| 节点 | 输出 | 同步 |
+| 分类 | 取值 | 回答 |
 |---|---|---|
-| G0 | `Framework Check — Agent: unity-developer` | `gate_pass("g_entry", agent=...)`（此前已初始化一次） |
-| G0.5 | `Workspace — Path: <path> | Source: user` | `gate_set_workspace(path)` |
-| G1 | `Mode Selection — Mode: <mode> | Reason: <why>` | 仅输出已选模式，不重置 recipe；不调用已退役 g_mode |
-| G1.5 | `Knowledge Check — Loaded: <真实已读文件> | Status: COMPLETE` | `gate_pass("g_knowledge", loaded_files=..., status="COMPLETE")` |
-| G2 | `Decision: USE / CREATE reusable / CREATE tmp / NONE` | `write_gated` 的 script_decision 注解，仅记录 |
-| G3 | `FileType + Category + TargetDir + Exists` | `write_gated(path, content, file_type=..., category=..., effect=...)` |
+| **mode**（工作方式） | Research / Production / Experiment | 怎么推进这一轮（见 [模式选择](mode-selection.md)） |
+| **profile**（业务线） | shader / compute / script / tooling / benchmark / meta / research | 该读什么、出口该死磕什么证据（见 `profiles.py`） |
 
-G0 / 高优先级知识漏申报当前为 warn（2026-10-09 档位）；编造文件名仍 block。
-G0.5 工作区、G3 内容/落点、删除/移动安全仍是硬闸。放行 warning 不代表流程要求消失；知识漏读应补齐。
-`g_mode/g_script/g_file/g_web_search/g_plan` 已退役；不尝试补跑它们。
+mode 不产生工具调用；profile 决定 `open` 返回的 playbook 与 `close` 核对的义务。
 
-## 操作通道 — 按域分
+## 一次性打开
 
-**Unity 受管资产**（`Assets/Mine/**` 的受管扩展名、roslyn 脚本）写入走 `write_gated`，删除走 `delete_gated`，
-移动/改名走 `move_gated`；不以 write + delete 拼移动。MCP 工具表冻结时用
-`python3 .mcp/validation/gate_cli.py write|delete|move ...` —— 与 MCP 共用 `validation/judgement.py`，状态仍经 gate_pass 落盘。
+```bash
+python3 .mcp/bin/cli.py open --task "<一句话说明这次做什么>" --profile shader \
+    --workspace Assets/Mine/Shaders/PostProcess/SSC \
+    --workspace Assets/Mine/Special/HLSL
+```
 
-**体系库**（`.agents/{agents,knowledge,memory,skills}/**`）**不在门禁作用域内**，这是刻意边界，由
-`.mcp/tests/test_recipes.py::test_meta_bypass_boundary` 钉住：Unity MCP 只服务 Unity 资产，不是通用文件管理通道。
-角色、memory、knowledge、skill 用平台文件工具直接维护，改完按 [体系维护流程](../../agent-maintenance/references/maintenance.md) 验证。
-体系路径写 `write_gated` 会得到 `PATH_NOT_ALLOWED`，这不是配置故障，不要去拓宽 `ALLOWED_PREFIXES` 来"修"它。
+- `--workspace` 是**用户指定的沙箱**，可重复；跨目录改共享库（如 `Special/HLSL`）在同一次 `open` 里一并给出，不要逐个申请。
+- 没有目录授权先问用户，不自行决定。`asset.root` 是资源配置位置，不等于写入授权。
+- 沙箱管的是**新建与未跟踪的资产**：已入库的文件有 git 兜底，改错 `git checkout` 取回，不受沙箱拦截。
+- 记忆库（`.agents/memory`）与体系库本来就随时可写，也不必声明。
+- 再次 `open` 覆盖上一次会话，会重置证据起点；同一任务不要重复调用。
 
-对受管资产不以 Bash 的 rm/mv/cp/写入型 sed/tee 绕开门禁。平台 hook 只封三条红线
-（`git stash --all`、`rm -rf Assets/Mine/`、`gate_cli.py workspace approve|reject`），**并不**通用拦截 Bash 写入 ——
-约束来自上面这条规则本身，不要因为以为 hook 会兜底而放宽它。
+用户中途指了新的地址（对话框里说「那个目录也一起改」）→ 用 `expand` 扩充，**不要重新 `open`**
+（`open` 会重置证据起点，等于用扩充换豁免）：
 
-| 操作 | 后果验证 |
+```bash
+python3 .mcp/bin/cli.py expand --workspace Assets/Mine/Special/HLSL --reason "用户确认: 共享库要一起改"
+```
+
+`--reason` 写用户确认的原话 —— 这条命令不设「申请/批准」两段，确认发生在对话里，命令只负责留痕。
+
+## 写入通道
+
+**平台原生 `Write` / `Edit`**，由 PreToolUse hook 判定。没有 `cli.py write`。
+读、写、移动、改名都用原生工具：`mv` 会顺带搬 `.meta`，GUID 随文件走，本来就安全。
+**只有删除要进垃圾桶**（`cli.py delete`：留底、`.meta` 成对、可 `restore`）。
+
+| 区 | 规则 |
 |---|---|
-| 写 | shader-decl / cs-type-decl / region-added 结构违规拒绝；受管文件须符合 Effects / Scripts / Shaders / Special 落点；category 与路径或分隔线风格不符给 warning |
-| 删 | tracked-dirty 或 GUID 被引用拒绝；untracked 放行但注明不可恢复；reason 必填、批量原子；非空目录须 recursive=True；软链和作用域根拒绝 |
-| 移 | 零改动预检，不覆盖目标、不重复 GUID、不允许批内链式；源 tracked-dirty 可保留内容搬运；.meta 成对移动保 GUID；reason 必填 |
+| `Assets/Mine/**` | 沙箱内自由写入；**已入库的**沙箱外也放行（git 兜底）；未入库的新建仍拒 |
+| `.agents/memory/**` | 随时可写，**既有记录也能原地改** |
+| `.agents/{agents,knowledge,skills}`、`.mcp`、平台目录 | 可写，只记录 |
+| `tmp/**`、`.mcp/trash/**` | 自由 |
+| 分区表之外（`AGENTS.md`、`.mcp.json`、`.gitignore` 等） | **已入库即放行**（git 兜底），按体系区记录；未入库拒 |
+| `Library`、`Temp`、仓库外、未跟踪的新文件 | 拒绝，需人工 |
 
-未设工作区报 `WORKSPACE_NOT_SET`，越界报 `WORKSPACE_VIOLATION`；配置解析不能消除这些检查。
-Codex 规范检查为 `python3 .mcp/validation/check_norm.py <file>`。
-错误疑似误拦时记录原因交 meta 体系维护，不修改 policy 为本次任务放行。
-工具速查与策略事实见 [MCP reference](../../../knowledge/unity/mcp-gate-usage.md)。
+**git 保护 = 可随意编辑**：判据不是「agent 可靠」，而是内容有版本库兜底 ——
+改错一条 `git checkout` 就回来，拦着它反而让 agent 够不到项目入口文件。
+
+## 过程节点（文档约定，不是闸）
+
+下列输出是**思考结构**，帮助把决策说清楚；没有任何工具核对它们，`close` 也不看申报。
+真正被核对的只有证据 —— 别把输出当成通行证。
+
+| 节点 | 输出 | 作用 |
+|---|---|---|
+| 模式 | `Mode Selection — Mode: <mode> | Reason: <why>` | 决定推进方式 |
+| 知识 | 按 [知识预加载](knowledge.md) 读取 profile 的必读项 | 读取由 hook 观测，无需申报 |
+| 脚本 | `Script Decision: NeedScript / LibraryCheck / Match / Decision / Path` | 避免造同功能脚本（[脚本决策](script-decision.md)） |
+| 落点 | `File Placement: FileType / Category / TargetDir / Exists` | 避免乱放（[文件放置](file-placement.md)） |
+
+`G0`–`G3`、`gate_set_recipe`、`gate_pass`、`g_entry`、`g_knowledge`、`write_gated`、`delete_gated`、`move_gated`、
+`gate_cli.py`、`check_norm.py` 均已移除（源码在 `.mcp/trash/`，可 `cli.py restore` 取回，不要重新启用）。
+
+## 出口验收
+
+```bash
+python3 .mcp/bin/cli.py close
+python3 .mcp/bin/cli.py close --waive verify --reason "纯逻辑改动，无需画面验证"
+```
+
+`close` 按 profile 的完成义务逐项查证据：`knowledge`（PostToolUse 观测到的真实读取）、`norm`（本次写入的违规）、
+`compile`（最后一次写入之后的 Unity 日志无 error）、`verify`（晚于最后写入的验证产物）、`memory`（有实质改动时
+dated 记录 + 索引更新）。缺失项默认 block；`close.verify` / `close.memory` 为 warn。豁免必须给 `--reason` 并留痕。
+
+**没有实质改动就不必写记忆**：`close` 会跳过 `memory`。纯只读任务用 `--profile research`。
+
+记忆记录可以原地改：结论修正直接写进原文件，不必新建副本再在索引里指向前者 —— 但索引仍要跟上。
+
+## 边界
+
+- 禁止 `git stash --all`；重大改动前按 [backup.md](backup.md) 明确 Git 基准和脏改动。
+- 沙箱的**来源**必须在用户那边：agent 不自行选定或擅自扩大 `--workspace`；`expand` 只能写用户指过的目录，
+  且必须带 `--reason`（用户原话）留痕。agent 也不得改 `policy.json` 为本次任务放行。
+- 证据账本（`.mcp/{friction,writes,reads,deletes,moves}.jsonl`、`session.json`、`trash`）不可删除。
+- 项目资源用 `python3 .mcp/lib/validation/project_resources.py path <id>` 解析。
+- 存量删除按根 AGENTS.md 准备精确清单并取得确认；runner 自建可重建 fixture 按 [产物规范](../../../knowledge/meta/interfaces/task-artifacts.md) 自动收尾。
+- 疑似误拦交 meta 体系维护复核（[maintenance](../../agent-maintenance/references/maintenance.md)），不就地改策略。

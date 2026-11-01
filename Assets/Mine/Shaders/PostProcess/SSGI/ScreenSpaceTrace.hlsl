@@ -87,29 +87,43 @@ ScreenTraceContext SST_CreateTraceContext()
     context.zBufferParams = _ZBufferParams;
     context.clipPlanes = _ProjectionParams.yz;
     context.orthographic = unity_OrthoParams.w > 0.5 ? 1u : 0u;
+    #if defined(SSGI_TRACE_HIZ)
+        context.pyramidMipCount = _SSGIPyramidMipCount;
+    #endif
     #if UNITY_REVERSED_Z
         context.reversedZ = 1u;
     #endif
     return context;
 }
 
-bool SST_Trace(float3 originWS, float3 directionWS, float maxDistance,
-    float thickness, int stepCount, out ScreenSpaceTraceHit hit)
+ScreenTraceConfig SST_CreateTraceConfig(float thickness, int stepCount)
+{
+    ScreenTraceConfig config;
+    config.maxSteps = stepCount;
+    config.refinementSteps = 6;
+    config.thickness = thickness;
+    return config;
+}
+
+bool SST_TracePrepared(float3 originWS, float3 directionWS, float maxDistance,
+    ScreenTraceContext context, ScreenTraceConfig config, out ScreenSpaceTraceHit hit)
 {
     hit = (ScreenSpaceTraceHit)0;
     hit.status = SCREEN_TRACE_INVALID;
     RayStepRay ray;
     if (!RayStep_CreateRay(originWS, directionWS, float2(0.0, maxDistance), ray))
         return false;
-    ScreenTraceConfig config;
-    config.maxSteps = stepCount;
-    config.refinementSteps = 6;
-    config.thickness = thickness;
-    ScreenTraceContext context = SST_CreateTraceContext();
     ScreenTraceHit geometry;
     bool found;
     #if defined(SSGI_TRACE_RAY)
         found = ScreenTrace_TraceRay(ray, context, config, geometry);
+    #elif defined(SSGI_TRACE_HIZ)
+        if (all(context.depthSize == _SSGIPyramidSize.xy)
+            && all(context.depthTextureSize == _SSGIPyramidSize.xy)
+            && all(context.depthUvScaleBias == float4(1.0, 1.0, 0.0, 0.0)))
+            found = ScreenTrace_TraceHiZ(ray, context, config, geometry);
+        else
+            found = ScreenTrace_TraceDDA(ray, context, config, geometry);
     #else
         found = ScreenTrace_TraceDDA(ray, context, config, geometry);
     #endif
@@ -120,6 +134,13 @@ bool SST_Trace(float3 originWS, float3 directionWS, float maxDistance,
     hit.steps = geometry.steps;
     hit.depthQueries = geometry.depthQueries;
     return found;
+}
+
+bool SST_Trace(float3 originWS, float3 directionWS, float maxDistance,
+    float thickness, int stepCount, out ScreenSpaceTraceHit hit)
+{
+    return SST_TracePrepared(originWS, directionWS, maxDistance,
+        SST_CreateTraceContext(), SST_CreateTraceConfig(thickness, stepCount), hit);
 }
 #endif
 

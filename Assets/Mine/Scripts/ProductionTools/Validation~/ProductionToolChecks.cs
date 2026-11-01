@@ -104,7 +104,7 @@ public static class Script
             sources.Add(curve);
             string curvePath = folder + "/curve.asset";
             var savedCurve = AssetAccess.Save(curve, curvePath);
-            var types = new[] { typeof(CurveGeneratorWindow), typeof(NoiseGeneratorWindow), typeof(FGDLutBakerWindow), typeof(Mine.SSSLutBaker.SSSLutBakerWindow), typeof(InteriorMapBakerWindow) };
+            var types = new[] { typeof(CurveGeneratorWindow), typeof(NoiseGeneratorWindow), typeof(FGDLutBakerWindow), typeof(Mine.SSSLutBaker.SSSLutBakerWindow), typeof(Mine.FabricLutBaker.FabricLutBakerWindow), typeof(Mine.HDRMaps.Editor.HDRMapBakerWindow) };
             foreach (Type type in types)
             {
                 Check(type.BaseType == typeof(EditorWindow), type.Name + " is an independent EditorWindow");

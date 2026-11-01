@@ -1,8 +1,4 @@
 {
-  "mcpServers": {
-    "unity-gate": {
-      "command": "uv",
-      "args": ["run", "--directory", "/Users/xiaokangji/Unity/Lab/.mcp", "python", "server.py"]
-    }
-  }
+  "_comment": "MCP v4 不再注册任何本地 MCP 服务：写入走平台原生 Write/Edit + PreToolUse hook（.mcp/lib/hooks.py），删除/移动/收尾走 .mcp/bin/cli.py。留空对象而不是删文件 —— 平台会读本文件，缺失与「无服务」在语义上不同。",
+  "mcpServers": {}
 }

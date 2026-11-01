@@ -1,0 +1,10 @@
+// Negative control: the depth-pyramid service must reject the missing reduction kernel.
+#pragma kernel CopyDepth
+RWTexture2D<float> _Destination;
+float4 _DestinationSize;
+[numthreads(8, 8, 1)]
+void CopyDepth(uint3 id : SV_DispatchThreadID)
+{
+    if (any(id.xy >= (uint2)_DestinationSize.xy)) return;
+    _Destination[id.xy] = 0.0;
+}

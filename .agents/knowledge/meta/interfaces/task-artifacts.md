@@ -19,7 +19,7 @@
 
 | 内容 | 权威落点 |
 |---|---|
-| 功能代码、配置和说明 | 原功能目录；`Assets/Mine` 写/删/移仍走 Unity 门禁 |
+| 功能代码、配置和说明 | 原功能目录；`Assets/Mine` 的新建文件仍须在本次沙箱内（已入库资产由 git 兜底），删除走 `cli.py delete`，移动用 `mv` |
 | 功能专属、可复现验证源码与必要基线 | 同功能 `Validation~/`，由 README / VALIDATION 给出入口；新运行输出回任务目录 |
 | skill 的复用脚本或验证工具 | `.agents/skills/<skill>/scripts/`；模板归该技能 templates/assets；由技能索引注明用途、依赖和运行入口。项目专属验证器不进共享库，归项目功能 `Validation~/`，经[项目资源](project-resources.md)绑定按 ID 取用 |
 | 平台/MCP 契约测试源码 | 原平台 `tests/`；MCP 默认使用隔离 runner，不在生产项目 reset |

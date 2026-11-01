@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  ScreenSpaceTraceFunction — SSR-style RAY / incremental DDA / mip-stride HiZ queries.
+//  ScreenSpaceTraceFunction — SSR-style RAY / incremental DDA / pixel-stride HiZ queries.
 //  Include Core and RayStepFunction first, or override both depth-load macros.
 //  No color, BRDF, normal bias, confidence or temporal policy is applied here.
 // ═══════════════════════════════════════════════════════════════
@@ -332,21 +332,42 @@ bool ScreenTrace_TraceHiZ(RayStepRay ray, ScreenTraceContext context, ScreenTrac
     RayStepDDAState state;
     RayStepDDAState increment;
     RayStep_CreateDDA(projected, config.maxSteps, state, increment);
+    // One DDA unit is (progressSpan / maxSteps), i.e. unitPixels screen pixels of the
+    // clipped chord. Advancing by mip m must cover 2^m pixels, not 2^m DDA units;
+    // the latter jumps 2^m * (L / maxSteps) px while querying a 2^m px cell.
+    float unitPixels = length(increment.pixel);
+    float rayPixels = unitPixels * (float)config.maxSteps;
+    if (!(unitPixels > 1e-6) || !isfinite(unitPixels) || !isfinite(rayPixels))
+        return ScreenTrace_TraceDDA(ray, context, config, hit);
     float sceneDepth;
     hit.depthQueries++;
     bool surface = ScreenTrace_LoadUV(state.pixel / context.depthSize, context, sceneDepth);
     bool previousInFront = surface && state.weightedEyeDepth / state.reciprocalW < sceneDepth;
     if (surface && !previousInFront)
         return false;
+    // cursor / parentEnd are chord pixels; a coarse hit rewinds and subdivides the
+    // reported cell instead of skipping the rest of it. Two pixel-level passes per
+    // budgeted sample cover ascent, subdivision and the 1 px refine walk.
     int mip = 0;
     float cursor = 0.0;
+    float parentEnd = -1.0;
+    int budget = max(config.maxSteps * 2, 1);
     [loop]
-    for (int stepIndex = 0; stepIndex < config.maxSteps; ++stepIndex)
+    for (int stepIndex = 0; stepIndex < budget; ++stepIndex)
     {
         RayStepDDAState previous = state;
-        float stride = min(exp2((float)mip), (float)config.maxSteps - cursor);
-        RayStep_AdvanceDDA(state, increment, stride);
-        if (cursor + stride >= config.maxSteps)
+        float limit = parentEnd > 0.0 ? parentEnd : rayPixels;
+        float stepPixels = min(exp2((float)mip), min(limit - cursor, rayPixels - cursor));
+        if (!(stepPixels > 0.0))
+            stepPixels = min(rayPixels - cursor, 1.0);
+        if (!(stepPixels > 0.0))
+        {
+            hit.status = ScreenTrace_EndStatus(projected, ray);
+            return false;
+        }
+        RayStep_AdvanceDDA(state, increment, stepPixels / unitPixels);
+        float nextCursor = cursor + stepPixels;
+        if (nextCursor >= rayPixels)
             state = RayStep_DDAAt(projected, projected.progressRange.y);
         hit.steps++;
         hit.depthQueries++;
@@ -364,6 +385,7 @@ bool ScreenTrace_TraceHiZ(RayStepRay ray, ScreenTraceContext context, ScreenTrac
         {
             if (mip > 0)
             {
+                parentEnd = min(cursor + stepPixels, rayPixels);
                 state = previous;
                 mip--;
                 continue;
@@ -373,13 +395,16 @@ bool ScreenTrace_TraceHiZ(RayStepRay ray, ScreenTraceContext context, ScreenTrac
             return ScreenTrace_RefineDDA(previous, state, context, config, hit);
         }
         previousInFront = surface && delta < 0.0;
-        cursor += stride;
-        if (cursor >= config.maxSteps)
+        cursor = nextCursor;
+        if (cursor >= rayPixels)
         {
             hit.status = ScreenTrace_EndStatus(projected, ray);
             return false;
         }
-        mip = min(mip + 1, context.pyramidMipCount - 1);
+        if (parentEnd > 0.0 && cursor >= parentEnd - 1e-4)
+            parentEnd = -1.0;
+        if (parentEnd <= 0.0)
+            mip = min(mip + 1, context.pyramidMipCount - 1);
     }
     hit.status = SCREEN_TRACE_BUDGET;
     return false;

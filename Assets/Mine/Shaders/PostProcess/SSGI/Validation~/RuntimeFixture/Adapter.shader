@@ -6,8 +6,10 @@ Shader "PostProcess/Adapter"
     Properties { }
     HLSLINCLUDE
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+    #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
     TEXTURE2D_X(_GITraceTexture);
     float4 _TestOrigin;
     float4 _TestDirection;
@@ -43,6 +45,16 @@ Shader "PostProcess/Adapter"
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
         if (_TestMode == 8)
             return SAMPLE_TEXTURE2D_X_LOD(_GITraceTexture, sampler_PointClamp, input.texcoord, 0);
+        if (_TestMode == 9)
+        {
+            float rawDepth = SST_SampleDepth(input.texcoord);
+            if (!SST_IsSurface(rawDepth)) return 0.0;
+            float3 positionWS = SST_WorldPosition(input.texcoord, rawDepth);
+            float3 normalWS = normalize(SampleSceneNormals(input.texcoord));
+            float3 directionWS = reflect(-GetWorldSpaceNormalizeViewDir(positionWS), normalWS);
+            float4 encoded = SAMPLE_TEXTURECUBE_LOD(_GlossyEnvironmentCubeMap, sampler_GlossyEnvironmentCubeMap, directionWS, 0);
+            return float4(DecodeHDREnvironment(encoded, _GlossyEnvironmentCubeMap_HDR), 1.0);
+        }
         ScreenTraceContext context = SST_CreateTraceContext();
         if (_TestMode == 2)
             return float4(context.depthSize, context.depthTextureSize);

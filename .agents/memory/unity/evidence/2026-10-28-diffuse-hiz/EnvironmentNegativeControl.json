@@ -1,0 +1,1 @@
+{"success":true,"result":"{\n  \"detected\": true,\n  \"assertions\": 1152474,\n  \"error\": \"Default environment HDR red: expected 0.7992872, actual 0\",\n  \"output\": \"tmp/sessions/2026-10-28-ssgi-camera-5dd03ecf/output\"\n}"}

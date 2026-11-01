@@ -1,0 +1,110 @@
+{
+  "_comment": "MCP v5 执行策略 —— 业务式管理。严格度是数据，不是代码：改这里 = 调框架，不必改判定逻辑。level: block(拒绝) | warn(放行并提示) | off(只记账)。缺省条目 = 用检查自身的固有级别。v4 的重心从入口仪式移到出口证据 —— close.* 是新的主旋钮。",
+  "version": 5,
+  "checks": {
+    "scope.zone": {
+      "level": "block",
+      "retirable": false,
+      "why": "分区兜底：既不在分区表内、也没有 git 兜底的路径（仓库外、生成目录、未跟踪的新文件）需要人工决定。只判「有没有兜底」，不判「是哪个目录」—— 已入库的仓库文件靠 git 放行（见 zones.json 的 git_protected）。"
+    },
+    "sandbox.asset": {
+      "level": "block",
+      "retirable": false,
+      "why": "本次任务沙箱由用户下达（每次任务我指明小沙箱），约束的是**新建与未跟踪**的资产 —— 那部分没有 git 兜底。已入库资产改错可 checkout，因此不拦；这消除了 v4 遗留的「跨目录改共享库被误拦」。"
+    },
+    "norm.shader-decl": {
+      "level": "block",
+      "retirable": false,
+      "why": "缺 Shader 声明 = 文件根本不可用。零命中 = agent 从没写坏过，不是这条检查冗余。"
+    },
+    "norm.cs-type-decl": {
+      "level": "block",
+      "retirable": false,
+      "why": "缺类型声明 = 文件根本不可用，检查成本是一次正则。"
+    },
+    "norm.region-added": {
+      "level": "block",
+      "why": "项目风格硬规则，机械可判"
+    },
+    "norm.divider-added": {
+      "level": "warn",
+      "why": "风格提示，不值得阻断"
+    },
+    "placement.root.new": {
+      "level": "block",
+      "why": "新文件落点是全新决定"
+    },
+    "placement.root.existing": {
+      "level": "warn",
+      "why": "就地编辑，历史决定不回溯"
+    },
+    "placement.category": {
+      "level": "warn",
+      "why": "注解与路径不符只是提醒"
+    },
+    "move.presafety": {
+      "level": "block",
+      "retirable": false,
+      "why": "预检不通过即零改动；GUID 同两份会让 Unity 报错，与位置无关。"
+    },
+    "bash.redline": {
+      "level": "block",
+      "retirable": false,
+      "why": "三条红线都是不可逆：git stash --all、rm -rf Assets/Mine、删除证据账本。v5 去掉了「自行批准沙箱」—— 沙箱扩充改由用户在对话里确认、agent 执行并留痕（见 cli.py expand），封一条已经被对话取代的命令没有意义。"
+    },
+    "close.knowledge": {
+      "level": "block",
+      "why": "必读未读就动手，是业务质量的直接来源；有 PostToolUse 观测到的真实读取记录可查，不靠申报。"
+    },
+    "close.norm": {
+      "level": "block",
+      "why": "本次写入出现规范违规，说明交付不合格。"
+    },
+    "close.compile": {
+      "level": "block",
+      "why": "写入后仍有编译错误 = 没交付。拿不到日志时记 UNAVAILABLE，不冒充通过。"
+    },
+    "close.verify": {
+      "level": "warn",
+      "why": "画面与性能验证常受环境限制（Metal 波动、无显示器）；先提示，观察后再决定是否升 block。"
+    },
+    "close.memory": {
+      "level": "warn",
+      "why": "结论未记录会让下一轮重做；但记录时机有滞后，先提示。"
+    }
+  },
+  "sandbox": {
+    "_comment": "v5 仍用会话沙箱，但只管**新建与未跟踪**的资产：open --workspace 声明目录，已入库文件靠 git 兜底放行。记忆区与体系区不在沙箱内。agent 可在用户对话框确认后用 cli.py expand 扩充（见 hooks.py 的 bash.redline 对自批的封闭）。",
+    "applies_to": [
+      "Assets/Mine/"
+    ]
+  },
+  "_history": [
+    {
+      "date": "2026-10-09",
+      "by": "human-approved",
+      "change": "ceremony.recipe_gate: block→warn；ceremony.knowledge_high_priority: block→warn",
+      "evidence": "friction_report demote 提案（仪式比 1.79）；历史 G15_MISSING_HIGH_PRIORITY 10 次形式性误拦",
+      "kept_block": "ceremony.knowledge_resolvable（防幻觉）、norm.cs-type-decl（正确性，零成本）",
+      "observation": "一个完整 Unity 任务周期；regression → 立即回 block"
+    },
+    {
+      "date": "2026-10-28",
+      "by": "human-approved",
+      "change": "v3 → v4：退役 recipe / workspace / entry / knowledge-申报四类门禁与 write/delete/move 三个 MCP 工具；改为 zones 分区 + PreToolUse hook 判定 + trash 留底 + close 出口验收",
+      "evidence": "friction 1261 条：仪式比 0.093（仪式已不痛）；5 次真实误拦全在 Assets/Mine 内部跨目录；收尾写记忆 2 次 WORKSPACE_NOT_ALLOWED；CLI 679 次 vs MCP 309 次（写入通道倒挂，每次多一次往返）",
+      "retired": "ceremony.*（申报已由 PostToolUse 观测取代）、scope.path→scope.zone、scope.workspace→sandbox.asset、deletion.recoverability 与 deletion.guid-referenced（改 trash 留底）",
+      "kept": "规范 / 落点 / 移动预检 / Bash 红线 —— 拦的是产物不可用与不可逆，不是流程",
+      "added": "close.* 五项出口证据校验；memory.history-immutable 把记忆区从「界外」改成「区内但历史只读」"
+    },
+    {
+      "date": "2026-10-28",
+      "by": "human-approved",
+      "change": "v4 → v5：记忆区改成完全可写（退役 memory.history-immutable）；分区外/沙箱外路径按 git 保护放行（git_protected）；恢复「agent 申请、用户对话框确认」的沙箱扩充通道（cli.py expand）；资产区移动等操作允许用原生命令，删除仍走垃圾桶",
+      "evidence": "本会话实测两次误拦：改 AGENTS.md 撞 ZONE_DENIED（项目入口文档恰在模型够不到处）、改刚写的 dated 记忆撞 MEMORY_HISTORY_IMMUTABLE（绕路新建的副本比原地改更难维护）。用户裁决原文：「整个项目大部分都处于 git 保护，只要处于 git 保护，就可以认为 agent 可以随意编辑」「沙箱可以在用户指定某一个地址后，由 agent 申请扩充（对话框确认就行）」「除读写，移动等其他操作也尽量让 agent 用原生工具自己跑，删除用垃圾桶倒也行」",
+      "retired": "memory.history-immutable（git 已兜住历史，只读导致副本分裂）",
+      "narrowed": "sandbox.asset / scope.zone 从「按目录判」改成「按有没有兜底判」—— 已入库放行，新建与未跟踪仍拒",
+      "kept": "规范的 block 档、Bash 红线、删除进垃圾桶（可恢复）"
+    }
+  ]
+}

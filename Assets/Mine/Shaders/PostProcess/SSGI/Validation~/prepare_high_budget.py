@@ -65,7 +65,8 @@ def combine_checks(camera, extension):
 def collect_sources(project):
     paths = {
         MODULE / "DiffuseGI/DiffuseGIFeature.cs", MODULE / "SSGIFeature.cs", MODULE / "SSGIControls.cs",
-        MODULE / "SSGITemporalFilter.cs", MODULE / "DiffuseGI/DiffuseGI.shader", MODULE / "SSGITemporal.shader",
+        MODULE / "SSGITemporalFilter.cs", MODULE / "SSGIDepthPyramid.cs",
+        MODULE / "DiffuseGI/DiffuseGI.shader", MODULE / "SSGITemporal.shader",
         MODULE / "Validation~/CameraChecks.cs", MODULE / "Validation~/HighBudgetChecks.cs",
         Path("Packages/manifest.json"), Path("Packages/packages-lock.json"),
     }

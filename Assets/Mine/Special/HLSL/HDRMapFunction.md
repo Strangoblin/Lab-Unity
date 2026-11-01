@@ -4,7 +4,7 @@ Shared direction-to-image mapping and radiance sampling. Include URP `Core.hlsl`
 
 ## Contract
 
-Coordinates: +X right, +Y up, +Z forward, UV origin bottom-left. Equirectangular forward is UV (.5,.5); longitude is `atan2(x,z)`, vertical coordinate is angular latitude `asin(y)`. Standard octahedral and equal-area octahedral use +Y as their central pole. Zero input direction returns transparent; nonzero directions are normalized internally.
+Coordinates: +X right, +Y up, +Z forward, UV origin bottom-left. Equirectangular forward is UV (.5,.5); longitude is `atan2(x,z)`, vertical coordinate is angular latitude `asin(y)`. Standard octahedral and equal-area octahedral use +Y as their central pole. Near-zero input directions return transparent; valid directions are normalized internally.
 
 | Parameter | Values |
 |---|---|
@@ -22,13 +22,26 @@ float4 gradient = HDRMapSampleGrad(TEXTURE2D_ARGS(_Map, sampler_Map), direction,
 
 `HDRMapSample` reads mip 0. LOD is an ordinary image mip, clamped to the actual texture mip count. Grad takes derivatives of the unnormalized direction and accounts for projection seams. Converter outputs currently contain only mip 0. Bilinear filtering reconnects octahedral folded edges; equirectangular U wraps and V clamps independently of source sampler settings.
 
+## Reflection sampling
+
+`HDRMapSampleReflection` reuses the same HDR map for object reflections; it does not require a second Cubemap or a reflection-specific projection. The caller supplies a surface normal and a view direction pointing from the surface toward the camera.
+
+```hlsl
+float3 viewWS = GetWorldSpaceNormalizeViewDir(positionWS);
+float3 normalWS = normalize(input.normalWS);
+float4 reflected = HDRMapSampleReflection(
+    TEXTURE2D_ARGS(_Map, sampler_Map), normalWS, viewWS, projection, coverage);
+```
+
+Internally it computes `reflect(-viewWS, normalWS)` and calls `HDRMapSample`. With `coverage == Interior`, reflection directions outside the +Z hemisphere remain transparent, matching the sky-map contract. This convenience function samples mip 0; for an explicit LOD, compute the reflected direction and call `HDRMapSampleLOD` directly. Passing a camera-to-surface direction instead of surface-to-camera reverses the reflection.
+
 `HDRMapDirectionToUV` and `HDRMapUVToDirection` expose the pure mapping pair with an `out valid` mask. Equal-area uses the exact trigonometric formula and a matching inverse; no approximation or bitwise sign optimisation is assumed faster on Metal.
 
 ## Consumers
 
 - `Assets/Mine/Scripts/HDRMapConverter/HDRMapConvert.shader`: target UV → direction → source sampling, yielding a linear HDR sampling image.
 - `Assets/Mine/Shaders/Render/HDRMap/HDRMapSkybox.shader`: outward sky direction, optional Y rotation and exposure.
-- `Assets/Mine/Shaders/Render/InteriorMapping/InteriorMappingFunction.hlsl`: room intersection stays effect-private; `(hit.x, hit.y, -hit.z)` adapts its -Z room frame to the shared +Z map frame. Material Map Projection = -1 preserves the previous sampling path.
+- `Assets/Mine/Shaders/Render/InteriorMapping/InteriorMappingFunction.hlsl`: room intersection stays effect-private; `(hit.x, hit.y, -hit.z)` adapts its -Z room frame to the shared +Z map frame. Material Map Projection = 4 preserves the previous sampling path.
 
 The same sampler serves panorama and interior coverage. A plane needs UV, camera position and room geometry to construct a parallax direction before calling it. UV mapping alone cannot reproduce view-dependent room parallax.
 

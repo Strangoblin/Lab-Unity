@@ -8,7 +8,7 @@
 | 形态 | 入口 | 落地要求 |
 |---|---|---|
 | 纯 GUI，不产出资产 | [editor-window.cs](editor-window.cs) 的菜单 / 设置 / 预览段 | 直接继承 `EditorWindow`，只取需要的 GUI 部分 |
-| 生成或烘焙资产 | [production-tool/](../production-tool/README.md) | 复制完整独立 `EditorWindow` 模板，在 staging 替换业务占位符，审核后经现有门禁合入工具目录 |
+| 生成或烘焙资产 | [production-tool/](../production-tool/README.md) | 复制完整独立 `EditorWindow` 模板，在 staging 替换业务占位符，审核后在任务沙箱内合入工具目录 |
 
 `editor-window.cs` 保留历史落盘示例；新资产产出窗口统一使用 production-tool 完整模板，采用原位更新与目标资产保存契约。
 项目无需引用 agent 中的框架，也无需安装共享基类或路径注册表。

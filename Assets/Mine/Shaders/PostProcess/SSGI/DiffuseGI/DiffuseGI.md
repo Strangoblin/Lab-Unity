@@ -36,7 +36,9 @@ Feature 在 `AfterRenderingSkybox` 执行，要求 RenderGraph 开启。输入�
 | `../SSGISpatialFilter.hlsl` | 沿用 Specular 的共享空间重建核心，固定 25 样本 |
 | `../ScreenSpaceTrace.hlsl` | 通用库的 DDA/RAY 几何适配，以及原深度辅助 |
 
-几何算法复用 `Special/HLSL/RayStepFunction.hlsl` 与 `ScreenSpaceTraceFunction.hlsl`，不复用旧 SSR 颜色接口。默认 DDA 使用旧 SSR 框架的齐次增量、定步数穿越和二分精炼，RAY 保留原世界步进；不接 HiZ、不创建金字塔，方向采样和贡献不变。空间阶段另按 Specular 已验证的宽核重建对齐。合同见 [统一说明](../SSGI.md#几何追踪后端)。
+几何算法复用 `Special/HLSL/RayStepFunction.hlsl` 与 `ScreenSpaceTraceFunction.hlsl`，不复用旧 SSR 颜色接口。默认 DDA 使用旧 SSR 框架的齐次增量、定步数穿越和二分精炼，RAY 保留原世界步进；可选的实验 HiZ 使用公共深度金字塔服务与像素步幅追踪（mip `m` 前进 `2^m` 像素，回退细分到 mip 0）。方向采样和贡献不变。空间阶段另按 Specular 已验证的宽核重建对齐。循环外复用 `SST_CreateTraceContext` / `SST_CreateTraceConfig`，射线仍逐条调用公共追踪并验证；历史 RAY 对照保留旧入口。合同见 [统一说明](../SSGI.md#几何追踪后端)。
+
+2026-10-28 M2 / Metal 的隔离 Diffuse 克隆对照包含深度金字塔构建：1920×1080 High 三轮同步墙钟块中位数分别为 DDA 20.408 / 20.693 / 19.558 ms，HiZ 15.361 / 12.269 / 12.784 ms；该固定视角下 HiZ 较低约 25–41%。654×393 的 Medium/High 和 1080p Medium 轮间波动较大，未分辨稳定差异。该读数包含整个相机请求与单像素回读，不是纯 GPU / Trace Pass 耗时或全场景保证；HiZ 的跳跃可能改变命中与间接光细节，需人工比较运动画面。
 
 ### 共享空间重建
 
@@ -101,14 +103,15 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 
 | 分组 | 参数 | 默认值 | 含义 |
 |---|---|---|---|
-| Technical | traceBackend | DDA | DDA 投影增量采样 / Ray 世界距离采样；Trace target 4.5 |
+| Trace | Mode | DDA | DDA / Ray / 实验性 HiZ；统一入口由两路共享 |
+| Trace | Depth Pyramid Shader | None | HiZ 需要绑定共享的 `ScreenSpaceDepthPyramid.compute` |
 | Technical | maxDistance | 5 | 世界空间射线最大距离 |
 | Technical | thickness | 0.15 | 线性视深度命中厚度，过大易漏光 |
 | Technical | normalBias | 0.03 | 起点沿接收法线的偏移，过大丢近接触 |
 | Technical | depthSigma | 0.15 | 四点上采样眼深尺度；低分辨率宽核沿用 Specular 的固定尺度 0.5 |
 | Performance | performance | Medium | 成本档位，见下表 |
 | Performance | temporalBlend | 0.9 | 最大历史权重；0 关闭历史混合 |
-| Artistic | intensity | 1 | 合成强度，0 关闭（Debug Off 时） |
+| Artistic | intensity | 1 | 合成强度 0–10，0 关闭（Debug Off 时） |
 | Artistic | distanceFalloff | 0 | 可选距离衰减，0 关闭 |
 | Artistic | receiverAlbedo | sRGB 0.8 | 统一接收反照率近似 |
 | Debug | debug | Off | Off / Trace / Indirect / Confidence |
@@ -125,7 +128,7 @@ GI.a 为有效命中的置信度，独立于 RGB；滤波对 RGB/A 使用相同�
 
 临时 1/4 High 候选曾出现更明显的边缘/细节损失，因此没有合入。1/3 候选的受控静止视角、时缓 0.5、64 帧窗口中，亮度帧差 RMS 约增加 7%，平均亮度约 −0.10%；这是局部取舍证据，不代表地面抖动已解决。正式版本的同步墙钟对照和复跑合同见 [Timing](../Timing.md#diffuse-high-性能再平衡2026-10-15) 与 [Validation](../Validation~/README.md#high-budget-comparison)。
 
-后端、有效几何/距离衰减、采样档与滤波参数变化使本通道历史失效，不释放纹理；最终强度、接收反照率和历史混合权重不在签名中。DDA 完成固定样本后 miss 沿用零贡献，不重跑 RAY；可能漏掉样本间薄前景。当前验证入口及历史逐格验收的区别见 [统一说明](../SSGI.md)，旧验收表是当时 RAY 快照。
+有效几何/距离衰减、采样档与滤波参数变化使 Diffuse 历史失效，不释放纹理；最终强度、接收反照率和非零历史混合权重不在签名中。统一 Trace 模式变化同时影响 Diffuse 与 Specular，各自拒绝旧历史。DDA 完成固定样本后 miss 沿用零贡献，不重跑 RAY；可能漏掉样本间薄前景。当前验证入口及历史逐格验收的区别见 [统一说明](../SSGI.md)，旧验收表是当时 RAY 快照。
 
 High 分辨率变化由历史签名 `_sampling.x` 自动识别；旧 1/2 High 历史只拒绝 Diffuse 一帧，不重分配全分辨率历史 RT，也不失效 AO/Specular。`_sampling.w=3` 仍是当前采样实现版本，不为此重复增加版本号。
 
@@ -136,7 +139,7 @@ High 分辨率变化由历史签名 `_sampling.x` 自动识别；旧 1/2 High �
 - 单层深度看不到屏幕外和遮挡背面。追踪输入是“不透明几何 + 天空盒”（`AfterRenderingSkybox`，见“事件排序”），**不含透明几何**；透明物体对最终画面的影响是“在合成之后混合上来”，而不是进入 gather。旧版本用截屏测出的“隐藏 Water/RainDrops 后 GI>0.10 从 39315 降到 3952”属于这种覆盖造成的取景伪影（见“被撤回的旧结论”）。未命中时仍不注入额外环境光，沿用原场景的环境照明。
 - 当前接入公共时域双缓冲，启用时逐帧旋转采样并按运动向量、历史深度拒绝。尚未实现方差钳制；遮挡边界和快速光照变化仍可能有拖影。
 - 旧 H/V 版本曾测得 GI>0.02 像素相对变化约 4.47%、`depthSigma` 扫描的梯度差 1.48e-4；这些是历史证据。步幅 2 初始候选的静态时缓 0.5 帧差 RMS 降约 15%，但出现格状残留，最终改为步幅 1.5；后续用户改变镜头/时缓，不能继续用旧镜头数字给最终版本算百分比。当前未宣称消除所有随机噪声或 GPU 提速，边缘串色/运动画质仍需确认。
-- 不实现 AO/HBAO、HiZ 加速、Cache-Aware 专利采样或 Compute 迁移。早期设计文档中的“最高 62% 加速”不能作为此实现性能结论。
+- 不实现 AO/HBAO、Cache-Aware 专利采样或将 Diffuse 追踪迁移为 Compute。实验 HiZ 包含金字塔构建成本，是否加速须按实际场景验证；早期设计文档中的“最高 62% 加速”不能作为此实现性能结论。
 - XR、动态分辨率与多相机的运行结果需分别验证；使用纹理数组/立体宏并不等于已完成这些平台验收。
 
 ## 事件排序：透明物体的 GI 可见性（已修复）

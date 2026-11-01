@@ -112,6 +112,9 @@ codex exec "..."   # 读项目级 config.toml + auth.json
 | 上游 403 `only available hosted in China` | 模型需中国区 opt-in | 去 opencode 工作台开启「提供商 → 启用部署在中国的模型」；不开则换 deepseek-v4-pro 等无限制模型 |
 | 上游 403 `unsupported_country_region_territory` | 模型有地区限制（如 gpt-5.6-luna 需美国） | 给 Codex CLI 挂美国代理环境变量（`export HTTPS_PROXY=http://127.0.0.1:7890`）；VSCode 扩展配 `http.proxy` 或系统代理。直测：`curl -x http://127.0.0.1:7890 -X POST https://opencode.ai/zen/go/v1/responses ...` |
 | 裸 curl 回 `{"error":"MissingSessionID"}`（**CLI 同模型却正常**） | 2026-10 起上游要求 `x-opencode-session` 头；codex 自身不发此头也能通（未被上游拦） | 直测命令加 `-H "x-opencode-session: $(uuidgen)"`；**别据此判 key/模型失效** |
+| 上游 400 `The reasoning_content in the thinking mode must be passed back to the API`（**首轮正常，工具调用续轮才报**） | OpenCode Go 的 DeepSeek 适配层没把上一轮 assistant 的 `reasoning_content` 回放给上游。Codex 已带 `include:["reasoning.encrypted_content"]` + `store:false`，但 2026-10-21 本地代理抓包显示续轮 body 只有 `function_call` / `function_call_output`，**没有 reasoning item**。与 effort 档位无关（high/max 都触发），只要「思考 + 工具」续轮就中；Claude Code 经 Anthropic 兼容口报 `reasoning_text` 是同一类问题 | Codex 侧**没有开关**。① 换官方 `gpt-6.1-sol`（max/ultra 原生，无此 bug）；② 改用 opencode CLI `--variant max --thinking`（元数据声明 `capabilities.interleaved.field="reasoning_content"`）；③ 在 Codex 与 OpenCode Go 间加会回放 reasoning 的代理（opencodex / codex-relay）；④ 等上游修（opencode #25134）。别误判为 key/模型/区域问题 |
+| 模型选择器没有 `max` 档（手写 catalog 最高只到 `xhigh`） | `supported_reasoning_levels` 是手填的，没写 `max`；OpenCode Go 原生 deepseek-v4.1-flash 是 `low/high/max`（`opencode models opencode-go --verbose` 的 variants 可见） | 给三个 deepseek 条目的 `supported_reasoning_levels` 补 `{"effort":"max","description":"Maximum reasoning depth"}`，profile 里 `model_reasoning_effort = "max"`，**Reload Window**。`max` 只是档位，**不是**上面 400 的原因；探针实测 codex 0.162 会原样发 `reasoning.effort="max"` |
+| 429 `exceeded retry limit, last status: 429 Too Many Requests`（body 实为 `{"error":{"type":"server_error","message":"Upstream request failed: Endpoint is unavailable."}}`） | OpenCode Go 上游路由间歇性不可用，**不是额度/限流**；同一 key/模型/请求在几分钟内 200/429 交替。`/zen/go/v1/usage` 可查 rolling/weekly/monthly（本次均 0%）。request id 的 `-PDX` 是 Cloudflare Ray ID 后缀，说明 429 在边缘/网关层产生，可能没进控制台的模型请求日志，所以「API 全 200」与 Codex 429 可同时成立 | ① 切官方 `gpt-6.1-sol`；② **不要靠提高 retries**：codex 0.162 实测只对带 `Retry-After` 的 429 重试；无该头时 `request_max_retries=6` 仍只发 1 次（真实 session 每轮仍只有一个 request id，耗时随边缘节点 1.6~3.5s 不等）。流中途断开会走 `stream_max_retries`（实测 `[rate_limit_error] capacity is temporarily limited` 触发 `retries=1 max_retries=6` 后成功），与首包 429 是两条路径。可在 Codex 与 OpenCode 间加本地转发代理给 429 补 `Retry-After: 1`（脚本 `~/.codex/retry-proxy/proxy.mjs`，实测无头 1 次/有头 7 次；已装 LaunchAgent `com.strangoblin.codex-retry-proxy` 常驻 `127.0.0.1:8787`，root/profile 的 `base_url` 已指向 `http://127.0.0.1:8787/zen/go/v1`，Reload Window 生效）；③ 等上游恢复（已知 #43163/#49413/#44300，无官方 status page）。同一会话若先出现 403 `Your Go subscription ended ... payment method needs authorization`，那是计费授权，按 console 链接另处理 |
 | 404 Not Found（HTML 页） | `base_url` 漏 `/v1` | 必须 `https://opencode.ai/zen/go/v1` |
 | `Model metadata for X not found` warning | Codex 无该模型元数据，用 fallback（context window 等按 fallback 值走，会影响压缩时机） | 把模型补进 `~/.codex/model-catalogs/opencode-go.json`——**key 是 `slug` 不是 `id`**，克隆同族条目改 `slug`/`display_name` 即可（2026-10-08 换 `deepseek-v4.1-flash` 时此法消警）；或退回 config 显式 `model_context_window`。⚠️ 上游 `/models` 只回 id/object/created/owned_by，**不带窗口大小**，catalog 里的数值是手工填的，别当权威 |
 | 报 `view_image is not allowed because you do not support image inputs`；模型完全无法读图 | Codex 按 catalog 的 `input_modalities` 做**客户端门禁**；手写条目克隆后常残留为只有 `["text"]`（本机 2026-10-19 实测：7 条原本全是 text） | 给对应 slug 加 `"image"`（`["text","image"]`，需要原始分辨率再加 `supports_image_detail_original: true`），重启 CLI / **Reload Window**；确认模型本身支持视觉见「视觉输入」节 |
@@ -340,7 +343,7 @@ ocw -m opencode-go/deepseek-v4-pro "任务文本"
 
 **实测耗时**（deepseek-v4-flash，2026-09-21）：纯文本 **7s**；带一次文件写入的 agent 循环 **9s**。→ **短任务不慢**，别把长会话的上下文压缩问题误当成基础延迟。
 
-> ⚠️ **`--auto` 会绕过门禁**：它放行一切「未被显式禁止」的操作（写文件、执行命令）。在 `Unity/Lab` 里直接派它写 `Assets/Mine/` 会**跳过 `write_gated`**，违反项目规则。受门禁保护的源码只在**隔离副本或非门禁目录**生成草稿，再由主 agent 经该项目的门禁通道合入（Codex 走 `gate_cli.py write|delete|move`，Claude 走 MCP 工具，同一判定核）。不要假定某一侧只能靠另一侧代合入。
+> ⚠️ **`--auto` 会绕过判定**：它放行一切「未被显式禁止」的操作（写文件、执行命令），而 `.mcp` 的 hook 只挂在 Claude Code / Codex 的工具调用上，**管不到 opencode 进程内部的写入**。所以受管源码只在**隔离副本或 `tmp/` 任务目录**里生成草稿，再由主 agent 用平台 `Write` / `Edit` 合入（判定核会在那一刻照常判分区、沙箱与规范）。不要假定某一侧只能靠另一侧代合入。
 
 ## 关键验证命令
 
@@ -362,9 +365,9 @@ curl -s "https://opencode.ai/zen/go/v1/models" -H "Authorization: Bearer $OPENAI
 
 ## Unity/Lab 委派边界
 
-- `ocw` / `opencode` 默认带 `--auto`，放行一切未被显式禁止的写操作，**绕过 `.mcp` 判定核**。
-- 受管源码（`Assets/Mine/**`）不得由 opencode 直接写入：先在隔离副本或 `tmp/sessions/<date-task-id>/` 生成草稿，再由主 agent 经 `gate_cli.py write|delete|move` 或对应 MCP 工具合入。
-- 委派不改变工作区授权、人工批准通道与 policy 档位；不能以「worker 已经写了」为由跳过门禁。
+- `ocw` / `opencode` 默认带 `--auto`，放行一切未被显式禁止的写操作，**绕过 `.mcp` 判定核**（hook 只挂在平台工具调用上）。
+- 受管源码（`Assets/Mine/**`）不得由 opencode 直接写入：先在隔离副本或 `tmp/sessions/<date-task-id>/` 生成草稿，再由主 agent 用平台 `Write` / `Edit` 合入（hook 判定沙箱与规范）；删除用 `python3 .mcp/bin/cli.py delete`，移动用 `mv`。
+- 委派不改变沙箱、批准权与 policy 档位；不能以「worker 已经写了」为由绕过判定。
 - 委派说明必须给出目标、允许修改的文件、约束与验收标准；主 agent 复核完整 diff 并对结果负责。
 
 ## 全局可达性与本机（Windows）现状（2026-10-17 实测）
@@ -399,7 +402,7 @@ curl -s "https://opencode.ai/zen/go/v1/models" -H "Authorization: Bearer $OPENAI
 ## 关联
 
 - Agent 清单：`.agents/agents/README.md`
-- 门禁事实与控制模型：`.agents/knowledge/meta/enforcement-policy.md`
+- 判定事实与控制模型：`.agents/knowledge/meta/enforcement-policy.md`
 - 技能总索引：`.agents/skills/README.md`
 
 ## 与 CC-Switch 的关系

@@ -11,7 +11,8 @@
 // Alpha 始终属于图像内容/覆盖，不储存格式或其他元数据。
 //
 // 统一入口 HDRMapSampleLOD / HDRMapSampleGrad：天空传观察方向，物体传所需
-// 方向，平面室内先在外层做 UV/房间求交，再将命中点转换为此坐标系。
+// 方向；HDRMapSampleReflection 用同一贴图沿反射方向采样。平面室内先在
+// 外层做 UV/房间求交，再将命中点转换为此坐标系。
 // 双线性采样按投影重连边缘；LOD 是普通纹理 mip，绝不表示反射粗糙度。
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -213,6 +214,23 @@ float4 HDRMapSampleGrad(TEXTURE2D_PARAM(map, mapSampler), float3 direction, floa
 float4 HDRMapSample(TEXTURE2D_PARAM(map, mapSampler), float3 direction, int projection, int coverage)
 {
     return HDRMapSampleLOD(TEXTURE2D_ARGS(map, mapSampler), direction, projection, coverage, 0.0);
+}
+
+// ════════════════════════════════════════════════════════════
+//  Reflection sampling — reuse the same HDR map along a reflected direction
+//  viewDirectionWS points from the surface toward the camera.
+// ════════════════════════════════════════════════════════════
+float4 HDRMapSampleReflection(
+    TEXTURE2D_PARAM(map, mapSampler),
+    float3 normalWS,
+    float3 viewDirectionWS,
+    int projection,
+    int coverage)
+{
+    float3 normal = HDRMapSafeDirection(normalWS);
+    float3 viewDirection = HDRMapSafeDirection(viewDirectionWS);
+    float3 reflectionDirection = reflect(-viewDirection, normal);
+    return HDRMapSample(TEXTURE2D_ARGS(map, mapSampler), reflectionDirection, projection, coverage);
 }
 
 #endif // HDRMAPFUNCTION_HLSL_INCLUDED

@@ -48,23 +48,25 @@
 
 ---
 
-## 门禁分支树 — Capability Branching Tree
+## 能力分支树 — Capability Branching Tree
 
-> mode 定义门禁序列（WHEN），capability 定义分支逻辑（HOW）。
+> mode 定义阶段序列（WHEN），capability 定义分支逻辑（HOW）。
 > mode 文件不嵌入决策细节，只引用 capability。
 
 ### 结构
 
 ```
-mode/production.md           → 定义 [G0]→[G1]→[G2]→[G3]→P3→...
+mode/production.md           → 定义 P1→P2→脚本决策→落点→P3→...
   │
-  ├── [G2] → capabilities/script-decision.md   (脚本决策分支树)
-  └── [G3] → capabilities/file-placement.md    (文件放置分支树)
+  ├── 脚本决策 → capabilities/script-decision.md   (分支树)
+  └── 落点     → capabilities/file-placement.md    (分支树)
 ```
+
+（2026-10-28 起这些节点只是文档约定，没有工具核对；入口只有一次 `cli.py open`，出口由 `cli.py close` 按证据验收。）
 
 ### 创建规则
 
-1. **mode 只做索引** — 每个 [Gx] 一行 `→ @capabilities/<name>.md`
+1. **mode 只做索引** — 每个阶段一行 `→ @capabilities/<name>.md`
 2. **capability 做分支** — 包含完整的 ASK→DECIDE→OUTPUT 决策树
 3. **分支树格式** — 每层 `ASK:` + `├──` / `└──` 决策路径
 4. **OUTPUT 格式** — 每个 capability 末尾定义结构化输出契约
@@ -73,7 +75,7 @@ mode/production.md           → 定义 [G0]→[G1]→[G2]→[G3]→P3→...
 
 ```
 ❌ mode 中嵌入 30 行决策逻辑
-✅ mode 中写 "[G2] → @capabilities/script-decision.md"
+✅ mode 中写 "脚本决策 → @capabilities/script-decision.md"
 ```
 
 ---
@@ -84,7 +86,7 @@ mode/production.md           → 定义 [G0]→[G1]→[G2]→[G3]→P3→...
 
 | 层 | 职责 | 可引用 | 禁止引用 |
 |----|------|--------|---------|
-| **Mode** (编排) | 门禁序列 + @capabilities 引用 | @capabilities, agents/ | 不嵌入 capability 逻辑 |
+| **Mode** (编排) | 阶段序列 + @capabilities 引用 | @capabilities, agents/ | 不嵌入 capability 逻辑 |
 | **Capability** (能力) | 决策分支树 + OUTPUT 格式 | rules/, 领域路径 | agents/, 具体脚本文件名 |
 | **Routing** (路由) | mode 名, agent 名 | SKILL.md, CLAUDE.md | 不嵌入 domain 逻辑 |
 

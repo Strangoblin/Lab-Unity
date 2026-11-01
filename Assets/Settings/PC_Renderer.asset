@@ -12,24 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44f6d307490e7be45bade008fd49f400, type: 3}
   m_Name: SSCFeature
   m_EditorClassIdentifier: Assembly-CSharp::SSCFeature
-  m_Active: 1
+  m_Active: 0
   settings:
     sscShader: {fileID: 4800000, guid: 3784ad67eb3b5304b9245dd051049729, type: 3}
-    mainTex2D: {fileID: 2800000, guid: acde34ba16b7a4de1ad501e1068301d9, type: 2}
-    rayCount: 1
-    downsample: 2
+    mainTex2D: {fileID: 2800000, guid: b666157111b634ea093168db198dda8a, type: 2}
+    quality: 2
+    _legacyDownsample: -1
+    _customRayCount: 0
+    _customDownsample: 2
+    _preserveCustomBudget: 0
+    _customBudgetQuality: 1
     baseColorA: {r: 0.8443396, g: 0.96390486, b: 1, a: 1}
     baseColorB: {r: 0, g: 0.51018333, b: 1, a: 1}
-    scale: 4
+    scale: 2
     speed: 1
     height: 50
     rotation: 0
-    thickness: 0.8
+    thickness: 0.5
     middle: 0.2
     threshold: 0.2
-    size: {x: 100, y: 10, z: 100}
-    phaseG: 0
+    size: {x: 500, y: 20, z: 500}
+    phaseG: 0.8
+    secondaryScattering: 1
     ambientIntensity: 1
+    lightDistance: 5
+    softness: 0.5
     jitter: 1
     showSSC: 0
 --- !u!114 &-6861971581733455524
@@ -142,8 +149,9 @@ MonoBehaviour:
   - {fileID: 1854382760940641301}
   - {fileID: -6187475661629958052}
   - {fileID: 7979418361354919465}
+  - {fileID: 3243830817614936851}
   - {fileID: -7483881911666177618}
-  m_RendererFeatureMap: 5cb9f3e33361c5a0159c79cf4b17bc195cd82b1cabab21aa291eca0eb996bc6eae892a7a0de92398
+  m_RendererFeatureMap: 5cb9f3e33361c5a0159c79cf4b17bc195cd82b1cabab21aa291eca0eb996bc6e133b672bf166042dae892a7a0de92398
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -191,7 +199,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 4294967295
     kernel: 1
-    quality: 2
+    quality: 1
     radiusMode: 1
     blurRadius: 5
     normalizedRadius: 0.05
@@ -216,6 +224,31 @@ MonoBehaviour:
   m_OutlineMaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_OutlineCompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
+--- !u!114 &3243830817614936851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d060bd4b05ae7465daff6a14811086ca, type: 3}
+  m_Name: ScreenWarp
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.ScreenWarp.ScreenWarpFeature
+  m_Active: 0
+  settings:
+    shader: {fileID: 4800000, guid: 75d716969ac054d5bab687a7f6afa4e7, type: 3}
+    showInSceneView: 1
+    border: 1
+    borderColor: {r: 0, g: 0, b: 0, a: 1}
+    mode: 0
+    strength: 0.35
+    center: {x: 0.5, y: 0.5}
+    zoom: 1
+    overlayTexture: {fileID: 0}
+    overlayOpacity: 1
+    debug: 0
 --- !u!114 &4655793570601728598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,6 +281,10 @@ MonoBehaviour:
   settings:
     compositeShader: {fileID: 4800000, guid: 0c2cf0c88542b4f5daa3ac19dd7493ff, type: 3}
     temporalShader: {fileID: 4800000, guid: f8855425a81b3482886605d48db0fe65, type: 3}
+    trace:
+      mode: 0
+      depthPyramidShader: {fileID: 7200000, guid: 855e73d9dac9a4e8b8208d1022f4f4f3, type: 3}
+      _initialized: 1
     ao:
       shader: {fileID: 4800000, guid: f1c647b2aa2094c4892083309808f6ef, type: 3}
       mode: 1
@@ -257,20 +294,22 @@ MonoBehaviour:
       depthSigma: 0.15
     diffuseGI:
       shader: {fileID: 4800000, guid: 0f1271be0061c430aa91678b9a119c1b, type: 3}
+      depthPyramidShader: {fileID: 7200000, guid: 855e73d9dac9a4e8b8208d1022f4f4f3, type: 3}
       traceBackend: 0
+      experimentalHiZ: 1
       maxDistance: 5
       thickness: 0.15
       normalBias: 0.03
       depthSigma: 0.15
     specularGI:
       shader: {fileID: 4800000, guid: 7e40b5124177242d0888a016bab66b64, type: 3}
-      skyCubemap: {fileID: 0}
+      depthPyramidShader: {fileID: 0}
       traceBackend: 0
+      experimentalHiZ: 0
       maxDistance: 50
       thickness: 0.05
       normalBias: 0.03
-      roughness: 0.1
-      skyMaxMip: 6
+      roughness: 0
     performance:
       ao: 1
       diffuseGI: 1

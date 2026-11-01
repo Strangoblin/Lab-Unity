@@ -42,14 +42,14 @@ standard-shader.shader 的 HLSLINCLUDE 内已留 ⚠️ include 行等待调用�
 - **include guard 统一**:`#ifndef <文件名去连字符全大写>_HLSL_INCLUDED`(Special 15/18 主风格;实源 ADDITIONALLIGHTFUNCTION_HLSL_INCLUDED);⚠️ guard 与文件名绑定,重命名文件必须同步
 - **文件头必须 ═ 横幅**(中文职责 + ⚠️ 用法 + 依赖说明)—— 实源 13/18 缺横幅是 2026-05-29 外部导入旧账,存量不改,新库一律按模板
 - **函数前缀语义模块化**(`BlendNormal_` / `SDF_` / `BRDF_` / `Diff_Lambert` 先例);避免无前缀通用名(`MainLight` / `GetHeight` / `TBN` 冲突史)
-- **零兄弟 include、零 CBUFFER**(家族铁律;URP cbuffer 由 shader Properties 生成,库只读参数 / 或 C 档全局契约)
+- **零兄弟 include、零 CBUFFER**(家族铁律;URP cbuffer 由 shader Properties 生成,库只读参数 / 或 C 档全局契约)。唯一例外:PBR 家族入口 `PBRFunction.hlsl` 聚合 `HairFunction.hlsl` / `FabricFunction.hlsl`(2026-10-30),子库仍保持可独立 include,靠各自 guard 防重复展开
 - **依赖前置 / 调用先于定义**(rules/shader-development.md 铁律;Hash 等工具置文件顶部)
 - **SG Custom Function 形态**(`Xxx_float`/`_half` 双包装 + `SHADERGRAPH_PREVIEW` 保护,实源 CustomLighting/VSUV)→ 不落模板,照实源改
 - 私有库允许自持 CBUFFER/static const,共享库不允许 —— 边界即本 README 分工表
 
 ## 代表实源（由 library.hlsl.shared 解析，契约以当前实源为准）
 
-- A 档:HashFunction(通用浮点/整数 Hash，按用途与输入域选接口；合同见 `<已解析库根>/HashFunction.md`)/ HSV(色彩互转)/ SDF(球盒+平滑布尔)/ LightFunction(非 URP 基础光)/ NormalFunction(压缩量化)/ BlendFunction(6 种法线混合)/ PBRFunction(自研 GGX+毛发双瓣)/ ProjectionFunction(三平面)/ TRS(UV 与等比空间、正逆变换；角度为弧度)
+- A 档:HashFunction(通用浮点/整数 Hash，按用途与输入域选接口；合同见 `<已解析库根>/HashFunction.md`)/ HSV(色彩互转)/ SDF(球盒+平滑布尔)/ LightFunction(非 URP 基础光)/ NormalFunction(压缩量化)/ BlendFunction(6 种法线混合)/ PBRFunction(自研 GGX + 代表性漫射/高光/可见性模型)/ HairFunction(毛发 R/TRT 双瓣)/ ProjectionFunction(三平面)/ TRS(UV 与等比空间、正逆变换；角度为弧度)
 - B 档:AdditionalLightsFunction(光照收集,含 pragma)/ TBN / DepthDiffFunction / CustomLighting、VSUV(SG Custom Function)
 - C 档:BlurFunction(高斯+双边,自带 Declare*；调用方先 include Core → HashFunction → BlurFunction，库内不 include 兄弟库)/ ENVFunction(FGD LUT 路径)/ ParallaxFunction(自带 `_HeightMap` 声明)/ RimLightFunction / DeclareCustomTexture
 - 代表消费方:Water.shader(6 库)、PBRToon.shader(5)、GrassInstance.shader(4)、RimToon/RimToonScreen、SSL/DDOF/SSSM/SSR/Kuwahara、BoidInstance.shader、SSC/SSO

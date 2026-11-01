@@ -1,0 +1,18 @@
+// Negative control: both kernels produce far depth at every mip.
+#pragma kernel CopyDepth
+#pragma kernel ReduceDepth
+RWTexture2D<float> _Destination;
+float4 _DestinationSize;
+float4 _DepthParams;
+[numthreads(8, 8, 1)]
+void CopyDepth(uint3 id : SV_DispatchThreadID)
+{
+    if (any(id.xy >= (uint2)_DestinationSize.xy)) return;
+    _Destination[id.xy] = _DepthParams.y;
+}
+[numthreads(8, 8, 1)]
+void ReduceDepth(uint3 id : SV_DispatchThreadID)
+{
+    if (any(id.xy >= (uint2)_DestinationSize.xy)) return;
+    _Destination[id.xy] = _DepthParams.y;
+}

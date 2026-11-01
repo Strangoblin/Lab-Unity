@@ -1,6 +1,6 @@
 # 模式选择与边界
 
-`[G1] Mode Selection — Mode: <Research | Production | Experiment> | Reason: <why>` 是操作流程的结构化决策。
+`Mode Selection — Mode: <Research | Production | Experiment> | Reason: <why>` 是操作流程的结构化决策；与 profile（业务线）分开：mode 决定怎么推进，profile 决定该读什么、出口验什么。
 选择目标最匹配的模式；用户已指定执行方式时沿用其授权。范围混合且无法判断主目标时再澄清，不因关键词机械询问。
 
 | 模式 | 主目标 | 入口 |
@@ -15,7 +15,7 @@
 |---|---|---|---|
 | 来源 | 人工逐步试 | 库内 reference/template | WebSearch → Plan → 用户确认 |
 | 基准 | 不额外备份 | 重大改动记录 Git 基准 | Git 迭代基准 + 必要验证输入 |
-| 知识 | 按任务取用 | 门禁必读 + 相关领域 | 联网来源 + 库内约束 |
+| 知识 | 按任务取用 | profile 必读 + 相关领域 | 联网来源 + 库内约束 |
 | 编译恢复 | 报错即停 | 最多 3 次 | 最多 3 次；第 3 次重审方案 |
 | Play | 不自动 | 按运行行为验证需求 | 仅必须验证运行时行为时 |
 | 验证 | 编译 + 人工视觉观测 | snapshot/logs/查询 + 所需渲染 | 结构化证据 + 人工视觉观测 |

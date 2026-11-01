@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "assertions": 514064,
+  "restored": true,
+  "scene": "Assets/Scenes/RenderScene.unity",
+  "width": 654,
+  "height": 393,
+  "position": [
+    19.0910816,
+    5.96984625,
+    -7.799114
+  ],
+  "quality": "Medium",
+  "backend": "DDA",
+  "roughness": 0.0,
+  "temporalBlend": 0,
+  "isolatedSSGI": true,
+  "changedPixels": 101099,
+  "maxRgbDifference": 0.9169118,
+  "meanMaxRgbDifference": 0.050491193858830323,
+  "metric": "Disposable Main Camera / SSGI-only Renderer; full linear HDR output; 1 vs 10 Specular intensity"
+}

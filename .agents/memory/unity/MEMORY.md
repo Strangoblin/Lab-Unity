@@ -13,6 +13,33 @@
 
 ## 关键架构决策
 
+- **SSGI 统一 Trace（2026-10-30）**：统一入口的 DDA / Ray / HiZ 与深度金字塔资源移至顶层并同步两路；同帧 HiZ 共用金字塔，旧值以 Diffuse 迁移。2026-10-28 在线试验与共享探针通过；2026-10-30 Editor 全量回归通过（92 组 / 1,153,512 断言 + 5 负控），动态画质待验。见 [记录](2026-10-30-ssgi-shared-trace.md)。
+
+- **HiZ 像素步幅（2026-10-30）**：旧实现把 DDA 单位（屏幕 `L/maxSteps` 像素）当 1 像素再乘 `2^mip`，每步只覆盖 `maxSteps/L` 路径，是漏打的根因。改为按像素前进 `2^mip`、`parentEnd` 细分到 mip 0、预算 `2 × maxSteps`、零投影回退 DDA。GPU 与新参考模型一致（库 39 组 / 88,826；SSGI 92 组 / 1,153,512）；**不等于画面漏打减少**，仍需人工看。见 [记录](2026-10-30-hiz-pixel-stride.md)。
+
+- **PBRFunction 拆分与代表模型（2026-10-30）**：毛发段拆为 `Special/HLSL/HairFunction.hlsl`，PBRFunction 升为 PBR 家族入口，聚合 HairFunction 与 FabricFunction（「零兄弟 include」的唯一例外，已同步知识库与技能模板）；同时补入 Oren-Nayar / Minnaert / Ashikhmin-Shirley / Wrap 漫射，Blinn-Phong / Beckmann / GTR1 / Charlie 分布，Smith 高度相关 / Kelemen / Neubelt 可见性，F90 菲涅耳与 Sheen 组合。Charlie 取感知粗糙度、其余 D 取 `roughness²`，是刻意保留的语义分叉。见 [记录](2026-10-30-pbrfunction-models-split.md)。
+
+- **织物层（2026-10-30）**：织物 BSDF 已是 PBRToon 的 `ENABLE_FABRIC` 分支，独立 `Render/Fabric` 退役；Frag 切成「本体层 / 织物层 / 表面层」三段，合成在 `Special/HLSL/FabricFunction.hlsl`（`Fabric_ShadeLayer` 一次调用），只留织物色/覆盖度/绒面三个参数加 LUT。**Rg 只能是反射率 `baseColor·(1−metallic)`，不能是风格化后的最终色**（第一版拿着色结果当 Rg 被用户否掉）；rim/specular 被 `eff` 压住是按能量流的有意决定（本体层的光流进织物层），不是近似。Baker 已按生产工具标准规范化（固定路径 + Bake/Load/Save + 所有权 + 原位保存）。六条工具坑（shader 与 Editor 脚本外部写盘都要 ForceUpdate 重导入、`DisplayDialog` 原生模态顶死桥、`_CameraOpaqueTexture` 取不到、附加光为 PerVertex、close 的 verify 永远 MISS）与两条建模结论（SGGX 球面竖带、标量 K/S 需给透射补偏色）见 [记录](2026-10-30-fabric-km-sggx.md)。演示场景已删，只留 `Fabric.mat` 参考材质与 `FabricLut.asset`，验证图在 `Validation~/2026-10-30-pbrtoon-fabric/`。
+
+- **Diffuse HiZ 实验（2026-10-28）**：默认 DDA，实验开关复用公共金字塔与追踪；不支持布局回退、切换只失效 Diffuse 历史。真实相机三档与粗层负控通过；M2 Metal 1080p High 隔离克隆三轮同步墙钟较低约 25–41%，其余尺寸波动大未分辨，画质仍需人工看运动场景。见 [记录](2026-10-28-diffuse-hiz.md)。
+
+- **SSGI 快路径（2026-10-27）**：AO 历史按参数独立失效；零时缓不写历史但采样继续，三路全关不入队并使该相机历史失效；Diffuse 跨射线共享追踪准备。94 组及五个负控制通过，Metal A/B 波动大未分辨性能收益；见 [记录](2026-10-27-ssgi-fast-paths.md)。
+
+- **SDF 逐轴归一化（2026-10-23 当前）**：Box / Square 先按每轴半尺寸归一化坐标，再取 `saturate(1-max(abs(q)))`；长短轴各自半程均为0.5，覆盖此前“除最短半尺寸”的约定。该阶段SSC用Box、Y置0只羽化XZ、fade=0.8，Metal 30项GPU读回及8个Pass/关键字组合通过；SSC后续已改为Circle、fade=0.5，见活跃上下文。见 [当前契约与验证](2026-10-23-sdf-axis-normalization.md)。
+
+- **SDF 共享库归一化覆盖度（2026-10-22）**：`Special/HLSL/SDF.hlsl` 改为 `[0,1]` 覆盖度 SDF，中心 1、边界 0、外部 0；新增 `SDF_Circle` / `SDF_Square`，平滑运算同步改为覆盖度最大/最小/差集。规范检查、HLSL 语法编译与中心/边界/外部数值断言通过，Unity/Metal 变体未验。见 [记录](2026-10-22-sdf-normalization.md)。
+| [2026-10-21-ssc-quality-tiers.md](2026-10-21-ssc-quality-tiers.md) | 2026-10-21 | SSC 三档面板（32/64/128 步，降 3/2/1）与 HG 外圈过暗修复；三档同步墙钟 3.44/9.19/40.24ms，6.2M 断言通过。HG 部分已由加性双 HG 取代。 |
+
+- **SSC 三档与加性双 HG（2026-10-22）**：Low/Medium/High 保持32步降3、64步降2、128步降1；面板只显示三档，单一GetTier接线。着色改为峰值归一化 `HG(g=.8) + 1.0×HG(0)`；侧向相位0.0038→1.0038，暗部A/B均值约27.67x、亮部约3.29x，519k散射断言与三档623万断言通过，完整恢复。物理步长、太阳光学深度和云内多次散射仍待后续；变更未提交。见 [双HG实现](2026-10-22-ssc-dual-hg.md)。
+
+- **SSC 性能落地（2026-10-20）**：精确Density=1早停、空高度/空密度跳采样、16位sky mask与4bilinear快速重建，HDR/几何保原精细路；target3.5，无新RT/Pass/面板。M2/1080p两场景432样本，当前64步降2普通视角同步墙钟约降25%，降1约29%；覆盖率四档差0、HDR四组及六变体通过。配置仍64/降2，未提交；见 [实现与正式证据](2026-10-20-ssc-performance.md)。
+
+- **SSC 质量修复（2026-10-20）**：远端 SSC 已挂 PC_Renderer，双色权重改 stepShadow³ 增强阴影色；RGBA16F 保覆盖率，固定16tap深度引导B-spline与全分辨率遮挡，0档直通、边界中心积分回退。Metal六变体零消息、0..4档20张控制图/HDR正负控通过；低档变软，运动/XR/性能待验。已先保存并合并远端，修复未提交。见 [记录与对照](2026-10-20-ssc-quality.md)。
+
+- **ScreenWarp（2026-10-19）**：独立屏幕重映射，Barrel/Pincushion/Fisheye/Panini；AfterPost 单 Raster Pass，不改相机、不请求深度法线。PC_Renderer 已接入，现支持可选固定输出 UV 的 RGBA 上层素材，与变形强度独立控制；无素材保持原行为，启用多一次贴图采样。Metal 752 组及真实 URP 52 请求/632 断言通过；Stack/XR/硬件动态分辨率/Picker 逆映射与性能待扩展。见 [遮盖扩展](2026-10-19-screenwarp-overlay.md)；[v1 历史](2026-10-19-screenwarp-v1.md)。
+
+- **HDR Map 生产链（2026-10-19 收尾）**：HDRMapBaker 固定线性 HDR 全景图，Render Layers + Include Sky 决定内容；独立 HDRMapConverter 处理四种 2D 投影、分辨率及全景/室内覆盖。共享 HDRMapFunction 服务天空与室内命中方向；旧脚本保 GUID 归 Legacy，旧图材质 Legacy=4，新经纬图用 0。Metal 80 项功能检查和连续方向梯度通过；不含 FGD / GGX / 反射生产。见 [交付与验证](2026-10-19-hdr-map-pipeline.md)。
+
 - **GizmoRender 统一 Gizmo 框架（2026-10-16 已归档）**：Source → 成员键/显隐分派 → Canvas/Tint，配置归成员集合，窗口只编辑与扫描；正式目录 `Assets/Mine/Scripts/GizmoRender`，菜单 `Tools/GizmoRender`。统一键校验/唯一性、清单失效清理、嵌套与异常状态恢复；六组件接入，GUID 保留，编译与 67 项 Editor 回归通过。GrassGenerator 与交互 Handles 未迁入。见 [归档](2026-10-16-gizmo-render-handover.md)。
 
 - **生产类工具统一标准（2026-10-16 归属修正）**：通用完整窗口模板归 agent skill，五个 Generator / Baker 窗口独立继承 `EditorWindow`，在本工具内持有固定 Save=Load 路径、动作与所有权；项目 `ProductionTools` 目录已迁出。保留 `CopySerialized` 原位保存与 `SaveAssetIfDirty`，不依赖 agent 目录参与 Unity 编译。见 [当前裁决](../meta/2026-10-16-production-tools-agent-templates.md)。
@@ -35,9 +62,9 @@
 
 - **全局纹理（`SetGlobalTexture*`）的生命周期与回读**：RenderGraph 下发布的是托管纹理，帧末归还池，**跨帧回读只能读到内置 `UnityBlack`（4×4、`R8G8B8A8_SRGB`、全 0）**——这不是「效果没有输出」的证据。判定效果只能在同帧内（Debug 视图）或走离屏相机对照。另有两条同源陷阱：**Debug 直出的灰度会经过场景 Volume 后处理被改写**（色彩分级把上限压到 209/255；`Tonemapping.mode = None` 也不算关，必须整项关闭探针相机的 `renderPostProcessing`）；**`AssetDatabase.SaveAssets()` 会把整个会话内存态写回 `RendererData` 资产**，除新增条目外既有 Feature 的 `m_Active` 也可能被顺带改写，收尾必须 `git diff Assets/Settings/` 核对。见 [2026-09-21-ssgi-phase4-ao.md](2026-09-21-ssgi-phase4-ao.md)。
 
-- PCSS 阴影：PSSM split（级联数随性能档 2/3/4）→ tiled atlas → blocker search → penumbra → variable PCF。**阴影尚未接入光照合成**——只在特定物体 shader 里挂了 `CustomShadowCaster` 投射；`showShadowMap` 是调试直出。后续才用 PCSS 管线取代 Unity 阴影
-- POSS 逐物体软阴影：Shadow Atlas Tile Grid → Compute 屏幕空间解算 → PCF 软边缘，与 CSM 共存
-- 交互系统：Manager/Processor 分离架构，RT 管理下放，正交相机 CustomRenderer 深度比较输入
+- PCSS 阴影：PSSM split（级联数随性能档 2/3/4）→ tiled atlas → blocker search → penumbra → variable PCF。**阴影尚未接入光照合成**——只在特定物体 shader 里挂了 `CustomShadowCaster` 投射；`showShadowMap` 是调试直出。后续才用 PCSS 管线取代 Unity 阴影。见 [PCSS.md](../../../Assets/Mine/Shaders/PostProcess/PCSS/PCSS.md)
+- POSS 逐物体软阴影：Shadow Atlas Tile Grid → Compute 屏幕空间解算 → PCF 软边缘，与 CSM 共存。见 [POSS.md](../../../Assets/Mine/Shaders/PostProcess/POSS/POSS.md)
+- 交互系统：Manager/Processor 分离架构，RT 管理下放，正交相机 CustomRenderer 深度比较输入。见 [README](../../../Assets/Mine/Scripts/InteractionManager/README.md)；模拟侧通用坑见 [gpu-simulation.md](../../knowledge/unity/standard/compute/gpu-simulation.md)
 - Shader 组织：`Assets/Mine/Shaders/` 按效果分层
 - 后处理：Unity 6 Blitter API（`_BlitTexture`，非 `_MainTex`）
 - 知识库分类：按实际职责区分 `standard/`、`script/`、`shader/postprocess/`、`shader/render/`、`shader/hlsl/`（`particle/` 占位）；特征族目录可混合 `.cs/.shader/.compute/.hlsl`，但只有 `README.md` 是 markdown；`shader/hlsl/` 对应 `Assets/Mine/Special/HLSL` 共享库，单效果私有库与其 shader 同目录
@@ -46,10 +73,24 @@
 
 ## 活跃上下文
 
+- SSGI环境与强度（2026-10-27）：Specular改用URP默认环境Cubemap和HDR解码，移除自定义天空字段；三路统一/独立强度均0–10，Specular与AO合成权重仍饱和。71组/五负控通过，实景克隆的Specular 1→10可见变化；默认环境是Unity缓存，动态Skybox不保证实时同步。见 [记录](2026-10-27-ssgi-unity-environment-intensity.md)。
+
+- SurfaceDither（2026-10-26）：在 `Render/SurfaceDither` 新增表面稳定分形 Bayer 抖动材质；8×8 基点的 128×128×64 3D 图案、UV0/Object Space 双坐标、四 Pass 与五变体零消息，近/远边缘密度比 0.996。主光/阴影仅编译，真实场景画面未独立验证。见 [记录](2026-10-26-surface-dither.md)。
+
+- SurfaceLines（2026-10-27）：在 `Render/SurfaceLines` 新增纯解析线条材质；UV0/Object/World 三坐标、主轴投影、导数抗锯齿、最小屏幕线宽、可选交叉线与 `_MinShade` 风格化着色。四 Pass + alpha/shadow 变体零错误零消息；球体 Game View 冒烟后已恢复原位置与 SurfaceDither 材质。见 [记录](2026-10-27-surface-lines.md)。
+
+- ExteriorMapping（2026-10-26）：在 `InteriorMapping/` 新增实体方块面片映射，逐像素取 ray-AABB 近交点并采样六面纹理；新增 `_CubeSpace`，默认 `Object Transform` 使 billboard 只转窗口、方块吃对象世界 TRS（位置、旋转、含非均匀缩放），`Quad Relative` 保留随面片转的旧行为。CPU 面 UV/旋转/内部远交点复算、规范检查、Unity 6000.3.14f1 Pass 0 编译零消息通过。`RenderScene` 已放置 `ExteriorMapping_NoiseQuad`（Scale 3×3×3），六面分别挂 Perlin/Noise/Noise1/NoiseWave/Noise2DRG/Voronoi；三姿态、对象旋转 180° 与 Z Scale 3→1 对照确认行为，场景已保存。见 [记录](2026-10-26-exterior-mapping.md)。
+
+- SSC 固定自适应高度（2026-10-23 当前）：整体重构维持撤回，仅复用DensityLOD的low决定局部云顶；强度现固定.5，面板字段与接线已移除。用户暂停平方衰减改动，DensityH保留原pow(r,1-thickness)，thickness=.5为sqrt(r)，并非严格半球。Circle boundaryFade保留用户当前.5。Metal8组合消息0；见 [最新裁决](2026-10-23-ssc-fixed-adaptive-height.md)。[此前可调版验证](2026-10-23-ssc-adaptive-height.md)、[结构计划](2026-10-23-ssc-column-density-plan.md)、[逐轴归一化](2026-10-23-sdf-axis-normalization.md) 与 [首次接线](2026-10-23-ssc-sdf-boundary.md) 保留历史。
+
+- SSC 后续重设计（2026-10-20）：性能部分已按用户授权落地，见 [正式结果](2026-10-20-ssc-performance.md)；云结构/积分/面板方案仍未实施。实时RenderScene为1/4宽高+64步，磁盘128步勿覆盖；XZ×高度剖面、无步长alpha、LOD均值与光照距离耦合仍待后续。拟Coverage/Cloud Size/Erosion/Density + 单Quality。前轮探针耗时与旧.995候选保留为历史，勿与正式适配器混算，见 [原诊断与方案](2026-10-20-ssc-redesign-proposal.md)。
+
+- HDR Map 工具已完成拆分、采样接入和最终验证；正式入口 `Tools/HDR Map Baker...` / `Tools/HDR Map Converter...`，测试归 `HDRMapConverter/Validation~/`。见 [2026-10-19 收尾](2026-10-19-hdr-map-pipeline.md)。
+
 - NormalSmoother Baker（2026-10-17）：窗口收敛为标准 Baker —— 输入固定单个 Mesh，固定资产路径 + Bake/Load/Save + 资产所有权，去掉多目标 / 子级 / 场景回写。编译、BakeCore、Save 新建与覆盖保 GUID 冒烟通过；GUI 画面未验收。见 [Baker 记录](2026-10-17-normal-smoother-baker.md)；[批量版记录](2026-10-17-normal-smoother-window.md) 为历史。
 - NormalSmoother 搬运（2026-10-17）：CelToon 法线平滑工具按项目脚本规范落到 Assets/Mine/Scripts/NormalSmoother/，公开 API/参数名保持不变；以原文件作参考实现做 21 例逐通道等价比对全部一致，骨骼权重与 UInt32 索引分支另验；Editor 窗口未搬运、无画面验证。见 [记录](2026-10-17-normal-smoother.md)。
 
-- CelToon 资源与 SSC 替换（2026-10-17）：SSC 以 CelToon 的单循环密度场（多层混合 + middle 分段剖面）与 HG/高度环境光散射替换 Lab 旧路径，保留 URP 17 RenderGraph、三种噪声模式与 ray count；旧 `rotation` 的度→弧度换算一并修正。Unity batchmode 编译零消息；Feature 尚未挂到 Renderer，无画面验证。见 [替换记录](2026-10-17-ssc-celtoon-scattering-merge.md)、[资源审计](2026-10-17-celtoon-asset-audit.md)。
+- CelToon 资源与 SSC 替换（2026-10-17 历史）：SSC 以 CelToon 单循环密度场与 HG/高度环境光散射替换旧路径，修正 rotation；当时仅 batchmode 编译，未挂 Renderer。现已拉取远端挂载版本、收敛为2D R噪声并完成颜色/重建验证，见 [当前记录](2026-10-20-ssc-quality.md)。来源保留于 [替换记录](2026-10-17-ssc-celtoon-scattering-merge.md)、[资源审计](2026-10-17-celtoon-asset-audit.md)。
 
 - 生产工具归属（2026-10-16 当前）：通用框架已归 agent 完整模板，五窗口独立化并编译通过，42 项 Editor 回归及完整模板编译/Bake/释放验证通过。Noise 上轮修复保持；物理点击、不同资产覆盖确认与 GPU 画质仍待验。见 [迁移记录](../meta/2026-10-16-production-tools-agent-templates.md)；[前一轮接手](2026-10-16-production-tool-handover.md) 保持历史语义。
 
@@ -78,6 +119,18 @@
 
 | 文件 | 日期 | 摘要 |
 |------|------|------|
+| [2026-10-30-fabric-km-sggx.md](2026-10-30-fabric-km-sggx.md) | 2026-10-30 | 织物层：KM 双流 + SGGX + R/T LUT；Rg 只能是反射率不能是风格化最终色；三段式合成在 `FabricFunction.hlsl`，重构后成图逐像素一致。外部改 shader 必须 ForceUpdate、`_CameraOpaqueTexture` 取不到、PC_RPAsset 附加光是 PerVertex、SGGX 球面竖带、标量 K/S 要补偏色。 |
+| [2026-10-27-ssgi-unity-environment-intensity.md](2026-10-27-ssgi-unity-environment-intensity.md) | 2026-10-27 | Specular改接Unity默认环境/HDR，去掉自定义天空，三路强度0–10；71组/五负控及实景克隆对照通过。 |
+| [2026-10-27-surface-lines.md](2026-10-27-surface-lines.md) | 2026-10-27 | 纯解析表面线条材质：UV0/Object/World、导数抗锯齿、最小线宽、交叉线；四 Pass/变体零消息，球体冒烟后恢复场景。 |
+| [2026-10-26-surface-dither.md](2026-10-26-surface-dither.md) | 2026-10-26 | 表面稳定分形 Bayer 抖动材质、3D 图案生成器与隔离验证；四 Pass/五变体零消息，近远边缘密度比 0.996。 |
+| [2026-10-26-exterior-mapping.md](2026-10-26-exterior-mapping.md) | 2026-10-26 | 实体方块面片映射、六面纹理与 billboard/fixed 双模式；CPU、规范与 Unity Pass 0 编译通过，画面未验。 |
+| [2026-10-22-sdf-normalization.md](2026-10-22-sdf-normalization.md) | 2026-10-22 | SDF 库改为中心 1、边界/外部 0 的覆盖度图元，新增圆/方形；规范、HLSL 语法与数值断言通过。 |
+| [2026-10-20-ssc-performance.md](2026-10-20-ssc-performance.md) | 2026-10-20 | SSC精确早停/空域跳采样/sky mask快速重建；432样本同步墙钟、覆盖率/HDR/薄前景与正式证据，性能已实施，形状/面板未改。 |
+| [2026-10-20-ssc-redesign-proposal.md](2026-10-20-ssc-redesign-proposal.md) | 2026-10-20 | SSC黏连/积分与光照耦合根因、216样本成本对照、候选质量档和参数重设计；生产实现未改。 |
+| [2026-10-20-ssc-quality.md](2026-10-20-ssc-quality.md) | 2026-10-20 | SSC 双色增强、RGBA16F、16tap深度重建及遮挡；Metal六变体/20张控制图/HDR正负控，附对照证据与低档柔化限制。 |
+| [2026-10-19-screenwarp-overlay.md](2026-10-19-screenwarp-overlay.md) | 2026-10-19 | 固定输出 UV 的可选 RGBA 遮盖与独立不透明度；Metal 752 组/URP 52 请求通过，素材槽留空，原相机/场景配置保持。 |
+| [2026-10-19-screenwarp-v1.md](2026-10-19-screenwarp-v1.md) | 2026-10-19 | 四种独立屏幕映射与PC_Renderer接入；Metal432组/URP30请求通过，相机保持，交互逆映射等边界留后续。 |
+| [2026-10-19-hdr-map-pipeline.md](2026-10-19-hdr-map-pipeline.md) | 2026-10-19 | Baker/Converter 拆分、四投影统一方向采样、旧 GUID 迁移；Metal 80 项功能及连续梯度通过，验证源码归档；FGD/GGX/反射排除。 |
 | [2026-10-17-normal-smoother-baker.md](2026-10-17-normal-smoother-baker.md) | 2026-10-17 | 窗口改为标准 Baker：只接受单个 Mesh、固定资产路径与 Bake/Load/Save/所有权；编译、BakeCore、新建与覆盖保 GUID 冒烟通过，GUI 未验收。 |
 | [2026-10-17-normal-smoother-window.md](2026-10-17-normal-smoother-window.md) | 2026-10-17 | 搬运批量平滑法线窗口到 NormalSmoother/Editor/；原位覆盖保 GUID、场景回写用持久资产、预览按参数哈希重建；编译与落盘冒烟通过，GUI 未人工验收。 |
 | [2026-10-17-normal-smoother.md](2026-10-17-normal-smoother.md) | 2026-10-17 | 搬运 CelToon NormalSmoother 到 Assets/Mine/Scripts/NormalSmoother/，按项目脚本规范重排；21 例原实现逐通道等价、骨骼权重与 UInt32 分支通过；Editor 窗口未搬运、无画面验证。 |
@@ -119,14 +172,7 @@
 | [2026-09-20-snowy-wrapup.md](2026-09-20-snowy-wrapup.md) | 2026-09-20 | Snowy 双 Pass 原型收尾、材质旧参数清理、最终实现说明与旧贴图确认删除 |
 | [2026-09-18-parameter-range-policy.md](2026-09-18-parameter-range-policy.md) | 2026-09-18 | 参数 0/1 端点风险统一入口钳制，原型阶段避免逐点冗余保护；Snowy 纹理风效 |
 | [2026-09-17-pbrtoon-urp17.md](2026-09-17-pbrtoon-urp17.md) | 2026-09-17 | PBRToon 五 Pass 实例化/Stereo 与 URP 17 结构迁移，保留原材质算法 |
-| [2026-07-24-pcss-integration.md](2026-07-24-pcss-integration.md) | 2026-07-24 | PCSS 软阴影完整方案 |
-| [2026-07-30-interaction-system.md](2026-07-30-interaction-system.md) | 2026-07-30 | 正交交互系统：Manager/Processor 架构 + Verlet 波方程 + 移动域重投影 |
-| [2026-07-30-fgd-lut-baker.md](2026-07-30-fgd-lut-baker.md) | 2026-07-30 | FGD LUT 烘焙工具 + ENVFunction 合并 + _UseFGDLut 自动检测 |
-| [2026-08-06-poss-per-object-soft-shadow.md](2026-08-06-poss-per-object-soft-shadow.md) | 2026-08-06 | POSS 逐物体软阴影：重构 + PCF + 极简组件，ShaderTagId 废弃改用专用 ShadowCaster 材质 |
 | [2026-08-04-water-caustics-screen-independent.md](2026-08-04-water-caustics-screen-independent.md) | 2026-08-04 | 水体焦散屏幕无关化：ddx/ddy 基底分析 + 常数 sceneDet + 世界空间 corrDet |
-| [2026-08-07-ssr-dda-fisheye-w-sign-flip.md](2026-08-07-ssr-dda-fisheye-w-sign-flip.md) | 2026-08-07 | SSR DDA 鱼眼扭曲根因：近平面 w 过零导致齐次插值奇异，DDA/Ray3D 盲区互补 |
-| [2026-08-25-feature-screen-debug.md](2026-08-25-feature-screen-debug.md) | 2026-08-25 | RendererFeature 屏幕调试：真实场景中间 RT 输出 + Game View 观察，替代 Probe/Pixel Probe |
-| [2026-08-27-starrynight-angle-field.md](2026-08-27-starrynight-angle-field.md) | 2026-08-27 | 多中心角场拓扑（N 源必断裂）+ 圆周值/周期消费配方 + 四种融合方案对比 + StarryNight 三文件拆分 |
 | [2026-09-02-starrynight-wheat-bands.md](2026-09-02-starrynight-wheat-bands.md) | 2026-09-02 | TheStarryNight 麦田前景收尾：多层横带 + 循环位移回卷 + SKY/MOUNT/WHEAT 三分类命名 |
 | [2026-09-03-editor-window-family-ruling.md](2026-09-03-editor-window-family-ruling.md) | 2026-09-03 | 窗口壳归属裁定(更正)：editor-baker-window.cs 从未落盘，EditorWindow 壳归 window/ 家族非 baker |
 | [2026-09-03-standard-code-window-family.md](2026-09-03-standard-code-window-family.md) | 2026-09-03 | standard 补代码框架(standard-shader.shader/standard-script.cs) + renderpass 双变体合并 + postprocess 文档并入 README + window 家族新开 |
@@ -134,3 +180,4 @@
 | [2026-09-03-render-hlsl-template-families.md](2026-09-03-render-hlsl-template-families.md) | 2026-09-03 | render 家族落地(直写单 Pass + 复杂材质对) + hlsl 新家族：Special/HLSL 共享库三档依赖决策表 + 私有/共享拆库裁决 |
 | [2026-09-04-interior-mapping-archive.md](2026-09-04-interior-mapping-archive.md) | 2026-09-04 | InteriorMapping + InteriorMap Baker 完成归档：正式产物、方向/投影约定、验证证据与迁移/清理结果 |
 | [2026-09-17-uv-aspect-anisotropy.md](2026-09-17-uv-aspect-anisotropy.md) | 2026-09-17 | UV 空间各向异性：屏幕 UV 内做 R/S 必然剪切/拉伸 + 逆映射语义 + TRS2D_InverseTransformUV |
+| [history.md](history.md) | — | 已归档记忆时间线，逐日一句 |
