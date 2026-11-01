@@ -54,7 +54,7 @@ class FixtureMixin:
     def put(self, relative: str, content: str = "body\n") -> Path:
         target = self.root / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(content, encoding="utf-8")
+        target.write_text(content, encoding="utf-8", newline="")
         return target
 
 

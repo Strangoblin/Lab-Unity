@@ -51,7 +51,8 @@ try:
 except Exception:
     sys.exit(0)
 ti = d.get("tool_input") or {}
-print(ti.get("file_path") or ti.get("path") or "")
+# Windows 下平台给的是反斜杠路径，而下面的分区模式按 POSIX 分隔符写。
+print((ti.get("file_path") or ti.get("path") or "").replace(chr(92), "/"))
 ' 2>/dev/null)
 
 case "$PATH_HINT" in
