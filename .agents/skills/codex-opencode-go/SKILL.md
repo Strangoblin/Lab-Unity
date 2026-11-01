@@ -15,8 +15,8 @@ description: Codex CLI/VSCode 与 opencode CLI/VSCode 扩展接入 OpenCode Go �
 ## 架构（直连）
 
 ```
-Codex    (CLI/VSCode) ──responses──▶ https://opencode.ai/zen/go/v1   ← 本文主体
-opencode (CLI/VSCode) ─────────────▶ https://opencode.ai/zen/go/v1   ← 见「opencode CLI」节
+Codex    (CLI/VSCode) ──responses──▶ https://opencode.ai/zen/go/v1              ← 本文主体
+opencode (CLI/VSCode) ─────────────▶ https://opencode.ai/inference/go/openai/v1  ← 见「opencode CLI」节
 ```
 
 - `wire_api = "responses"`（Codex 26.803+ 唯一支持，2026-02 起 `chat`/`chat/completions` 已移除）
@@ -114,6 +114,8 @@ codex exec "..."   # 读项目级 config.toml + auth.json
 | 裸 curl 回 `{"error":"MissingSessionID"}`（**CLI 同模型却正常**） | 2026-10 起上游要求 `x-opencode-session` 头；codex 自身不发此头也能通（未被上游拦） | 直测命令加 `-H "x-opencode-session: $(uuidgen)"`；**别据此判 key/模型失效** |
 | 404 Not Found（HTML 页） | `base_url` 漏 `/v1` | 必须 `https://opencode.ai/zen/go/v1` |
 | `Model metadata for X not found` warning | Codex 无该模型元数据，用 fallback（context window 等按 fallback 值走，会影响压缩时机） | 把模型补进 `~/.codex/model-catalogs/opencode-go.json`——**key 是 `slug` 不是 `id`**，克隆同族条目改 `slug`/`display_name` 即可（2026-10-08 换 `deepseek-v4.1-flash` 时此法消警）；或退回 config 显式 `model_context_window`。⚠️ 上游 `/models` 只回 id/object/created/owned_by，**不带窗口大小**，catalog 里的数值是手工填的，别当权威 |
+| 报 `view_image is not allowed because you do not support image inputs`；模型完全无法读图 | Codex 按 catalog 的 `input_modalities` 做**客户端门禁**；手写条目克隆后常残留为只有 `["text"]`（本机 2026-10-19 实测：7 条原本全是 text） | 给对应 slug 加 `"image"`（`["text","image"]`，需要原始分辨率再加 `supports_image_detail_original: true`），重启 CLI / **Reload Window**；确认模型本身支持视觉见「视觉输入」节 |
+| opencode 读图任务不引用本文规则；显式加载 `opencode-go` 技能却报 `external_directory ... auto-rejecting` | ① 技能 description 只覆盖配置/报错，普通读图任务不会触发；② 权威正文在 Lab 项目之外，`opencode run` 默认拒绝跨项目读取；③ Lab-B 的 `AGENTS.md` 没有相关路由，全局 `~/.config/opencode/AGENTS.md` 原先不存在（2026-10-19 实测） | 在 `~/.config/opencode/AGENTS.md` 写视觉/重图硬约束；`opencode.json` 的 `permission.external_directory` 放行本技能目录，并注册 `references` 指向 Unity `.agents/skills`；description 加读图/503 触发词；重启 opencode |
 | 自动压缩后**不继承上文**，把之前做过的 `ls`/`diff`/`cat` **重跑一遍** | ① 压缩机制本身就只留交接摘要（`replacement_history` 里零工具输出），**官方链路同样如此**——重读是设计使然；② 真病灶：手写 catalog 三个字段拧错（见下节） | 按「`model_catalog_json` 三字段」节修正 catalog；改完 `model_context_window` 会跳到 `context_window×95%` |
 | `Ignored unsupported project-local config keys: model_provider, model_providers` | **项目级** `.codex/config.toml` 不支持 provider 类 key（Codex 只认 user-level `~/.codex/config.toml`） | 模型/provider 只写在全局 `~/.codex/config.toml`；项目级 config 只放 trust_level 等 key |
 | `Codex is ignoring N unrecognized configuration settings`（点 user 级 key 的名） | key 在新版已废弃/拼错 | 0.159.2 下 `disable_response_storage`、`mcp_servers.node_repl.type` 已被忽略（2026-10-08 实测），留着只刷警告，删掉即可 |
@@ -160,6 +162,22 @@ codex debug models | python3 -m json.tool | grep -E 'slug|context_window|"mode"|
 **排查手法（通用）**：统计所有 rollout 的 `session_meta.base_instructions.text` 长度分布，
 就能看出某条链路实际拿到的是哪个系统提示词。本机实测五档：
 23（手写 catalog）/ 17,730 / 18,446（服务端下发）/ 20,751（内置回退）/ 21,769（GPT-6 模板）。
+
+### 视觉输入（`input_modalities`，2026-10-19 实测）
+
+`view_image is not allowed because you do not support image inputs` 是 **Codex 本地拿 catalog 元数据拦的**，不是上游拒绝。排查顺序：
+
+1. 查 `model_catalog_json` 指向条目里的 `"input_modalities"` 是否只有 `"text"`。手写 catalog 克隆模板时最容易把这个字段一起抄成 text——本机 `Lab-T/tools/codex_switch/model-catalogs/opencode-go.json` 的 7 条**原本全部**如此，包括 `gpt-5.6-luna`（2026-10-19 已修 `deepseek-v4.1-flash`，其余未动）。
+2. 先解耦验证模型真实能力：用同一 `base_url` + `model` 发一条带 `input_image` 的 Responses 请求。2026-10-19 用红/绿/蓝三色条纹测试图实测 `deepseek-v4.1-flash` 正确回答 `Red, green, blue.` → **模型与链路本身支持视觉**。
+3. 修复：把该 slug 改成 `"input_modalities": ["text", "image"]`（Codex 内置视觉预设在二进制里正是这两项），需要原始分辨率再设 `"supports_image_detail_original": true`。用 `codex debug models` 确认解析结果；CLI 新会话生效，VSCode 扩展 **Reload Window**。
+
+⚠️ **大图另有一道坎**：5.5MB / 1024×1024 PNG 会让 `view_image` 报 `fs/readFile returned invalid base64 data ... Invalid symbol 61`（`detail:"original"`）或 `image content omitted because it could not be processed`（`detail:"high"`）；同一张图转成 JPEG（约 1MB）后正常识别。给 Codex 看贴图或大渲染图前先降采样或转 JPEG。
+
+⚠️ **重图 + 大会话会 503**（2026-10-19 实测）：单轮里同时塞 3 张 16-bit 原图（5.9 + 5.9 + 19.2MB，`detail:"original"`）叠在 ~84k token 的会话上，`/responses` 会在约 **2 分 10 秒**后回 `503 Upstream request failed: Endpoint is unavailable.`，Codex 5 次重试全灭。对照实测：同样 3 张图 + ~87k token 的短会话来去 85 秒成功（已经接近超时线），单张 19MB 图只需 3 秒。致命的是这些图会留在 rollout 里，**之后每一轮都会重发**——旧会话等于被毒死，只能换新会话。规避：一次一张、分轮看、先转 JPEG/降采样，别把 Substance 的 16-bit 原图批量塞进同一轮。
+
+> 判断是否真的读到了图：查对应 rollout 的 `function_call_output`。成功时应含 `'type': 'input_image'` + `data:image/...`；只有 `input_text` 或错误字符串就是没读到。
+
+**opencode CLI 侧（2026-10-19 实测）**：opencode 会从 `~/.claude/skills/opencode-go/SKILL.md`（以及 `~/.codex/skills/opencode-go/SKILL.md`）发现路由技能，但普通读图任务不会主动加载；而且权威正文在 Lab 项目之外，`opencode run` 默认把 `external_directory` **自动拒绝**，技能加载了也读不到正文。客户端修复已落地：`~/.config/opencode/AGENTS.md` 写入逐张/降采样/503 硬约束，`~/.config/opencode/opencode.json` 放行本技能目录并注册 `references.lab-unity-skills`；改完需重启 opencode。验证方式：普通读图任务应主动引用全局硬约束；显式 `Skill "opencode-go"` 后应能读到本节并复述 503 规则。
 
 ## 网络传输：WS（默认）⇄ HTTPS，与 `cx-http` / `cx-ws`（2026-10-08 落地）
 
@@ -261,7 +279,7 @@ opencode **内置了两个 provider**，别搞混——这是这条链路上最�
 | provider | 端点 | 计费 | 说明 |
 |---|---|---|---|
 | `opencode` | `https://opencode.ai/zen/v1` | 按量计费 | OpenCode Zen；余额为 0 时报 `Insufficient balance` |
-| `opencode-go` | `https://opencode.ai/zen/go/v1` | **订阅** | OpenCode Go，37 个模型（2026-10-08 实测），与 Codex 用的是同一个 |
+| `opencode-go` | `https://opencode.ai/zen/go/v1`（本机 opencode CLI 显式配置为 `https://opencode.ai/inference/go/openai/v1`） | **订阅** | OpenCode Go，37 个模型（2026-10-08 实测），与 Codex 用的是同一个订阅；两个端点不要混用 |
 
 > ⚠️ **走错 provider 的症状极具迷惑性**：模型名照样被识别（`> build · deepseek-v4-flash` 正常显示），只在请求时报 `Insufficient balance` + billing 链接。**看到这个错误不要去改 baseURL**——把模型换成 `opencode-go/<模型>` 即可。
 > 覆盖 `provider.opencode.options.baseURL` 只在 **CLI 路径**有效；服务端 `SessionRunner` 用的是**逐模型的 `model.api.url`**（来自目录，不受 provider baseURL 影响），所以覆盖救不了 GUI。模型级 `options.baseURL` 实测同样无效。
@@ -369,7 +387,7 @@ curl -s "https://opencode.ai/zen/go/v1/models" -H "Authorization: Bearer $OPENAI
 |---|---|
 | CLI | `opencode` 1.18.32（`npm i -g opencode-ai`） |
 | 凭据来源 | 环境变量 **`OPENCODE_GO_API_KEY`**（User 级已设）；本机未设 `OPENCODE_API_KEY` →「凭据：`opencode-go` 认的是 `OPENCODE_API_KEY`」一节在本机不适用 |
-| opencode 配置 | `~/.config/opencode/opencode.json` **显式定义** provider `opencode-go`（`baseURL=https://opencode.ai/zen/go/v1`、`apiKey={env:OPENCODE_GO_API_KEY}`）→「配置：直接用内置 `opencode-go`，**不要**覆盖 baseURL」的默认两行配置在本机不适用 |
+| opencode 配置 | `~/.config/opencode/opencode.json` **显式定义** provider `opencode-go`（`baseURL=https://opencode.ai/inference/go/openai/v1`、`apiKey={env:OPENCODE_GO_API_KEY}`；2026-10-19 实测）→「配置：直接用内置 `opencode-go`，**不要**覆盖 baseURL」的默认两行配置在本机不适用 |
 | Codex 配置 | `~/.codex/config.toml`：`model_provider="opencode-go"`、`env_key="OPENCODE_GO_API_KEY"`、`wire_api="responses"`、`supports_websockets=false`、`model_catalog_json` 指向 Robot/Bot 的 catalog |
 | 可用模型 | `deepseek-v4.1-flash`（默认）、`deepseek-v4-pro`、`gpt-5.6-luna`（本机 403 地区限制，见模型可用性节） |
 | `ocw` 包装脚本 | 正文的 `~/.local/bin/ocw` 是 macOS 路径，本机**不存在**；直接 `opencode run -m opencode-go/<model> "<自包含任务>"` |
