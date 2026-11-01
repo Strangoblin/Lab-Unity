@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
 //  RayStepFunction — ray projection and incremental homogeneous stepping.
-//  Contract and units: Special/Rendering/ScreenSpaceTrace/README.md.
+//  Contract and units: Special/Renderer/ScreenSpaceTrace/README.md.
 // ═══════════════════════════════════════════════════════════════
 #ifndef RAYSTEPFUNCTION_HLSL_INCLUDED
 #define RAYSTEPFUNCTION_HLSL_INCLUDED

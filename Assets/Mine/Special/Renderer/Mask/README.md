@@ -57,7 +57,7 @@ MaskRBR 的背景来源表示深度远平面／清屏区域，不保证该区域
 将下面的输出目录改为本次未使用的任务目录，再使用连接到本项目的 unityctl 执行：
 
 ```sh
-unityctl script execute -f Assets/Mine/Special/Rendering/Mask/Validation~/PipelineEquivalence.cs -t 60 -- compare tmp/sessions/YYYY-MM-DD-mask-rerun-ID/output Assets/Mine/Special/Rendering/Mask/Validation~/Baselines/2026-10-13
+unityctl script execute -f Assets/Mine/Special/Renderer/Mask/Validation~/PipelineEquivalence.cs -t 60 -- compare tmp/sessions/YYYY-MM-DD-mask-rerun-ID/output Assets/Mine/Special/Renderer/Mask/Validation~/Baselines/2026-10-13
 ```
 
 `baseline outputDirectory baselineDirectory` 参数用于在明确的旧实现版本生成新基线，不能在重构后重新生成基线来证明与旧版一致。Compare 先验证完整基线尺寸，再检查全部 RGBA、有限值、有效来源非空、权重／遮挡／空来源与轮廓外扩散控制；容差 `0.002 × (1 + |expected|)`，失败时保存实际图像供诊断。

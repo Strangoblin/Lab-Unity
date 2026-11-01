@@ -2,7 +2,7 @@
 set -euo pipefail
 project="$(git rev-parse --show-toplevel)"
 cd "$project"
-module="Assets/Mine/Special/Rendering/ScreenSpaceTrace"
+module="Assets/Mine/Special/Renderer/ScreenSpaceTrace"
 fixture="$module/RuntimeFixture"
 run="$(mktemp -d "$project/tmp/sessions/$(date +%F)-screen-trace-run-XXXXXXXX")"
 mkdir -p "$run/output"

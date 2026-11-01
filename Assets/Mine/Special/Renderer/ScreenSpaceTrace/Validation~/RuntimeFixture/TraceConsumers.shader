@@ -12,7 +12,7 @@ Shader "RuntimeFixture/TraceConsumers"
         #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
         #include "Assets/Mine/Special/HLSL/RayStepFunction.hlsl"
         #include "Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl"
-        #include "Assets/Mine/Special/Rendering/ScreenSpaceTrace/Validation~/TraceTestContext.hlsl"
+        #include "Assets/Mine/Special/Renderer/ScreenSpaceTrace/Validation~/TraceTestContext.hlsl"
         float4 _TestOriginRange;
         float4 _TestDirectionRange;
         int _TestBackend;

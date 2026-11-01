@@ -43,7 +43,7 @@ public static partial class SSGICameraChecks
         _assertions = 0;
         _output = "tmp/sessions/2026-10-28-specular-hiz/validation/run-" + Guid.NewGuid().ToString("N");
         Directory.CreateDirectory(_output);
-        var compute = AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/Mine/Special/Rendering/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute");
+        var compute = AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/Mine/Special/Renderer/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute");
         var bad = AssetDatabase.LoadAssetAtPath<ComputeShader>(Root + "RuntimeFixture/SpecularBadPyramid.compute");
         var missing = AssetDatabase.LoadAssetAtPath<ComputeShader>(Root + "RuntimeFixture/SpecularMissingKernel.compute");
         Require(compute != null && bad != null && missing != null, "Import the two disposable compute fixtures before running");

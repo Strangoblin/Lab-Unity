@@ -29,7 +29,7 @@ public static partial class SSGICameraChecks
         _assertions = 0;
         _output = "tmp/sessions/" + DateTime.Now.ToString("yyyy-MM-dd") + "-ssgi-shared-trace-" + Guid.NewGuid().ToString("N").Substring(0, 8);
         Directory.CreateDirectory(_output);
-        ComputeShader compute = AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/Mine/Special/Rendering/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute");
+        ComputeShader compute = AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/Mine/Special/Renderer/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute");
         Require(compute != null, "Compute available");
         var migration = ScriptableObject.CreateInstance<SSGIFeature>();
         try

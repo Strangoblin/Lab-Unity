@@ -10,7 +10,7 @@ public static partial class SSGICameraChecks
         _assertions = 0;
         _output = "tmp/sessions/" + DateTime.Now.ToString("yyyy-MM-dd") + "-diffuse-hiz-check-" + Guid.NewGuid().ToString("N").Substring(0, 8);
         Directory.CreateDirectory(_output);
-        var compute = AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/Mine/Special/Rendering/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute");
+        var compute = AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/Mine/Special/Renderer/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute");
         Require(compute != null, "Depth pyramid compute exists");
         bool sceneDirty = SceneManager.GetActiveScene().isDirty;
         using (var renderer = new RendererScope())

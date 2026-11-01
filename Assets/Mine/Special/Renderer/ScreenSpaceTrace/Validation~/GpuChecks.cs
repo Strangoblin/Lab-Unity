@@ -21,7 +21,7 @@ public class Script
 
 public static class TraceGpuChecks
 {
-    private const string Root = "Assets/Mine/Special/Rendering/ScreenSpaceTrace/";
+    private const string Root = "Assets/Mine/Special/Renderer/ScreenSpaceTrace/";
     private const float Near = 0.1f;
     private const float Far = 20f;
     private const float Thickness = 0.15f;

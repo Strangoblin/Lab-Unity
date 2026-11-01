@@ -128,7 +128,7 @@ RAY 沿用原 SSGI 穿越与 6 次二分；`Validation~/BaselineScreenSpaceTrace
 在项目根、Unity Editor 与 unityctl bridge 已连接、门禁已授权 `Assets/Mine/Special` 的条件下：
 
 ```bash
-bash Assets/Mine/Special/Rendering/ScreenSpaceTrace/Validation~/run.sh
+bash Assets/Mine/Special/Renderer/ScreenSpaceTrace/Validation~/run.sh
 ```
 
 runner 经写入门禁临时导入两个自己管理的 Compute / Shader fixture，执行后经删除门禁清理源码与 metas，不覆盖已有 RuntimeFixture；可复用源码保存在 Unity 忽略的 `Validation~/`。新回读报告写到 `tmp/sessions/<date>-screen-trace-checks-<id>/output/results.json`，不写进功能目录。

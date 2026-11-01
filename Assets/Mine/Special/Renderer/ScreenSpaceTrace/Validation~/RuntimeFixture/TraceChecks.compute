@@ -11,7 +11,7 @@ Texture2D<float> _Pyramid;
 #define SCREEN_TRACE_LOAD_PYRAMID(pixel, mip) _Pyramid.Load(int3(pixel, mip))
 #include "Assets/Mine/Special/HLSL/RayStepFunction.hlsl"
 #include "Assets/Mine/Special/HLSL/ScreenSpaceTraceFunction.hlsl"
-#include "Assets/Mine/Special/Rendering/ScreenSpaceTrace/Validation~/TraceTestContext.hlsl"
+#include "Assets/Mine/Special/Renderer/ScreenSpaceTrace/Validation~/TraceTestContext.hlsl"
 
 float TraceTest_BaselineDepth(float2 uv)
 {
@@ -49,7 +49,7 @@ float TraceTest_BaselineDepth(float2 uv)
 #define LinearDepthToEyeDepth(raw) lerp(_TestClip.x, _TestClip.y, _TestFlags.z != 0 ? 1.0 - raw : raw)
 #define LinearEyeDepth(raw, params) rcp((params).z * raw + (params).w)
 #define ComputeWorldSpacePosition(uv, depth, matrix) float3(0.0, 0.0, 0.0)
-#include "Assets/Mine/Special/Rendering/ScreenSpaceTrace/Validation~/BaselineScreenSpaceTrace.hlsl"
+#include "Assets/Mine/Special/Renderer/ScreenSpaceTrace/Validation~/BaselineScreenSpaceTrace.hlsl"
 
 struct TraceTestInput
 {
