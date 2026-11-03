@@ -13,6 +13,8 @@
 
 ## 关键架构决策
 
+- **SSGI 历史纹理生命周期（2026-11-03）**：历史 RT 采用 HideAndDontSave 与 RTHandle 所有权；双缓冲底层纹理失效时重建对应历史。Editor 可控纹理失效、通道隔离与 RenderGraph 导入探针通过；真实切场景复测待确认。见 [记录](2026-11-03-ssgi-history-lifetime.md)。
+
 - **独立草区块模板（2026-11-03）**：`Assets/Mine/Scripts/GrassManager/` 提供 5×5 演示地形、相机周围 3×3 草区块及独立地表采样契约；复用 SimpleGrass 模型、材质和间接绘制缓冲。Editor 数据检查与 Metal 草开关对照通过，Play 未验证；手绘和 TerrainManager 适配未实现。见 [记录](2026-11-03-grass-manager-template.md)。
 
 - **后处理 Event 面板（2026-11-02）**：所有后处理 Feature 的 `Settings` 在 `Debug` 前加 `[Header("Event")] passEvent`，默认值等于改造前硬编码事件，`AddRenderPasses` 每帧覆盖后再入队；PCSS/POSS 的投射 Pass 仍固定在 `AfterRenderingShadows`，SSGI 三模块共用一个事件（按模块拆分已因时域滤波与 HiZ 双双分裂回退）。模板与 parameter-panel 规范已同步。见 [记录](2026-11-02-postprocess-event.md)。
