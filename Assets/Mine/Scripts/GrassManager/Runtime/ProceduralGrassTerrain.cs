@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 namespace Mine.Grass
 {
     /// <summary>A small, deterministic terrain data source and its matching 5x5 surface.</summary>
-    [DisallowMultipleComponent]
+    [ExecuteAlways, DisallowMultipleComponent]
     public sealed class ProceduralGrassTerrain : GrassTerrainSource
     {
         public const int ChunkCount = 5;
@@ -71,12 +71,13 @@ namespace Mine.Grass
                     Release();
                     return;
                 }
-                _ownedMaterial = new Material(shader) { name = "Grass Terrain Ground (Runtime)" };
+                _ownedMaterial = new Material(shader) { name = "Grass Terrain Ground (Runtime)",
+                    hideFlags = HideFlags.HideAndDontSave };
                 _ownedMaterial.color = new Color(0.34f, 0.43f, 0.23f, 1f);
                 material = _ownedMaterial;
             }
 
-            _root = new GameObject("Grass Terrain Chunks (Runtime)");
+            _root = new GameObject("Grass Terrain Chunks (Runtime)") { hideFlags = HideFlags.DontSave };
             _root.transform.SetParent(transform, false);
             for (int z = 0; z < ChunkCount; z++)
             for (int x = 0; x < ChunkCount; x++)
@@ -142,13 +143,13 @@ namespace Mine.Grass
                 triangles[index++] = i + side;
                 triangles[index++] = i + side + 1;
             }
-            Mesh mesh = new Mesh { name = $"Grass Terrain {chunkX},{chunkZ}" };
+            Mesh mesh = new Mesh { name = $"Grass Terrain {chunkX},{chunkZ}", hideFlags = HideFlags.DontSave };
             mesh.vertices = vertices;
             mesh.triangles = triangles;
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
             _meshes.Add(mesh);
-            GameObject chunk = new GameObject(mesh.name);
+            GameObject chunk = new GameObject(mesh.name) { hideFlags = HideFlags.DontSave };
             chunk.transform.SetParent(_root.transform, false);
             chunk.transform.position = chunkOrigin;
             chunk.AddComponent<MeshFilter>().sharedMesh = mesh;

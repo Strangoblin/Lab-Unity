@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 namespace Mine.Grass
 {
     /// <summary>Generates and draws the 3x3 neighborhood of a camera on the terrain data.</summary>
-    [DisallowMultipleComponent]
+    [ExecuteAlways, DisallowMultipleComponent]
     public sealed class GrassChunkManager : MonoBehaviour
     {
         private const int MaxInstancesPerChunk = 4000;
@@ -27,8 +27,19 @@ namespace Mine.Grass
         private Mesh _activeMesh;
         private Material _activeMaterial;
         private bool _limitReported;
+        private readonly Plane[] _frustumPlanes = new Plane[6];
 
         public int ActiveChunkCount => _chunks.Count;
+        public int VisibleInstanceCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (GrassChunk chunk in _chunks.Values)
+                    count += chunk.VisibleCount;
+                return count;
+            }
+        }
         public int ActiveInstanceCount
         {
             get
@@ -57,16 +68,42 @@ namespace Mine.Grass
             ClearChunks();
             _builtDensity = float.NaN;
             _builtSize = float.NaN;
-            if (Application.isPlaying && isActiveAndEnabled)
-                UpdateChunks();
+            if (isActiveAndEnabled && UpdateChunks())
+                RefreshVisibility();
+        }
+
+        private void OnEnable()
+        {
+            RenderPipelineManager.beginContextRendering += BeginContextRendering;
         }
 
         private void Update()
         {
-            if (!UpdateChunks())
+            if (UpdateChunks())
+                RefreshVisibility();
+        }
+
+        private void BeginContextRendering(ScriptableRenderContext context, List<Camera> cameras)
+        {
+            if (!isActiveAndEnabled || !UpdateChunks())
                 return;
+            RefreshVisibility();
+            foreach (Camera camera in cameras)
+            {
+                if (camera != _camera && camera.cameraType != CameraType.SceneView)
+                    continue;
+                foreach (GrassChunk chunk in _chunks.Values)
+                    chunk.Draw(_grassMesh, _runtimeMaterial, camera, gameObject.layer);
+            }
+        }
+
+        private void RefreshVisibility()
+        {
+            if (_camera == null)
+                return;
+            GeometryUtility.CalculateFrustumPlanes(_camera, _frustumPlanes);
             foreach (GrassChunk chunk in _chunks.Values)
-                chunk.Draw(_grassMesh, _runtimeMaterial, _camera, gameObject.layer);
+                chunk.Cull(_frustumPlanes);
         }
 
         private bool UpdateChunks()
@@ -101,7 +138,8 @@ namespace Mine.Grass
             }
             if (_runtimeMaterial == null)
             {
-                _runtimeMaterial = new Material(_grassMaterial) { name = "Grass Chunk Material (Runtime)", enableInstancing = true };
+                _runtimeMaterial = new Material(_grassMaterial) { name = "Grass Chunk Material (Runtime)", enableInstancing = true,
+                    hideFlags = HideFlags.HideAndDontSave };
             }
             float density = SafeParameter(_density);
             float size = SafeParameter(_size);
@@ -196,7 +234,34 @@ namespace Mine.Grass
             return new GrassChunk(_grassMesh, matrices, grass, indices, bounds);
         }
 
-        private void OnDisable() => Release();
+        private void OnDisable()
+        {
+            RenderPipelineManager.beginContextRendering -= BeginContextRendering;
+            Release();
+        }
+
+        private void OnDrawGizmos()
+        {
+            Camera camera = _camera != null ? _camera : Camera.main;
+            if (camera == null)
+                return;
+            var near = new Vector3[4];
+            var far = new Vector3[4];
+            camera.CalculateFrustumCorners(new Rect(0f, 0f, 1f, 1f), camera.nearClipPlane,
+                Camera.MonoOrStereoscopicEye.Mono, near);
+            camera.CalculateFrustumCorners(new Rect(0f, 0f, 1f, 1f), camera.farClipPlane,
+                Camera.MonoOrStereoscopicEye.Mono, far);
+            Gizmos.color = new Color(1f, 0.8f, 0.1f, 0.8f);
+            for (int i = 0; i < 4; i++)
+            {
+                int next = (i + 1) % 4;
+                Vector3 nearPoint = camera.transform.TransformPoint(near[i]);
+                Vector3 farPoint = camera.transform.TransformPoint(far[i]);
+                Gizmos.DrawLine(nearPoint, camera.transform.TransformPoint(near[next]));
+                Gizmos.DrawLine(farPoint, camera.transform.TransformPoint(far[next]));
+                Gizmos.DrawLine(nearPoint, farPoint);
+            }
+        }
 
         private void ClearChunks()
         {
@@ -241,16 +306,35 @@ namespace Mine.Grass
             private ComputeBuffer _arguments;
             private readonly MaterialPropertyBlock _properties;
             private readonly Bounds _bounds;
+            private readonly Bounds[] _instanceBounds;
+            private readonly uint[] _visibleIndices;
+            private readonly uint[] _drawArguments;
             public int Count { get; }
+            public int VisibleCount { get; private set; }
 
             public GrassChunk(Mesh mesh, Matrix4x4[] matrices, GrassProperties[] grass, uint[] indices, Bounds bounds)
             {
                 Count = matrices.Length;
                 _bounds = bounds;
+                _instanceBounds = new Bounds[Count];
+                _visibleIndices = new uint[Count];
+                _drawArguments = new uint[] { mesh.GetIndexCount(0), 0, mesh.GetIndexStart(0),
+                    (uint)mesh.GetBaseVertex(0), 0 };
                 if (Count == 0)
                     return;
                 try
                 {
+                    Bounds meshBounds = mesh.bounds;
+                    for (int i = 0; i < Count; i++)
+                    {
+                        Matrix4x4 matrix = matrices[i];
+                        Vector3 extents = meshBounds.extents;
+                        Vector3 worldExtents = new Vector3(
+                            Mathf.Abs(matrix.m00) * extents.x + Mathf.Abs(matrix.m01) * extents.y + Mathf.Abs(matrix.m02) * extents.z,
+                            Mathf.Abs(matrix.m10) * extents.x + Mathf.Abs(matrix.m11) * extents.y + Mathf.Abs(matrix.m12) * extents.z,
+                            Mathf.Abs(matrix.m20) * extents.x + Mathf.Abs(matrix.m21) * extents.y + Mathf.Abs(matrix.m22) * extents.z);
+                        _instanceBounds[i] = new Bounds(matrix.MultiplyPoint3x4(meshBounds.center), worldExtents * 2f);
+                    }
                     _matrices = new ComputeBuffer(Count, sizeof(float) * 16);
                     _grass = new ComputeBuffer(Count, sizeof(float) * 4);
                     _indices = new ComputeBuffer(Count, sizeof(uint));
@@ -258,8 +342,7 @@ namespace Mine.Grass
                     _matrices.SetData(matrices);
                     _grass.SetData(grass);
                     _indices.SetData(indices);
-                    _arguments.SetData(new uint[] { mesh.GetIndexCount(0), (uint)Count, mesh.GetIndexStart(0),
-                        (uint)mesh.GetBaseVertex(0), 0 });
+                    _arguments.SetData(_drawArguments);
                     _properties = new MaterialPropertyBlock();
                     _properties.SetBuffer("_MeshProperties", _matrices);
                     _properties.SetBuffer("_GrassProperties", _grass);
@@ -279,9 +362,27 @@ namespace Mine.Grass
                 }
             }
 
-            public void Draw(Mesh mesh, Material material, Camera camera, int layer)
+            public void Cull(Plane[] planes)
             {
                 if (Count == 0)
+                    return;
+                int visible = 0;
+                if (GeometryUtility.TestPlanesAABB(planes, _bounds))
+                {
+                    for (int i = 0; i < Count; i++)
+                        if (GeometryUtility.TestPlanesAABB(planes, _instanceBounds[i]))
+                            _visibleIndices[visible++] = (uint)i;
+                }
+                VisibleCount = visible;
+                if (visible > 0)
+                    _indices.SetData(_visibleIndices, 0, 0, visible);
+                _drawArguments[1] = (uint)visible;
+                _arguments.SetData(_drawArguments);
+            }
+
+            public void Draw(Mesh mesh, Material material, Camera camera, int layer)
+            {
+                if (VisibleCount == 0)
                     return;
                 Graphics.DrawMeshInstancedIndirect(mesh, 0, material, _bounds, _arguments, 0, _properties,
                     ShadowCastingMode.Off, false, layer, camera);

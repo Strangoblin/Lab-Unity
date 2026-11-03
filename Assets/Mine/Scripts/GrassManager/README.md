@@ -1,6 +1,6 @@
 # GrassManager 基础模板
 
-`GrassManagerDemo.unity` 是独立演示场景。进入 Play Mode 后用 WASD 或方向键移动相机；在 `Grass Manager Demo` 的 `GrassChunkManager` 组件调整 Density 和 Size。
+`GrassManagerDemo.unity` 是独立演示场景。在编辑模式下即生成地形和草；在 Scene 视图移动或旋转 Main Camera 可观察视锥剔除，开启 Gizmos 可看到黄色视锥线。进入 Play Mode 后用 WASD 或方向键移动相机；在 `Grass Manager Demo` 的 `GrassChunkManager` 组件调整 Density 和 Size。
 
 | 参数 | 默认值 | 含义 |
 |---|---:|---|
@@ -11,4 +11,4 @@
 
 实例的位置、贴合法线的旋转、法线和高度属性，以及 0.8–1.2 随机尺寸参考 `Shaders/Render/SimpleGrass/GrassGenerator.cs` 和 `GrassManager.cs`；复用其草模型、材质与间接绘制缓冲契约。高度属性固定为 1 以使自动生成的草可见；风、交互和地表融合在此模板关闭。
 
-本模板为演示直接同步生成和释放区块，不执行逐株视锥剔除、距离淡出、异步预算、手绘或原 TerrainManager 数据接入。地形高度网格和实例均为运行时内存数据，不保存草实例数据库。后续可通过 `GrassTerrainSource` 接入其他地形：实现世界空间范围与采样，并在地形数据改变时递增版本；此模板要求方形区块，且每区块候选实例上限为 4,000，超过时报告错误并停止生成。
+本模板同步生成和释放区块，用 CPU 检查每株草的世界空间包围盒是否与 Main Camera 视锥相交，并向 Main Camera 和 Scene 视图绘制同一批可见实例。该实现适合观察和基础验证，尚无距离淡出、异步预算、GPU 剔除、手绘或原 TerrainManager 数据接入。地形高度网格和实例均为内存数据，不保存草实例数据库。后续可通过 `GrassTerrainSource` 接入其他地形：实现世界空间范围与采样，并在地形数据改变时递增版本；此模板要求方形区块，且每区块候选实例上限为 4,000，超过时报告错误并停止生成。
