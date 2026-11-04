@@ -28,7 +28,10 @@ namespace Mine.Grass.Editor
             Require(manager != null && terrain != null && camera != null, "Saved scene components or Main Camera missing");
             Require(Mathf.Approximately(terrain.ChunkSize, 20f), "Saved demo must default to a 20-unit chunk");
             Require((GrassTerrainLayer)typeof(GrassChunkManager).GetField("_terrainLayers", flags).GetValue(manager) ==
-                GrassTerrainLayer.Grass, "Saved demo must default to the Grass terrain layer");
+                (GrassTerrainLayer.Grass | GrassTerrainLayer.Dirt | GrassTerrainLayer.Water),
+                "Saved demo must allow every demo terrain layer by default");
+            Require((manager.MeshRotation - new Vector3(-90f, 0f, 0f)).sqrMagnitude < 0.0001f,
+                "Saved demo must rotate its grass mesh -90 degrees about X");
             Require((GrassTerrainSource)typeof(GrassChunkManager).GetField("_terrain", flags).GetValue(manager) == terrain &&
                 (Camera)typeof(GrassChunkManager).GetField("_camera", flags).GetValue(manager) == camera,
                 "Saved demo must reference its terrain and Main Camera");
@@ -40,6 +43,9 @@ namespace Mine.Grass.Editor
                 "Saved scene must generate a single terrain mesh with 5x5 logical chunks");
             Require(manager.ActiveInstanceCount > 0 && manager.VisibleInstanceCount > 0,
                 "Saved scene must generate visible grass from Main Camera");
+            CheckDefaultDistribution(manager, terrain);
+            Mesh mesh = (Mesh)typeof(GrassChunkManager).GetField("_grassMesh", flags).GetValue(manager);
+            CheckMeshRotation(manager, terrain, mesh, Quaternion.Euler(-90f, 0f, 0f));
             Debug.Log($"GRASS_SAVED_SCENE_VALIDATION_PASS: mesh={terrain.SurfaceMeshCount}, " +
                 $"chunkSize={terrain.ChunkSize}, instances={manager.ActiveInstanceCount}, visible={manager.VisibleInstanceCount}.");
         }
@@ -83,11 +89,21 @@ namespace Mine.Grass.Editor
                 manager.Configure(terrain, camera, mesh, material);
                 manager.Density = 0.8f;
                 manager.Size = 4f;
+                manager.TerrainLayers = GrassTerrainLayer.Grass | GrassTerrainLayer.Dirt | GrassTerrainLayer.Water;
+                manager.MeshRotation = new Vector3(-90f, 0f, 0f);
                 Require((bool)update.Invoke(manager, null), "Initial chunk build failed");
                 cull.Invoke(manager, null);
                 Require(manager.ActiveChunkCount == 9, "Center must activate 3x3 chunks");
                 Require(terrain.SurfaceMeshCount == 1 && terrain.ChunkCountX == 5 && terrain.ChunkCountZ == 5,
                     "Terrain must have one surface mesh and 5x5 logical chunks");
+                CheckDefaultDistribution(manager, terrain);
+                CheckMeshRotation(manager, terrain, mesh, Quaternion.Euler(-90f, 0f, 0f));
+                manager.MeshRotation = Vector3.zero;
+                Require((bool)update.Invoke(manager, null), "Mesh rotation change failed");
+                CheckMeshRotation(manager, terrain, mesh, Quaternion.identity);
+                manager.MeshRotation = new Vector3(-90f, 0f, 0f);
+                Require((bool)update.Invoke(manager, null), "Restoring mesh rotation failed");
+                cull.Invoke(manager, null);
                 int forward = CheckVisibleBuffers(manager, camera, terrain.ChunkWidth);
 
                 int originalVersion = terrain.DataVersion;
@@ -131,7 +147,7 @@ namespace Mine.Grass.Editor
                     Mathf.Abs(ChunkInstanceCount(manager, 0, 0) - 1000) <= 1,
                     "An oversized chunk must use the terrain's 100x100 area for density");
                 camera.transform.position = new Vector3(0f, 4f, 0f);
-                layers.SetValue(manager, GrassTerrainLayer.Grass);
+                layers.SetValue(manager, GrassTerrainLayer.Grass | GrassTerrainLayer.Dirt | GrassTerrainLayer.Water);
                 manager.Density = 0.8f;
                 terrain.ChunkSize = 20f;
                 Require((bool)update.Invoke(manager, null), "Restoring chunk size failed");
@@ -145,6 +161,9 @@ namespace Mine.Grass.Editor
                 Require(manager.ActiveInstanceCount == 0 && manager.VisibleInstanceCount == 0,
                     "Selecting no terrain layers must exclude all grass");
                 layers.SetValue(manager, GrassTerrainLayer.Grass);
+                Require((bool)update.Invoke(manager, null), "Grass-only terrain layer change failed");
+                CheckOnlyGrassDistribution(manager, terrain);
+                layers.SetValue(manager, GrassTerrainLayer.Grass | GrassTerrainLayer.Dirt | GrassTerrainLayer.Water);
                 Require((bool)update.Invoke(manager, null), "Restoring terrain layer failed");
                 cull.Invoke(manager, null);
                 Require(manager.ActiveInstanceCount == originalInstances, "Restoring terrain layer failed to rebuild grass");
@@ -275,13 +294,96 @@ namespace Mine.Grass.Editor
                 {
                     Vector3 position = matrix.GetColumn(3);
                     Require(terrain.TrySample(position.x, position.z, out Vector3 surface, out Vector3 normal,
-                        out GrassTerrainLayer layer) && layer == GrassTerrainLayer.Grass && normal.y > 0f &&
+                        out GrassTerrainLayer layer) && layer != GrassTerrainLayer.None && normal.y > 0f &&
                         Mathf.Abs(position.y - surface.y) < 0.0001f,
                         "Grass in a partial chunk must be on an allowed terrain surface");
                     checkedInstances++;
                 }
             }
             Require(checkedInstances > 0, "No instances available to test the partial boundary");
+        }
+
+        private static void CheckDefaultDistribution(GrassChunkManager manager, ProceduralGrassTerrain terrain)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            IDictionary chunks = (IDictionary)typeof(GrassChunkManager).GetField("_chunks", flags).GetValue(manager);
+            int grass = 0;
+            int nonGrass = 0;
+            foreach (DictionaryEntry entry in chunks)
+            {
+                object chunk = entry.Value;
+                ComputeBuffer buffer = (ComputeBuffer)chunk.GetType().GetField("_matrices", flags).GetValue(chunk);
+                if (buffer == null) continue;
+                Matrix4x4[] matrices = new Matrix4x4[buffer.count];
+                buffer.GetData(matrices);
+                foreach (Matrix4x4 matrix in matrices)
+                {
+                    Vector3 position = matrix.GetColumn(3);
+                    Require(terrain.TrySample(position.x, position.z, out _, out _, out GrassTerrainLayer layer),
+                        "Generated instance is outside the terrain");
+                    if (layer == GrassTerrainLayer.Grass) grass++;
+                    else if (layer == GrassTerrainLayer.Dirt || layer == GrassTerrainLayer.Water) nonGrass++;
+                }
+            }
+            Require(grass > 0 && nonGrass > 0,
+                "Default demo distribution must include both Grass and non-Grass terrain categories");
+        }
+
+        private static void CheckOnlyGrassDistribution(GrassChunkManager manager, ProceduralGrassTerrain terrain)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            IDictionary chunks = (IDictionary)typeof(GrassChunkManager).GetField("_chunks", flags).GetValue(manager);
+            int count = 0;
+            foreach (DictionaryEntry entry in chunks)
+            {
+                object chunk = entry.Value;
+                ComputeBuffer buffer = (ComputeBuffer)chunk.GetType().GetField("_matrices", flags).GetValue(chunk);
+                if (buffer == null) continue;
+                Matrix4x4[] matrices = new Matrix4x4[buffer.count];
+                buffer.GetData(matrices);
+                foreach (Matrix4x4 matrix in matrices)
+                {
+                    Vector3 position = matrix.GetColumn(3);
+                    Require(terrain.TrySample(position.x, position.z, out _, out _, out GrassTerrainLayer layer) &&
+                        layer == GrassTerrainLayer.Grass, "Grass-only selection allowed another terrain category");
+                    count++;
+                }
+            }
+            Require(count > 0, "Grass-only selection unexpectedly removed every instance");
+        }
+
+        private static void CheckMeshRotation(GrassChunkManager manager, ProceduralGrassTerrain terrain,
+            Mesh mesh, Quaternion meshRotation)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            IDictionary chunks = (IDictionary)typeof(GrassChunkManager).GetField("_chunks", flags).GetValue(manager);
+            int checkedCount = 0;
+            foreach (DictionaryEntry entry in chunks)
+            {
+                object chunk = entry.Value;
+                ComputeBuffer buffer = (ComputeBuffer)chunk.GetType().GetField("_matrices", flags).GetValue(chunk);
+                if (buffer == null) continue;
+                Matrix4x4[] matrices = new Matrix4x4[buffer.count];
+                buffer.GetData(matrices);
+                foreach (Matrix4x4 matrix in matrices)
+                {
+                    Vector3 position = matrix.GetColumn(3);
+                    Require(terrain.TrySample(position.x, position.z, out _, out Vector3 normal),
+                        "Rotated instance must remain on the terrain");
+                    Quaternion expected = Quaternion.FromToRotation(Vector3.up, normal) * meshRotation;
+                    Require(Vector3.Dot(matrix.MultiplyVector(Vector3.up).normalized, expected * Vector3.up) > 0.999f &&
+                        Vector3.Dot(matrix.MultiplyVector(Vector3.forward).normalized, expected * Vector3.forward) > 0.999f,
+                        "Instance mesh rotation is not composed with the sampled terrain normal");
+                    if (Quaternion.Angle(meshRotation, Quaternion.Euler(-90f, 0f, 0f)) < 0.01f)
+                    {
+                        Vector3 growthDirection = mesh.bounds.center.z < 0f ? Vector3.back : Vector3.forward;
+                        Require(Vector3.Dot(matrix.MultiplyVector(growthDirection).normalized, normal) > 0.999f,
+                            "Grass mesh growth axis does not point along the sampled surface normal");
+                    }
+                    checkedCount++;
+                }
+            }
+            Require(checkedCount > 0, "No matrices available to check mesh rotation");
         }
 
         private static Color32[] Capture(Camera camera, string path)

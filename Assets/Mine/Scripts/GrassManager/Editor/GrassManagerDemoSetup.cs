@@ -55,6 +55,8 @@ namespace Mine.Grass.Editor
             ProceduralGrassTerrain terrain = root.AddComponent<ProceduralGrassTerrain>();
             GrassChunkManager manager = root.AddComponent<GrassChunkManager>();
             manager.Configure(terrain, camera, mesh, material);
+            manager.TerrainLayers = GrassTerrainLayer.Grass | GrassTerrainLayer.Dirt | GrassTerrainLayer.Water;
+            manager.MeshRotation = new Vector3(-90f, 0f, 0f);
             manager.Size = 4f; // The reference mesh is only 0.2 units tall.
 
             if (!EditorSceneManager.SaveScene(scene, ScenePath))

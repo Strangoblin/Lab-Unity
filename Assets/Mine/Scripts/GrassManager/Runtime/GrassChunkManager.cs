@@ -15,6 +15,8 @@ namespace Mine.Grass
         [SerializeField] private Mesh _grassMesh;
         [SerializeField] private Material _grassMaterial;
         [SerializeField] private GrassTerrainLayer _terrainLayers = GrassTerrainLayer.Grass;
+        [SerializeField, Tooltip("Local Euler rotation of the grass mesh before aligning it to the terrain.")]
+        private Vector3 _meshRotation;
         // The allocation cap is applied per chunk when width and density would exceed it.
         [SerializeField, Range(0f, 10f)] private float _density = 0.8f;
         [SerializeField, Range(0f, 10f)] private float _size = 1f;
@@ -25,6 +27,7 @@ namespace Mine.Grass
         private float _builtSize = float.NaN;
         private int _builtTerrainVersion = -1;
         private GrassTerrainLayer _builtTerrainLayers;
+        private Vector3 _builtMeshRotation;
         private GrassTerrainSource _activeTerrain;
         private Mesh _activeMesh;
         private Material _activeMaterial;
@@ -54,6 +57,8 @@ namespace Mine.Grass
         }
         public float Density { get => _density; set => _density = SafeParameter(value); }
         public float Size { get => _size; set => _size = SafeParameter(value); }
+        public GrassTerrainLayer TerrainLayers { get => _terrainLayers; set => _terrainLayers = value; }
+        public Vector3 MeshRotation { get => _meshRotation; set => _meshRotation = value; }
         public bool IsChunkActive(int x, int z) => _chunks.ContainsKey(new Vector2Int(x, z));
 
         public void Configure(GrassTerrainSource terrain, Camera targetCamera, Mesh mesh, Material material)
@@ -158,13 +163,14 @@ namespace Mine.Grass
             else
                 _limitReported = false;
             if (_builtDensity != density || _builtSize != size || _builtTerrainVersion != _terrain.DataVersion ||
-                _builtTerrainLayers != _terrainLayers)
+                _builtTerrainLayers != _terrainLayers || _builtMeshRotation != _meshRotation)
             {
                 ClearChunks();
                 _builtDensity = density;
                 _builtSize = size;
                 _builtTerrainVersion = _terrain.DataVersion;
                 _builtTerrainLayers = _terrainLayers;
+                _builtMeshRotation = _meshRotation;
             }
 
             Vector3 relative = _camera.transform.position - _terrain.Origin;
@@ -212,6 +218,7 @@ namespace Mine.Grass
             float minHeight = float.PositiveInfinity;
             float maxHeight = float.NegativeInfinity;
             int accepted = 0;
+            Quaternion meshRotation = Quaternion.Euler(_meshRotation);
             for (int i = 0; i < count; i++)
             {
                 float x = minX + (float)random.NextDouble() * width;
@@ -221,7 +228,7 @@ namespace Mine.Grass
                     continue;
                 minHeight = Mathf.Min(minHeight, position.y);
                 maxHeight = Mathf.Max(maxHeight, position.y);
-                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, normal);
+                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, normal) * meshRotation;
                 float scale = Mathf.Lerp(0.8f, 1.2f, (float)random.NextDouble()) * size;
                 matrices[accepted] = Matrix4x4.TRS(position, rotation, Vector3.one * scale);
                 grass[accepted] = new GrassProperties { Normal = normal, Height = 1f };

@@ -355,6 +355,8 @@ MonoBehaviour:
   _camera: {fileID: 992483777}
   _grassMesh: {fileID: -1317210101720645879, guid: 91d070380c5271f4db966cd8bdc5adba, type: 3}
   _grassMaterial: {fileID: 2100000, guid: f1add97be08fe9940b76087bc8b77a4f, type: 2}
+  _terrainLayers: 7
+  _meshRotation: {x: -90, y: 0, z: 0}
   _density: 0.8
   _size: 4
 --- !u!114 &1938891864
