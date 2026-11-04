@@ -75,12 +75,7 @@ namespace Mine.Grass
                 _heights[x, z] = _origin.y + (Mathf.PerlinNoise(x * 0.075f + 13f, z * 0.075f + 19f) - 0.5f) * 2f;
             for (int z = 0; z < TotalCells; z++)
             for (int x = 0; x < TotalCells; x++)
-            {
-                // Demo categories are stable per cell, independent of the visual mesh.
-                float noise = Mathf.PerlinNoise(x * 0.11f + 5.2f, z * 0.11f + 12.7f);
-                _layers[x, z] = noise < 0.33f ? GrassTerrainLayer.Water :
-                    noise > 0.62f ? GrassTerrainLayer.Dirt : GrassTerrainLayer.Grass;
-            }
+                _layers[x, z] = GrassTerrainLayer.Grass;
 
             Material material = _groundMaterial;
             if (material == null)
