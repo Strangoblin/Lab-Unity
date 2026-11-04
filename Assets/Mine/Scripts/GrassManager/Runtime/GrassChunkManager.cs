@@ -20,6 +20,7 @@ namespace Mine.Grass
         // The allocation cap is applied per chunk when width and density would exceed it.
         [SerializeField, Range(0f, 10f)] private float _density = 0.8f;
         [SerializeField, Range(0f, 10f)] private float _size = 1f;
+        [SerializeField, HideInInspector] private GrassHeightPaintData _heightPaint = new GrassHeightPaintData();
 
         private readonly Dictionary<Vector2Int, GrassChunk> _chunks = new Dictionary<Vector2Int, GrassChunk>();
         private Material _runtimeMaterial;
@@ -32,6 +33,7 @@ namespace Mine.Grass
         private Mesh _activeMesh;
         private Material _activeMaterial;
         private bool _limitReported;
+        private bool _paintDataInvalidated;
         private readonly Plane[] _frustumPlanes = new Plane[6];
 
         public int ActiveChunkCount => _chunks.Count;
@@ -59,7 +61,64 @@ namespace Mine.Grass
         public float Size { get => _size; set => _size = SafeParameter(value); }
         public GrassTerrainLayer TerrainLayers { get => _terrainLayers; set => _terrainLayers = value; }
         public Vector3 MeshRotation { get => _meshRotation; set => _meshRotation = value; }
+        public GrassTerrainSource Terrain => _terrain;
+        public float HeightPaintMinimumBrushRadius
+        {
+            get
+            {
+                if (_terrain == null || _terrain.Width <= 0f || _terrain.Depth <= 0f ||
+                    float.IsNaN(_terrain.Width) || float.IsNaN(_terrain.Depth) ||
+                    float.IsInfinity(_terrain.Width) || float.IsInfinity(_terrain.Depth))
+                    return 0.1f;
+                double x = (double)_terrain.Width / (GrassHeightPaintData.Resolution - 1);
+                double z = (double)_terrain.Depth / (GrassHeightPaintData.Resolution - 1);
+                return Mathf.Max(0.1f, (float)(Math.Sqrt(x * x + z * z) * 0.501));
+            }
+        }
         public bool IsChunkActive(int x, int z) => _chunks.ContainsKey(new Vector2Int(x, z));
+
+        /// <summary>Returns the painted height multiplier at a world position; unpainted terrain is 1.</summary>
+        public float SamplePaintedHeight(Vector3 position)
+        {
+            if (_terrain == null || _heightPaint == null || !_terrain.HasData)
+                return 1f;
+            return _heightPaint.Sample(position, _terrain.Origin, _terrain.Width, _terrain.Depth);
+        }
+
+        /// <summary>Applies a smooth round brush in world XZ and invalidates only intersecting grass chunks.</summary>
+        public bool PaintHeight(Vector3 center, float radius, float strength)
+        {
+            if (_terrain == null || !_terrain.isActiveAndEnabled)
+                return false;
+            _terrain.Initialize();
+            if (!_terrain.HasData)
+                return false;
+            if (_heightPaint == null)
+                _heightPaint = new GrassHeightPaintData();
+            if (!_heightPaint.Paint(center, radius, strength, _terrain.Origin, _terrain.Width, _terrain.Depth))
+                return false;
+
+            List<Vector2Int> affected = new List<Vector2Int>();
+            foreach (Vector2Int coordinate in _chunks.Keys)
+            {
+                float minX = _terrain.Origin.x + coordinate.x * _terrain.ChunkWidth;
+                float minZ = _terrain.Origin.z + coordinate.y * _terrain.ChunkWidth;
+                float maxX = Mathf.Min(minX + _terrain.ChunkWidth, _terrain.Origin.x + _terrain.Width);
+                float maxZ = Mathf.Min(minZ + _terrain.ChunkWidth, _terrain.Origin.z + _terrain.Depth);
+                // Bilinear sampling can affect points one data-grid cell beyond the brush.
+                float marginX = _heightPaint.CellWidth(_terrain.Width);
+                float marginZ = _heightPaint.CellWidth(_terrain.Depth);
+                if (center.x + radius + marginX >= minX && center.x - radius - marginX <= maxX &&
+                    center.z + radius + marginZ >= minZ && center.z - radius - marginZ <= maxZ)
+                    affected.Add(coordinate);
+            }
+            foreach (Vector2Int coordinate in affected)
+            {
+                _chunks[coordinate].Dispose();
+                _chunks.Remove(coordinate);
+            }
+            return true;
+        }
 
         public void Configure(GrassTerrainSource terrain, Camera targetCamera, Mesh mesh, Material material)
         {
@@ -152,6 +211,11 @@ namespace Mine.Grass
             }
             float density = SafeParameter(_density);
             float size = SafeParameter(_size);
+            if (_paintDataInvalidated)
+            {
+                ClearChunks();
+                _paintDataInvalidated = false;
+            }
             double largestWidth = Math.Min(_terrain.ChunkWidth, _terrain.Width);
             double largestDepth = Math.Min(_terrain.ChunkWidth, _terrain.Depth);
             if (density * largestWidth * largestDepth > MaxInstancesPerChunk)
@@ -228,10 +292,12 @@ namespace Mine.Grass
                     continue;
                 minHeight = Mathf.Min(minHeight, position.y);
                 maxHeight = Mathf.Max(maxHeight, position.y);
-                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, normal) * meshRotation;
+                Quaternion alignment = Quaternion.FromToRotation(Vector3.up, normal);
                 float scale = Mathf.Lerp(0.8f, 1.2f, (float)random.NextDouble()) * size;
-                matrices[accepted] = Matrix4x4.TRS(position, rotation, Vector3.one * scale);
-                grass[accepted] = new GrassProperties { Normal = normal, Height = 1f };
+                float height = SamplePaintedHeight(position);
+                matrices[accepted] = Matrix4x4.TRS(position, alignment, new Vector3(scale, scale * height, scale)) *
+                    Matrix4x4.Rotate(meshRotation);
+                grass[accepted] = new GrassProperties { Normal = normal, Height = height };
                 indices[accepted] = (uint)accepted;
                 accepted++;
             }
@@ -256,6 +322,13 @@ namespace Mine.Grass
         {
             RenderPipelineManager.beginContextRendering -= BeginContextRendering;
             Release();
+        }
+
+        // Unity calls this after serialized data changes, including Undo/Redo.
+        private void OnValidate()
+        {
+            _paintDataInvalidated = true;
+            _heightPaint?.InvalidateCache();
         }
 
         private void OnDrawGizmos()
@@ -343,6 +416,7 @@ namespace Mine.Grass
             private readonly Bounds _bounds;
             private readonly Bounds[] _instanceBounds;
             private readonly Vector2[] _instancePositions;
+            private readonly bool[] _hasHeight;
             private readonly uint[] _visibleIndices;
             private readonly uint[] _drawArguments;
             public int Count { get; }
@@ -354,6 +428,7 @@ namespace Mine.Grass
                 _bounds = bounds;
                 _instanceBounds = new Bounds[Count];
                 _instancePositions = new Vector2[Count];
+                _hasHeight = new bool[Count];
                 _visibleIndices = new uint[Count];
                 _drawArguments = new uint[] { mesh.GetIndexCount(0), 0, mesh.GetIndexStart(0),
                     (uint)mesh.GetBaseVertex(0), 0 };
@@ -365,6 +440,7 @@ namespace Mine.Grass
                     for (int i = 0; i < Count; i++)
                     {
                         Matrix4x4 matrix = matrices[i];
+                        _hasHeight[i] = grass[i].Height > 0f;
                         _instancePositions[i] = new Vector2(matrix.m03, matrix.m23);
                         Vector3 extents = meshBounds.extents;
                         Vector3 worldExtents = new Vector3(
@@ -412,7 +488,7 @@ namespace Mine.Grass
                     {
                         double dx = (double)_instancePositions[i].x - cameraPosition.x;
                         double dz = (double)_instancePositions[i].y - cameraPosition.z;
-                        if (dx * dx + dz * dz <= radiusSquared &&
+                        if (_hasHeight[i] && dx * dx + dz * dz <= radiusSquared &&
                             GeometryUtility.TestPlanesAABB(planes, _instanceBounds[i]))
                             _visibleIndices[visible++] = (uint)i;
                     }
@@ -444,5 +520,132 @@ namespace Mine.Grass
                 _arguments = null;
             }
         }
+    }
+
+    /// <summary>Serialized, terrain-relative height overrides independent of generated instances and chunks.</summary>
+    [Serializable]
+    internal sealed class GrassHeightPaintData : ISerializationCallbackReceiver
+    {
+        public const int Resolution = 256;
+        private const int Last = Resolution - 1;
+        private const int TileSize = 16;
+        private const int TilesPerSide = Resolution / TileSize;
+
+        [Serializable]
+        private sealed class Tile
+        {
+            public int Key;
+            public float[] Values;
+        }
+
+        [SerializeField] private List<Tile> _tiles = new List<Tile>();
+        [NonSerialized] private Dictionary<int, Tile> _tileLookup;
+
+        public float CellWidth(float extent) => extent / Last;
+        public void InvalidateCache() => _tileLookup = null;
+        public void OnBeforeSerialize() { }
+        public void OnAfterDeserialize() => InvalidateCache();
+
+        public float Sample(Vector3 position, Vector3 origin, float width, float depth)
+        {
+            if (_tiles == null || _tiles.Count == 0 || !ValidExtent(width, depth))
+                return 1f;
+            float u = (position.x - origin.x) / width;
+            float v = (position.z - origin.z) / depth;
+            if (!Finite(u) || !Finite(v) || u < 0f || u > 1f || v < 0f || v > 1f)
+                return 1f;
+            float x = u * Last;
+            float z = v * Last;
+            int x0 = Mathf.FloorToInt(x);
+            int z0 = Mathf.FloorToInt(z);
+            int x1 = Mathf.Min(x0 + 1, Last);
+            int z1 = Mathf.Min(z0 + 1, Last);
+            Dictionary<int, Tile> lookup = GetLookup();
+            float a = Mathf.Lerp(Read(lookup, x0, z0), Read(lookup, x1, z0), x - x0);
+            float b = Mathf.Lerp(Read(lookup, x0, z1), Read(lookup, x1, z1), x - x0);
+            return Mathf.Clamp01(Mathf.Lerp(a, b, z - z0));
+        }
+
+        public bool Paint(Vector3 center, float radius, float strength, Vector3 origin, float width, float depth)
+        {
+            if (!ValidExtent(width, depth) || !Finite(center.x) || !Finite(center.z) ||
+                !Finite(radius) || !Finite(strength) || radius <= 0f || Mathf.Approximately(strength, 0f))
+                return false;
+            if (center.x + radius < origin.x || center.x - radius > origin.x + width ||
+                center.z + radius < origin.z || center.z - radius > origin.z + depth)
+                return false;
+            if ((_tiles == null || _tiles.Count == 0) && strength > 0f)
+                return false;
+
+            int minX = Mathf.CeilToInt(Mathf.Clamp01((center.x - radius - origin.x) / width) * Last);
+            int maxX = Mathf.FloorToInt(Mathf.Clamp01((center.x + radius - origin.x) / width) * Last);
+            int minZ = Mathf.CeilToInt(Mathf.Clamp01((center.z - radius - origin.z) / depth) * Last);
+            int maxZ = Mathf.FloorToInt(Mathf.Clamp01((center.z + radius - origin.z) / depth) * Last);
+            bool changed = false;
+            Dictionary<int, Tile> lookup = GetLookup();
+            for (int z = minZ; z <= maxZ; z++)
+            for (int x = minX; x <= maxX; x++)
+            {
+                float dx = origin.x + width * x / Last - center.x;
+                float dz = origin.z + depth * z / Last - center.z;
+                float distance = Mathf.Sqrt(dx * dx + dz * dz);
+                if (distance >= radius)
+                    continue;
+                float u = 1f - distance / radius;
+                float weight = u * u * (3f - 2f * u);
+                int key = TileKey(x, z);
+                int index = TileIndex(x, z);
+                lookup.TryGetValue(key, out Tile tile);
+                float oldValue = tile != null && tile.Values != null && tile.Values.Length == TileSize * TileSize
+                    ? tile.Values[index] : 1f;
+                float newValue = Mathf.Clamp01(oldValue + strength * weight);
+                if (newValue == oldValue)
+                    continue;
+                if (tile == null)
+                {
+                    tile = new Tile { Key = key };
+                    if (_tiles == null)
+                        _tiles = new List<Tile>();
+                    _tiles.Add(tile);
+                    lookup.Add(key, tile);
+                }
+                if (tile.Values == null || tile.Values.Length != TileSize * TileSize)
+                {
+                    tile.Values = new float[TileSize * TileSize];
+                    for (int i = 0; i < tile.Values.Length; i++)
+                        tile.Values[i] = 1f;
+                }
+                tile.Values[index] = newValue;
+                changed = true;
+            }
+            return changed;
+        }
+
+        private Dictionary<int, Tile> GetLookup()
+        {
+            if (_tileLookup != null)
+                return _tileLookup;
+            _tileLookup = new Dictionary<int, Tile>();
+            if (_tiles != null)
+                foreach (Tile tile in _tiles)
+                    if (tile != null)
+                        _tileLookup[tile.Key] = tile;
+            return _tileLookup;
+        }
+
+        private static float Read(Dictionary<int, Tile> lookup, int x, int z)
+        {
+            if (!lookup.TryGetValue(TileKey(x, z), out Tile tile) || tile.Values == null ||
+                tile.Values.Length != TileSize * TileSize)
+                return 1f;
+            return tile.Values[TileIndex(x, z)];
+        }
+
+        private static int TileKey(int x, int z) => x / TileSize + z / TileSize * TilesPerSide;
+        private static int TileIndex(int x, int z) => x % TileSize + z % TileSize * TileSize;
+
+        private static bool ValidExtent(float width, float depth) =>
+            Finite(width) && Finite(depth) && width > 0f && depth > 0f;
+        private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }
 }

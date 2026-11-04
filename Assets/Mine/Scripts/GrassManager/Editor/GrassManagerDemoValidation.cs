@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mine.Grass;
@@ -15,6 +16,297 @@ namespace Mine.Grass.Editor
     {
         // Use the isolated fixture for both entry points: never replace the user's open scene.
         public static void Run() => RunFrustumInIsolation();
+
+        /// <summary>Verifies real scene save and reload in a dedicated batch Editor only.</summary>
+        public static void RunHeightScenePersistenceInBatch()
+        {
+            Require(Application.isBatchMode, "Height scene persistence requires a separate batch Editor process");
+            string path = AssetDatabase.GenerateUniqueAssetPath("Assets/Mine/Scripts/GrassManager/GrassHeightValidation.unity");
+            bool created = false;
+            try
+            {
+                Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                GameObject root = new GameObject("Grass Height Persistence Fixture");
+                ProceduralGrassTerrain terrain = root.AddComponent<ProceduralGrassTerrain>();
+                GrassChunkManager manager = root.AddComponent<GrassChunkManager>();
+                manager.Configure(terrain, null, null, null);
+                terrain.Initialize();
+                Require(terrain.TrySample(0f, 0f, out Vector3 center, out _), "Persistence fixture terrain sample failed");
+                Require(manager.PaintHeight(center, 8f, -0.8f), "Persistence fixture failed to paint");
+                float expected = manager.SamplePaintedHeight(center);
+                Require(expected < 0.25f, "Persistence fixture did not retain painted height");
+                EditorUtility.SetDirty(manager);
+                created = EditorSceneManager.SaveScene(scene, path);
+                Require(created, "Could not save the temporary height fixture scene");
+                EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
+                GrassChunkManager restored = UnityEngine.Object.FindFirstObjectByType<GrassChunkManager>();
+                Require(restored != null && restored.Terrain != null, "Reloaded scene lost the grass manager or terrain");
+                restored.Terrain.Initialize();
+                Require(Mathf.Abs(restored.SamplePaintedHeight(center) - expected) < 0.001f,
+                    "Height data did not survive saving and reopening the scene");
+                Debug.Log("GRASS_HEIGHT_SCENE_PERSISTENCE_PASS: painted scene saved and reloaded.");
+            }
+            finally
+            {
+                EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                if (created) AssetDatabase.DeleteAsset(path);
+            }
+        }
+
+        /// <summary>Exercises editor Undo/Redo on a normal, temporary scene in a separate batch process.</summary>
+        public static void RunHeightUndoInBatch()
+        {
+            Require(Application.isBatchMode, "Height undo validation requires a separate batch Editor process");
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            GameObject root = new GameObject("Grass Undo Validation");
+            try
+            {
+                ProceduralGrassTerrain terrain = root.AddComponent<ProceduralGrassTerrain>();
+                GrassChunkManager manager = root.AddComponent<GrassChunkManager>();
+                manager.Configure(terrain, null, null, null);
+                terrain.Initialize();
+                Require(terrain.TrySample(0f, 0f, out Vector3 center, out _), "Undo fixture terrain sample failed");
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+                Undo.IncrementCurrentGroup();
+                Undo.RecordObject(manager, "Validate Grass Height Undo");
+                Require(manager.PaintHeight(center, 8f, -0.8f), "Undo fixture failed to paint");
+                EditorUtility.SetDirty(manager);
+                EditorSceneManager.MarkSceneDirty(root.scene);
+                Undo.FlushUndoRecordObjects();
+                Undo.IncrementCurrentGroup();
+                long paintMs = timer.ElapsedMilliseconds;
+                float painted = manager.SamplePaintedHeight(center);
+                timer.Restart();
+                Undo.PerformUndo();
+                long undoMs = timer.ElapsedMilliseconds;
+                terrain.Initialize();
+                float undone = manager.SamplePaintedHeight(center);
+                timer.Restart();
+                Undo.PerformRedo();
+                long redoMs = timer.ElapsedMilliseconds;
+                terrain.Initialize();
+                float redone = manager.SamplePaintedHeight(center);
+                Require(Mathf.Approximately(undone, 1f) && Mathf.Abs(redone - painted) < 0.001f,
+                    $"Undo/redo failed: painted={painted}, undo={undone}, redo={redone}");
+                Vector3 secondCenter = center + Vector3.right * 25f;
+                Undo.IncrementCurrentGroup();
+                Undo.RecordObject(manager, "Validate Second Grass Height Undo");
+                Require(manager.PaintHeight(secondCenter, 8f, -0.6f), "Second undo fixture stroke failed");
+                EditorUtility.SetDirty(manager);
+                Undo.FlushUndoRecordObjects();
+                Undo.IncrementCurrentGroup();
+                float secondPainted = manager.SamplePaintedHeight(secondCenter);
+                Undo.PerformUndo();
+                terrain.Initialize();
+                float secondUndone = manager.SamplePaintedHeight(secondCenter);
+                Undo.PerformRedo();
+                terrain.Initialize();
+                float secondRedone = manager.SamplePaintedHeight(secondCenter);
+                Require(Mathf.Approximately(secondUndone, 1f) && Mathf.Abs(secondRedone - secondPainted) < 0.001f,
+                    $"Second undo/redo failed: painted={secondPainted}, undo={secondUndone}, redo={secondRedone}");
+                Debug.Log($"GRASS_HEIGHT_UNDO_TIMING: paintAndRecord={paintMs}ms, undo={undoMs}ms, redo={redoMs}ms");
+                Debug.Log("GRASS_HEIGHT_UNDO_VALIDATION_PASS: painted height undo and redo.");
+            }
+            finally
+            {
+                GrassChunkManager manager = root.GetComponent<GrassChunkManager>();
+                if (manager != null) Undo.ClearUndo(manager);
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+        }
+
+        /// <summary>Exercises independent height painting without modifying a saved scene.</summary>
+        public static void RunHeightPaintingInIsolation()
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            MethodInfo update = typeof(GrassChunkManager).GetMethod("UpdateChunks", flags);
+            MethodInfo cull = typeof(GrassChunkManager).GetMethod("RefreshVisibility", flags);
+            Require(update != null && cull != null, "Chunk update or visibility refresh is missing");
+            Mesh mesh = AssetDatabase.LoadAllAssetsAtPath("Assets/Mine/Shaders/Render/SimpleGrass/Material/Normalized Grass.fbx")
+                .OfType<Mesh>().FirstOrDefault(candidate => candidate.vertexCount > 0);
+            Material material = AssetDatabase.LoadAssetAtPath<Material>(
+                "Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.mat");
+            Require(mesh != null && material != null, "Grass mesh or material missing");
+
+            Scene preview = EditorSceneManager.NewPreviewScene();
+            GameObject root = null;
+            GameObject cameraObject = null;
+            GameObject serializedCopy = null;
+            try
+            {
+                root = new GameObject("Grass Paint Validation Root");
+                cameraObject = new GameObject("Grass Paint Validation Camera");
+                SceneManager.MoveGameObjectToScene(root, preview);
+                SceneManager.MoveGameObjectToScene(cameraObject, preview);
+                Camera camera = cameraObject.AddComponent<Camera>();
+                camera.enabled = false;
+                camera.fieldOfView = 60f;
+                camera.aspect = 1.5f;
+                camera.nearClipPlane = 0.3f;
+                camera.farClipPlane = 100f;
+                camera.transform.SetPositionAndRotation(new Vector3(0f, 4f, -5f), Quaternion.Euler(12f, 0f, 0f));
+                ProceduralGrassTerrain terrain = root.AddComponent<ProceduralGrassTerrain>();
+                GrassChunkManager manager = root.AddComponent<GrassChunkManager>();
+                manager.Configure(terrain, camera, mesh, material);
+                manager.Density = 0.8f;
+                manager.Size = 4f;
+                manager.MeshRotation = new Vector3(-90f, 0f, 0f);
+                Require((bool)update.Invoke(manager, null), "Paint fixture failed to generate grass");
+                cull.Invoke(manager, null);
+                Dictionary<Vector2Int, Matrix4x4[]> before = CaptureMatrices(manager);
+                Require(terrain.TrySample(0f, 0f, out Vector3 center, out _), "Paint center is outside terrain");
+                CheckPaintTerrainPicking(manager, terrain, center);
+                Vector3 middle = center + Vector3.right * 4f;
+                Vector3 outside = center + Vector3.right * 12f;
+                Require(Mathf.Approximately(manager.SamplePaintedHeight(center), 1f) &&
+                    Mathf.Approximately(manager.SamplePaintedHeight(outside), 1f), "Unpainted height must default to one");
+                Require(!manager.PaintHeight(center, 0f, -1f), "Zero-radius brush must not paint");
+
+                Require(manager.PaintHeight(center, 8f, -0.8f), "Erase stroke did not change the height map");
+                float paintedCenter = manager.SamplePaintedHeight(center);
+                float paintedMiddle = manager.SamplePaintedHeight(middle);
+                Require(paintedCenter > 0.18f && paintedCenter < 0.23f && paintedMiddle > 0.57f && paintedMiddle < 0.64f &&
+                    Mathf.Approximately(manager.SamplePaintedHeight(outside), 1f), "Brush falloff or outside range is incorrect");
+                float leftOfBoundary = manager.SamplePaintedHeight(center + Vector3.left * 0.3f);
+                float rightOfBoundary = manager.SamplePaintedHeight(center + Vector3.right * 0.3f);
+                Require(leftOfBoundary < 0.25f && Mathf.Abs(leftOfBoundary - rightOfBoundary) < 0.01f,
+                    "Sampling across a painted tile boundary has a discontinuity");
+
+                string serialized = EditorJsonUtility.ToJson(manager);
+                serializedCopy = new GameObject("Grass Paint Serialization Copy") { hideFlags = HideFlags.HideAndDontSave };
+                SceneManager.MoveGameObjectToScene(serializedCopy, preview);
+                GrassChunkManager restored = serializedCopy.AddComponent<GrassChunkManager>();
+                EditorJsonUtility.FromJsonOverwrite(serialized, restored);
+                restored.Configure(terrain, camera, mesh, material);
+                Require(Mathf.Abs(restored.SamplePaintedHeight(center) - paintedCenter) < 0.001f &&
+                    Mathf.Abs(restored.SamplePaintedHeight(middle) - paintedMiddle) < 0.001f,
+                    "Serialized height data did not survive component reload");
+
+                Require(manager.PaintHeight(center, 8f, 1f), "Positive brush did not restore height");
+                Require(manager.SamplePaintedHeight(center) > 0.99f, "Positive brush did not restore center height");
+                Require(manager.PaintHeight(center, 8f, -1f), "First erase stroke failed");
+                Require(manager.PaintHeight(center, 8f, -1f), "Second erase stroke failed");
+                Require(manager.SamplePaintedHeight(center) < 0.001f, "Brush center must clamp at zero");
+                Require((bool)update.Invoke(manager, null), "Painted grass update failed");
+                cull.Invoke(manager, null);
+                CheckPaintedMatrices(manager, before);
+
+                camera.transform.position = new Vector3(49f, 4f, 49f);
+                Require((bool)update.Invoke(manager, null), "Moving away from painted chunks failed");
+                camera.transform.position = new Vector3(0f, 4f, -5f);
+                Require((bool)update.Invoke(manager, null), "Returning to painted chunks failed");
+                cull.Invoke(manager, null);
+                CheckPaintedMatrices(manager, before);
+                terrain.ChunkSize = 30f;
+                Require((bool)update.Invoke(manager, null), "Changing chunk size after paint failed");
+                Require(manager.SamplePaintedHeight(center) < 0.001f &&
+                    Mathf.Approximately(manager.SamplePaintedHeight(outside), 1f),
+                    "Changing logical chunk size changed the painted data");
+                manager.Density = 2f;
+                Require((bool)update.Invoke(manager, null) && manager.ActiveInstanceCount > 0 &&
+                    manager.SamplePaintedHeight(center) < 0.001f,
+                    "Increasing grass density must retain the painted data");
+                Debug.Log("GRASS_HEIGHT_PAINT_VALIDATION_PASS: brush falloff, serialization, " +
+                    "clamping, matrix height and zero culling, stable positions, chunk reload and resizing.");
+            }
+            finally
+            {
+                if (serializedCopy != null) UnityEngine.Object.DestroyImmediate(serializedCopy);
+                if (root != null)
+                {
+                    GrassChunkManager manager = root.GetComponent<GrassChunkManager>();
+                    if (manager != null) Undo.ClearUndo(manager);
+                    UnityEngine.Object.DestroyImmediate(root);
+                }
+                if (cameraObject != null) UnityEngine.Object.DestroyImmediate(cameraObject);
+                EditorSceneManager.ClosePreviewScene(preview);
+            }
+        }
+
+        private static void CheckPaintTerrainPicking(GrassChunkManager manager, ProceduralGrassTerrain terrain, Vector3 center)
+        {
+            Require(terrain.GetComponentInChildren<Collider>() == null, "Paint fixture unexpectedly has a collider");
+            UnityEditor.Editor editor = UnityEditor.Editor.CreateEditor(manager, typeof(GrassHeightPainterEditor));
+            try
+            {
+                MethodInfo onScene = typeof(GrassHeightPainterEditor).GetMethod("OnSceneGUI", BindingFlags.Instance | BindingFlags.NonPublic);
+                MethodInfo pick = typeof(GrassHeightPainterEditor).GetMethod("TryPickTerrain", BindingFlags.Instance | BindingFlags.NonPublic);
+                Require(editor != null && onScene != null && pick != null, "Grass Scene painter is not available");
+                object[] args = { terrain, new Ray(center + Vector3.up * 10f, Vector3.down), Vector3.zero, Vector3.zero };
+                Require((bool)pick.Invoke(editor, args), "Scene painter failed to pick the terrain mesh without a collider");
+                Vector3 point = (Vector3)args[2];
+                Vector3 normal = (Vector3)args[3];
+                Require((point - center).sqrMagnitude < 0.0001f && normal.y > 0f,
+                    "Scene painter hit does not match the terrain sample");
+                args = new object[] { terrain, new Ray(center + new Vector3(1000f, 10f, 0f), Vector3.down), Vector3.zero, Vector3.zero };
+                Require(!(bool)pick.Invoke(editor, args), "Scene painter selected terrain outside its bounds");
+            }
+            finally
+            {
+                if (editor != null) UnityEngine.Object.DestroyImmediate(editor);
+            }
+        }
+
+        private static Dictionary<Vector2Int, Matrix4x4[]> CaptureMatrices(GrassChunkManager manager)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            IDictionary chunks = (IDictionary)typeof(GrassChunkManager).GetField("_chunks", flags).GetValue(manager);
+            var result = new Dictionary<Vector2Int, Matrix4x4[]>();
+            foreach (DictionaryEntry entry in chunks)
+            {
+                object chunk = entry.Value;
+                ComputeBuffer buffer = (ComputeBuffer)chunk.GetType().GetField("_matrices", flags).GetValue(chunk);
+                if (buffer == null) continue;
+                Matrix4x4[] matrices = new Matrix4x4[buffer.count];
+                buffer.GetData(matrices);
+                result.Add((Vector2Int)entry.Key, matrices);
+            }
+            return result;
+        }
+
+        private static void CheckPaintedMatrices(GrassChunkManager manager, Dictionary<Vector2Int, Matrix4x4[]> before)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            IDictionary chunks = (IDictionary)typeof(GrassChunkManager).GetField("_chunks", flags).GetValue(manager);
+            int lowered = 0, zero = 0, unchanged = 0;
+            foreach (DictionaryEntry entry in chunks)
+            {
+                object chunk = entry.Value;
+                Type type = chunk.GetType();
+                ComputeBuffer matricesBuffer = (ComputeBuffer)type.GetField("_matrices", flags).GetValue(chunk);
+                if (matricesBuffer == null) continue;
+                Matrix4x4[] matrices = new Matrix4x4[matricesBuffer.count];
+                matricesBuffer.GetData(matrices);
+                Require(before.TryGetValue((Vector2Int)entry.Key, out Matrix4x4[] baseline) && baseline.Length == matrices.Length,
+                    "Painting changed the number of generated instances");
+                uint[] args = new uint[5];
+                ((ComputeBuffer)type.GetField("_arguments", flags).GetValue(chunk)).GetData(args);
+                uint[] indices = new uint[checked((int)args[1])];
+                if (indices.Length > 0)
+                    ((ComputeBuffer)type.GetField("_indices", flags).GetValue(chunk)).GetData(indices, 0, 0, indices.Length);
+                foreach (uint index in indices)
+                {
+                    Vector3 point = matrices[index].GetColumn(3);
+                    Require(manager.SamplePaintedHeight(point) > 0f, "Zero-height grass must not be rendered");
+                }
+                for (int i = 0; i < matrices.Length; i++)
+                {
+                    Vector3 point = matrices[i].GetColumn(3);
+                    Require(((Vector3)baseline[i].GetColumn(3) - point).sqrMagnitude < 0.000001f,
+                        "Painting changed deterministic instance positions");
+                    float height = manager.SamplePaintedHeight(point);
+                    float originalAxis = baseline[i].MultiplyVector(Vector3.forward).magnitude;
+                    float paintedAxis = matrices[i].MultiplyVector(Vector3.forward).magnitude;
+                    Require(Mathf.Abs(paintedAxis - originalAxis * height) < 0.0001f,
+                        "Grass growth axis does not match painted height");
+                    if (height < 0.001f) zero++;
+                    else if (height < 0.99f) lowered++;
+                    else unchanged++;
+                }
+            }
+            Require(zero > 0 && lowered > 0 && unchanged > 0,
+                "Paint fixture must cover zero, partially painted and untouched instances");
+        }
 
         /// <summary>Checks the saved demo in a dedicated batch Editor process without saving it.</summary>
         public static void RunSavedSceneInBatch()
