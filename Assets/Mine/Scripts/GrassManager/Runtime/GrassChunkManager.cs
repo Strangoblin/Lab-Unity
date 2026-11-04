@@ -14,7 +14,8 @@ namespace Mine.Grass
         [SerializeField] private Camera _camera;
         [SerializeField] private Mesh _grassMesh;
         [SerializeField] private Material _grassMaterial;
-        // Cap per-chunk allocations: 10 plants/m² means at most 36,000 plants in 3x3 chunks.
+        [SerializeField] private GrassTerrainLayer _terrainLayers = GrassTerrainLayer.Grass;
+        // The allocation cap is applied per chunk when width and density would exceed it.
         [SerializeField, Range(0f, 10f)] private float _density = 0.8f;
         [SerializeField, Range(0f, 10f)] private float _size = 1f;
 
@@ -23,6 +24,7 @@ namespace Mine.Grass
         private float _builtDensity = float.NaN;
         private float _builtSize = float.NaN;
         private int _builtTerrainVersion = -1;
+        private GrassTerrainLayer _builtTerrainLayers;
         private GrassTerrainSource _activeTerrain;
         private Mesh _activeMesh;
         private Material _activeMaterial;
@@ -103,7 +105,7 @@ namespace Mine.Grass
                 return;
             GeometryUtility.CalculateFrustumPlanes(_camera, _frustumPlanes);
             foreach (GrassChunk chunk in _chunks.Values)
-                chunk.Cull(_frustumPlanes);
+                chunk.Cull(_frustumPlanes, _camera.transform.position, _terrain.ChunkWidth);
         }
 
         private bool UpdateChunks()
@@ -131,7 +133,9 @@ namespace Mine.Grass
 
             _terrain.Initialize();
             if (!_terrain.HasData || float.IsNaN(_terrain.ChunkWidth) || float.IsInfinity(_terrain.ChunkWidth) ||
-                _terrain.ChunkWidth <= 0f || _terrain.ChunkCountX <= 0 || _terrain.ChunkCountZ <= 0)
+                _terrain.ChunkWidth <= 0f || _terrain.ChunkCountX <= 0 || _terrain.ChunkCountZ <= 0 ||
+                float.IsNaN(_terrain.Width) || float.IsInfinity(_terrain.Width) || _terrain.Width <= 0f ||
+                float.IsNaN(_terrain.Depth) || float.IsInfinity(_terrain.Depth) || _terrain.Depth <= 0f)
             {
                 ClearChunks();
                 return false;
@@ -143,21 +147,24 @@ namespace Mine.Grass
             }
             float density = SafeParameter(_density);
             float size = SafeParameter(_size);
-            if ((double)density * _terrain.ChunkWidth * _terrain.ChunkWidth > MaxInstancesPerChunk)
+            double largestWidth = Math.Min(_terrain.ChunkWidth, _terrain.Width);
+            double largestDepth = Math.Min(_terrain.ChunkWidth, _terrain.Depth);
+            if (density * largestWidth * largestDepth > MaxInstancesPerChunk)
             {
-                ClearChunks();
                 if (!_limitReported)
-                    Debug.LogError($"Grass density exceeds the {MaxInstancesPerChunk} instance limit per chunk.", this);
+                    Debug.LogWarning($"Grass density and chunk width exceed the {MaxInstancesPerChunk} instance limit per chunk; generation is capped, reducing the effective density.", this);
                 _limitReported = true;
-                return false;
             }
-            _limitReported = false;
-            if (_builtDensity != density || _builtSize != size || _builtTerrainVersion != _terrain.DataVersion)
+            else
+                _limitReported = false;
+            if (_builtDensity != density || _builtSize != size || _builtTerrainVersion != _terrain.DataVersion ||
+                _builtTerrainLayers != _terrainLayers)
             {
                 ClearChunks();
                 _builtDensity = density;
                 _builtSize = size;
                 _builtTerrainVersion = _terrain.DataVersion;
+                _builtTerrainLayers = _terrainLayers;
             }
 
             Vector3 relative = _camera.transform.position - _terrain.Origin;
@@ -187,26 +194,30 @@ namespace Mine.Grass
 
         private GrassChunk CreateChunk(Vector2Int coordinate, float density, float size)
         {
-            float width = _terrain.ChunkWidth;
-            float area = width * width;
+            float chunkWidth = _terrain.ChunkWidth;
+            float offsetX = coordinate.x * chunkWidth;
+            float offsetZ = coordinate.y * chunkWidth;
+            float width = Mathf.Max(0f, Mathf.Min(chunkWidth, _terrain.Width - offsetX));
+            float depth = Mathf.Max(0f, Mathf.Min(chunkWidth, _terrain.Depth - offsetZ));
             System.Random random = new System.Random(unchecked(73129 ^ coordinate.x * 73856093 ^ coordinate.y * 19349663));
-            float expected = density * area;
+            float expected = (float)Math.Min((double)density * width * depth, MaxInstancesPerChunk);
             int count = Mathf.FloorToInt(expected);
             if (random.NextDouble() < expected - count)
                 count++;
             Matrix4x4[] matrices = new Matrix4x4[count];
             GrassProperties[] grass = new GrassProperties[count];
             uint[] indices = new uint[count];
-            float minX = _terrain.Origin.x + coordinate.x * width;
-            float minZ = _terrain.Origin.z + coordinate.y * width;
+            float minX = _terrain.Origin.x + offsetX;
+            float minZ = _terrain.Origin.z + offsetZ;
             float minHeight = float.PositiveInfinity;
             float maxHeight = float.NegativeInfinity;
             int accepted = 0;
             for (int i = 0; i < count; i++)
             {
                 float x = minX + (float)random.NextDouble() * width;
-                float z = minZ + (float)random.NextDouble() * width;
-                if (!_terrain.TrySample(x, z, out Vector3 position, out Vector3 normal))
+                float z = minZ + (float)random.NextDouble() * depth;
+                if (!_terrain.TrySample(x, z, out Vector3 position, out Vector3 normal, out GrassTerrainLayer layer) ||
+                    (layer & _terrainLayers) == GrassTerrainLayer.None)
                     continue;
                 minHeight = Mathf.Min(minHeight, position.y);
                 maxHeight = Mathf.Max(maxHeight, position.y);
@@ -224,13 +235,13 @@ namespace Mine.Grass
                 Array.Resize(ref indices, accepted);
                 count = accepted;
             }
-            // Conservatively include the rotated/scaled mesh, with no per-instance culling.
+            // Conservatively include the rotated/scaled mesh in the chunk bounds.
             float radius = (_grassMesh.bounds.center.magnitude + _grassMesh.bounds.extents.magnitude) * size * 1.2f;
             if (count == 0)
                 minHeight = maxHeight = _terrain.Origin.y;
             Bounds bounds = new Bounds(new Vector3(minX + width * 0.5f, (minHeight + maxHeight) * 0.5f,
-                minZ + width * 0.5f), new Vector3(width + 2f * radius,
-                Mathf.Max(0.01f, maxHeight - minHeight + 2f * radius), width + 2f * radius));
+                minZ + depth * 0.5f), new Vector3(width + 2f * radius,
+                Mathf.Max(0.01f, maxHeight - minHeight + 2f * radius), depth + 2f * radius));
             return new GrassChunk(_grassMesh, matrices, grass, indices, bounds);
         }
 
@@ -260,6 +271,23 @@ namespace Mine.Grass
                 Gizmos.DrawLine(nearPoint, camera.transform.TransformPoint(near[next]));
                 Gizmos.DrawLine(farPoint, camera.transform.TransformPoint(far[next]));
                 Gizmos.DrawLine(nearPoint, farPoint);
+            }
+
+            // The distance test is a circle on the XZ plane centered on the camera.
+            if (_terrain != null && _terrain.ChunkWidth > 0f &&
+                !float.IsNaN(_terrain.ChunkWidth) && !float.IsInfinity(_terrain.ChunkWidth))
+            {
+                Gizmos.color = new Color(0.1f, 0.9f, 1f, 0.9f);
+                const int segments = 64;
+                Vector3 center = camera.transform.position;
+                Vector3 previous = center + Vector3.right * _terrain.ChunkWidth;
+                for (int i = 1; i <= segments; i++)
+                {
+                    float angle = 2f * Mathf.PI * i / segments;
+                    Vector3 next = center + new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * _terrain.ChunkWidth;
+                    Gizmos.DrawLine(previous, next);
+                    previous = next;
+                }
             }
         }
 
@@ -307,6 +335,7 @@ namespace Mine.Grass
             private readonly MaterialPropertyBlock _properties;
             private readonly Bounds _bounds;
             private readonly Bounds[] _instanceBounds;
+            private readonly Vector2[] _instancePositions;
             private readonly uint[] _visibleIndices;
             private readonly uint[] _drawArguments;
             public int Count { get; }
@@ -317,6 +346,7 @@ namespace Mine.Grass
                 Count = matrices.Length;
                 _bounds = bounds;
                 _instanceBounds = new Bounds[Count];
+                _instancePositions = new Vector2[Count];
                 _visibleIndices = new uint[Count];
                 _drawArguments = new uint[] { mesh.GetIndexCount(0), 0, mesh.GetIndexStart(0),
                     (uint)mesh.GetBaseVertex(0), 0 };
@@ -328,6 +358,7 @@ namespace Mine.Grass
                     for (int i = 0; i < Count; i++)
                     {
                         Matrix4x4 matrix = matrices[i];
+                        _instancePositions[i] = new Vector2(matrix.m03, matrix.m23);
                         Vector3 extents = meshBounds.extents;
                         Vector3 worldExtents = new Vector3(
                             Mathf.Abs(matrix.m00) * extents.x + Mathf.Abs(matrix.m01) * extents.y + Mathf.Abs(matrix.m02) * extents.z,
@@ -362,16 +393,22 @@ namespace Mine.Grass
                 }
             }
 
-            public void Cull(Plane[] planes)
+            public void Cull(Plane[] planes, Vector3 cameraPosition, float radius)
             {
                 if (Count == 0)
                     return;
                 int visible = 0;
                 if (GeometryUtility.TestPlanesAABB(planes, _bounds))
                 {
+                    double radiusSquared = (double)radius * radius;
                     for (int i = 0; i < Count; i++)
-                        if (GeometryUtility.TestPlanesAABB(planes, _instanceBounds[i]))
+                    {
+                        double dx = (double)_instancePositions[i].x - cameraPosition.x;
+                        double dz = (double)_instancePositions[i].y - cameraPosition.z;
+                        if (dx * dx + dz * dz <= radiusSquared &&
+                            GeometryUtility.TestPlanesAABB(planes, _instanceBounds[i]))
                             _visibleIndices[visible++] = (uint)i;
+                    }
                 }
                 VisibleCount = visible;
                 if (visible > 0)
