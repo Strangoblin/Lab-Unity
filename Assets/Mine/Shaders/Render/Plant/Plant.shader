@@ -78,17 +78,14 @@ Shader "Render/Plant"
     // ════════════════════════════════════════════════════════════
     //  PlantPositionWS — 教程的 UV 相机偏移叠加原顶点，保留球壳形状
     // ════════════════════════════════════════════════════════════
-    // ════════════════════════════════════════════════════════════
-    //  PlantWindOffsetWS — lower canopy anchored, bounded by existing mesh displacement budget
+    //  PlantWindOffsetWS — lower canopy anchored; the shared field supplies
+    //  velocity, this material owns its response and applies it without clamping
     // ════════════════════════════════════════════════════════════
     float3 PlantWindOffsetWS(Attributes input)
     {
         float3 basePositionWS = TransformObjectToWorld(input.positionOS.xyz);
         float weight = saturate((input.positionOS.y + 1.0) * 0.5);
         float3 offset = SampleWindVelocityWS(basePositionWS) * max(_WindResponse, 0.0) * weight;
-        float remainingBudget = max(0.0, 1.0 - clamp(_BillboardSize, 0.0, 0.5) - clamp(_Inflate, 0.0, 0.5));
-        float maxOffset = min(0.25, remainingBudget);
-        offset *= min(1.0, maxOffset / max(length(offset), 0.0001));
         return offset * PlantScale();
     }
 

@@ -7,15 +7,22 @@ RWTexture2D<float4> _WindOutput;
 int _Resolution;
 float4 _OriginSize;
 float3 _BaseVelocity;
-float _FieldTime;
-float _Turbulence;
+// Integrated wind displacement (metres), wrapped to one turbulence period. Using the
+// instantaneous velocity here would multiply the gust by elapsed time and accelerate forever.
+float2 _AdvectionOffset;
+float2 _GustDirection;
+float _GustStrength;
+float _GustLength;
+// Distance the gust fronts have travelled (metres), wrapped to one gust length on the CPU.
+// Multiplying speed by elapsed time in the shader would lose phase precision in long sessions.
+float _GustOffset;
+// Characteristic mixing height (m). Vertical velocity = -height * horizontal divergence.
+float _VerticalScale;
+float _TurbulenceStrength;
 float _TurbulenceLength;
-float4 _SourcePositionRadius[16];
-float4 _SourceVelocity[16];
-int _SourceCount;
 
 // ════════════════════════════════════════════════════════════
-//  BuildWind — spatial gusts and local sources; height applied by consumers
+//  BuildWind — traveling gust bands + advected turbulence
 // ════════════════════════════════════════════════════════════
 [numthreads(8, 8, 1)]
 void BuildWind(uint3 id : SV_DispatchThreadID)
@@ -23,15 +30,22 @@ void BuildWind(uint3 id : SV_DispatchThreadID)
     if (id.x >= (uint)_Resolution || id.y >= (uint)_Resolution) return;
     float2 uv = (id.xy + 0.5) / _Resolution;
     float2 position = _OriginSize.xy + uv * _OriginSize.zw;
-    float2 phase = (position - _BaseVelocity.xz * _FieldTime) / max(_TurbulenceLength, 0.01);
-    float2 disturbance = float2(sin(phase.y * 6.2831853), cos(phase.x * 6.2831853)) * _Turbulence;
-    float3 velocity = _BaseVelocity + float3(disturbance.x, 0, disturbance.y);
-    for (int i = 0; i < _SourceCount; i++)
-    {
-        float distanceToSource = length(position - _SourcePositionRadius[i].xy);
-        float weight = saturate(1.0 - distanceToSource / _SourcePositionRadius[i].z);
-        weight = weight * weight * (3.0 - 2.0 * weight);
-        velocity += _SourceVelocity[i].xyz * weight;
-    }
+
+    // Gust fronts travel downwind: phase = 2π (distance along wind - travel) / wavelength.
+    float gustWave = 6.2831853 / max(_GustLength, 0.01);
+    float gustPhase = gustWave * (dot(_GustDirection, position) - _GustOffset);
+    float gust = sin(gustPhase) * _GustStrength;
+
+    // Vertical velocity comes from the horizontal divergence of the field already above:
+    // air rises where the flow converges and sinks where it spreads. The uniform base has no
+    // divergence and the turbulence pattern varies each axis only across the flow, so both add
+    // nothing; only gust bands lift. Vertical is in quadrature with the gust push.
+    float divergence = _GustStrength * gustWave * gustWave * cos(gustPhase);
+    float vertical = -_VerticalScale * divergence;
+
+    float2 phase = (position - _AdvectionOffset) / max(_TurbulenceLength, 0.01);
+    float2 disturbance = float2(sin(phase.y * 6.2831853), cos(phase.x * 6.2831853)) * _TurbulenceStrength;
+    float3 velocity = _BaseVelocity + float3(_GustDirection.x * gust, vertical, _GustDirection.y * gust)
+                    + float3(disturbance.x, 0, disturbance.y);
     _WindOutput[id.xy] = float4(velocity, 0);
 }

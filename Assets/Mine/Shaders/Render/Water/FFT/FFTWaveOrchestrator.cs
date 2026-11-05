@@ -125,7 +125,11 @@ namespace Mine.Water
             DispatchFrame(time);
         }
 
-        private void OnValidate() => _spectrumDirty = true;
+        protected override void OnValidate()
+        {
+            _spectrumDirty = true;
+            base.OnValidate();
+        }
 
         protected override void ReleaseField() => ReleaseAll();
 

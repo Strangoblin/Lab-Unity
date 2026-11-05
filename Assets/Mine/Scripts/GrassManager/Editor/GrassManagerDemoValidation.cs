@@ -122,10 +122,10 @@ namespace Mine.Grass.Editor
             MethodInfo update = typeof(GrassChunkManager).GetMethod("UpdateChunks", flags);
             MethodInfo cull = typeof(GrassChunkManager).GetMethod("RefreshVisibility", flags);
             Require(update != null && cull != null, "Chunk update or visibility refresh is missing");
-            Mesh mesh = AssetDatabase.LoadAllAssetsAtPath("Assets/Mine/Shaders/Render/SimpleGrass/Material/Normalized Grass.fbx")
+            Mesh mesh = AssetDatabase.LoadAllAssetsAtPath("Assets/Mine/Scripts/GrassManager/Grass/Normalized Grass.fbx")
                 .OfType<Mesh>().FirstOrDefault(candidate => candidate.vertexCount > 0);
             Material material = AssetDatabase.LoadAssetAtPath<Material>(
-                "Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.mat");
+                "Assets/Mine/Scripts/GrassManager/Grass/GrassWind.mat");
             Require(mesh != null && material != null, "Grass mesh or material missing");
 
             Scene preview = EditorSceneManager.NewPreviewScene();
@@ -353,10 +353,10 @@ namespace Mine.Grass.Editor
             Require(Attribute.IsDefined(typeof(ProceduralGrassTerrain), typeof(ExecuteAlways)),
                 "Terrain must run in Edit Mode");
 
-            Mesh mesh = AssetDatabase.LoadAllAssetsAtPath("Assets/Mine/Shaders/Render/SimpleGrass/Material/Normalized Grass.fbx")
+            Mesh mesh = AssetDatabase.LoadAllAssetsAtPath("Assets/Mine/Scripts/GrassManager/Grass/Normalized Grass.fbx")
                 .OfType<Mesh>().FirstOrDefault(candidate => candidate.vertexCount > 0);
             Material material = AssetDatabase.LoadAssetAtPath<Material>(
-                "Assets/Mine/Shaders/Render/SimpleGrass/Material/GrassInstance.mat");
+                "Assets/Mine/Scripts/GrassManager/Grass/GrassWind.mat");
             Require(mesh != null && material != null, "Grass mesh or material missing");
 
             Scene preview = EditorSceneManager.NewPreviewScene();

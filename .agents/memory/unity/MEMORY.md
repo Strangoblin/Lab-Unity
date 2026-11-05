@@ -13,9 +13,17 @@
 
 ## 关键架构决策
 
+- **水体互动 Demo 与整链验证（2026-11-04）**：`InteractionManager/WaterInteractionDemo.unity` 落地「正交相机 + `IA_Renderer` + Manager + Compute」全链路，可叠加加载。三个层陷阱：主相机必须剔除 Interactor 层（`InteractorObject` 是 `ZTest Always`，否则黑球盖住外壳）、可见外壳不能放 Interaction 层（会吃掉按压深度）、交互相机 Target Texture 存 none 由 Manager 运行时赋值。验证用「探针世界坐标投影像素 vs 捕获/波面质心」，两者差 < 1px。顺带修掉 `WaterInteractionProcessor.Release()` 用 `SetTexture(..., null)` 解绑抛异常导致 RT 泄漏；并确认 **Editor 在后台时 Play 循环会被节流**，`play pause` + `play step` 才能确定性地逐帧测量。见 [记录](2026-11-04-water-interaction-demo.md)。
+
+- **CustomRenderer → InteractionCaptureFeature（2026-11-04）**：URP 17 只在 `Setup(ScriptableRenderContext, ref RenderingData)` 调自定义 Renderer 的记账逻辑，而该重写在 RenderGraph 路径下不执行、`OnRecordRenderGraph` 又是 `internal`；工程里兼容宏有定义但 `RenderGraphSettings` 开关为关，所以旧 Renderer 的 `_CustomDepthTexture` 从未产生。迁移为「URP 层掩码全空的专用 `UniversalRendererData` + 自录 Depth/Normal/Color 的 Feature」；不全局开兼容模式，否则只实现 RG 的十几个后处理 Feature 会静默失效。静默坑：Skybox 污染 RFloat RT、`AccessFlags.Write` 不等于清屏、全局纹理要 `SetGlobalTextureAfterPass` + `UseGlobalTexture` 成对、Overlay 相机不能接管。冒烟测试有/无 Feature 的 RT 最大 R 为 1.0 / 0.0。见 [记录](2026-11-04-customrenderer-to-feature.md)。
+
 - **SSGI 历史纹理生命周期（2026-11-03）**：历史 RT 采用 HideAndDontSave 与 RTHandle 所有权；双缓冲底层纹理失效时重建对应历史。Editor 可控纹理失效、通道隔离与 RenderGraph 导入探针通过；真实切场景复测待确认。见 [记录](2026-11-03-ssgi-history-lifetime.md)。
 
-- **独立草区块模板（2026-11-04）**：`Assets/Mine/Scripts/GrassManager/` 使用单块 100×100 演示地形和可调逻辑地块，草缓存相机周围最多 3×3 块，按 Main Camera 视锥及一个地块边长的水平半径剔除；Demo 数据统一 Grass，支持网格基础旋转和 Scene 手绘草高，原 TerrainManager 未适配。见 [记录](2026-11-03-grass-manager-template.md)。
+- **独立草区块模板（2026-11-04）**：`Assets/Mine/Scripts/GrassManager/` 使用单块 100×100 演示地形和可调逻辑地块，草缓存相机周围最多 3×3 块，按 Main Camera 视锥及一个地块边长的水平半径剔除；Demo 数据统一 Grass，支持网格基础旋转和 Scene 手绘草高，原 TerrainManager 未适配。2026-11-04 起 Demo 接入 FieldManager 共享风场，使用 `Grass/GrassWind.shader` 取代旧草材质，草模型与贴图也已迁入 `Grass/`；见 [记录](2026-11-03-grass-manager-template.md)。
+
+- **FieldManager 编辑模式刷新（2026-11-04）**：`[ExecuteAlways]` 的 FieldManager/WindSource 在编辑器空闲时不跑 Update，Inspector 改 Velocity/Radius 不会重新分发风场纹理，表现为“面板参数无效”；已用 OnValidate 强制 UpdateFields + RepaintAllViews。另修 `WindField.compute` 用瞬时速度乘运行时间导致漂移随时间线性加速。见 [记录](2026-11-04-fieldmanager-edit-mode-refresh.md)。
+
+- **统一风场契约（2026-11-04）**：风场只发布 m/s 速度，不做位移与幅度钳制；响应系数和上限属于消费者。已删除 README 的 Rain/Plant 专属契约，移除 `Plant.shader` 的预算限幅，并整体删除局部风源 `WindSource`。力/速拆分后阵风又改为空间行波（`_gustSpeed` + `_gustLength`，固定点频率 = 速度/波长），三层分别是均匀基础、行波阵风、滚动湍流；竖直风由水平散度导出（`_verticalScale`），只有阵风有散度，草叶随机升降。见 [记录](2026-11-04-unified-wind-contract.md)。
 
 - **后处理 Event 面板（2026-11-02）**：所有后处理 Feature 的 `Settings` 在 `Debug` 前加 `[Header("Event")] passEvent`，默认值等于改造前硬编码事件，`AddRenderPasses` 每帧覆盖后再入队；PCSS/POSS 的投射 Pass 仍固定在 `AfterRenderingShadows`，SSGI 三模块共用一个事件（按模块拆分已因时域滤波与 HiZ 双双分裂回退）。模板与 parameter-panel 规范已同步。见 [记录](2026-11-02-postprocess-event.md)。
 

@@ -19,9 +19,22 @@ namespace Mine.Fields
         [SerializeField] private Quality _quality = Quality.Medium;
 
         [Header("Artistic")]
-        [SerializeField] private Vector2 _baseWind = new Vector2(2f, 0.3f);
+        [Tooltip("Wind direction on the XZ plane, in degrees. 0 = +X, 90 = +Z.")]
+        [SerializeField] private float _windAngle = 8.53f;
+        [Tooltip("Steady wind force published as velocity (m/s). Drives displacement; does not move the pattern.")]
+        [SerializeField, Min(0f)] private float _windStrength = 2f;
+        [Tooltip("Speed at which the spatial turbulence pattern travels (m/s).")]
+        [SerializeField, Min(0f)] private float _windSpeed = 2f;
+        [Tooltip("Gust force amplitude (m/s) added along the wind direction.")]
         [SerializeField, Min(0f)] private float _gustStrength = 0.5f;
-        [SerializeField, Min(0f)] private float _turbulence = 0.6f;
+        [Tooltip("Gust front travel speed (m/s).")]
+        [SerializeField, Min(0f)] private float _gustSpeed = 2.2f;
+        [Tooltip("Gust wavelength (m) along the wind direction.")]
+        [SerializeField, Min(0.01f)] private float _gustLength = 20f;
+        [Tooltip("Mixing height (m) for vertical wind: Vertical = -height × horizontal divergence. Gust fronts lift and sink the air.")]
+        [SerializeField, Min(0f)] private float _verticalScale = 10f;
+        [Tooltip("Turbulence force amplitude (m/s).")]
+        [SerializeField, Min(0f)] private float _turbulenceStrength = 0.6f;
         [SerializeField, Min(0.01f)] private float _turbulenceLength = 20f;
         [SerializeField, Min(0f)] private float _lowerHeightGain = 0.3f;
         [SerializeField, Min(0f)] private float _upperHeightGain = 1.3f;
@@ -29,13 +42,9 @@ namespace Mine.Fields
         [Header("Debug")]
         [SerializeField] private string _gizmoMember = "Wind";
 
-        private const int MaxSources = 16;
         private RenderTexture _texture;
         private int _kernel;
         private Vector4 _mapping, _height, _baseVelocity;
-        private readonly Vector4[] _sourcePositions = new Vector4[MaxSources];
-        private readonly Vector4[] _sourceVelocities = new Vector4[MaxSources];
-        private bool _warnedSourceLimit;
 
         private static readonly int TextureId = Shader.PropertyToID("_WindFieldTexture");
         private static readonly int MappingId = Shader.PropertyToID("_WindFieldWorldToUV");
@@ -113,44 +122,47 @@ namespace Mine.Fields
             _mapping = new Vector4(origin.x, origin.y, 1f / size.x, 1f / size.y);
             _height = new Vector4(_referenceHeight, Mathf.Max(0.01f, _heightRange),
                 Mathf.Max(0f, _lowerHeightGain), Mathf.Max(0f, _upperHeightGain));
-            Vector2 direction = _baseWind.sqrMagnitude > 0.000001f ? _baseWind.normalized : Vector2.zero;
-            Vector2 wind = _baseWind + direction * (Mathf.Sin(time * 0.7f) * Mathf.Max(0f, _gustStrength));
+            float radians = _windAngle * Mathf.Deg2Rad;
+            Vector2 direction = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
+            Vector2 wind = direction * Mathf.Max(0f, _windStrength);
             _baseVelocity = new Vector4(wind.x, 0f, wind.y, 0f);
 
-            int count = UploadSources();
             _computeShader.SetInt("_Resolution", Resolution);
             _computeShader.SetVector("_OriginSize", new Vector4(origin.x, origin.y, size.x, size.y));
             _computeShader.SetVector("_BaseVelocity", _baseVelocity);
-            _computeShader.SetFloat("_FieldTime", time);
-            _computeShader.SetFloat("_Turbulence", Mathf.Max(0f, _turbulence));
+            _computeShader.SetVector("_AdvectionOffset", ComputeAdvection(time, direction));
+            _computeShader.SetVector("_GustDirection", new Vector4(direction.x, direction.y, 0f, 0f));
+            _computeShader.SetFloat("_GustStrength", Mathf.Max(0f, _gustStrength));
+            _computeShader.SetFloat("_GustLength", Mathf.Max(0.01f, _gustLength));
+            _computeShader.SetFloat("_GustOffset", ComputeGustOffset(time));
+            _computeShader.SetFloat("_VerticalScale", Mathf.Max(0f, _verticalScale));
+            _computeShader.SetFloat("_TurbulenceStrength", Mathf.Max(0f, _turbulenceStrength));
             _computeShader.SetFloat("_TurbulenceLength", Mathf.Max(0.01f, _turbulenceLength));
-            _computeShader.SetVectorArray("_SourcePositionRadius", _sourcePositions);
-            _computeShader.SetVectorArray("_SourceVelocity", _sourceVelocities);
-            _computeShader.SetInt("_SourceCount", count);
             _computeShader.SetTexture(_kernel, "_WindOutput", _texture);
             _computeShader.Dispatch(_kernel, Resolution / 8, Resolution / 8, 1);
         }
 
-        private int UploadSources()
+        // Turbulence pattern travel is set only by _windSpeed. The gust rides its own spatial
+        // phase in the compute shader, so neither force parameter feeds advection.
+        // The disturbance repeats every _TurbulenceLength, so wrapping keeps it exact.
+        private Vector4 ComputeAdvection(float time, Vector2 direction)
         {
-            int count = 0;
-            foreach (var source in WindSource.ActiveSources)
-            {
-                if (source == null || !source.isActiveAndEnabled) continue;
-                if (count == MaxSources)
-                {
-                    if (!_warnedSourceLimit)
-                        Debug.LogWarning("WindField supports 16 local sources; excess sources are ignored.", this);
-                    _warnedSourceLimit = true;
-                    break;
-                }
-                Vector3 position = source.transform.position;
-                Vector3 velocity = source.Velocity;
-                _sourcePositions[count] = new Vector4(position.x, position.z, source.Radius, 0f);
-                _sourceVelocities[count] = new Vector4(velocity.x, velocity.y, velocity.z, 0f);
-                count++;
-            }
-            return count;
+            double distance = System.Math.Max(0f, _windSpeed) * (double)time;
+            double x = direction.x * distance;
+            double y = direction.y * distance;
+            double length = System.Math.Max(0.01f, _turbulenceLength);
+            x -= System.Math.Floor(x / length) * length;
+            y -= System.Math.Floor(y / length) * length;
+            return new Vector4((float)x, (float)y, 0f, 0f);
+        }
+
+        // Gust travel repeats every _GustLength; wrapping in double precision keeps the phase
+        // exact in long sessions instead of losing it to a single-precision speed * time product.
+        private float ComputeGustOffset(float time)
+        {
+            double distance = System.Math.Max(0f, _gustSpeed) * (double)time;
+            double length = System.Math.Max(0.01f, _gustLength);
+            return (float)(distance - System.Math.Floor(distance / length) * length);
         }
 
         // ════════════════════════════════════════════════════════════

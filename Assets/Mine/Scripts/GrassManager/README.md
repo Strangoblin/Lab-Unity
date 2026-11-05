@@ -14,7 +14,18 @@
 
 `GrassChunkManager` 在相机所在块及周围最多 3×3 个地块生成并缓存草实例，地图边缘按范围裁剪。可见实例需同时满足 Main Camera 视锥和距离条件：草实例的地面位置与相机在水平 XZ 平面的距离不超过一个地块边长。因此距离限制呈圆形，和视锥相交后的可见区域通常呈扇形；相机高度不计入距离。Scene 视图显示由 Main Camera 筛选出的同一批草。离开缓存范围的草块会释放，再次进入时根据区块坐标和固定种子重新生成。
 
-实例的位置、贴合法线的旋转、法线和高度属性，以及 0.8–1.2 随机尺寸参考 `Shaders/Render/SimpleGrass/GrassGenerator.cs` 和 `GrassManager.cs`；复用其草模型、材质与间接绘制缓冲契约。风、交互和地表融合在此模板关闭。
+实例的位置、贴合法线的旋转、法线和高度属性，以及 0.8–1.2 随机尺寸参考 `Shaders/Render/SimpleGrass/GrassGenerator.cs` 和 `GrassManager.cs`；复用其草模型与间接绘制缓冲契约。草由本目录 `Grass/GrassWind.mat` 与 `Grass/GrassWind.shader` 渲染，不再引用旧的 `GrassInstance.mat`；颜色、光照、旧风场与交互贴图的逻辑保持不变。草模型 `Grass/Normalized Grass.fbx` 与贴图 `Grass/Grass.png` 已从 `Shaders/Render/SimpleGrass/Material` 迁入本目录，GUID 未变，旧材质仍可正常引用。
+
+## 风场
+
+Demo 场景中的 `Field Manager` 包含 `FieldManager` 和 `Wind / WindFieldProvider`，向全局发布跟随 Main Camera 的 64×64 风场纹理（RGB = 世界空间风速，m/s）。`GrassWind.shader` 通过 `Assets/Mine/Scripts/FieldManager/WindField.hlsl` 的 `SampleWindVelocityWS` 采样风场：
+
+| 材质参数 | 默认值 | 含义 |
+|---|---:|---|
+| `_WindResponse` | 0.12 | 风速到位移的响应时间（秒）；位移 = 风速 × 响应 × 叶片高度权重 |
+
+叶片根部（`uv.y = 0`）固定，叶尖位移最大；手绘草高会同步缩放风力位移。风场现在还会输出竖直分量（由水平散度导出，见 FieldManager README），`FieldWindOffsetWS` 直接把它计入世界空间偏移，所以阵风锋过境时草叶会被抬起、锋后回落；竖直位移使用同一个 `_WindResponse` 和叶片高度权重。Shader 只应用风场给出的效果，不对位移做幅度钳制；需要限制摆幅时应调整 `_WindResponse` 或上游风速，并让最大位移保持在区块包围盒的余量内（当前 mesh 缩放下约 0.6 m），否则边缘剔除可能提前。风场缺席或被禁用时全局 `_WindFieldValid = 0`，草回到无风状态，不会残留纹理。旧版噪声风（`_WindNoiseTexture` / `_WindStrength`）和交互贴图（`_InteractionTexture`）的代码路径仍然保留，但区块管理器以零强度绑定；实际可见的风来自 FieldManager。
+
 
 ## 手绘草高
 

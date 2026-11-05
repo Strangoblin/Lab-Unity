@@ -111,24 +111,6 @@ public class Script
             CheckLabelsAndRosters(report, fixture);
             CheckDispatchState(report, fixture, canvas);
             CheckRealCallbacks(report);
-
-            Run(report, "roster.destroyed_unity_source_is_removed", () =>
-            {
-                Type windType = FindType("Mine.Fields.WindSource");
-                Require(windType != null, "real WindSource type exists");
-                temporaryObject = new GameObject("__GizmoRenderChecks_DestroyedSource__");
-                temporaryObject.hideFlags = HideFlags.HideAndDontSave;
-                temporaryObject.SetActive(false);
-                var source = temporaryObject.AddComponent(windType) as IGizmoSource;
-                Require(source != null, "real WindSource implements IGizmoSource");
-                source.Member = "Destroyed source";
-                GizmoMember member = fixture.EnsureMember(source.Member);
-                Require(ReferenceEquals(member, GizmoRender.ResolveMember(source)), "real source resolves");
-                Equal(1, member.Sources.Count, "real source is attached before destruction");
-                UObject.DestroyImmediate(temporaryObject);
-                temporaryObject = null;
-                Equal(0, member.Sources.Count, "Unity fake-null source is pruned through interface");
-            });
         }
         catch (Exception exception)
         {
@@ -388,7 +370,7 @@ public class Script
     {
         string[] names =
         {
-            "InteriorMapBakeVolume", "InteriorMapBakeDirection", "Mine.Fields.WindSource",
+            "InteriorMapBakeVolume", "InteriorMapBakeDirection",
             "Mine.Fields.WindFieldProvider", "FishSimulation", "RainSimulation"
         };
         foreach (string name in names)

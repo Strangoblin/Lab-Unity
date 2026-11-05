@@ -36,6 +36,19 @@ namespace Mine.Fields
                 Advance(FieldManager.Clock, Time.deltaTime);
         }
 
+        // Edit mode only ticks ExecuteAlways.Update on scene repaints, so Inspector edits
+        // would otherwise leave the published texture stale until Play mode.
+        protected virtual void OnValidate()
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying && IsReady && FieldManager.Instance != null)
+            {
+                FieldManager.Instance.UpdateFields();
+                UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+            }
+#endif
+        }
+
         protected virtual void OnDisable()
         {
             if (!IsReady) return;

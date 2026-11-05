@@ -101,13 +101,9 @@ namespace Mine.Interaction
 
         public void Release()
         {
-            if (_computeShader != null)
-            {
-                _computeShader.SetTexture(_kernel, s_InteractionOriginTexID, null);
-                _computeShader.SetTexture(_kernel, s_InteractionWaterTexID,  null);
-                _computeShader.SetTexture(_kernel, s_InteractionWaterPTexID, null);
-            }
-
+            // 不用 SetTexture(..., null) 解绑：ComputeShader.SetTexture 拒绝 null，
+            // 会抛 ArgumentNullException 并让下面的 ReleaseRT 一条都执行不到（RT 泄漏）。
+            // 这里只释放 RT；下次 Initialize 会重新绑定，中间没有任何 Dispatch。
             ReleaseRT(ref _waterTex);
             ReleaseRT(ref _waterPTex);
         }

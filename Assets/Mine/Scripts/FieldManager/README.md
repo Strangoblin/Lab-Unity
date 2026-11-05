@@ -7,8 +7,9 @@ Unity 6 / URP 17. Field data is in world coordinates and has explicit physical u
 - FieldManager: one active scene scheduler; Wind → Wave → Acceleration before instance simulation.
 - FieldProvider: resource ownership, registration, timestamp/version and standalone fallback.
 - Wind/WindFieldProvider: finite XZ RenderTexture, RGB = XYZ velocity (m/s), A reserved zero.
-- Wind/WindField.compute: base wind, advected spatial disturbance and up to 16 local sources.
-- Wind/WindSource: additive velocity source with smooth radial falloff in XZ.
+  G (vertical) is derived from horizontal divergence, so it is non-zero only around gust fronts.
+- Wind/WindField.compute: steady base wind, traveling gust bands, advected spatial disturbance,
+  and the divergence-derived vertical channel.
 - WindField.hlsl: shared material/Compute sampling, directly beside the manager.
 - WaveFieldBindings.cs: neutral per-kernel binding for an absent wave provider.
 - Editor/FieldContractProbe.compute: GPU sampling contract checks for wind and waves.
@@ -30,15 +31,43 @@ It is regenerated from world coordinates, so moving the coverage does not transl
 
 World-to-UV: (positionWS.xz - originXZ) / sizeXZ.
 A narrow edge blend returns to the current base wind; outside the rectangle, base wind remains.
-Local sources do not repeat outside the rectangle.
 
 Height gain is smoothstep between Reference Height and Reference Height + Height Range:
 below: Lower Height Gain; above: Upper Height Gain. The same gain applies to all velocity channels.
-No Texture3D is allocated. Local sources also have XZ footprints; height response is shared,
-rather than a separate 3D volume per source.
+No Texture3D is allocated; height response is shared rather than a separate 3D volume.
 
 Quality: Low 64², Medium 128², High 256². ARGBHalf, bilinear, clamp, no mip chain.
-Wind speed, gust/turbulence strengths and source velocity are m/s; lengths are metres.
+Every value published to consumers is m/s; lengths are metres. Force and speed are independent:
+
+- Wind Angle: direction on the XZ plane in degrees (0 = +X, 90 = +Z).
+- Wind Strength: steady force (velocity published to consumers, therefore displacement).
+- Wind Speed: travel speed of the spatial turbulence pattern; it does not change displacement.
+- Gust Strength: gust force amplitude added along the wind direction.
+- Gust Speed: travel speed of the gust fronts.
+- Gust Length: gust wavelength along the wind direction; a fixed point oscillates at Gust Speed / Gust Length Hz.
+- Vertical Scale: mixing height (m). Vertical velocity is derived, not authored: -height × horizontal divergence.
+- Turbulence Strength: spatial disturbance amplitude.
+- Turbulence Length: spatial period; a point sees it pass at Wind Speed / Length.
+
+The three layers are deliberately different in space: the base is uniform, the gust is a band
+pattern that travels downwind, and the turbulence is a 2D spatial pattern that scrolls. A uniform
+gust would only add a global oscillation to the uniform base and produce no wave motion at all,
+which is why the gust phase includes the position term:
+
+  gustPhase = 2π (dot(direction, positionXZ) − Gust Speed × time) / Gust Length
+
+Vertical velocity is computed from what the field already contains, using continuity:
+vy = −Vertical Scale × (∂vx/∂x + ∂vz/∂z). The uniform base has zero divergence, and the
+turbulence pattern varies each axis only across the flow, so both are divergence-free by
+construction; only gust bands lift and sink the air, and vertical is in quadrature with the gust
+push. Consumers add vy to their world-space offset like any other channel, so grass blades rise
+while the gust front passes. Making turbulence lift too would require giving that pattern a small
+divergent term, which changes its look.
+
+The pattern only moves by parameters that are named as speeds. Strength and gust amplitude affect
+the published velocity (displacement) and nothing else. Both travel terms are integrated on the CPU
+in double precision and wrapped to one period (turbulence length, gust length) before dispatch, so
+a long session does not drift or lose phase precision.
 
 ## Consumption
 
@@ -49,20 +78,20 @@ Use `SampleWindVelocityWS(positionWS)`. SampleLevel at LOD 0 supports both verte
 Do not normalize the result: magnitude is wind speed. Do not put global field parameters in
 UnityPerMaterial or add them to Properties.
 
+The field has one contract for every consumer: it publishes world-space velocity in m/s and
+nothing else. How that velocity becomes displacement, acceleration or drag — including the
+response parameter and any amplitude bound — belongs to the consumer, not to the field.
+Shaders apply the sampled effect directly; the shared field integration does not clamp it.
+
+In Edit mode, `[ExecuteAlways]` Update only ticks when the scene repaints, so a provider would
+otherwise keep publishing a stale texture after an Inspector edit. `FieldProvider.OnValidate`
+re-dispatches the field and repaints all views when a serialized value changes; Play mode uses
+the normal per-frame update.
+
 Before each Compute dispatch:
 `FieldManager.BindWindCompute(shader, kernel)`
 This binds texture and all metadata explicitly, including the neutral fallback when absent.
 The method also ensures the manager has advanced the current play frame.
-
-Rain uses an exact constant-wind drag step:
-dv/dt = localAcceleration + dragRate * (windVelocity - velocity).
-Drag strength 0 disables response. Absence of a wind provider preserves the previous ballistic step.
-A long step samples wind at the step's starting position; it does not integrate all spatial variation.
-
-Plant uses Wind Response (seconds) to turn wind speed into bounded vertex displacement.
-The lower canopy is anchored. Forward/Depth/Normals/Shadow share the wind offset.
-The existing mesh bounds budget includes wind: displacement is reduced when Billboard/Inflate
-already consume that budget. Lighting retains the existing canopy approximation.
 
 ## Lifecycle
 
@@ -118,8 +147,6 @@ FFT.compute and its temporary transform textures remain owned by the FFT provide
 
 - Real Plant GPU rendering: +X wind shifts the test canopy centroid by 6.39 pixels;
   the disabled-wind control remains fixed.
-- Local source: 5 m/s source gives 4.969 m/s at its sampled center,
-  2.492 m/s at half radius, and 0 outside coverage (bilinear/half precision).
 - Quality change: 128² → 256² reallocates and republishes the new texture.
 - FFT shared GPU sampling matches direct original texture mixtures:
   displacement error 5.96e-8, normal error 0; foam mixture agrees.

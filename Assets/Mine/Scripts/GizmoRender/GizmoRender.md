@@ -43,7 +43,7 @@ GizmoRenderWindow：配置编辑、场景扫描、实时清单、全局覆盖
 
 | 默认成员 | RGBA | Presence | 已接入组件 |
 |---|---|---|---|
-| `Wind` | 0.20, 0.80, 1.00, 0.85 | OnSelected | WindSource、WindFieldProvider |
+| `Wind` | 0.20, 0.80, 1.00, 0.85 | OnSelected | WindFieldProvider |
 | `Instance` | 0.30, 0.70, 1.00, 0.80 | OnSelected | FishSimulation、RainSimulation |
 | `Interior` | 1.00, 0.75, 0.15, 0.95 | Always | InteriorMapBakeVolume、InteriorMapBakeDirection |
 | `Terrain` | 0.60, 1.00, 0.60, 0.90 | OnSelected | 预留，GrassGenerator 尚未迁入 |
