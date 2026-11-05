@@ -32,7 +32,7 @@ paths:
 - Feature 文件放在 `Assets/Mine/Scripts/` 下对应效果目录
 - 面板参数按 **Technical / Performance / Artistic / Debug** 分层；成本类参数划档位而非逐个暴露
   （规范 [parameter-panel.md](../unity/standard/script/parameter-panel.md)，
-  骨架 [parameter-panel.cs](../../skills/auto-manager/templates/standard/script/parameter-panel.cs)）
+  骨架 [parameter-panel.cs](../../skills/agent-workflow/templates/standard/script/parameter-panel.cs)）
 - 错误处理：同一个错误 3 次后兜底退出，不无限重试
 
 ## 常见错误诊断

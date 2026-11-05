@@ -1,5 +1,5 @@
 ---
-name: autoagent
+name: agent-workflow
 description: >-
   Route Unity tasks through one project entry: development workflows, standalone
   Editor operations, rendering checks, reuse analysis or read-only consultation.
@@ -9,7 +9,7 @@ user-invocable: true
 argument-hint: "<task description>"
 ---
 
-# AutoAgent
+# Agent Workflow
 
 Unity 任务的统一分流入口。外部角色与索引到本文件；本 skill 再选择开发流程或专门能力，不要求预读全部内部资源。
 agent 提供领域判断、上下文取用与 memory 记录；体系维护由 agent-maintenance 承担。

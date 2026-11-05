@@ -64,7 +64,7 @@ class ZoneTests(LedgerMixin, unittest.TestCase):
             ".mcp/trash/bucket/manifest.json": "scratch",
             ".agents/memory/meta/MEMORY.md": "memory",
             ".agents/knowledge/meta/architecture.md": "system",
-            ".agents/skills/auto-manager/AutoMode.md": "system",
+            ".agents/skills/agent-workflow/AutoMode.md": "system",
             ".mcp/policy.json": "system",
             "README.md": "denied",
         }

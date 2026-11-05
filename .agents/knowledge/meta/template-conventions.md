@@ -6,15 +6,15 @@
 
 ## 分类总则
 
-按实际职责分类，不按扩展名：`standard/` = 函数无关、`script/` = C# 责任族、`shader/` = 特征族；references/ 镜像到相应 agent。新模板根为 `.agents/skills/auto-manager/templates`。现况家族树（2026-09-03；最新以族 README 为准，根索引 `../../../skills/auto-manager/templates/README.md` + `shader/README.md`，状态词 Available/Planned）：
+按实际职责分类，不按扩展名：`standard/` = 函数无关、`script/` = C# 责任族、`shader/` = 特征族；references/ 镜像到相应 agent。新模板根为 `.agents/skills/agent-workflow/templates`。现况家族树（2026-09-03；最新以族 README 为准，根索引 `../../../skills/agent-workflow/templates/README.md` + `shader/README.md`，状态词 Available/Planned）：
 
 | 家族 | 职责 | 权威 README |
 |------|------|------|
-| standard/ | 函数无关代码骨架 + 文档模板（与 references/standard 规范配对：规定/骨架） | [templates](../../skills/auto-manager/templates/standard/README.md) |
-| script/* | Baker / Window / Generator / Manager / Controller（窗口壳 = 跨族共享形态） | [script](../../skills/auto-manager/templates/script/README.md) |
-| shader/postprocess | 全屏 Blit 管线代码件（RendererFeature/RenderPass/Volume/Compute） | [postprocess](../../skills/auto-manager/templates/shader/postprocess/README.md) |
-| shader/render | 物体上渲染的效果材质（direct-effect / effect-shader+function 对） | [render](../../skills/auto-manager/templates/shader/render/README.md) |
-| shader/hlsl | 跨效果共享函数库（对应 `Assets/Mine/Special/HLSL`，非 feature） | [hlsl](../../skills/auto-manager/templates/shader/hlsl/README.md) |
+| standard/ | 函数无关代码骨架 + 文档模板（与 references/standard 规范配对：规定/骨架） | [templates](../../skills/agent-workflow/templates/standard/README.md) |
+| script/* | Baker / Window / Generator / Manager / Controller（窗口壳 = 跨族共享形态） | [script](../../skills/agent-workflow/templates/script/README.md) |
+| shader/postprocess | 全屏 Blit 管线代码件（RendererFeature/RenderPass/Volume/Compute） | [postprocess](../../skills/agent-workflow/templates/shader/postprocess/README.md) |
+| shader/render | 物体上渲染的效果材质（direct-effect / effect-shader+function 对） | [render](../../skills/agent-workflow/templates/shader/render/README.md) |
+| shader/hlsl | 跨效果共享函数库（对应 `Assets/Mine/Special/HLSL`，非 feature） | [hlsl](../../skills/agent-workflow/templates/shader/hlsl/README.md) |
 | shader/particle | 占位 | — |
 
 ## 代码模板文件编写规则

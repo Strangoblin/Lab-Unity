@@ -6,8 +6,8 @@
 # 「拿不到判定」翻译成 deny。设置里的 onFailure: block 只覆盖超时与崩溃，
 # 覆盖不到「进程活着但吐了非 JSON」，这一层把两种情况一并兜住。
 #
-# 单文件放 .mcp/bin/ 而不是两个平台各一份：一份就不存在漂移（v3 的
-# guard-bash.sh 靠 verify.py 的 platform_hook_drift 守着逐字一致，那是补丁）。
+# 单文件放 .mcp/bin/ 而不是两个平台各一份：一份就不存在漂移（v3 的两份
+# guard-bash.sh 靠逐字一致维持等价，那是补丁）。
 #
 # 退出码: 0 = 已给出判定（JSON 在 stdout）；2 = 输入不可解析（平台按失败处理）
 set -u

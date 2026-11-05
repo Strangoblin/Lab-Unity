@@ -1,4 +1,4 @@
-# AutoAgent Templates
+# Agent Workflow Templates
 
 Templates are classified by actual responsibility, not by file extension.
 

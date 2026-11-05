@@ -16,7 +16,6 @@ tools: [Read, Write, Edit, Bash, Glob, Grep]
 - 知识：[meta knowledge](../../knowledge/meta/README.md)。
 - 操作：[agent-maintenance](../../skills/agent-maintenance/SKILL.md)；专门接入任务按 [技能清单](../../skills/README.md) 选对应能力。
 - 周期自检：[structure-selfcheck](../../skills/structure-selfcheck/SKILL.md) —— 记忆归档、垃圾桶分流与历史日志；到期或用户点名「自检」时取用。
-- 委派：非体系文件的边界明确小任务按 [opencode-orchestrate](../../skills/opencode-orchestrate/SKILL.md) 派给 OpenCode Go；链路接入与排障见 [codex-opencode-go](../../skills/codex-opencode-go/SKILL.md)。
 
 ## 记录
 

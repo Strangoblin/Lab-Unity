@@ -13,7 +13,7 @@
 
 适用于常规材质 Shader（PBR、Toon、Unlit 等），核心原则：**结构分明、功能解耦、功能分级**。
 
-Unity 6 / URP 17 管线能力以 [网格材质模板契约](../../../../skills/auto-manager/templates/standard/shader/README.md) 为准；下文布局示意不代表完整管线能力。PBRToon 是算法参考，不代替当前 URP 接口定义。
+Unity 6 / URP 17 管线能力以 [网格材质模板契约](../../../../skills/agent-workflow/templates/standard/shader/README.md) 为准；下文布局示意不代表完整管线能力。PBRToon 是算法参考，不代替当前 URP 接口定义。
 
 ### 1. 整体布局
 
@@ -65,7 +65,7 @@ SubShader                       —— 仅包含 Pass 定义
 
 **③ 功能解耦为独立函数**
 - 对于未来可能复用或涉及复杂计算的功能，单独拆分为函数管理。
-- **拆库裁决**：按 [公共函数归属表](../../../../skills/auto-manager/templates/shader/hlsl/README.md#公共函数归属)区分项目公共与通用公共；调用次数不决定归属。
+- **拆库裁决**：按 [公共函数归属表](../../../../skills/agent-workflow/templates/shader/hlsl/README.md#公共函数归属)区分项目公共与通用公共；调用次数不决定归属。
   - 单效果私有数学/形状、项目或功能族的公共流程 → 保留在功能目录（可自持 CBUFFER / static const）。
   - 只有通用公共函数 → `Assets/Mine/Special/HLSL/`（零 CBUFFER、调用方 Assets 全路径 include；共享库默认不 include 兄弟库，唯一例外是 PBR 家族入口 `PBRFunction.hlsl` 聚合 `HairFunction.hlsl` / `FabricFunction.hlsl`），例如:
     - `RimLightFunction.hlsl` — 边缘光
@@ -75,7 +75,7 @@ SubShader                       —— 仅包含 Pass 定义
     - `HairFunction.hlsl` — 毛发高光瓣（2026-10-30 自 PBRFunction 拆出）
     - `NormalFunction.hlsl` — 法线计算
     - `LightFunction.hlsl` — 通用光照
-  - 完整决策表 → [render 选型节](../../../../skills/auto-manager/templates/shader/render/README.md) + [hlsl 三档依赖表](../../../../skills/auto-manager/templates/shader/hlsl/README.md)
+  - 完整决策表 → [render 选型节](../../../../skills/agent-workflow/templates/shader/render/README.md) + [hlsl 三档依赖表](../../../../skills/agent-workflow/templates/shader/hlsl/README.md)
 - 函数命名清晰，避免在一个函数中混合多种职责；库函数带语义模块前缀（`BlendNormal_` / `SDF_` 等），避无前缀通用名（MainLight 重复定义地雷）。
 
 **④ 功能分级（复杂 Shader 专属）**
