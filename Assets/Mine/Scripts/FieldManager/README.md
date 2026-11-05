@@ -4,23 +4,27 @@ Unity 6 / URP 17. Field data is in world coordinates and has explicit physical u
 
 ## Structure
 
-- FieldManager: one active scene scheduler; Wind → Wave → Acceleration before instance simulation.
-- FieldProvider: resource ownership, registration, timestamp/version and standalone fallback.
+- FieldManager: one active scene scheduler; providers run in FieldOrder (Wind → Wave → Acceleration before instance simulation).
+- FieldProvider: resource ownership, registration by FieldKey, timestamp/version and standalone fallback.
+- IFieldBindings: per-channel identity, GPU property IDs and neutral state shared by providers and absent-provider bindings.
 - Wind/WindFieldProvider: finite XZ RenderTexture, RGB = XYZ velocity (m/s), A reserved zero.
   G (vertical) is derived from horizontal divergence, so it is non-zero only around gust fronts.
+- Wind/WindFieldBindings.cs: Wind key, property IDs and neutral bindings.
 - Wind/WindField.compute: steady base wind, traveling gust bands, advected spatial disturbance,
   and the divergence-derived vertical channel.
-- WindField.hlsl: shared material/Compute sampling, directly beside the manager.
-- WaveFieldBindings.cs: neutral per-kernel binding for an absent wave provider.
+- Wind/WindField.hlsl: shared material/Compute sampling.
+- Wave/WaveFieldProvider.cs: Wave channel base; implementations publish periodic displacement.
+- Wave/WaveFieldBindings.cs: Wave key, cascade property IDs and neutral bindings.
+- Wave/WaveField.hlsl: shared FFT sampling.
+- Wave/FFT/FFTWaveFieldProvider.cs + FFT.compute: FFT producer, owned by the Wave channel.
 - Editor/FieldContractProbe.compute: GPU sampling contract checks for wind and waves.
 - FieldManager.prefab: ready-to-use manager and wind producer.
-- WaveField.hlsl: shared FFT sampling, directly beside the manager.
 
-Instantiate FieldManager.prefab in a scene. Existing FFTWaveOrchestrator components register
-automatically as Wave providers; their original shader references and cascade settings remain.
+Instantiate FieldManager.prefab in a scene. Existing FFTWaveFieldProvider components register
+automatically as the Wave provider; their original shader references and cascade settings remain.
 The prefab contains only the manager and wind. The current scene's FFT is an independent object.
 
-The registry accepts one active provider per FieldKind. A second producer for the same output
+The registry accepts one active provider per FieldKey. A second producer for the same output
 is rejected and disabled rather than overwriting global textures. Providers may exist on
 separate objects; they are not discovered with a per-frame scene scan.
 
@@ -72,7 +76,7 @@ a long session does not drift or lose phase precision.
 ## Consumption
 
 Material shaders include:
-`Assets/Mine/Scripts/FieldManager/WindField.hlsl`
+`Assets/Mine/Scripts/FieldManager/Wind/WindField.hlsl`
 
 Use `SampleWindVelocityWS(positionWS)`. SampleLevel at LOD 0 supports both vertex and Compute use.
 Do not normalize the result: magnitude is wind speed. Do not put global field parameters in
@@ -89,7 +93,7 @@ re-dispatches the field and repaints all views when a serialized value changes; 
 the normal per-frame update.
 
 Before each Compute dispatch:
-`FieldManager.BindWindCompute(shader, kernel)`
+`FieldManager.BindCompute(WindFieldBindings.Instance, shader, kernel)`
 This binds texture and all metadata explicitly, including the neutral fallback when absent.
 The method also ensures the manager has advanced the current play frame.
 
@@ -102,15 +106,26 @@ separate simulation loop. FFT may therefore keep running in existing scenes with
 The manager's clock is Time.time in play mode and realtime in edit mode.
 Field Time and Version describe the published snapshot; they are diagnostics, not material controls.
 
-## Extension
+## Adding a field
 
-Create a FieldProvider subclass, choose a distinct semantic output, implement resource creation,
-simulation, publication, explicit Compute bindings and neutral reset. Keep sampling code beside
-FieldManager. Acceleration means m/s² and must remain separate from Wind's m/s and Wave's metres.
+A new channel needs no edit to FieldManager.cs or FieldProvider.cs:
 
-Do not force unrelated fields into one RGBA layout or blend them together. Define mixing per
-semantic output. If a future producer depends on another field, make that dependency explicit
-and schedule it before the consumer; the current fixed order is Wind → Wave → Acceleration.
+1. Create `FieldManager/<Name>/`.
+2. Add `<Name>FieldBindings.cs : IFieldBindings` with `public const string Key`,
+   `public static readonly Instance`, one `Shader.PropertyToID` per published global, and
+   `BindNeutral` / `BindNeutralGlobals` using the same defaults.
+3. Add `<Name>FieldProvider.cs : FieldProvider` (or a channel base such as `WaveFieldProvider`)
+   with `FieldKey`, `FieldOrder`, resource creation, simulation, publication, explicit Compute
+   bindings and `ResetGlobals() => <Name>FieldBindings.Instance.BindNeutralGlobals()`.
+4. Add `<Name>Field.hlsl` beside the provider and document its unit and sampling contract.
+5. Consumers: Compute calls `FieldManager.BindCompute(<Name>FieldBindings.Instance, shader, kernel)`;
+   materials include the HLSL by path.
+6. Do not force unrelated fields into one RGBA layout or blend them together. Define mixing per
+   semantic output. If a producer depends on another field, give it a later FieldOrder.
+
+Ordering is explicit: lower FieldOrder runs first, ties preserve registration order. Wind is
+-200, Wave is -100, the default is 0 (after Wave). An acceleration channel means m/s² and stays
+separate from Wind's m/s and Wave's metres. One active provider per FieldKey is allowed.
 
 ## Initial validation
 
@@ -122,7 +137,7 @@ GPU Rain kernel with uniform base wind 4 m/s, gains 0.25/1.25, height range 20 m
 
 ## Wave contract
 
-Include `Assets/Mine/Scripts/FieldManager/WaveField.hlsl` after the pipeline includes.
+Include `Assets/Mine/Scripts/FieldManager/Wave/WaveField.hlsl` after the pipeline includes.
 
 - SampleWaveDisplacementWS(positionWS): world-space XYZ displacement in metres.
 - SampleWaveNormalWS(positionWS): unit world-space normal.
@@ -133,7 +148,7 @@ The FFT provider retains _WaveDisplacement0..2 / _WaveNormal0..2 / _WavePatchSiz
 Textures repeat in XZ, unlike the finite wind rectangle. Normal textures encode [-1,1] to [0,1].
 Water displacement scale and normal intensity remain material response parameters.
 
-For Compute use `FieldManager.BindCompute(FieldKind.Wave, shader, kernel)`.
+For Compute use `FieldManager.BindCompute(WaveFieldBindings.Instance, shader, kernel)`.
 With no Wave provider the function binds neutral textures and validity=0, and returns false.
 Wind and Wave are the implemented channels; future channels must define their own neutral bindings.
 The generic registry alone does not define an acceleration texture or acceleration solver.
@@ -141,9 +156,12 @@ The generic registry alone does not define an acceleration texture or accelerati
 FFT's spectral wind controls remain independent from the instantaneous shared wind.
 This integration shares publication/scheduling and sampling contracts, without altering its spectrum model.
 Spectrum regeneration on Inspector changes is deferred until the next field update.
-FFT.compute and its temporary transform textures remain owned by the FFT provider.
+FFT.compute and its temporary transform textures remain owned by FFTWaveFieldProvider.
 
 ## Verification results
+
+Run `Validation~/FieldChecks.cs` with `unityctl script execute` for the registry and neutral-binding
+regression (expected `failed=0`); see `Validation~/README.md` for scope and cleanup.
 
 - Real Plant GPU rendering: +X wind shifts the test canopy centroid by 6.39 pixels;
   the disabled-wind control remains fixed.

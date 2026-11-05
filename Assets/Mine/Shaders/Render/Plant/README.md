@@ -64,7 +64,7 @@ Shader 规范检查通过；未修改用户当前场景。
 
 ## 统一风场
 
-由 `Assets/Mine/Scripts/FieldManager/WindField.hlsl` 采样世界空间风速（m/s）。
+由 `Assets/Mine/Scripts/FieldManager/Wind/WindField.hlsl` 采样世界空间风速（m/s）。
 场景使用 `FieldManager.prefab` 或配置 WindFieldProvider 后即生效。
 
 `Wind Response` 默认 0.03 秒，0 关闭。风速乘响应时间得到叶片世界空间位移，

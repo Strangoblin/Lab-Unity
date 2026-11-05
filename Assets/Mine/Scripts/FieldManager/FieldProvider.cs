@@ -2,13 +2,16 @@ using UnityEngine;
 
 namespace Mine.Fields
 {
-    public enum FieldKind { Wind, Wave, Acceleration }
-
     /// <summary>Field producer: owns resources; FieldManager owns scheduling and publication.</summary>
     [ExecuteAlways, DefaultExecutionOrder(-900)]
     public abstract class FieldProvider : MonoBehaviour
     {
-        public abstract FieldKind Kind { get; }
+        /// <summary>Semantic output key. One active provider per key; duplicates are rejected.</summary>
+        public abstract string FieldKey { get; }
+
+        /// <summary>Lower runs first. Ties preserve registration order.</summary>
+        public virtual int FieldOrder => 0;
+
         public uint Version { get; private set; }
         public float SampleTime { get; private set; }
         public bool IsReady { get; private set; }

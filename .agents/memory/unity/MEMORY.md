@@ -13,6 +13,8 @@
 
 ## 关键架构决策
 
+- **FieldManager 插件化与 Wave 归并（2026-11-05）**：Field 改为按 `FieldKey` 注册的插件结构（`FieldOrder` 排序、重复 Producer 拒绝并禁用），删除 `FieldKind` 枚举；`IFieldBindings` 统一键/属性 ID/中性回退，`BindCompute` 通用化。FFT 从 `Shaders/Render/Water/FFT` 迁入 `FieldManager/Wave/FFT` 并改名 `FFTWaveFieldProvider`，GUID 全保留。新增 `Validation~/FieldChecks.cs`，Grass 场景 10/10、RenderScene 9 通过 + 1 跳过。见 [记录](2026-11-05-field-plugin-architecture.md)。
+
 - **水体互动 Demo 与整链验证（2026-11-04）**：`InteractionManager/WaterInteractionDemo.unity` 落地「正交相机 + `IA_Renderer` + Manager + Compute」全链路，可叠加加载。三个层陷阱：主相机必须剔除 Interactor 层（`InteractorObject` 是 `ZTest Always`，否则黑球盖住外壳）、可见外壳不能放 Interaction 层（会吃掉按压深度）、交互相机 Target Texture 存 none 由 Manager 运行时赋值。验证用「探针世界坐标投影像素 vs 捕获/波面质心」，两者差 < 1px。顺带修掉 `WaterInteractionProcessor.Release()` 用 `SetTexture(..., null)` 解绑抛异常导致 RT 泄漏；并确认 **Editor 在后台时 Play 循环会被节流**，`play pause` + `play step` 才能确定性地逐帧测量。见 [记录](2026-11-04-water-interaction-demo.md)。
 
 - **CustomRenderer → InteractionCaptureFeature（2026-11-04）**：URP 17 只在 `Setup(ScriptableRenderContext, ref RenderingData)` 调自定义 Renderer 的记账逻辑，而该重写在 RenderGraph 路径下不执行、`OnRecordRenderGraph` 又是 `internal`；工程里兼容宏有定义但 `RenderGraphSettings` 开关为关，所以旧 Renderer 的 `_CustomDepthTexture` 从未产生。迁移为「URP 层掩码全空的专用 `UniversalRendererData` + 自录 Depth/Normal/Color 的 Feature」；不全局开兼容模式，否则只实现 RG 的十几个后处理 Feature 会静默失效。静默坑：Skybox 污染 RFloat RT、`AccessFlags.Write` 不等于清屏、全局纹理要 `SetGlobalTextureAfterPass` + `UseGlobalTexture` 成对、Overlay 相机不能接管。冒烟测试有/无 Feature 的 RT 最大 R 为 1.0 / 0.0。见 [记录](2026-11-04-customrenderer-to-feature.md)。

@@ -2,7 +2,7 @@
 
 **路径：** `Assets/Mine/Shaders/Render/Water/Water.shader`  
 **私有函数库：** `Assets/Mine/Shaders/Render/Water/WaterFunction.hlsl`  
-**FFT 生成模块：** `Assets/Mine/Shaders/Render/Water/FFT/`  
+**FFT 生成模块：** `Assets/Mine/Scripts/FieldManager/Wave/FFT/`  
 **类型：** Transparent / Tessellation / UniversalForward  
 **目标管线：** Unity 6 + URP 17+
 
@@ -17,7 +17,7 @@ Water 是一个基于三层 FFT 频谱的透明水面材质。几何阶段读取
 ## 文件职责
 
 ```text
-FFTWaveOrchestrator + FFT.compute
+FFTWaveFieldProvider + FFT.compute
     └── 生成三层 displacement / normal 纹理
             │
             ▼
@@ -83,7 +83,7 @@ Object Space 顶点
 
 ## FFT 数据约定
 
-运行时由 `FFTWaveOrchestrator` 注入三层级联纹理：
+运行时由 `FFTWaveFieldProvider` 注入三层级联纹理：
 
 | 全局资源 | 内容 |
 |---|---|
@@ -155,16 +155,16 @@ Object Space 顶点
 
 - 渲染入口、结构体、材质参数和 Pass 保留在 `Water.shader`。
 - Water 专属数学和采样函数放在 `WaterFunction.hlsl`。
-- FFT 生成逻辑继续由 `FFT/FFT.compute` 与 `FFTWaveOrchestrator.cs` 维护。
+- FFT 生成逻辑继续由 `FieldManager/Wave/FFT/FFT.compute` 与 `FFTWaveFieldProvider.cs` 维护。
 - 跨效果通用函数继续使用 `Assets/Mine/Special/HLSL/`，不复制进 Water 私有库。
 
 ## 统一场接入
 
-`FFTWaveOrchestrator` 现在继承 `FieldProvider`，注册为 Wave 输出。
+`FFTWaveFieldProvider` 继承 `WaveFieldProvider`，注册为 Wave 输出。
 有 FieldManager 时统一调度；没有 Manager 的旧场景仍由 Provider 自行更新。
 FFT 频谱、IFFT 和资源继续由原组件持有，既有 GUID、引用、级联参数与全局纹理名保留。
 
-公共采样库位于 `Assets/Mine/Scripts/FieldManager/WaveField.hlsl`，
+公共采样库位于 `Assets/Mine/Scripts/FieldManager/Wave/WaveField.hlsl`，
 WaterFunction.hlsl 保留原材质位移倍率、法线强度和泡沫混合权重。
 停用 FFT 时全局纹理解绑，波浪采样回退为零位移、零泡沫和向上法线。
 编辑模式使用实时场时钟；播放模式使用 Time.time。

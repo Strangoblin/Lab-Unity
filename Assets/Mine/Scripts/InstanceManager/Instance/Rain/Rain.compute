@@ -1,5 +1,5 @@
 #pragma kernel CS_RainUpdate
-#include "Assets/Mine/Scripts/FieldManager/WindField.hlsl"
+#include "Assets/Mine/Scripts/FieldManager/Wind/WindField.hlsl"
 
 struct RainParticle
 {

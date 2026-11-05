@@ -46,15 +46,9 @@ namespace Mine.Fields
         private int _kernel;
         private Vector4 _mapping, _height, _baseVelocity;
 
-        private static readonly int TextureId = Shader.PropertyToID("_WindFieldTexture");
-        private static readonly int MappingId = Shader.PropertyToID("_WindFieldWorldToUV");
-        private static readonly int HeightId = Shader.PropertyToID("_WindFieldHeight");
-        private static readonly int BaseId = Shader.PropertyToID("_WindFieldBaseVelocity");
-        private static readonly int ValidId = Shader.PropertyToID("_WindFieldValid");
-        private static readonly int TimeId = Shader.PropertyToID("_WindFieldTime");
-        private static readonly int VersionId = Shader.PropertyToID("_WindFieldVersion");
+        public override string FieldKey => WindFieldBindings.Key;
+        public override int FieldOrder => -200;
 
-        public override FieldKind Kind => FieldKind.Wind;
         public RenderTexture Texture => _texture;
         public Vector3 BaseVelocity => _baseVelocity;
         private int Resolution => _quality == Quality.Low ? 64 : _quality == Quality.High ? 256 : 128;
@@ -170,47 +164,27 @@ namespace Mine.Fields
         // ════════════════════════════════════════════════════════════
         protected override void PublishField()
         {
-            Shader.SetGlobalTexture(TextureId, _texture);
-            Shader.SetGlobalVector(MappingId, _mapping);
-            Shader.SetGlobalVector(HeightId, _height);
-            Shader.SetGlobalVector(BaseId, _baseVelocity);
-            Shader.SetGlobalFloat(ValidId, 1f);
-            Shader.SetGlobalFloat(TimeId, SampleTime);
-            Shader.SetGlobalFloat(VersionId, Version);
+            Shader.SetGlobalTexture(WindFieldBindings.TextureId, _texture);
+            Shader.SetGlobalVector(WindFieldBindings.MappingId, _mapping);
+            Shader.SetGlobalVector(WindFieldBindings.HeightId, _height);
+            Shader.SetGlobalVector(WindFieldBindings.BaseId, _baseVelocity);
+            Shader.SetGlobalFloat(WindFieldBindings.ValidId, 1f);
+            Shader.SetGlobalFloat(WindFieldBindings.TimeId, SampleTime);
+            Shader.SetGlobalFloat(WindFieldBindings.VersionId, Version);
         }
 
         public override void BindCompute(ComputeShader shader, int kernel)
         {
-            shader.SetTexture(kernel, TextureId, _texture);
-            shader.SetVector(MappingId, _mapping);
-            shader.SetVector(HeightId, _height);
-            shader.SetVector(BaseId, _baseVelocity);
-            shader.SetFloat(ValidId, 1f);
-            shader.SetFloat(TimeId, SampleTime);
-            shader.SetFloat(VersionId, Version);
+            shader.SetTexture(kernel, WindFieldBindings.TextureId, _texture);
+            shader.SetVector(WindFieldBindings.MappingId, _mapping);
+            shader.SetVector(WindFieldBindings.HeightId, _height);
+            shader.SetVector(WindFieldBindings.BaseId, _baseVelocity);
+            shader.SetFloat(WindFieldBindings.ValidId, 1f);
+            shader.SetFloat(WindFieldBindings.TimeId, SampleTime);
+            shader.SetFloat(WindFieldBindings.VersionId, Version);
         }
 
-        public static void BindNeutral(ComputeShader shader, int kernel)
-        {
-            shader.SetTexture(kernel, TextureId, Texture2D.blackTexture);
-            shader.SetVector(MappingId, new Vector4(0f, 0f, 1f, 1f));
-            shader.SetVector(HeightId, new Vector4(0f, 1f, 1f, 1f));
-            shader.SetVector(BaseId, Vector4.zero);
-            shader.SetFloat(ValidId, 0f);
-            shader.SetFloat(TimeId, 0f);
-            shader.SetFloat(VersionId, 0f);
-        }
-
-        public override void ResetGlobals()
-        {
-            Shader.SetGlobalTexture(TextureId, Texture2D.blackTexture);
-            Shader.SetGlobalVector(MappingId, new Vector4(0f, 0f, 1f, 1f));
-            Shader.SetGlobalVector(HeightId, new Vector4(0f, 1f, 1f, 1f));
-            Shader.SetGlobalVector(BaseId, Vector4.zero);
-            Shader.SetGlobalFloat(ValidId, 0f);
-            Shader.SetGlobalFloat(TimeId, 0f);
-            Shader.SetGlobalFloat(VersionId, 0f);
-        }
+        public override void ResetGlobals() => WindFieldBindings.Instance.BindNeutralGlobals();
 
         protected override void ReleaseField()
         {

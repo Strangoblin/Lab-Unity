@@ -18,7 +18,7 @@
 
 ## 风场
 
-Demo 场景中的 `Field Manager` 包含 `FieldManager` 和 `Wind / WindFieldProvider`，向全局发布跟随 Main Camera 的 64×64 风场纹理（RGB = 世界空间风速，m/s）。`GrassWind.shader` 通过 `Assets/Mine/Scripts/FieldManager/WindField.hlsl` 的 `SampleWindVelocityWS` 采样风场：
+Demo 场景中的 `Field Manager` 包含 `FieldManager` 和 `Wind / WindFieldProvider`，向全局发布跟随 Main Camera 的 64×64 风场纹理（RGB = 世界空间风速，m/s）。`GrassWind.shader` 通过 `Assets/Mine/Scripts/FieldManager/Wind/WindField.hlsl` 的 `SampleWindVelocityWS` 采样风场：
 
 | 材质参数 | 默认值 | 含义 |
 |---|---:|---|

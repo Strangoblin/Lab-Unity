@@ -4340,7 +4340,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80f6d5c70ed134f5195078da3ec86dcc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Mine.Water.FFTWaveOrchestrator
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Fields.FFTWaveFieldProvider
   _fftCS: {fileID: 7200000, guid: 3eac42d9e489f4c3cbb17d9f696f189b, type: 3}
   _cascadeScales:
   - 200

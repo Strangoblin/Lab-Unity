@@ -38,7 +38,7 @@ Shader "Render/GrassWind"
     #include "Assets/Mine/Special/HLSL/NPRFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/AdditionalLightsFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/TBN.hlsl"
-    #include "Assets/Mine/Scripts/FieldManager/WindField.hlsl"
+    #include "Assets/Mine/Scripts/FieldManager/Wind/WindField.hlsl"
 
     struct GrassProperties
     {

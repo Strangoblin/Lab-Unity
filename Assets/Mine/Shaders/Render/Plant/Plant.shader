@@ -24,7 +24,7 @@ Shader "Render/Plant"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
-    #include "Assets/Mine/Scripts/FieldManager/WindField.hlsl"
+    #include "Assets/Mine/Scripts/FieldManager/Wind/WindField.hlsl"
 
     TEXTURE2D(_MainTex);
     SAMPLER(sampler_MainTex);

@@ -1,10 +1,9 @@
 using UnityEngine;
-using Mine.Fields;
 
-namespace Mine.Water
+namespace Mine.Fields
 {
     /// <summary>
-    /// FFT 波浪编排器 — 3 级 Cascade Phillips 频谱 → Displacement + Normal
+    /// FFT 波浪场 — 3 级 Cascade Phillips 频谱 → Displacement + Normal
     ///
     /// 每帧 pipeline:
     ///   InitSpectrum → TimeEvolve → PrepareChoppy → IFFT2D → MergeOutput
@@ -14,7 +13,7 @@ namespace Mine.Water
     ///   _WaveNormal0/1/2       — 世界空间法线
     /// </summary>
     [ExecuteAlways]
-    public class FFTWaveOrchestrator : FieldProvider
+    public sealed class FFTWaveFieldProvider : WaveFieldProvider
     {
         // ════════════════════════════════════════════════════════════
         //  Inspector
@@ -65,16 +64,6 @@ namespace Mine.Water
         private static readonly int s_HeightScaleID    = Shader.PropertyToID("_HeightScale");
         private static readonly int s_PatchSizeID      = Shader.PropertyToID("_PatchSize");
 
-        private static readonly int[] s_WaveDisplacementIDs = {
-            Shader.PropertyToID("_WaveDisplacement0"), Shader.PropertyToID("_WaveDisplacement1"), Shader.PropertyToID("_WaveDisplacement2"),
-        };
-        private static readonly int[] s_WaveNormalIDs = {
-            Shader.PropertyToID("_WaveNormal0"), Shader.PropertyToID("_WaveNormal1"), Shader.PropertyToID("_WaveNormal2"),
-        };
-        private static readonly int[] s_WavePatchSizeIDs = {
-            Shader.PropertyToID("_WavePatchSize0"), Shader.PropertyToID("_WavePatchSize1"), Shader.PropertyToID("_WavePatchSize2"),
-        };
-
         // ════════════════════════════════════════════════════════════
         //  运行时状态
         // ════════════════════════════════════════════════════════════
@@ -95,10 +84,6 @@ namespace Mine.Water
         private int _kInitSpectrum, _kTimeEvolve, _kPrepareChoppy, _kIFFT2D, _kMergeOutput;
 
         private bool _spectrumDirty;
-        public override FieldKind Kind => FieldKind.Wave;
-        private static readonly int WaveValidId = Shader.PropertyToID("_WaveFieldValid");
-        private static readonly int WaveTimeId = Shader.PropertyToID("_WaveFieldTime");
-        private static readonly int WaveVersionId = Shader.PropertyToID("_WaveFieldVersion");
 
         // ════════════════════════════════════════════════════════════
         //  生命周期
@@ -109,7 +94,7 @@ namespace Mine.Water
             if (_fftCS == null || _cascadeScales == null || _cascadeScales.Length != 3
                 || _cascadeAmplitudes == null || _cascadeAmplitudes.Length != 3)
             {
-                Debug.LogError("FFTWaveOrchestrator requires FFT.compute and three cascade scales/amplitudes.", this);
+                Debug.LogError("FFTWaveFieldProvider requires FFT.compute and three cascade scales/amplitudes.", this);
                 return false;
             }
             InitKernels();
@@ -269,39 +254,26 @@ namespace Mine.Water
         {
             for (int c = 0; c < 3; c++)
             {
-                Shader.SetGlobalTexture(s_WaveDisplacementIDs[c], _cascades[c].displacementTex);
-                Shader.SetGlobalTexture(s_WaveNormalIDs[c], _cascades[c].normalTex);
-                Shader.SetGlobalFloat(s_WavePatchSizeIDs[c], Mathf.Max(0.01f, _cascadeScales[c]));
+                Shader.SetGlobalTexture(WaveFieldBindings.DisplacementIds[c], _cascades[c].displacementTex);
+                Shader.SetGlobalTexture(WaveFieldBindings.NormalIds[c], _cascades[c].normalTex);
+                Shader.SetGlobalFloat(WaveFieldBindings.PatchIds[c], Mathf.Max(0.01f, _cascadeScales[c]));
             }
-            Shader.SetGlobalFloat(WaveValidId, 1f);
-            Shader.SetGlobalFloat(WaveTimeId, SampleTime);
-            Shader.SetGlobalFloat(WaveVersionId, Version);
+            Shader.SetGlobalFloat(WaveFieldBindings.ValidId, 1f);
+            Shader.SetGlobalFloat(WaveFieldBindings.TimeId, SampleTime);
+            Shader.SetGlobalFloat(WaveFieldBindings.VersionId, Version);
         }
 
         public override void BindCompute(ComputeShader shader, int kernel)
         {
             for (int c = 0; c < 3; c++)
             {
-                shader.SetTexture(kernel, s_WaveDisplacementIDs[c], _cascades[c].displacementTex);
-                shader.SetTexture(kernel, s_WaveNormalIDs[c], _cascades[c].normalTex);
-                shader.SetFloat(s_WavePatchSizeIDs[c], Mathf.Max(0.01f, _cascadeScales[c]));
+                shader.SetTexture(kernel, WaveFieldBindings.DisplacementIds[c], _cascades[c].displacementTex);
+                shader.SetTexture(kernel, WaveFieldBindings.NormalIds[c], _cascades[c].normalTex);
+                shader.SetFloat(WaveFieldBindings.PatchIds[c], Mathf.Max(0.01f, _cascadeScales[c]));
             }
-            shader.SetFloat(WaveValidId, 1f);
-            shader.SetFloat(WaveTimeId, SampleTime);
-            shader.SetFloat(WaveVersionId, Version);
-        }
-
-        public override void ResetGlobals()
-        {
-            for (int c = 0; c < 3; c++)
-            {
-                Shader.SetGlobalTexture(s_WaveDisplacementIDs[c], Texture2D.blackTexture);
-                Shader.SetGlobalTexture(s_WaveNormalIDs[c], Texture2D.grayTexture);
-                Shader.SetGlobalFloat(s_WavePatchSizeIDs[c], 1f);
-            }
-            Shader.SetGlobalFloat(WaveValidId, 0f);
-            Shader.SetGlobalFloat(WaveTimeId, 0f);
-            Shader.SetGlobalFloat(WaveVersionId, 0f);
+            shader.SetFloat(WaveFieldBindings.ValidId, 1f);
+            shader.SetFloat(WaveFieldBindings.TimeId, SampleTime);
+            shader.SetFloat(WaveFieldBindings.VersionId, Version);
         }
 
         // ── 子步骤 ────────────────────────────────────────────────

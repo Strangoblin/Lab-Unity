@@ -185,7 +185,7 @@ public class RainSimulation : MonoBehaviour, IUniversalInstanceSimulator, IGizmo
         rainShader.SetVector(SpawnAreaId,    spawnArea);
 
         UploadForceFields();
-        FieldManager.BindWindCompute(rainShader, updateKernel);
+        FieldManager.BindCompute(WindFieldBindings.Instance, rainShader, updateKernel);
         rainShader.SetFloat("_WindDrag", Mathf.Max(0f, _windDrag));
 
         int threadGroups = Mathf.CeilToInt((float)instanceCount / 64f);
