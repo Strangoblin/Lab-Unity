@@ -19,4 +19,4 @@ Unity 任务首次分派到 [agent-workflow](agent-workflow/SKILL.md)，再由�
 
 ## 历史兼容
 
-`codex-orchestrate` 项目版本与 2026-11-05 的 `codex-bridge` / `codex-opencode-go` / `opencode-orchestrate` 均已退役。当前任务由 Claude / Codex 单次跑完并自检，不再经 OpenCode 委派；删除内容见 `.mcp/trash/20261105-150656-89793d/`。
+`codex-orchestrate` 的项目版本与全局版本，以及 2026-11-05 的 `codex-bridge` / `codex-opencode-go` / `opencode-orchestrate` 均已退役。当前任务由 Claude / Codex 单次跑完并自检，不再经 OpenCode 委派；项目删除内容见 `.mcp/trash/20261105-150656-89793d/`，全局留底见 `~/.claude/.retired-skills/2026-11-05-*`。

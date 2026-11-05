@@ -13,4 +13,4 @@
 | 2026-08-27 | feature-screen-debug 临时脚本退役，屏幕调试固定为 DebugOutputFeature | feature-screen-debug-retired | [debug-resource-layout](../../knowledge/meta/debug-resource-layout.md) |
 | 2026-10-16 | 写入通道按域拆分：体系库走平台工具、不经 Unity 门禁；修正「唯一操作通道」表述 | write-channel-rule | [architecture](../../knowledge/meta/architecture.md)、[memory/README](../README.md) |
 | 2026-10-30 | 垃圾桶清空 15 桶：v3/v4 退役模块 3 桶、隔离测试中间产物 11 桶、旧 guard-bash 1 桶 | trash:125504/125519/142021/141553/143210/143405/152610×4/152654/184748×4 | 内容不留，`deletes.jsonl` 可查 |
-| 2026-11-05 | 退役 `codex-bridge`、`codex-opencode-go`、`opencode-orchestrate` 及三份全局薄路由；`auto-manager` 更名为 `agent-workflow`；移除失效 `verify.py` 引用 | opencode-delegation-retired, agent-workflow-rename, verify-refs-cleaned | [retire record](2026-11-05-retire-opencode-delegation-skills.md) |
+| 2026-11-05 | 退役 `codex-bridge`、`codex-opencode-go`、`opencode-orchestrate`、全局 `codex-orchestrate` 及三份全局薄路由；两份全局 `GLOBAL.md` 委派条目改为单次跑完并自检；`auto-manager` 更名为 `agent-workflow`；移除失效 `verify.py` 引用 | opencode-delegation-retired, agent-workflow-rename, verify-refs-cleaned | [retire record](2026-11-05-retire-opencode-delegation-skills.md) |

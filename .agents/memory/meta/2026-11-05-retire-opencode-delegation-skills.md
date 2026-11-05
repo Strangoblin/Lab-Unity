@@ -1,6 +1,6 @@
 ---
 name: retire-opencode-delegation-skills
-description: 退役 codex-bridge / codex-opencode-go / opencode-orchestrate 与三份全局薄路由；移除失效 verify.py 引用；auto-manager 更名为 agent-workflow。
+description: 退役 codex-bridge / codex-opencode-go / opencode-orchestrate / codex-orchestrate 与全局路由；移除失效 verify.py 引用；auto-manager 更名为 agent-workflow。
 date: 2026-11-05
 ---
 
@@ -20,11 +20,20 @@ date: 2026-11-05
 | `~/.claude/skills/opencode-go/` | 移入 `~/.claude/.retired-skills/2026-11-05-opencode-routes/` |
 | `~/.codex/skills/opencode-go/` | 同上 |
 | `~/.agents/skills/opencode-go/` | 同上 |
+| `~/.agents/skills/codex-orchestrate/` | 移入 `~/.claude/.retired-skills/2026-11-05-codex-orchestrate/` |
 
 - 项目内删除先 `--dry-run`，`blocked: []`；实际删除 3 个目录，`restore` 可回退。
 - 全局三份是薄路由，正文指向被删的项目技能；不删会留下悬空入口，因此一并移出发现路径。
+- 全局 `codex-orchestrate` 原样保留会继续调用已退役的 `codex-bridge` / `codex-opencode-go`；
+  用户确认全局退役后移出发现路径，并从 `~/.claude/CLAUDE.md` 的全局技能表移除该入口。
 - `~/.claude/CLAUDE.md` 与 `~/.codex/AGENTS.md` 的路由行同步移除。两处是仓库外、无 git 兜底，
   被项目 hook 拒绝后按用户在确认清单中的明确授权用精确脚本替换，并回读校验。
+- `~/.claude/memory/GLOBAL.md` 与 `~/.codex/memory/GLOBAL.md`（逐字节相同的两份）：删除
+  「OpenCode 小任务委派（2026-10-12）」活动条目及指向已删 `codex-opencode-go/SKILL.md` 的正文路径，
+  替换为「任务执行方式（2026-11-05）」：Claude / Codex 单次跑完并自检，不再委派 OpenCode。
+  历史 dated 条目保留，仅在 2026-10-26 路由重建条目与 2026-10-21 排障条目中标注退役；改后两文件仍逐字节一致。
+- `~/.claude/agents/default.md` 与 `~/.codex/agents/default.md` 的「小任务委派」段改为「任务执行方式」，
+  删除 `opencode-go/deepseek-v4.1-flash` 调用规则与指向已删 `codex-opencode-go/SKILL.md` 的排障入口。
 
 ## 活动引用同步
 
@@ -50,8 +59,8 @@ date: 2026-11-05
 - 目录改名 `.agents/skills/auto-manager` → `.agents/skills/agent-workflow`。
 - 技能身份同步：frontmatter `name: autoagent` → `agent-workflow`，标题 `AutoAgent` → `Agent Workflow`，
   模板 README 标题同步。
-- 21 个活动文档的路径与名称引用更新，包含 knowledge 契约、skill 间依赖、`structure-selfcheck`、
-  `unity-editor` / `unity-render-*` / `unity-feature-reuse` 与 `.mcp/tests/test_zones.py` fixture。
+- 22 个活动文档的路径与名称引用更新，包含 knowledge 契约、skill 间依赖、`structure-selfcheck`、
+  `unity-editor` / `unity-render-*` / `unity-feature-reuse`、`memory/README.md` 与 `.mcp/tests/test_zones.py` fixture。
 - 旧名仅保留在历史 memory、`.mcp/state` 账本与历史权限条目中。
 
 ## 验证
@@ -66,8 +75,6 @@ date: 2026-11-05
 
 ## 限制与后续
 
-- 全局 `~/.agents/skills/codex-orchestrate/` 按用户选择保留；它仍按名称引用已退役的三个技能，
-  下一轮若确认不用可一并退役。
 - 未改 `.claude/settings.local.json` 历史权限条目、`.codex/config.toml.bak-*`、
   `.codex/tests/06_architecture/output/`（后者已忽略）。
 - 全局 OpenCode Go 的 provider / 凭据配置（`~/.codex/config.toml`、`~/.config/opencode/`）未动：
