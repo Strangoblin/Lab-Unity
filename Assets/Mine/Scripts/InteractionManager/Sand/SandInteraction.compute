@@ -1,0 +1,131 @@
+// ════════════════════════════════════════════════════════════════
+//  SandInteraction.compute — 沙地交互子集
+//
+//  输入 _InteractionOriginTex：正交捕获的穿透深度（0..1，1 m）
+//  输出 _InteractionSandTex：有符号沙面高度（-1..0.25，负 = 被压出的坑，正 = 堆起的脊）
+//
+//  语义：沙是**小形变、不可压实**的颗粒材料 —— 受压时颗粒被挤开，
+//  沙不会凭空消失，只能被推到旁边，于是坑外沿堆起一圈脊。
+//  离开后高过休止角的坡立刻塌落，剩下的痕迹随时间整体回平。
+//
+//  四步（顺序有意义）：
+//    1. 挖坑   h = min(h, -press)
+//    2. 堆脊   h = max(h, k·relu(boxAvg5x5(press) - press))
+//    3. 休止角 h += Σ ±(相邻高差 - L) · rate
+//    4. 回平   h *= exp(-k·dt)
+//
+//  第 2 步的直觉：压差场 boxAvg − press 只有在「自己比周围压得轻」的地方为正，
+//  也就是压头的轮廓外侧那一圈 —— 正是颗粒被挤出去的方向。用 5×5 均值而不是
+//  5 点拉普拉斯：后者在圆盘压痕上只会在正边沿炸出一格尖峰，凑不出一条有宽度的脊。
+//
+//  第 3 步是**纯 gather**（中心读本纹素、邻居读上一帧），不需要第二个 Pass、
+//  也没有跨线程写竞争。L 由 C# 按 tanθ · texelWorld / depthScale 预先换算。
+//
+//  双缓冲：prev 读、out 写，Process 末尾交换。
+//  线程组 8×8。
+// ════════════════════════════════════════════════════════════════
+
+#pragma kernel CSSand
+
+#include "Assets/Mine/Scripts/InteractionManager/Shaders/InteractionDomainEdge.hlsl"
+
+Texture2D<float>   _InteractionOriginTex;
+Texture2D<float>   _SandPrevTex;
+RWTexture2D<float> _SandOutTex;
+
+float _Rim;           // 侧向挤出堆脊强度（0 = 只挖坑不堆边）
+float _ReposeLimit;   // 休止角允许的相邻高差（归一化单位）
+float _ReposeRate;    // 塌落速度（1/s）
+float _Settle;        // 每秒回平比例（乘性，0 = 永久保留）
+float _ContactGain;   // 捕获深度 → 下挖深度的增益
+float _Dt;
+int2  _DeltaPixels;
+float2 _EdgeAbsorb;   // 本步域位移 / 淡出带宽 × 吸收系数（域不动 = 0）
+uint  _Resolution;
+
+static const int2 Offsets[4] =
+{
+    int2( 1,  0),
+    int2(-1,  0),
+    int2( 0,  1),
+    int2( 0, -1),
+};
+
+bool InBounds(int2 c)
+{
+    return c.x >= 0 && c.x < (int)_Resolution && c.y >= 0 && c.y < (int)_Resolution;
+}
+
+[numthreads(8, 8, 1)]
+void CSSand(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Resolution || id.y >= _Resolution)
+        return;
+
+    int2 coord     = int2(id.xy);
+    int2 prevCoord = coord + _DeltaPixels;
+
+    // 重投影后的上一帧沙面（未做任何窗口处理，见 InteractionDomainEdge.hlsl）
+    float h = InBounds(prevCoord) ? _SandPrevTex[prevCoord] : 0.0;
+
+    float pressRaw = saturate(_InteractionOriginTex[id.xy] * _ContactGain);
+    float press    = InteractionDomainFade(pressRaw, coord, (float)_Resolution);
+
+    // ── 1. 挖坑：留下更深的那个，抬离时不会回弹 ────────────────
+    // 只在**球真的压到**的纹素上挖（press > 0）。写成无条件的 `h = min(h, -press)`
+    // 会在抬离后（press == 0）把坑沿的正值全部 min 成 0 —— 脊一离地就没了。
+    if (press > 0.0)
+        h = min(h, -press);
+
+    // ── 2. 侧向挤出：被推开的沙堆在坑沿 ────────────────────────
+    // 5×5 邻域平均压入 − 本地压入 > 0 ⇔ 周围被压、自己没被压 ⇔ 坑的外沿。
+    float ringSum = 0.0;
+    [unroll] for (int dy = -2; dy <= 2; dy++)
+    {
+        [unroll] for (int dx = -2; dx <= 2; dx++)
+        {
+            int2 n = coord + int2(dx, dy);
+            if (InBounds(n))
+                ringSum += saturate(_InteractionOriginTex[n] * _ContactGain);
+        }
+    }
+    float squeezed = max(0.0, ringSum * (1.0 / 25.0) - pressRaw);
+    float rim = InteractionDomainFade(_Rim * squeezed, coord, (float)_Resolution);
+    // 三个前提，缺一个就会把身后的旧沟抹掉（实测拖一条沟再空跑 10 帧，沟从 −0.70 变 −0.02）：
+    //   ① rim > 0 —— 写成无条件的 `h = max(h, rim)` 会在 rim == 0 的地方把负的坑 max 成 0；
+    //   ② h >= -press —— 只有「当前没有被挖穿」的纹素才接受堆积。球走过之后身后的沟
+    //      比本帧压入更深（press == 0），max 会把整条沟换成一点点正的堆脊。旧沟不参与堆脊。
+    if (rim > 0.0 && h >= -press)
+        h = max(h, rim);
+
+    // ── 3. 休止角：高差超过 tanθ 的份额立刻塌给低处 ─────────────
+    // 对称交换（我塌给它、它抬向我），两边用同一个式子，质量近似守恒。
+    // 中心用本帧的 h、邻居用上一帧：纯 gather，无写竞争。
+    // 淡出带里不塌（rate × 窗口）：塌落也是横向搬运，贴着边界搬运会把域内的量
+    // 每帧重新推进带里，边界纹素被邻域填满。乘的是**速率**不是存值，没有累积衰减。
+    float window = InteractionDomainWindowAt(coord, (float)_Resolution);
+    float rate = (1.0 - exp(-_ReposeRate * _Dt)) * window;
+    float delta = 0.0;
+    for (int i = 0; i < 4; i++)
+    {
+        int2 n = prevCoord + Offsets[i];
+        if (!InBounds(n))
+            continue;
+        float d = h - _SandPrevTex[n];
+        if (d > _ReposeLimit)
+            delta -= (d - _ReposeLimit) * rate * 0.5;
+        else if (d < -_ReposeLimit)
+            delta += (-d - _ReposeLimit) * rate * 0.5;
+    }
+    h += delta;
+
+    // ── 4. 回平：乘性衰减，坑和脊一起等比变浅（风 / 震动 / 细颗粒沉降）──
+    h *= exp(-_Settle * _Dt);
+
+    h = clamp(h, -1.0, 0.25);
+
+    // 边界吸收（第 2 条）：域把沙沟扫向边界时按位移把它填平，域不动时恒为 1。
+    h *= InteractionDomainAbsorb(coord, (float)_Resolution, _EdgeAbsorb);
+
+    _SandOutTex[id.xy] = h;
+}

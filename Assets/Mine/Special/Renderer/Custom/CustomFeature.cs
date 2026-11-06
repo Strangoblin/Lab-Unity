@@ -88,9 +88,11 @@ namespace Mine.Rendering
 
             if (settings.copyColor)
             {
+                // 非 transparentMode 时颜色捕获要排在透明深度合并之后：那一步才把水面
+                // （透明队列）的深度并进 _CameraDepthTexture，捕获 Pass 要拿它当参照面。
                 _colorPass.renderPassEvent = settings.transparentMode
                     ? RenderPassEvent.BeforeRenderingTransparents
-                    : RenderPassEvent.BeforeRenderingOpaques;
+                    : RenderPassEvent.AfterRenderingTransparents;
                 renderer.EnqueuePass(_colorPass);
             }
         }
@@ -244,15 +246,20 @@ namespace Mine.Rendering
         // ════════════════════════════════════════════════════════════
         sealed class ColorCapturePass : ScriptableRenderPass
         {
-            // DrawObjectsPass default search order; the first matching pass wins per object.
-            // InteractionCapture 排在最前：互动物体用它声明「只给交互相机画」的那个 Pass，
-            // 同一个物体的 UniversalForward（可见外观）留给主相机。
+            static readonly int CameraDepthTextureId = Shader.PropertyToID("_CameraDepthTexture");
+
+            // 每个物体只会被画一次，选哪个 Pass 由这张表决定——**表里靠后的 Tag 优先**。
+            // 实测（Unity 6.3 / URP 17）：InteractionCapture 放在最前时，带两个 Pass 的互动物体
+            // 永远被 UniversalForward 命中，捕获 RT 里存的是 Forward 的颜色（球是红色 → 恒 1.0），
+            // 于是穿透深度退化成一个二值圆盘：上下移动水面没反应、左右移动只剩边缘满幅阶跃。
+            // 把 InteractionCapture 放到最后，互动物体才会走捕获 Pass；
+            // 没有该 Pass 的普通物体不受影响，仍会落到前面几个标准 Tag。
             static readonly List<ShaderTagId> ForwardTags = new()
             {
-                new ShaderTagId("InteractionCapture"),
                 new ShaderTagId("SRPDefaultUnlit"),
                 new ShaderTagId("UniversalForward"),
                 new ShaderTagId("UniversalForwardOnly"),
+                new ShaderTagId("InteractionCapture"),
             };
 
             readonly Settings _settings;
@@ -295,13 +302,15 @@ namespace Mine.Rendering
                 builder.UseRendererList(list);
 
                 builder.SetRenderAttachment(resources.activeColorTexture, 0, AccessFlags.Write);
-                // The camera depth attachment is bound for the stencil the interactor pass writes;
-                // colour geometry is tested against its own captured depth through the global.
-                if (resources.activeDepthTexture.IsValid())
+                // 参照面深度从全局 _CameraDepthTexture 读：TransparentDepthMergeFeature 会先把
+                // 透明表面（水面）合并进去。copyDepth 关掉时这个全局就是相机自己的深度附件
+                // （Renderer 用 CopyDepthMode.ForcePrepass），此时**不能**再把它挂成本 Pass 的
+                // 深度附件——同一个资源不能既当附件又当全局纹理采样。
+                // 深度附件原本只为交互物的 stencil 服务，本管线里没有 stencil 读者。
+                if (_settings.copyDepth && resources.activeDepthTexture.IsValid())
                     builder.SetRenderAttachmentDepth(resources.activeDepthTexture, AccessFlags.ReadWrite);
 
-                if (_settings.copyDepth)
-                    builder.UseGlobalTexture(DepthCapturePass.CustomDepthId, AccessFlags.Read);
+                builder.UseGlobalTexture(CameraDepthTextureId, AccessFlags.Read);
 
                 builder.AllowGlobalStateModification(true);
                 builder.SetRenderFunc((PassData data, RasterGraphContext context) =>
