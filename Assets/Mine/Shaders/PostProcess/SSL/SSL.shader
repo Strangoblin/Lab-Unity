@@ -2,7 +2,7 @@
 //  SSL — 屏幕空间光（Screen Space Light）
 //
 //  Unity 6 URP 17+ 全屏后处理，单一 HG 体积光模式：
-//    沿视线 3D 步进，累积阴影光照 × 主光彩色 Cookie
+//    沿视线 3D 步进，累积阴影光照 × 光空间彩色透射图
 //    Pass 0 生成 → Pass 1/2 多级模糊链（BlurFunction.hlsl）→ Pass 3 加法合成
 //  参数全部由 SSLFeature 经 PropertyToID 传入，面板不暴露。
 // ════════════════════════════════════════════════════════════
@@ -21,6 +21,7 @@ Shader "PostProcess/SSL"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl"
     #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/BlurFunction.hlsl"
+    #include "Assets/Mine/Special/Renderer/TransparentDepth/ColoredShadow/ColoredShadowFunction.hlsl"
 
     // ── 参数 ──
     CBUFFER_START(UnityPerMaterial)
@@ -31,10 +32,6 @@ Shader "PostProcess/SSL"
         float _BlurScale;
         float _JitterScale;
     CBUFFER_END
-
-    // ── 彩窗光平面（场景组件发布；无组件时 mask=0，行为不变） ──
-    float4 _ColorfulWindowPlane;   // xyz = 房间侧法线，w = -dot(normal, point)
-    float  _ColorfulWindowMask;
 
     // ── 中间纹理（Feature 端 cmd.SetGlobalTexture 发布） ──
     TEXTURE2D_X(_SSLTex);
@@ -60,48 +57,6 @@ Shader "PostProcess/SSL"
             shadowCoord);
     }
 
-    // ════════════════════════════════════════════════════════════
-    //  SampleLightColor — 每步主光颜色；_LIGHT_COOKIES 时读取彩色 Cookie
-    //
-    //  彩窗作为主光彩色 Cookie 时，R/G/B 即每步透射色；无 Cookie 返回白色
-    // ════════════════════════════════════════════════════════════
-    float3 SampleLightColor(float3 positionWS)
-    {
-        #if defined(_LIGHT_COOKIES)
-            if (!IsMainLightCookieEnabled()) return float3(1.0, 1.0, 1.0);
-
-            // 窗平面外侧（向阳面）仍是普通阳光；只有房间内侧被彩窗染色
-            if (_ColorfulWindowMask > 0.5)
-            {
-                float side = dot(positionWS, _ColorfulWindowPlane.xyz) + _ColorfulWindowPlane.w;
-                if (side < 0.0) return float3(1.0, 1.0, 1.0);
-            }
-
-            float2 uv = ComputeLightCookieUVDirectional(
-                _MainLightWorldToLight,
-                positionWS,
-                float4(1.0, 1.0, 0.0, 0.0),
-                URP_TEXTURE_WRAP_MODE_NONE);
-
-            // 包围盒外视为没有彩窗：Clamp 会重复纹理边缘，边缘黑像素会变成黑光
-            if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)
-                return float3(1.0, 1.0, 1.0);
-
-            // 循环内用 LOD0 采样，避免隐式导数在变长循环里的未定义值
-            real4 cookie = SAMPLE_TEXTURE2D_LOD(
-                _MainLightCookieTexture,
-                sampler_MainLightCookieTexture,
-                uv,
-                0);
-
-            return IsMainLightCookieTextureRGBFormat() ? cookie.rgb
-                 : IsMainLightCookieTextureAlphaFormat() ? cookie.aaa
-                 : cookie.rrr;
-        #else
-            return float3(1.0, 1.0, 1.0);
-        #endif
-    }
-
     // 质量归一化参考步数（旧 Medium 预算）：换档只改采样精度，不改亮度
     static const float SSL_REFERENCE_STEPS = 32.0;
 
@@ -109,7 +64,7 @@ Shader "PostProcess/SSL"
     //  SSL — HG 体积光步进
     //
     //  沿视线从相机步进至深度重建点，累积阴影光照 × 彩色透射；
-    //  相位按像素计算一次，阴影为 0 的步跳过 Cookie 采样
+    //  相位按像素计算一次，阴影为 0 的步跳过透射采样
     // ════════════════════════════════════════════════════════════
     float3 SSL_VolumeLight(
         float3 cameraPos,
@@ -153,7 +108,7 @@ Shader "PostProcess/SSL"
                 continue;                 // 阴影区跳过 Cookie 采样
             }
 
-            density += stepSize * shadow * SampleLightColor(samplePos);
+            density += stepSize * shadow * ColoredShadow_Transmission(samplePos);
         }
 
         return density * (phase / SSL_REFERENCE_STEPS);
@@ -227,7 +182,6 @@ Shader "PostProcess/SSL"
 
             HLSLPROGRAM
             #pragma target 2.0
-            #pragma multi_compile_fragment _ _LIGHT_COOKIES
             #pragma vertex Vert
             #pragma fragment Frag
             ENDHLSL

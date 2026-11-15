@@ -1,10 +1,8 @@
 // ════════════════════════════════════════════════════════════
 //  ColorfulWindowGround — 彩窗测试地面
 //
-//  仅用于 ColorfulWindowTest.unity：以 URP 主光的彩色 Cookie 作为
-//  逐像素透射色，验证地面与 SSL 读到的是同一份光照数据。
-//  Forward 走 3 参数 GetMainLight，_LIGHT_COOKIES 变体开启时
-//  URP 会把 SampleMainLightCookie(positionWS) 乘进 light.color。
+//  仅用于 ColorfulWindowTest.unity：从 ColoredShadowFeature 的光空间彩色
+//  透射图取逐像素透射色，按深度比较区分玻璃前后；地面与 SSL 读同一份数据。
 // ════════════════════════════════════════════════════════════
 Shader "Render/ColorfulWindowGround"
 {
@@ -34,19 +32,15 @@ Shader "Render/ColorfulWindowGround"
 
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
-            #pragma multi_compile_fragment _ _LIGHT_COOKIES
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Assets/Mine/Special/Renderer/TransparentDepth/ColoredShadow/ColoredShadowFunction.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseColor;
                 float  _Ambient;
             CBUFFER_END
-
-            // 彩窗光平面（场景组件发布；无组件时 mask=0）
-            float4 _ColorfulWindowPlane;
-            float  _ColorfulWindowMask;
 
             struct Attributes
             {
@@ -72,33 +66,14 @@ Shader "Render/ColorfulWindowGround"
             }
 
             // ════════════════════════════════════════════════════════
-            //  Frag — 主光直接光；3 参数重载按 _LIGHT_COOKIES 乘彩窗色
+            //  Frag — 主光直接光；光空间透射图按玻璃深度决定颜色
             // ════════════════════════════════════════════════════════
             half4 Frag(Varyings input) : SV_Target
             {
                 float3 normalWS = normalize(input.normalWS);
                 float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
                 Light mainLight = GetMainLight(shadowCoord);
-
-                #if defined(_LIGHT_COOKIES)
-                    // 手动乘 Cookie：房间内侧取彩窗色，窗平面外侧保持阳光
-                    float2 cookieUV = ComputeLightCookieUVDirectional(
-                        _MainLightWorldToLight,
-                        input.positionWS,
-                        float4(1.0, 1.0, 0.0, 0.0),
-                        URP_TEXTURE_WRAP_MODE_NONE);
-                    float3 cookie = (cookieUV.x < 0.0 || cookieUV.x > 1.0 ||
-                                     cookieUV.y < 0.0 || cookieUV.y > 1.0)
-                        ? float3(1.0, 1.0, 1.0)
-                        : SampleMainLightCookie(input.positionWS);
-                    if (_ColorfulWindowMask > 0.5)
-                    {
-                        float side = dot(input.positionWS, _ColorfulWindowPlane.xyz)
-                                   + _ColorfulWindowPlane.w;
-                        cookie = side < 0.0 ? float3(1.0, 1.0, 1.0) : cookie;
-                    }
-                    mainLight.color *= cookie;
-                #endif
+                mainLight.color *= ColoredShadow_Transmission(input.positionWS);
 
                 float NdotL = saturate(dot(normalWS, mainLight.direction));
                 float3 direct = _BaseColor.rgb * mainLight.color

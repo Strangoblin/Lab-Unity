@@ -1,60 +1,68 @@
-# 彩窗彩色主光 Cookie + SSL 单模式 HG 体积光（2026-11-15）
+# 彩窗光空间彩色透射图（2026-11-15）
 
-把彩窗写成**主方向光的 RGB Cookie**，地面与 SSL 共用同一份 URP 主光光照数据；阴影图仍只做可见性判断。测试入口在 `Assets/Mine/Shaders/Render/ColorfulWindow/ColorfulWindowTest.unity`。
+从主光视角把透射玻璃层渲染成光空间 RT（RGB 透射 + 归一化深度），地面与 SSL 用深度比较判断玻璃前后。
+主光彩色 Cookie + 单窗平面 mask 方案同日退役，保留在 Git 历史与遗留资产中。
 
-## 已验证的主光 Cookie 事实（URP 17.3）
+## 已验证的数据事实（URP 17.3）
 
-- `Light.cookie` 可以是彩色 2D 纹理：`GetLightCookieShaderFormat` 对非单通道格式返回 `RGB`，`SampleMainLightCookie` 返回 `.rgb`。单通道 R8 会被当灰度（`RED`），Alpha8 走 `.aaa`。
-- 表面 Shader 必须用三参数重载 `GetMainLight(shadowCoord, positionWS, shadowMask)`；URP 只在这个重载里执行 `light.color *= SampleMainLightCookie(positionWS)`。两参数 `GetMainLight(shadowCoord)` 不采样 Cookie。
-- Cookie UV：`pLS = light.transform.InverseTransformPoint(positionWS)`，`uv = (pLS.xy - lightCookieOffset) / lightCookieSize + 0.5`。`lightCookieSize` 默认 `(1,1)` 世界单位，必须按窗的投影包围盒设置；`lightCookieOffset` 是光空间包围盒中心。
-- 主光 Cookie 是沿光方向的正交投影（`s_DirLightProj`），不是窗口透视；适合平行光 + 平面窗。
-- 主光 Cookie 采样传 `URP_TEXTURE_WRAP_MODE_NONE`，越界行为由纹理自身 wrap 决定；单窗用 Clamp + 黑边。
-- 运行时把程序化 `Texture2D` 资产（RGBA32、sRGB）赋给 `Light.cookie` 可用，不要求导入类型为 Cookie；URP 只读 `graphicsFormat` / `dimension`。
+- 主光 Cookie 是光空间 2D 投影 + 矩阵，没有深度；`Light.cookie` 只调制 `light.color`，
+  不能区分玻璃前后。主光 cookie 采样用纹理自身 wrap；Clamp 边缘黑像素会变成大片伪阴影（历史问题）。
+- 阴影空间是光源对齐的深度图，来自覆盖主相机视锥的阴影相机；Cookie/透射图的包围盒来自主光 transform +
+  尺寸/偏移，二者不共享相机或边界。
+- 彩色透射图是**场景渲染输出**：一个 Pass 收集 Layer 内 Renderer，从主光视角渲染 RGB+深度。
+  与输入型 Cookie 方向相反：Cookie 是光 → 纹理，透射图是物体 → 光空间纹理 → 接收者。
 
-## SSL 改动（2026-11-15 后续）
+## 实现
 
-- **单模式**：移除 `SSLMode`、`RAY3D_Fog`、`RBR2D` 与全部模式关键字；只剩 HG `Light` 路径。`Frag_RBR2D`、`GetLightFocusUV`、Fog 分支删除；Mix 固定为 `main + ssl`。
-- **质量亮度一致**：旧实现 `stepSize = rayLen/maxSteps` 后又 `density /= maxSteps`，完全照亮射线密度 ∝ `1/maxSteps`，Low(16) 是 Medium(32) 的 2 倍。改为 `density * (phase / 32.0)`（`SSL_REFERENCE_STEPS`），质量只改采样精度/模糊链，不改亮度。三档 SSL Debug 图显示均值 10.14 / 10.63 / 10.63；Low 的约 4.6% 差异来自 16 步采样与无模糊链。
-- **相位提升**：HG 相位每像素算一次，循环外乘到累积密度，不再每步重复计算。
-- **阴影跳过**：循环内先采主光阴影，`shadow <= 0` 时 `continue`，不采样 Cookie、不累积。
-- **窗平面限制**：新增全局 `_ColorfulWindowPlane` / `_ColorfulWindowMask`；`SampleLightColor` 在平面外侧直接返回白色，避免 2D Cookie 把向阳面也染色。无组件时 mask=0，行为不变。
-- `SSL_LIGHT` 的累积是 `float3 density = stepSize * shadow * cookieColor`；最终 `density * phase / 32 * _Intensity * mainLight.color`。
-- 每步 Cookie 用 `SAMPLE_TEXTURE2D_LOD(..., 0)` 直接读 `_MainLightCookieTexture`，避免隐式导数在变长循环中的警告。
-- Raymarch Pass 保留 `#pragma multi_compile_fragment _ _LIGHT_COOKIES`；无 Cookie 时返回白色。
-- 已编译 Pass 0–3（含与不含 `_LIGHT_COOKIES`），`ShaderUtil` 无消息。
+- `Assets/Mine/Special/Renderer/TransparentDepth/ColoredShadow/`
+  - `ColoredShadowFeature.cs`：`BeforeRenderingOpaques` Raster Pass；Layer 内 Renderer world bounds 并集 →
+    光空间包围盒（padding 1.25、depthPadding 20）；`FindObjectsByType` 每帧重算，支持动态玻璃；
+    发布 `_ColoredShadowTex`（ARGBHalf：RGB 透射、A 归一化深度，背景白 A=1）、
+    `_ColoredShadowWorldToLight`、`_ColoredShadowParams`、`_ColoredShadowDepth`。
+  - `ColoredShadowFunction.hlsl`：`ColoredShadow_Transmission(positionWS)`；UV 越界/无玻璃/玻璃前回白，
+    玻璃后取玻璃色；循环内 `SAMPLE_TEXTURE2D_LOD`。
+  - `README.md`：契约与单层/相机 culling/分辨率限制。
+- `ColorfulWindow/ColoredGlass.shader`：Forward Unlit 可见窗面 + `LightMode="ColoredShadow"` Pass
+  （`ZTest Always`，输出 `float4(color, normalizedDepth)`）。
+- `ColorfulWindowGround.shader`：主光 shadow × `ColoredShadow_Transmission`；保留 ShadowCaster。
+- SSL：单模式 HG Light；去掉 Cookie/`_LIGHT_COOKIES`/窗平面；每步先 shadow，`shadow<=0` 跳过，
+  再取透射色；相位每像素一次；固定 `/32` 质量归一化。
+- 测试场景：Pane Layer 30；`ColorfulWindowPane.mat` 用 `Render/ColoredGlass`；主光 `cookie=null`；
+  测试 Renderer 挂 `ColoredShadowFeature` + `SSLFeature`（PC_RPAsset list index 2，默认 Renderer 用户保留为 2）；
+  地面/墙体测试 Shader 直接读透射图。生产地面（PBRToon / `LightFunction.hlsl`）仍未接入。
 
-## Cookie Clamp 伪阴影（2026-11-15 后续）
+## Y 翻转与深度比较（2026-11-15 后续）
 
-- **现象**：房间侧/室外部分地面没有阳光，看起来像整片 shadow map 阴影；关掉主光 shadows 后暗区不变。
-- **根因**：主光 Cookie 使用纹理自身 Clamp。Cookie 边缘是窗格黑边/铅条；采样 UV 越界时重复边框黑色，
-  `mainLight.color` 变 0，看起来像阴影。**不是 shadow map**，也不是 SSL（SSL=0 时仍存在）。
-- **修复**：`lightCookieSize` 放大 1.25× 留出白色外边；SSL 与测试地面在 Cookie UV 越界时直接返回白色。
-- **证据**：暗点 `(8,0,0)` / `(0,0,-8)` 的 Cookie 从 `(0,0,0)` 变 `(1,1,1)`；
-  `overview-sun-margin.png` 建筑周围地面全亮；`overview-shadow-margin.png` 剩下的暗区是建筑真实阴影。
-- `overview-sun-noshadow-margin.png` 是中途切 shadows 的诊断图，关键字/纹理状态不一致，不作参考。
-
-## 测试场景与渲染器隔离
-
-- `ColorfulWindowTestRenderer.asset`：新建 Forward+ `UniversalRendererData`，`ResourceReloader.ReloadAllNullIn` 补默认资源，只挂 `SSLFeature`（HG Light，quality Medium，intensity 3，sslScale 0.2，maxDistance 20，passEvent 550）。
-- 测试 Renderer 通过 `PC_RPAsset.m_RendererDataList` 追加为 index 2；测试相机 `UniversalAdditionalCameraData.SetRenderer(2)`。**用户选择保留 `m_DefaultRendererIndex = 2`**，其他场景默认也走测试 Renderer（只含 SSL）。
-- 场景：背墙 z=6、窗洞 [-1.5,1.5]×[1.5,4.5] 由 4 个 Cube 留出；窗面 Quad `ShadowCastingMode.Off`，避免挡光；墙体投射阴影。地面使用同目录 `ColorfulWindowGround.shader` 三参数 `GetMainLight` 读 Cookie。
-- 主光方向改为 `(0,-0.8,-0.6)`：地面光斑与窗面 x 对齐、沿 z 向房间内偏移，是竖直窗面的物理投影。
-- `StainedGlassPane.asset` 保存整洁 5×7 窗格；`StainedGlassCookie.asset` 由窗面图案沿光方向正交投影生成（Cookie 像素与窗平面求交，命中窗洞才写颜色），**窗格投影之外为白色**（普通阳光）。测试中 `lightCookieSize=(3.00,1.80)`、`lightCookieOffset=(0,0)`。
-- `ColorfulWindowLight` 在 Sun 上发布 `_ColorfulWindowPlane`（房间侧法线 (0,0,-1)、点 (0,3,6)）与 `_ColorfulWindowMask=1`；SSL/地面/墙体在平面外侧白色。墙与地面共用测试 Shader（`ZWrite On` + ShadowCaster）。
-- 场景有室内 `Main Camera` 与默认关闭的 `Outside Camera`；室外相机验证向阳面是白色阳光/SSL，且室内彩色光柱不会穿过墙体。
+- **现象**：原 `n(p) > glass.a` 在 D3D12 下玻璃深度梯度上下翻，表现为一半漏光、一半近处无光；
+  `1 - n(p) < glass.a` 只是把深度关于 0.5 镜像，深度边界看似修好，颜色图仍上下翻。
+- **检查**：D3D12，`SystemInfo.usesReversedZBuffer = True`；彩色图是纯颜色 RT（`DepthBits.None`），
+  A 通道是原始归一化光空间 z，没有光源相机/深度附件，所以 **reversed-Z 不参与彩色图比较**；
+  URP opaque shadow map 才走 reversed-Z。
+- **根因**：玻璃 Pass 用自定义 clip（`positionCS = float4(uv*2-1, 0.5, 1)`），没有相机 projection 的 Y 翻转；
+  D3D RT 的 V 方向与自定义 clip 不一致，玻璃颜色/深度图上下翻。
+- **修复**：接收端在 `UNITY_UV_STARTS_AT_TOP` 时 `uv.y = 1 - uv.y`（颜色和玻璃深度一起采样）；
+  恢复物理比较 `n(p) > glass.a + bias`；`TextureDesc.depthBufferBits = DepthBits.None` 显式化。
+- **证据**：`coloredshadow-flip-inside/outside/dynamic.png`；动态图的白色带是窗洞未被玻璃覆盖的
+  **无玻璃区**（透射图背景白），不是玻璃漏光。
 
 ## 证据
 
-- `tmp/sessions/2026-11-15-colorfulwindow-cookie-01/output/colorfulwindow-inside-plane.png`：室内，地面投影与窗面图案对应 + 彩色体积光。
-- `colorfulwindow-outside.png`：室外，向阳面白色阳光/SSL，未见彩色光柱穿过墙体。
-- `ssl-quality-low/medium/high.png`：SSL Debug=Light 三档对照，均值 10.14 / 10.63 / 10.63。
-- 截图由 `SingleCameraRequest` 离屏 960×540 获取；显示 PNG，不是线性 HDR 回读。
+`tmp/sessions/2026-11-15-colorfulwindow-cookie-01/output/`：
 
-## 未验证 / 后续
+- `coloredshadow-inside.png`：室内彩色地面光斑 + 彩色体积光柱。
+- `coloredshadow-outside.png`：室外白色阳光，无彩色光柱穿墙。
+- `coloredshadow-dynamic.png`：玻璃平移 0.3 + 旋转 12°；彩色图案跟随玻璃，窗洞未覆盖部分透出白色阳光。
+- `ssl-quality-low/medium/high.png`：三档 Debug 均值 10.14 / 10.63 / 10.63。
 
-- 生产地面 Shader（`LightFunction.hlsl` 的 `MainLight()`、PBRToon Frag）仍是两参数重载，不会读 Cookie；本次只在测试地面验证。接入生产需改共享入口并补 `_LIGHT_COOKIES` 变体。
-- 多窗、多方向、运行时动态 Cookie（RenderTexture 赋 `Light.cookie`）未实测；当前窗平面限制是单平面近似，多窗/曲面玻璃需要深度感知彩色阴影图。
-- SSL 只使用相机深度作为射线终点，不做逐点场景深度遮挡；建筑/地形必须不透明、`ZWrite On` 并进入相机深度纹理，透明或 `ZWrite Off` 材质会穿透。
-- 其他平台（Metal/移动）、XR、动态分辨率、性能开销未测；体积光观感仍需用户在 Editor 判断。
-- 三档亮度仍有 Low 约 4.6% 的采样/模糊链差异，不是旧的 2× 步数缩放；如需完全一致需另做能量校准。
-- 测试 Renderer 的 APV 调试资源为空（新建资产默认），不影响本测试的非 APV 路径。
+Shader 编译：SSL Pass 0、地面 Forward/ShadowCaster、玻璃 Unlit/ColoredShadow 均 `ShaderUtil` 无消息；
+C# `ColoredShadowFeature` 类型编译通过。
+
+## 当前边界
+
+- **单层**：透射图只存一个颜色/深度；玻璃 Pass `ZTest Always`，重叠玻璃以最后绘制者为准。
+- **RendererList 使用主相机 culling**：相机看不到的玻璃不会进入该相机透射图。
+- 包围盒来自层内 Renderer world bounds 并集，`FindObjectsByType` 每帧；适合少量动态玻璃。
+- 光空间 RT 1024²；玻璃自身屏幕像素不受影响，地面/体积细节受 RT 分辨率限制。
+- 生产地面尚未接入接收函数；旧 Cookie 资产/`ColorfulWindowLight.cs` 留在功能目录作参考，不再被场景读取。
+- 全量 C# 编译依赖 `InteractionManager/InteractionProcessor.cs`；当前该项目文件缺失，
+  Sand/Snow 已被用户移到 `~` 目录以绕过，编译才通过。恢复交互系统时需先补回基类。

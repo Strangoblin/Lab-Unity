@@ -1,7 +1,7 @@
 # SSL — Screen Space Light
 
-> 纯后处理（RendererFeature + settings，无 Volume）。2026-11-15 收敛为单一 HG 体积光模式，
-> 移除 RAY3D_Fog / RBR2D 与对应关键字。
+> 纯后处理（RendererFeature + settings，无 Volume）。单一 HG 体积光模式。
+> 2026-11-15：主光彩色 Cookie + 窗平面方案退役，改为光空间彩色透射图 + 深度比较。
 
 ---
 
@@ -9,11 +9,17 @@
 
 SSL 是全屏屏幕空间体积光：沿视线从相机步进到深度重建点，每一步：
 
-1. 采样主光阴影图，阴影为 0 的步直接跳过；
-2. 采样主光彩色 Cookie 得到该步透射色（无 Cookie 时为白色）；
-3. 按视线与主光方向的 HG 相位加权，累积 RGB 密度。
+1. 采样主光 shadow map；阴影为 0 的步直接跳过（墙/窗洞可见性）；
+2. 调用 `ColoredShadow_Transmission(positionWS)`：
+   - 世界点投到主光光空间，与玻璃深度比较；
+   - 玻璃前 / 无玻璃 → 白色；
+   - 玻璃后 → 玻璃透射色；
+3. 按 HG 相位加权，累积 RGB 密度。
 
 最终 `density × _Intensity × mainLight.color` 加法合成到场景。
+
+彩色透射图由 [ColoredShadowFeature](../../../Special/Renderer/TransparentDepth/ColoredShadow/README.md)
+产生，与 opaque shadow map 共存：shadow map 决定“哪里能见光”，透射图决定“光是什么颜色、是否在玻璃后”。
 
 ## 管线结构
 
@@ -30,18 +36,18 @@ Debug   debug=Light 时直接用 _SSLTex 顶掉最终输出（默认 Off）
 - RenderPass: `BeforeRenderingPostProcessing`，`ConfigureInput(Color | Depth)`
 - 临时 RT: ARGBHalf，RenderGraph 自动管理
 
-## 参数（Feature Settings → Shader Uniform）
+## 参数
 
-| Settings 字段 | Shader Uniform | 范围 / 取值 | 说明 |
-|---|---|---|---|
-| quality | 展开为 `_MaxSteps` 与模糊链层数 | Low / Medium / High | 纯成本档位；**不改变亮度** |
-| maxDistance | `_MaxDistance` | 0.1-100 | 步进距离上限（感受野） |
-| intensity | `_Intensity` | 0-5 | 体积光强度 |
-| sslScale | `_SSLScale` | 0-0.999 | HG 相位各向异性 g |
-| jitterScale | `_JitterScale` | 0-1 | 起始抖动 |
-| blurScale | `_BlurScale` | 0-5 | blur 链半径 |
-| passEvent | — | — | 默认 BeforeRenderingPostProcessing |
-| debug | — | Off / Light | Debug：Light 时输出中间结果 |
+| Settings 字段 | Shader Uniform | 说明 |
+|---|---|---|
+| quality | `_MaxSteps` + 模糊链 | 纯成本档位；**不改变亮度** |
+| maxDistance | `_MaxDistance` | 步进距离上限 |
+| intensity | `_Intensity` | 体积光强度 |
+| sslScale | `_SSLScale` | HG 相位各向异性 g |
+| jitterScale | `_JitterScale` | 起始抖动 |
+| blurScale | `_BlurScale` | blur 链半径 |
+| passEvent | — | 默认 BeforeRenderingPostProcessing |
+| debug | — | Off / Light |
 
 ### 质量档位
 
@@ -53,88 +59,58 @@ Debug   debug=Light 时直接用 _SSLTex 顶掉最终输出（默认 Off）
 
 ## 质量一致性（2026-11-15）
 
-**旧实现亮度随质量变化**：`stepSize = rayLen / maxSteps` 已经包含 1/maxSteps，末尾又执行
-`density /= maxSteps`，导致完全照亮射线的密度 ∝ `rayLen / maxSteps`。Low(16) 是 Medium(32) 的
-2 倍、High(64) 的一半，所以质量越低越鲜艳。
-
-**修正**：去掉 `density /= maxSteps`，改为固定参考步数 `SSL_REFERENCE_STEPS = 32`：
+旧实现 `stepSize = rayLen / maxSteps` 后又 `density /= maxSteps`，完全照亮射线密度 ∝ `1/maxSteps`，
+Low 是 Medium 的 2 倍。修正为固定参考步数：
 
 ```hlsl
+static const float SSL_REFERENCE_STEPS = 32.0;
 return density * (phase / SSL_REFERENCE_STEPS);
 ```
 
-32 与旧 Medium 预算一致，因此 Medium 的画面和面板强度保持；Low / High 现在只改变采样噪声与
-模糊链成本，不再改变亮度。相位函数也从每步计算改为每像素计算一次。
+三档 SSL Debug 图实测均值 10.14 / 10.63 / 10.63；Low 的约 4.6% 差异来自 16 步采样与无模糊链。
 
 ## 阴影跳过
 
-循环内先采阴影，`shadow <= 0` 时 `continue`，不采 Cookie、不累积：
+循环内先采阴影，`shadow <= 0` 时 `continue`，不采样透射图、不累积：
 
 ```hlsl
-float3 samplePos = currentPos;
-currentPos += rayDir * stepSize;
-
 float shadow = SampleShadow(samplePos);
 if (shadow <= 0.0) continue;
-
-density += stepSize * shadow * SampleLightColor(samplePos);
+density += stepSize * shadow * ColoredShadow_Transmission(samplePos);
 ```
 
-阴影边缘的软阴影值 > 0，仍按实际可见度贡献；只跳过完全无光的步。
+相位每像素计算一次，循环外乘到累积密度。
 
-## 彩色 Cookie（2026-11-15）
+## 彩色透射图（2026-11-15）
 
-每步颜色来自**主光彩色 Cookie**：
+`ColoredShadowFunction.hlsl` 的接收逻辑：
 
-```hlsl
-float3 SampleLightColor(float3 positionWS)
-{
-    // _LIGHT_COOKIES → 读 _MainLightCookieTexture / _MainLightWorldToLight
-    // 无 Cookie 返回白色
-}
-```
-
+- `_ColoredShadowDepth.z = 0` → 返回白色（Feature 未启用/没有透射对象）。
+- UV 越界 → 白色。
+- 比较点深度与玻璃深度；玻璃后取 `.rgb`，玻璃前回白。
 - 循环内用 `SAMPLE_TEXTURE2D_LOD(..., 0)`，避免隐式导数在变长循环中的未定义值。
-- **Cookie 包围盒外必须回白**：主光 Cookie 使用纹理自身的 Clamp；如果纹理边缘是窗格黑边/铅条，
-  UV 越界会重复成大片黑光，看起来像阴影（不是 shadow map）。测试场景把 `lightCookieSize`
-  放大 1.25× 留出白色边，并在 `SampleLightColor` 里对 UV 越界直接返回白色。
-- Raymarch Pass 使用 `#pragma multi_compile_fragment _ _LIGHT_COOKIES`；关键字由 URP
-  `LightCookieManager` 在有主光 Cookie 时全局开启。
-- 彩窗写入主光数据的方式：`Light.cookie`（RGB = 透射色，铅条/框为黑）+
-  `UniversalAdditionalLightData.lightCookieSize / lightCookieOffset`；URP 每帧发布
-  `_MainLightCookieTexture / _MainLightWorldToLight / _MainLightCookieTextureFormat`。
-- 地面等表面着色器只有使用 `GetMainLight(shadowCoord, positionWS, shadowMask)` 三参数重载
-  （或显式 `SampleMainLightCookie`）才会乘 Cookie；两参数重载不含 Cookie。
-- 主光 Cookie 是沿光方向的正交投影，适合平行光 + 平面窗；多窗、独立光源或透视投影需要自定义
-  光数据块，不在本 Feature 内。
 
-## 彩窗光平面（2026-11-15）
-
-主光 Cookie 是沿光方向的 2D 投影，默认沿整条光线生效，窗外（向阳面）也会被染色。场景组件
-`ColorfulWindowLight` 发布一组全局平面数据：
-
-- `_ColorfulWindowPlane`：`xyz` = 房间侧法线，`w = -dot(normal, point)`
-- `_ColorfulWindowMask`：0 关闭 / 1 开启
-
-`SampleLightColor` 在采样 Cookie 前先判平面：平面外侧直接返回白色（普通阳光），内侧才取 Cookie。
-无组件时 `mask = 0`，行为与未加平面限制时一致。这是单平面窗近似；多窗、曲面玻璃或透视投影需要
-深度感知的彩色阴影图，不能用单一平面表达。
+**不再使用主光 Cookie / `_LIGHT_COOKIES` / `_ColorfulWindowPlane`**。旧实现与文档思路保留在 Git 历史；
+Cookie 纹理与 `ColorfulWindowLight.cs` 仍在功能目录中作参考资产，但测试场景和 Shader 不再读取。
 
 ## 与场景深度的关系
 
-SSL 的射线终点来自 `SampleSceneDepth(uv)`，**不做逐点场景深度遮挡**。建筑/地形若要在 SSL 中遮挡
-体积，必须位于相机深度纹理：不透明、`ZWrite On`、被 Renderer 的深度输入收集。透明或 `ZWrite Off`
-的自定义材质不会遮挡，SSL 会按更远的表面继续步进。主光阴影图只决定光照可见性，不替代相机深度。
-测试场景的墙体/地面都写深度，因此室外相机看不到室内的彩色光柱。
+SSL 的射线终点来自 `SampleSceneDepth(uv)`，**不做逐点场景深度遮挡**。建筑/地形若要在 SSL 中遮挡体积，
+必须位于相机深度纹理：不透明、`ZWrite On`、被 Renderer 的深度输入收集。透明或 `ZWrite Off` 的自定义
+材质不会遮挡。彩色透射图只负责颜色与玻璃前后，不替代相机深度。
 
 ## 测试入口
 
-`Assets/Mine/Shaders/Render/ColorfulWindow/ColorfulWindowTest.unity`，独立
-`ColorfulWindowTestRenderer`（PC_RPAsset renderer list index 2）挂本 Feature；地面使用同目录
-`ColorfulWindowGround.shader` 的三参数 `GetMainLight`。验证图在任务会话目录，说明见
-[ColorfulWindow.md](../../Render/ColorfulWindow/ColorfulWindow.md)。
+`Assets/Mine/Shaders/Render/ColorfulWindow/ColorfulWindowTest.unity`：
+
+- `ColoredShadowFeature`（BeforeRenderingOpaques）+ `SSLFeature`（BeforeRenderingPostProcessing）；
+- 彩窗 Quad 在 Layer 30，玻璃材质 `Render/ColoredGlass`；
+- 主光 `cookie = null`；
+- 地面/墙体使用 `ColorfulWindowGround.shader`，直接调用 `ColoredShadow_Transmission`；
+- 静态/动态验证见 [ColorfulWindow.md](../../Render/ColorfulWindow/ColorfulWindow.md)。
 
 ## 历史
 
-- 2026-08-27 起 RBR2D（径向模糊）与 RAY3D_Fog（深度密度）曾作为可选模式存在，2026-11-15 移除；
-  旧实现与 Volume 接入说明留在 Git 历史。
+- 2026-08-27 RBR2D 径向模糊与 RAY3D_Fog 深度密度模式移除；SSL 收敛为单一 HG Light。
+- 2026-11-15 主光彩色 Cookie + 单窗平面 mask 移除，改为 ColoredShadowFeature 的光空间透射图 + 深度比较。
+  旧 Cookie 的 Clamp 黑边会把包围盒外乘成黑光（伪阴影），该问题随方案退役。
