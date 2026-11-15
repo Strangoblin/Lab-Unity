@@ -13,6 +13,8 @@
 
 ## 关键架构决策
 
+- **彩窗彩色主光 Cookie（2026-11-15）**：彩窗写成主方向光的 RGB `Light.cookie`，URP 只在三参数 `GetMainLight(shadowCoord, positionWS, shadowMask)` 里把 `SampleMainLightCookie` 乘进 `light.color`（两参数重载不采样）；Cookie UV 为光空间 `(pLS.xy - offset)/size + 0.5`，`lightCookieSize` 默认 1×1 世界单位。SSL 收敛为单模式 HG Light：移除 RAY3D_Fog/RBR2D，去掉末尾 `/maxSteps` 改为固定 `/32` 归一化（质量不再改亮度），相位每像素一次，阴影为 0 跳过 Cookie。新增 `_ColorfulWindowPlane` / `_ColorfulWindowMask` 把染色限制在房间侧（Cookie 背景白色），室外恢复普通阳光/白色 SSL；SSL 只认相机深度，建筑/地形需不透明且 `ZWrite On` 才能遮挡。**主光 Cookie 包围盒外必须白边或 UV 回白**：Clamp 重复边缘黑像素会形成大片伪阴影（关 shadows 不变）。测试场景的 Cookie 由窗面图案沿光方向正交投影生成；测试 Renderer 为 PC_RPAsset list index 2，**默认 Renderer 由用户保留为 2**。生产地面（PBRToon / `LightFunction.hlsl`）尚未接 Cookie。见 [记录](2026-11-15-colorfulwindow-cookie.md)。
+
 - **后处理 Event 面板（2026-11-02）**：所有后处理 Feature 的 `Settings` 在 `Debug` 前加 `[Header("Event")] passEvent`，默认值等于改造前硬编码事件，`AddRenderPasses` 每帧覆盖后再入队；PCSS/POSS 的投射 Pass 仍固定在 `AfterRenderingShadows`，SSGI 三模块共用一个事件（按模块拆分已因时域滤波与 HiZ 双双分裂回退）。模板与 parameter-panel 规范已同步。见 [记录](2026-11-02-postprocess-event.md)。
 
 - **透明深度合并（2026-11-01）**：`TransparentDepthMergeFeature` 在 `AfterRenderingOpaques` 把透明队列 depth-only 重绘进 URP 的 `_CameraDepthTexture` 拷贝（绑成深度附件 + 强制 ZWrite），相机深度附件不动、彩色输出逐像素不变；已挂 `PC_Renderer`。三个静默失败点：`RendererListParams` 必须 `isPassTagName = false`、Unlit 只匹配 `SRPDefaultUnlit`、`ConfigureInput(Depth)` 才能保证拷贝提前于本 pass。见 [记录](2026-11-01-transparent-depth-merge.md)。
