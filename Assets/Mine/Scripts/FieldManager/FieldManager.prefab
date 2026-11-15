@@ -50,13 +50,18 @@ MonoBehaviour:
   _referenceHeight: 0
   _heightRange: 20
   _quality: 1
-  _baseWind: {x: 2, y: 0.3}
+  _windAngle: 8.53
+  _windStrength: 2.0223749
+  _windSpeed: 2.0223749
   _gustStrength: 0.5
-  _turbulence: 0.6
+  _gustSpeed: 2.2281692
+  _gustLength: 20
+  _verticalScale: 10
+  _turbulenceStrength: 0.6
   _turbulenceLength: 20
   _lowerHeightGain: 0.3
   _upperHeightGain: 1.3
-  _showArea: 1
+  _gizmoMember: Wind
 --- !u!1 &6067429724524812615
 GameObject:
   m_ObjectHideFlags: 0

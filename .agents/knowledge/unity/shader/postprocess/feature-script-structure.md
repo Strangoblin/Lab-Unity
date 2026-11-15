@@ -9,7 +9,7 @@
 
 ### 1. 整体布局
 
-完整骨架复用 [urp-renderpass.cs](../../../../skills/auto-manager/templates/shader/postprocess/urp-renderpass.cs)：Feature 的 Settings 与生命周期、PassData、RecordRenderGraph 的资源 / Pass 编排各自分层。参数分组见 [parameter-panel.md](../../standard/script/parameter-panel.md)。
+完整骨架复用 [urp-renderpass.cs](../../../../skills/agent-workflow/templates/shader/postprocess/urp-renderpass.cs)：Feature 的 Settings 与生命周期、PassData、RecordRenderGraph 的资源 / Pass 编排各自分层。参数分组见 [parameter-panel.md](../../standard/script/parameter-panel.md)。
 
 ### 2. 关键规范
 

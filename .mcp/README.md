@@ -167,10 +167,10 @@ v3 收集了 1261 条摩擦记录，结论很清楚：真正贵的不是检查�
 三条都是不可逆的。**「agent 自行批准沙箱」不在其中**（v5 去掉）：沙箱扩充改由用户在对话里确认、
 agent 执行 `cli.py expand` 并留痕 —— 封一条已经被对话取代的命令只会制造死规则。
 
-v3 把这几条写成两平台各一份 `guard-bash.sh`，靠逐字一致维持等价，再由
-`verify.py` 的 `platform_hook_drift` 守着 —— 那是在守一个已经发生的漂移可能。
-v4 把它们并进 `lib/hooks.py`：规则只有一份，平台侧只留注册（`verify.py` 现在断言两件事：
-两个平台都指向 `.mcp/bin/hooks.sh`，且旧的两份副本没有回来）。
+v3 把这几条写成两平台各一份 `guard-bash.sh`，靠逐字一致维持等价，并由当时的
+`verify.py` 的 `platform_hook_drift` 检查守着 —— 那是在守一个已经发生的漂移可能。
+v4 把它们并进 `lib/hooks.py`：规则只有一份，平台侧只留注册。`verify.py` 已于 2026-11-01
+退役，本节保留 v3→v4 的历史理由，不再作为当前验证入口。
 
 ---
 
@@ -204,7 +204,6 @@ python3 .mcp/bin/cli.py close --waive verify --reason "纯逻辑改动，无需�
 
 ```bash
 python3 .mcp/tests/run_isolated.py --task-dir tmp/sessions/2026-10-28-mcp-v5
-python3 .codex/tests/06_architecture/verify.py
 ```
 
 隔离 runner 把 `.mcp` 与知识树拷进一次性 fixture（独立 git 根、独立 TMPDIR），

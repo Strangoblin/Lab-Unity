@@ -3,6 +3,7 @@ using UnityEngine.Rendering;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEngine.Rendering.Universal;
 #endif
 
 namespace Mine.Interaction
@@ -10,7 +11,7 @@ namespace Mine.Interaction
     /// <summary>
     /// 正交交互系统总控。
     ///
-    /// 正交相机使用 CustomRenderer（自定义管线）渲染到 _InteractionOriginTex，
+    /// 正交相机用 IA_Renderer（UniversalRendererData + InteractionCaptureFeature）渲染到 _InteractionOriginTex，
     /// Manager 管理共享的 originRT + 正交矩阵 + 全局 Shader 属性。
     /// 输出 RT 由 IUniversalInteractionProcessor 自行管理。
     /// </summary>
@@ -28,6 +29,12 @@ namespace Mine.Interaction
 
         [Header("RT 设置")]
         [SerializeField] private int _resolution = 256;
+
+#if UNITY_EDITOR
+        [Header("编辑模式预览")]
+        [Tooltip("不进入 Play 也能在 Scene 视图里看到水面波动（会持续消耗少量 GPU）。")]
+        [SerializeField] private bool _editorPreview = true;
+#endif
 
         // ── Shader Property IDs ─────────────────────────────────
 
@@ -73,10 +80,17 @@ namespace Mine.Interaction
             InitializeProcessor();
             SyncGlobalProperties();
             _initialized = true;
+#if UNITY_EDITOR
+            EditorApplication.update += EditorTick;
+#endif
         }
 
         void OnDisable()
         {
+#if UNITY_EDITOR
+            EditorApplication.update -= EditorTick;
+            _nextEditorTick = 0d;
+#endif
             if (Instance == this) Instance = null;
             ReleaseProcessor();
             ReleaseRT();
@@ -91,17 +105,61 @@ namespace Mine.Interaction
         void Update()
         {
             if (!_initialized) return;
+            Tick(Time.deltaTime);
+        }
 
+        /// <summary>推进一帧：同步矩阵 → 处理（消费上一帧的 originRT）→ 清空 originRT 等下一次捕获。</summary>
+        private void Tick(float deltaTime)
+        {
             SyncMatrices();
             SyncGlobalProperties();
 
             var pos        = AreaCenter;
             var worldDelta = new Vector2(pos.x - _lastAreaPos.x, pos.z - _lastAreaPos.z);
-            _processor?.Process(Time.deltaTime, worldDelta);
+            _processor?.Process(deltaTime, worldDelta);
             _lastAreaPos = pos;
 
             if (_originRT != null) ClearRT(_originRT);
         }
+
+#if UNITY_EDITOR
+        // ── 编辑模式预览 ────────────────────────────────────────
+        // [ExecuteAlways] 的 Update 在编辑器里只在场景变化/重绘时被调用，波方程不会自己推进。
+        // 这里按固定频率主动做三件事：渲染一次正交相机 → 跑一次 Process → 刷新 Scene 视图。
+
+        private double _nextEditorTick;
+
+        private void EditorTick()
+        {
+            if (!_initialized || !_editorPreview || Application.isPlaying) return;
+
+            double now = EditorApplication.timeSinceStartup;
+            if (now < _nextEditorTick) return;
+            _nextEditorTick = now + 1.0 / EditorPreviewHz;
+
+            RenderOriginInEditor();
+            Tick((float)(1.0 / EditorPreviewHz));
+
+            // 只重绘 lastActiveSceneView 时，分屏/多 Scene 视图会停在旧画面。
+            SceneView.RepaintAll();
+        }
+
+        /// <summary>
+        /// 编辑模式下 URP 不会替带 Target Texture 的相机动渲染，必须自己提交一次渲染请求，
+        /// 否则 originRT 永远是空的，看起来就是「水面不响应」。
+        /// </summary>
+        private void RenderOriginInEditor()
+        {
+            if (_orthoCamera == null || _originRT == null) return;
+
+            var request = new UniversalRenderPipeline.SingleCameraRequest { destination = _originRT };
+            if (!RenderPipeline.SupportsRenderRequest(_orthoCamera, request)) return;
+
+            RenderPipeline.SubmitRenderRequest(_orthoCamera, request);
+        }
+
+        private const double EditorPreviewHz = 30d;
+#endif
 
         void OnValidate()
         {
@@ -168,7 +226,8 @@ namespace Mine.Interaction
         private void EnsureInteractionRT()
         {
             if (_originRT != null) return;
-            _originRT = new RenderTexture(_resolution, _resolution, 0, RenderTextureFormat.RFloat)
+            // Render Graph 要求相机输出纹理带深度缓冲，否则每帧告警并回退默认格式。
+            _originRT = new RenderTexture(_resolution, _resolution, 24, RenderTextureFormat.RFloat)
             {
                 name              = "_InteractionOriginTex",
                 filterMode        = FilterMode.Bilinear,

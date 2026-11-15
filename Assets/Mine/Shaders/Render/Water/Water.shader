@@ -39,7 +39,7 @@ Shader "Render/Water"
     #include "Assets/Mine/Special/HLSL/PBRFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/ENVFunction.hlsl"
 
-    #include "Assets/Mine/Scripts/FieldManager/WaveField.hlsl"
+    #include "Assets/Mine/Scripts/FieldManager/Wave/WaveField.hlsl"
 
     CBUFFER_START(UnityPerMaterial)
         float4 _baseColorA;

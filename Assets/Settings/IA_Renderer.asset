@@ -1,5 +1,32 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6759958037809528242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 481ca827b225142ea94982437d543faa, type: 3}
+  m_Name: Interaction Capture
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Rendering.InteractionCaptureFeature
+  m_Active: 1
+  settings:
+    copyDepth: 1
+    copyColor: 1
+    copyNormal: 0
+    depthLayerMask:
+      serializedVersion: 2
+      m_Bits: 64
+    colorLayerMask:
+      serializedVersion: 2
+      m_Bits: 128
+    normalLayerMask:
+      serializedVersion: 2
+      m_Bits: 0
+    transparentMode: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9,13 +36,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a3e01f7c6d5b4e2a9f1c4d7b0e3a6f8, type: 3}
+  m_Script: {fileID: 11500000, guid: de640fe3d0db1804a85f9fc8f5cadab6, type: 3}
   m_Name: IA_Renderer
-  m_EditorClassIdentifier: Assembly-CSharp::CustomRendererData
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalRendererData
   debugShaders:
-    debugReplacementPS: {fileID: 0}
-    hdrDebugViewPS: {fileID: 0}
-    probeVolumeSamplingDebugComputeShader: {fileID: 0}
+    debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7, type: 3}
+    hdrDebugViewPS: {fileID: 4800000, guid: 573620ae32aec764abd4d728906d2587, type: 3}
+    probeVolumeSamplingDebugComputeShader: {fileID: 7200000, guid: 53626a513ea68ce47b59dc1299fe3959, type: 3}
   probeVolumeResources:
     probeVolumeDebugShader: {fileID: 0}
     probeVolumeFragmentationDebugShader: {fileID: 0}
@@ -24,25 +51,34 @@ MonoBehaviour:
     probeSamplingDebugMesh: {fileID: 0}
     probeSamplingDebugTexture: {fileID: 0}
     probeVolumeBlendStatesCS: {fileID: 0}
-  m_RendererFeatures: []
-  m_RendererFeatureMap: 
+  m_RendererFeatures:
+  - {fileID: -6759958037809528242}
+  m_RendererFeatureMap: 4e02d1fbfacd2fa2
   m_UseNativeRenderPass: 0
-  m_OpaqueLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_TransparentLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_DepthLayerMask:
-    serializedVersion: 2
-    m_Bits: 64
-  m_ColorLayerMask:
-    serializedVersion: 2
-    m_Bits: 128
-  m_NormalLayerMask:
+  xrSystemData: {fileID: 0}
+  postProcessData: {fileID: 0}
+  m_AssetVersion: 3
+  m_PrepassLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  m_CopyDepth: 1
-  m_CopyColor: 1
-  m_CopyNormal: 0
-  m_TransparentMode: 0
+  m_OpaqueLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  m_TransparentLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  m_DefaultStencilState:
+    overrideStencilState: 0
+    stencilReference: 0
+    stencilCompareFunction: 8
+    passOperation: 2
+    failOperation: 0
+    zFailOperation: 0
+  m_ShadowTransparentReceive: 1
+  m_RenderingMode: 0
+  m_DepthPrimingMode: 0
+  m_CopyDepthMode: 1
+  m_DepthAttachmentFormat: 0
+  m_DepthTextureFormat: 0
+  m_AccurateGbufferNormals: 0
+  m_IntermediateTextureMode: 1

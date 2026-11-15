@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GrassWind
+  m_Shader: {fileID: 4800000, guid: 3dea1a4148994b15a8b0a841bf4d0b77, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Grass:
+        m_Texture: {fileID: 2800000, guid: 138ee45b494c0754ebbe7601767264d9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GroundColorTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaClipThreshold: 0.5
+    - _GroundColorBlend: 0
+    - _Smoothness: 0
+    - _WindFrequency: 0
+    - _WindResponse: 0.5
+    - _WindScale: 0
+    - _WindStrength: 0
+    m_Colors:
+    - _Base_Color_A: {r: 0.7028302, g: 1, b: 0.74673027, a: 1}
+    - _Base_Color_B: {r: 0.41960788, g: 0.8000001, b: 0.454902, a: 1}
+    - _InteractionDirection: {r: 0, g: 1, b: 0, a: 0}
+    - _WindDirection: {r: 1, g: 0, b: 0, a: 0}
+    - _Wind_Color_A: {r: 0.9843138, g: 1, b: 0.854902, a: 1}
+    - _Wind_Color_B: {r: 0.4784314, g: 0.67058825, b: 0.6313726, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

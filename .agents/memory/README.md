@@ -13,7 +13,7 @@ dated 记录可以直接改（结论变了就改原文），但改动会出现�
 
 | 项 | 规则 |
 |---|---|
-| 通道 | 平台 `Write` / `Edit` 直接写入。`memory/` 是独立分区：随时可写，**不需要开沙箱**，见[执行契约](../skills/auto-manager/capabilities/execution-contract.md) |
+| 通道 | 平台 `Write` / `Edit` 直接写入。`memory/` 是独立分区：随时可写，**不需要开沙箱**，见[执行契约](../skills/agent-workflow/capabilities/execution-contract.md) |
 | 历史 | 既有 dated 记录**可以原地改**：结论变了就直接改原文，不必新建副本再在索引里指向前者（2026-10-28 起；历史由 git 兜底） |
 | 索引 | 索引（`MEMORY.md` / `memory.md`）随记录同步更新 |
 | 位置 | `<领域>/YYYY-MM-DD-<slug>.md`；领域为 `meta` / `unity` |

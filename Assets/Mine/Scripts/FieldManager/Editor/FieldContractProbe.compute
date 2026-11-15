@@ -3,8 +3,8 @@
 // ════════════════════════════════════════════════════════════
 #pragma kernel ProbeWind
 #pragma kernel ProbeWave
-#include "Assets/Mine/Scripts/FieldManager/WindField.hlsl"
-#include "Assets/Mine/Scripts/FieldManager/WaveField.hlsl"
+#include "Assets/Mine/Scripts/FieldManager/Wind/WindField.hlsl"
+#include "Assets/Mine/Scripts/FieldManager/Wave/WaveField.hlsl"
 
 StructuredBuffer<float4> _ProbePositions;
 RWStructuredBuffer<float4> _ProbeResults;

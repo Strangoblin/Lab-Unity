@@ -14,8 +14,7 @@ Shader / HLSL / Compute / RenderGraph / C# 与 Metal 渲染。判断任务和证
 
 - 记忆：[unity memory](../../memory/unity/MEMORY.md)。
 - 知识：[unity knowledge](../../knowledge/unity/README.md)，按文件类型读取规范。
-- 操作：[autoagent](../../skills/auto-manager/SKILL.md) 统一分流开发实施、Editor / 取像 / 耗时 / 同类复用；模式、设计判断与具体能力由其内部按需取用。
-- 委派：边界明确的小任务按 [opencode-orchestrate](../../skills/opencode-orchestrate/SKILL.md) 派给 OpenCode Go；链路接入与排障见 [codex-opencode-go](../../skills/codex-opencode-go/SKILL.md)。
+- 操作：[agent-workflow](../../skills/agent-workflow/SKILL.md) 统一分流开发实施、Editor / 取像 / 耗时 / 同类复用；模式、设计判断与具体能力由其内部按需取用。
 
 ## 记录
 

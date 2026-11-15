@@ -1,7 +1,7 @@
 # Spatial Filter Sampling Budget
 
 > 全屏空间滤波的质量档与半径契约。代码骨架见
-> [spatial-filter-budget.hlsl](../../../../skills/auto-manager/templates/shader/postprocess/spatial-filter-budget.hlsl)。
+> [spatial-filter-budget.hlsl](../../../../skills/agent-workflow/templates/shader/postprocess/spatial-filter-budget.hlsl)。
 
 ## 核心约束
 

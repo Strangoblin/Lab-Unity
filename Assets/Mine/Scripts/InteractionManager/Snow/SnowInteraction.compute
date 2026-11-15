@@ -1,0 +1,93 @@
+// ════════════════════════════════════════════════════════════════
+//  SnowInteraction.compute — 雪地交互子集
+//
+//  输入 _InteractionOriginTex：正交捕获的穿透深度（0..1，1 m）
+//  输出 _InteractionSnowTex：雪面压痕深度（0..1，R 通道）
+//
+//  语义：雪是**大形变、可压实**的材料 —— 受压时晶格塌陷、体积被吃掉，
+//  所以只有「向下压实」，没有侧向挤出（沙才有）。离开后：
+//    ① 蠕变 _Creep：向邻域扩散，坑壁慢慢摊圆（镜头里就是「边缘不再是一道直壁」）
+//    ② 沉降 _Settle：乘性衰减，痕迹整体变浅直到消失（新雪覆盖 / 雪面下沉）
+//
+//  乘性衰减而不是线性回填：线性 `h - k*dt` 会把坑底磨平、形状失真；
+//  `h * exp(-k*dt)` 保持形状、整体等比变浅，这正是「痕迹随时间消失」该有的样子。
+//
+//  双缓冲：prev 读（含 4 邻域）、out 写，Process 末尾交换。
+//  线程组 8×8。
+// ════════════════════════════════════════════════════════════════
+
+#pragma kernel CSSnow
+
+#include "Assets/Mine/Scripts/InteractionManager/Shaders/InteractionDomainEdge.hlsl"
+
+Texture2D<float>   _InteractionOriginTex;
+Texture2D<float>   _SnowPrevTex;
+RWTexture2D<float> _SnowOutTex;
+
+float _Creep;         // 每秒蠕变扩散比例（0 = 不摊圆，坑壁保持原样）
+float _Settle;        // 每秒沉降比例（乘性，0 = 永久保留）
+float _ContactGain;   // 捕获深度 → 压实深度的增益
+float _Dt;
+int2  _DeltaPixels;
+float2 _EdgeAbsorb;   // 本步域位移 / 淡出带宽 × 吸收系数（域不动 = 0）
+uint  _Resolution;
+
+static const int2 Offsets[4] =
+{
+    int2( 1,  0),
+    int2(-1,  0),
+    int2( 0,  1),
+    int2( 0, -1),
+};
+
+bool InBounds(int2 c)
+{
+    return c.x >= 0 && c.x < (int)_Resolution && c.y >= 0 && c.y < (int)_Resolution;
+}
+
+[numthreads(8, 8, 1)]
+void CSSnow(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Resolution || id.y >= _Resolution)
+        return;
+
+    int2 coord     = int2(id.xy);
+    int2 prevCoord = coord + _DeltaPixels;
+
+    // 重投影后的上一帧压痕（未做任何窗口处理，见 InteractionDomainEdge.hlsl）
+    float prev = InBounds(prevCoord) ? _SnowPrevTex[prevCoord] : 0.0;
+
+    // 输入按窗口缩（第 1 条）：压在域边上的探针只能留下 ≈ 0 的压痕。
+    float press = InteractionDomainFade(
+        saturate(_InteractionOriginTex[id.xy] * _ContactGain), coord, (float)_Resolution);
+
+    // ── 1. 压实：只留最深的那一次压缩，抬离不回弹 ──────────────
+    // 雪是大形变材料：晶格压塌后体积是被吃掉的，所以这里**没有**侧向堆脊
+    // （沙才把体积挤到坑沿，见 SandInteraction.compute）。
+    float imprint = max(prev, press);
+
+    // ── 2. 蠕变：向 4 邻域平均扩散 ────────────────────────────
+    // 坑壁从「一道直壁」变成缓坡，痕迹看着像真的被踩塌过。
+    // 按 1-exp(-k·dt) 折算，帧率无关。
+    // 淡出带里不蠕变（creep × 窗口）：扩散是横向搬运，贴着边界扩散等于每帧把
+    // 域内的量重新推进带里，窗口只挡住了输入、挡不住它（实测最外圈残留 1.11%）。
+    // 乘的是**速率**不是存值，所以静置时不会有累积衰减。
+    float neighbourSum = 0.0;
+    for (int i = 0; i < 4; i++)
+    {
+        int2 n = prevCoord + Offsets[i];
+        if (InBounds(n))
+            neighbourSum += _SnowPrevTex[n];
+    }
+    float window = InteractionDomainWindowAt(coord, (float)_Resolution);
+    float creep = (1.0 - exp(-_Creep * _Dt)) * window;
+    imprint = lerp(imprint, neighbourSum * 0.25, creep);
+
+    // ── 3. 沉降：乘性衰减，形状不变、整体变浅 ─────────────────
+    imprint *= exp(-_Settle * _Dt);
+
+    // 边界吸收（第 2 条）：域把压痕扫向边界时按位移把它吃掉，域不动时恒为 1。
+    imprint *= InteractionDomainAbsorb(coord, (float)_Resolution, _EdgeAbsorb);
+
+    _SnowOutTex[id.xy] = saturate(imprint);
+}

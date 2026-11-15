@@ -16,7 +16,7 @@ description: 在 Unity 6 / URP 17 中调试全屏 Shader、RendererFeature 中�
 | Feature 自身的 Trace / Mask / Resolve 等中间结果 | 使用其 Debug 分支，将本帧实际中间纹理写到 camera color |
 | 独立全屏材质或 Shader | 用 `python3 .mcp/lib/validation/project_resources.py path unity.debug-output-feature` 解析现有 DebugOutputFeature；优先 `settings.debugMaterial`，保留参数、贴图与关键字；没有材质时使用 `debugShader` |
 | 当前最终相机画面 | 保持正常输出，不额外启用 Debug Feature |
-| 隔离网格材质 / 近远距离对照 | 按 [载体选择](../auto-manager/capabilities/shader-validation.md) 建临时预览场景，继续使用真实 Renderer 配置 |
+| 隔离网格材质 / 近远距离对照 | 按 [载体选择](../agent-workflow/capabilities/shader-validation.md) 建临时预览场景，继续使用真实 Renderer 配置 |
 
 DebugOutputFeature 执行材质 Pass 0；`additionalPassIndex >= 0` 可追加合法 Pass，默认 -1 复制输出；需要场景深度时开启 `requireDepth`。Shader 输入为当前场景色 `_BlitTexture`，使用 URP `Blit.hlsl` 的 Vert / Varyings。其他 Feature 的专用资源仍需按其真实契约绑定，通用 Debug Feature 不自动补齐。
 
@@ -25,7 +25,7 @@ DebugOutputFeature 执行材质 Pass 0；`additionalPassIndex >= 0` 可追加合
 ## 运行与观察
 
 1. 按 [unity-editor](../unity-editor/SKILL.md) 检查当前 Editor / bridge；未连接时保留脚本与计划，说明尚未渲染，不为截图自动关闭 / 重启 Editor。
-2. 按 [编译与证据](../auto-manager/capabilities/shader-validation.md#共用编译与证据) 检查实际 Shader Pass / 变体；资源刷新成功不等于全部 Shader 已编译。
+2. 按 [编译与证据](../agent-workflow/capabilities/shader-validation.md#共用编译与证据) 检查实际 Shader Pass / 变体；资源刷新成功不等于全部 Shader 已编译。
 3. 核对目标相机实际使用的 Renderer、Feature Active、Debug 模式、材质和输入资源。只修改任务需要的调试状态，记录原值；材质参数对照优先使用临时副本。
 4. 静态效果可在 Edit Mode 渲染；时间动画、生命周期或资源初始化需要 Play Mode 时沿用当前授权与模式。Game View 中观察目标输出和错误日志。
 5. 需要完整截图、固定尺寸或跨档对照时，读取 [相机 PNG 流程](references/camera-capture.md)，复用 [camera-offscreen-capture.cs](scripts/camera-offscreen-capture.cs)，执行 `SingleCameraRequest → RenderTexture → ReadPixels → PNG`。

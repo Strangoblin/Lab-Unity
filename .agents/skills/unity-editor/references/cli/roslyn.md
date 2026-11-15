@@ -34,4 +34,4 @@ Shader 编译错误由 ShaderUtil 持有，可能不在控制台日志中。刷�
 
 - RendererFeature 约定见 [feature-script-structure](../../../../knowledge/unity/shader/postprocess/feature-script-structure.md)。
 - 固定调试输出资源：`python3 .mcp/lib/validation/project_resources.py path unity.debug-output-feature`；实际配置按 [渲染调试](../../../unity-render-debug/SKILL.md)。
-- [场景配置](../../../auto-manager/capabilities/scene-setup.md)、[脚本决策](../../../auto-manager/capabilities/script-decision.md) 与 [清理](../../../auto-manager/capabilities/cleanup.md)。
+- [场景配置](../../../agent-workflow/capabilities/scene-setup.md)、[脚本决策](../../../agent-workflow/capabilities/script-decision.md) 与 [清理](../../../agent-workflow/capabilities/cleanup.md)。

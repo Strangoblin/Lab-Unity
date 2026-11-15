@@ -16,9 +16,9 @@ argument-hint: "[记忆 | 垃圾桶 | 全部]"
 
 | 不做 | 归属 |
 |---|---|
-| 断链、软链、角色归属、hook 漂移 | `python3 .codex/tests/06_architecture/verify.py --strict`（本技能只调用） |
+| 断链、软链、角色归属、hook 漂移 | 本技能不做断言；`verify.py` 已于 2026-11-01 退役，用 `rg` 核对活动文档链接，必要时手工检查 `git status` 与软链 |
 | agent / skill / rule 的日常编辑与迁移 | [agent-maintenance](../agent-maintenance/SKILL.md) |
-| `Assets/` 业务资产存量整理 | [cleanup](../auto-manager/capabilities/cleanup.md) |
+| `Assets/` 业务资产存量整理 | [cleanup](../agent-workflow/capabilities/cleanup.md) |
 | 判定误拦与策略提案 | `cli.py report`（E5） |
 
 本技能**只动两处**：`.agents/memory/**` 与 `.mcp/trash/**`。
@@ -26,20 +26,20 @@ argument-hint: "[记忆 | 垃圾桶 | 全部]"
 ## 五阶段
 
 ```
-S0 基线   open --profile meta；跑一次 verify.py --strict 确认起点是绿的
+S0 基线   open --profile meta；inventory.py --check 与 rg 断链核验确认起点
 S1 盘点   inventory.py（只读）→ 记忆寿命 / 入链 / 索引覆盖 / 垃圾桶存量 / 孤儿
 S2 分流   出「精确清单」：路径 | 动作 | 理由 | 现状 | 去向
           ⛔ 一次确认，覆盖整批（清单未获确认前不动任何东西）
 S3 吸收   把还要用的结论写进 knowledge / skill，再 grep 核对确实写进去了
 S4 清除   记忆 → cli.py delete；垃圾桶 → 先写历史日志，再 trash --empty
-S5 留痕   history.md 逐日一行 + 索引改行；verify.py --strict；run_isolated；close
+S5 留痕   history.md 逐日一行 + 索引改行；inventory.py；run_isolated；close
 ```
 
 ### S0 基线
 
 ```bash
 python3 .mcp/bin/cli.py open --profile meta --task "体系自检"
-python3 .codex/tests/06_architecture/verify.py --strict
+python3 .agents/skills/structure-selfcheck/scripts/inventory.py --check
 ```
 
 起点不绿就先修，不要在一个断链的体系上做清扫 —— 那样分不清是你删断的，还是本来就断的。
@@ -66,7 +66,7 @@ python3 .agents/skills/structure-selfcheck/scripts/inventory.py --check  # 阈�
 | 现状 | 年龄、入链数、索引状态、证据目录体量 |
 | 去向 | 迁移目标（可点的路径），或「无」 |
 
-确认一次，覆盖整批 —— 与 [cleanup](../auto-manager/capabilities/cleanup.md) 同一模式。
+确认一次，覆盖整批 —— 与 [cleanup](../agent-workflow/capabilities/cleanup.md) 同一模式。
 清单被否就重出清单，**不要改判据去凑通过**。
 
 ### S3 吸收（不可省略）
@@ -84,7 +84,7 @@ python3 .mcp/bin/cli.py trash --empty <桶 id>
 ### S5 留痕与验证
 
 ```bash
-python3 .codex/tests/06_architecture/verify.py --strict
+python3 .agents/skills/structure-selfcheck/scripts/inventory.py
 python3 .mcp/tests/run_isolated.py --task-dir tmp/sessions/<date>-selfcheck
 python3 .mcp/bin/cli.py close
 ```

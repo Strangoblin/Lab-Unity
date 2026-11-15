@@ -59,7 +59,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Anisotropy: 0
-    - _Brightness: 1
+    - _Brightness: 2
     - _EnableCelToon: 0
     - _EnableFabric: 0
     - _EnableOutline: 1

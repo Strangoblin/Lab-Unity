@@ -1,7 +1,7 @@
 # Parameter Panel — 面板参数分层
 
 > 函数无关层：RendererFeature 的 `Settings`、MonoBehaviour、VolumeComponent 的面板一律适用。
-> 代码骨架：[templates/standard/script/parameter-panel.cs](../../../../skills/auto-manager/templates/standard/script/parameter-panel.cs)
+> 代码骨架：[templates/standard/script/parameter-panel.cs](../../../../skills/agent-workflow/templates/standard/script/parameter-panel.cs)
 > 来源：2026-09-20 PCSS 参数整理 → [memory](../../../../memory/unity/2026-09-20-parameter-layering.md)
 
 ## 判据 — 两个正交问题

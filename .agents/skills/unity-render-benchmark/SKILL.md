@@ -10,7 +10,7 @@ description: 对比 Unity 渲染效果、Shader 或 RendererFeature 改前/改�
 ## 边界与入口
 
 - 这是薄工作流，不是已经完成的通用 C# 步进/计时库；效果特有配置、变体切换与验证留在该效果适配器中。
-- 本 skill 的使用不授权修改原 Renderer/场景、排除其它 Feature、切 Play Mode 或重启 Editor。体系维护取用 agent-maintenance；实际采集/适配器开发由本技能与 auto-manager 按任务范围完成。
+- 本 skill 的使用不授权修改原 Renderer/场景、排除其它 Feature、切 Play Mode 或重启 Editor。体系维护取用 agent-maintenance；实际采集/适配器开发由本技能与 agent-workflow 按任务范围完成。
 - 画质/中间输出对照使用 [unity-render-debug](../unity-render-debug/SKILL.md)；Editor 连接和命令使用 [unity-editor](../unity-editor/SKILL.md)。仅分析已存在报告时不需要连接 Editor。
 
 ## 按输入选择路线

@@ -15,7 +15,7 @@ namespace Mine.Fields
         private float _lastTime;
 
         // ════════════════════════════════════════════════════════════
-        //  Lifecycle and scheduling — wind precedes waves, then consumers
+        //  Lifecycle and scheduling — sorted by each provider's FieldOrder
         // ════════════════════════════════════════════════════════════
         private void OnEnable()
         {
@@ -45,10 +45,11 @@ namespace Mine.Fields
             float deltaTime = Mathf.Max(0f, time - _lastTime);
             _lastFrame = Time.frameCount;
             _lastTime = time;
-            for (int kind = 0; kind <= (int)FieldKind.Acceleration; kind++)
+            for (int i = 0; i < Providers.Count; i++)
             {
-                var provider = GetProvider((FieldKind)kind);
-                if (provider != null) provider.Advance(time, deltaTime);
+                var provider = Providers[i];
+                if (provider == null) { Providers.RemoveAt(i--); continue; }
+                if (provider.isActiveAndEnabled && provider.IsReady) provider.Advance(time, deltaTime);
             }
         }
 
@@ -57,13 +58,31 @@ namespace Mine.Fields
         // ════════════════════════════════════════════════════════════
         internal static bool Register(FieldProvider provider)
         {
-            var existing = GetProvider(provider.Kind);
-            if (existing != null && existing != provider)
+            if (string.IsNullOrEmpty(provider.FieldKey))
             {
-                Debug.LogError("Duplicate field producer for " + provider.Kind + "; disable the existing producer first.", provider);
+                Debug.LogError("Field provider must declare a non-empty FieldKey.", provider);
                 return false;
             }
-            if (!Providers.Contains(provider)) Providers.Add(provider);
+            for (int i = Providers.Count - 1; i >= 0; i--)
+            {
+                var other = Providers[i];
+                if (other == null) { Providers.RemoveAt(i); continue; }
+                if (other == provider) return true;
+                if (string.Equals(other.FieldKey, provider.FieldKey, System.StringComparison.Ordinal))
+                {
+                    Debug.LogError("Duplicate field producer for '" + provider.FieldKey + "'; disable the existing producer first.", provider);
+                    return false;
+                }
+            }
+
+            // Stable insertion: only providers with a strictly larger order move down.
+            int index = Providers.Count;
+            for (int i = 0; i < Providers.Count; i++)
+            {
+                var other = Providers[i];
+                if (other != null && other.FieldOrder > provider.FieldOrder) { index = i; break; }
+            }
+            Providers.Insert(index, provider);
             return true;
         }
 
@@ -73,34 +92,35 @@ namespace Mine.Fields
             provider.ResetGlobals();
         }
 
-        public static FieldProvider GetProvider(FieldKind kind)
+        public static FieldProvider GetProvider(string fieldKey)
         {
+            if (string.IsNullOrEmpty(fieldKey)) return null;
             for (int i = Providers.Count - 1; i >= 0; i--)
             {
                 var provider = Providers[i];
                 if (provider == null) { Providers.RemoveAt(i); continue; }
-                if (provider.Kind == kind && provider.isActiveAndEnabled && provider.IsReady) return provider;
+                if (string.Equals(provider.FieldKey, fieldKey, System.StringComparison.Ordinal)
+                    && provider.isActiveAndEnabled && provider.IsReady) return provider;
             }
             return null;
         }
 
-        public static bool BindCompute(FieldKind kind, ComputeShader shader, int kernel)
+        /// <summary>
+        /// Binds the channel's snapshot to a Compute kernel. When no provider is active the
+        /// channel's own neutral state is bound instead, so the kernel never keeps released textures.
+        /// </summary>
+        public static bool BindCompute(IFieldBindings bindings, ComputeShader shader, int kernel)
         {
+            if (bindings == null) return false;
             if (HasActiveManager && Application.isPlaying) Instance.UpdateFields();
-            var provider = GetProvider(kind);
+            var provider = GetProvider(bindings.FieldKey);
             if (provider == null)
             {
-                if (kind == FieldKind.Wind) WindFieldProvider.BindNeutral(shader, kernel);
-                else if (kind == FieldKind.Wave) WaveFieldBindings.BindNeutral(shader, kernel);
+                bindings.BindNeutral(shader, kernel);
                 return false;
             }
             provider.BindCompute(shader, kernel);
             return true;
-        }
-
-        public static void BindWindCompute(ComputeShader shader, int kernel)
-        {
-            BindCompute(FieldKind.Wind, shader, kernel);
         }
     }
 }

@@ -6,7 +6,7 @@
 > 内化自 Assets/MarkDowns/（2026-08-24，meta-developer 迁移，路径已修正为项目根相对）
 > 记录日期: 2026-06-15
 > 参考实现: [CamController.cs](Assets/Mine/Scripts/CamController/CamController.cs)
-> Script template families: [../../../templates/script/README.md](../../../../skills/auto-manager/templates/script/README.md)
+> Script template families: [../../../templates/script/README.md](../../../../skills/agent-workflow/templates/script/README.md)
 > Shared style reference: [shader-structure.md](../shader/shader-structure.md)
 
 ---

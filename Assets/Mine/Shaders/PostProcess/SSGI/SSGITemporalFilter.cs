@@ -68,7 +68,8 @@ internal sealed class SSGITemporalFilter
 
         public void Ensure(int targetWidth, int targetHeight, int cameraId)
         {
-            if (width == targetWidth && height == targetHeight && depth[0] != null)
+            if (width == targetWidth && height == targetHeight
+                && IsUsable(depth[0]) && IsUsable(depth[1]))
                 return;
             Release();
             width = targetWidth;
@@ -80,8 +81,13 @@ internal sealed class SSGITemporalFilter
         public void EnsureColor(Signal signal, int cameraId)
         {
             int channel = (int)signal;
-            if (color[channel, 0] != null)
+            if (IsUsable(color[channel, 0]) && IsUsable(color[channel, 1]))
                 return;
+            for (int side = 0; side < 2; ++side)
+            {
+                color[channel, side]?.Release();
+                color[channel, side] = null;
+            }
             RenderTextureFormat format = signal == Signal.AO
                 ? RenderTextureFormat.RHalf : RenderTextureFormat.ARGBHalf;
             color[channel, 0] = Allocate(width, height, format, $"SSGI_{signal}_A_{cameraId}");
@@ -357,13 +363,17 @@ internal sealed class SSGITemporalFilter
         var texture = new RenderTexture(width, height, 0, format)
         {
             name = textureName,
+            hideFlags = HideFlags.HideAndDontSave,
             filterMode = format == RenderTextureFormat.RHalf
                 ? FilterMode.Point : FilterMode.Bilinear,
             wrapMode = TextureWrapMode.Clamp
         };
         texture.Create();
-        return RTHandles.Alloc(texture);
+        return RTHandles.Alloc(texture, transferOwnership: true);
     }
+
+    static bool IsUsable(RTHandle handle) =>
+        handle != null && handle.rt != null && handle.rt.IsCreated();
 
     static float MatrixDifference(Matrix4x4 left, Matrix4x4 right)
     {

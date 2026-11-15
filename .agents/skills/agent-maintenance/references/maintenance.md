@@ -9,7 +9,7 @@
 
 | 验证 | 命令 / 入口 |
 |---|---|
-| 架构、活动断链、零软链、角色归属 | `python3 .codex/tests/06_architecture/verify.py --strict` |
+| 活动断链、软链、角色归属 | 无自动入口（`verify.py` 已于 2026-11-01 退役）；用 `rg` 核对活动文档链接，必要时手工检查 `git status` 与软链 |
 | 执行契约 | `python3 .mcp/tests/run_isolated.py --task-dir tmp/sessions/<date-task-id>`（隔离项目，不 reset 生产） |
 | 路径残留 | `rg -n "旧路径" <本次活动文档范围>`，历史来源另按迁移记录解释 |
 | 模板 API | [template-validation](template-validation.md) |
