@@ -51,6 +51,41 @@ float3 SST_WorldPosition(float2 uv, float rawDepth)
 }
 
 // ════════════════════════════════════════════════════════════════
+//  Hit-surface closure — 命中面朝向判定的前提检验。
+//
+//  「命中面朝背向射线 ⇒ 假命中」只在 G-buffer 法线真的代表几何朝向时成立，
+//  也就是只在**不透明闭合物**上成立。薄壳（草叶、植被、双面卡片）存的是
+//  着色法线而非几何法线：草把地形法线写进 _CameraNormalsTexture，
+//  竖直的叶片报告自己是地面。拿它做背面剔除，会把整片草地判成假命中。
+//
+//  这条前提无法从深度缓冲反推：草冠的深度场本身就是一张准地形高度场，
+//  由它重建的几何法线同样接近 ±up，与地面不可分（实测草 70.0% 判闭合、
+//  地表 69.9% 判闭合，等于抛硬币）。所以由**生产者自己声明**：
+//  _CameraNormalsTexture.a 写成 -1 表示「薄壳/双面」；URP 现状下其余
+//  不透明几何的该通道为 +1，天空为 0，两者都按闭合面处理。
+//  生产者见 GrassWind.shader 的 DepthNormals Pass。
+// ════════════════════════════════════════════════════════════════
+//  ═══════════════════════════════════════════════════════════════════════
+//  依赖：include 本文件要求调用方已声明 _CameraDepthTexture **和**
+//  _CameraNormalsTexture（DeclareDepthTexture.hlsl + DeclareNormalsTexture.hlsl）。
+//  缺任一声明只会在 Metal 上以 undeclared identifier 报错，而且整个 shader
+//  会退化成 error shader —— 表现为「改了 diffuse 却毫无反应」。
+//  ═══════════════════════════════════════════════════════════════════════
+#define SSGI_THIN_SURFACE_FLAG (-1.0)
+
+bool SST_IsThinSurface(float2 uv)
+{
+    uv = ClampAndScaleUVForBilinear(UnityStereoTransformScreenSpaceTex(uv), _CameraNormalsTexture_TexelSize.xy);
+    return SAMPLE_TEXTURE2D_X_LOD(_CameraNormalsTexture, sampler_PointClamp, uv, 0).a < -0.5;
+}
+
+// 命中面能不能按「不透明闭合物」做背面剔除。
+bool SST_HitSurfaceIsClosed(float2 uv)
+{
+    return !SST_IsThinSurface(uv);
+}
+
+// ════════════════════════════════════════════════════════════════
 //  Project — reject near/far planes and unsafe homogeneous division.
 // ════════════════════════════════════════════════════════════════
 bool SST_Project(float3 positionWS, out float2 uv, out float eyeDepth)

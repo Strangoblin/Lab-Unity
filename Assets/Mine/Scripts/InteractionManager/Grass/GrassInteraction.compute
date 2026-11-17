@@ -1,0 +1,61 @@
+// ════════════════════════════════════════════════════════════════
+//  GrassInteraction.compute — 草地交互子集
+//
+//  输入 _InteractionOriginTex：正交捕获的穿透深度（0..1，1 m）
+//  输出 _InteractionGrassTex：踩踏压弯量（0..1，R 通道）
+//
+//  语义：物体压过 → 草被压弯；物体离开后按 _Recovery（每秒）回弹。
+//  与水面不同，这里不做波动传播，只做「按下 / 保持 / 回弹」，
+//  弯曲方向由渲染 Shader 用压弯量的梯度求（远离压点），不需要方向纹理。
+//
+//  双缓冲：prev 读、out 写，Process 末尾交换，避免邻域/重投影数据竞争。
+//  线程组 8×8。
+// ════════════════════════════════════════════════════════════════
+
+#pragma kernel CSGrass
+
+#include "Assets/Mine/Scripts/InteractionManager/Shaders/InteractionDomainEdge.hlsl"
+
+Texture2D<float>   _InteractionOriginTex;
+Texture2D<float>   _GrassPrevTex;
+RWTexture2D<float> _GrassOutTex;
+
+float _Recovery;      // 每秒回弹量（1 = 一秒从满压到零）
+float _ContactGain;   // 捕获深度 → 压弯量的增益（物体材质 _Intensity 之外的总增益）
+float _Dt;            // 帧长（秒）
+int2  _DeltaPixels;   // 移动模拟域重投影：旧网格中同一世界位置的像素偏移
+float2 _EdgeAbsorb;   // 本步域位移 / 淡出带宽 × 吸收系数（域不动 = 0）
+uint  _Resolution;
+
+bool InBounds(int2 c)
+{
+    return c.x >= 0 && c.x < (int)_Resolution && c.y >= 0 && c.y < (int)_Resolution;
+}
+
+[numthreads(8, 8, 1)]
+void CSGrass(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Resolution || id.y >= _Resolution)
+        return;
+
+    int2 coord     = int2(id.xy);
+    int2 prevCoord = coord + _DeltaPixels;
+
+    // 重投影：相机跟着物体移动，上一帧同一世界位置在当前网格里偏移了 _DeltaPixels。
+    float prev = InBounds(prevCoord) ? _GrassPrevTex[prevCoord] : 0.0;
+
+    // 输入按窗口缩（见 InteractionDomainEdge.hlsl 的第 1 条）：压在域边上的探针
+    // 只能压出 ≈ 0，所以压出来的痕迹自带淡出形状，边界那一圈不会是满值。
+    float depth = InteractionDomainFade(
+        saturate(_InteractionOriginTex[id.xy] * _ContactGain), coord, (float)_Resolution);
+    float decayed = max(prev - _Recovery * _Dt, 0.0);
+
+    // 压着的像素保持压弯，离开后从上一帧的值线性回弹。
+    float crush = saturate(max(depth, decayed));
+
+    // 边界吸收（第 2 条）：域把已有的压弯扫向边界时按位移把它吃掉。
+    // 域不动时这一项恒为 1，所以静置多久压弯都不会变。
+    crush *= InteractionDomainAbsorb(coord, (float)_Resolution, _EdgeAbsorb);
+
+    _GrassOutTex[id.xy] = crush;
+}

@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-//  Migrate IA_Renderer — CustomRendererData (legacy) → UniversalRendererData + InteractionCaptureFeature.
+//  Migrate IA_Renderer — CustomRendererData (legacy) → UniversalRendererData + CustomFeature.
 // ════════════════════════════════════════════════════════════════
 using System;
 using System.Text;
@@ -42,7 +42,7 @@ public class Script
         data.transparentLayerMask = 0;
         data.prepassLayerMask = 0;
 
-        var feature = ScriptableObject.CreateInstance<Mine.Rendering.InteractionCaptureFeature>();
+        var feature = ScriptableObject.CreateInstance<Mine.Rendering.CustomFeature>();
         feature.name = "Interaction Capture";
         feature.settings.copyDepth = copyDepth;
         feature.settings.copyColor = copyColor;

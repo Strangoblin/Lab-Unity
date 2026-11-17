@@ -46,7 +46,7 @@ GizmoRenderWindow：配置编辑、场景扫描、实时清单、全局覆盖
 | `Wind` | 0.20, 0.80, 1.00, 0.85 | OnSelected | WindFieldProvider |
 | `Instance` | 0.30, 0.70, 1.00, 0.80 | OnSelected | FishSimulation、RainSimulation |
 | `Interior` | 1.00, 0.75, 0.15, 0.95 | Always | InteriorMapBakeVolume、InteriorMapBakeDirection |
-| `Terrain` | 0.60, 1.00, 0.60, 0.90 | OnSelected | 预留，GrassGenerator 尚未迁入 |
+| `Terrain` | 0.60, 1.00, 0.60, 0.90 | OnSelected | 预留；原 GrassGenerator 已随 SimpleGrass 退役（2026-11-06） |
 
 普通回调与选择回调是两个绘制通道：`Always` 仅走普通回调，`OnSelected` 仅走选择回调，`Hidden` 两者均跳过，因此同一来源不重复绘制。`Policy` 为 Editor 持久化覆盖：`Default` 沿用成员，其他值统一覆盖 Presence；仍受 Enabled 约束。更名后保留原偏好键 `Mine.SceneGizmo.Policy`，保留用户已有选择。
 
@@ -106,6 +106,6 @@ Canvas 公共图元为 `WireBox`、`WireSphere`、`PlaneRect`、`WireHemisphere`
 
 框架建立时已统一各组件手写箭头、圆环和状态恢复，成员颜色替代各组件的独立色值；旧 `_drawGizmo` / `_showArea` / `_gizmoColor` 已由 `_gizmoMember` 取代。这属于接手前迁移，不应在下次保存场景时误以为仍有旧独立开关。
 
-交互 `Handles` 继续留在工具侧；`Shaders/Render/SimpleGrass/GrassGenerator.cs` 在本轮 Scripts 范围之外，尚未迁入，不宣称全工程可视化已全部统一。
+交互 `Handles` 继续留在工具侧；原 `Shaders/Render/SimpleGrass/GrassGenerator.cs` 已随 SimpleGrass 于 2026-11-06 退役，不再迁入，`Terrain` 组保持预留。
 
 功能回归入口与验证边界见 [Validation~/README.md](Validation~/README.md)。项目脚本结构规范见 [script-structure](../../../../.agents/knowledge/unity/standard/script/script-structure.md)。

@@ -42,15 +42,16 @@ public static class SSCMountCheck
             feature.Create();
             sb.AppendLine("featureActive=" + feature.isActive);
 
-            var passField = typeof(SSCFeature).GetField("sscPass", BindingFlags.NonPublic | BindingFlags.Instance);
-            var pass = passField != null ? passField.GetValue(feature) : null;
-            sb.AppendLine("pass=" + (pass != null));
-            if (pass != null)
-            {
-                var matField = pass.GetType().GetField("_material", BindingFlags.NonPublic | BindingFlags.Instance);
-                var mat = matField != null ? matField.GetValue(pass) as Material : null;
-                sb.AppendLine("material=" + (mat != null) + ":" + (mat != null && mat.shader != null ? mat.shader.name : "NULL"));
-            }
+            var rayMarchField = typeof(SSCFeature).GetField("_rayMarchPass", BindingFlags.NonPublic | BindingFlags.Instance);
+            var compositeField = typeof(SSCFeature).GetField("_compositePass", BindingFlags.NonPublic | BindingFlags.Instance);
+            var rayMarchPass = rayMarchField != null ? rayMarchField.GetValue(feature) : null;
+            var compositePass = compositeField != null ? compositeField.GetValue(feature) : null;
+            sb.AppendLine("rayMarchPass=" + (rayMarchPass != null));
+            sb.AppendLine("compositePass=" + (compositePass != null));
+
+            var matField = typeof(SSCFeature).GetField("_material", BindingFlags.NonPublic | BindingFlags.Instance);
+            var mat = matField != null ? matField.GetValue(feature) as Material : null;
+            sb.AppendLine("material=" + (mat != null) + ":" + (mat != null && mat.shader != null ? mat.shader.name : "NULL"));
 
             sb.AppendLine("graphics=" + SystemInfo.graphicsDeviceType);
 

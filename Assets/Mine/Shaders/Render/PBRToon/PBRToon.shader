@@ -31,7 +31,7 @@ Shader "Render/PBRToon"
         _FabricSheen ("Fabric Sheen", Range(0.0, 1.0)) = 0.4
 
         [Header(Additional Fill Light)]
-        _FillLightStrength ("Fill Light Strength", Range(0.0, 2.0)) = 1.0
+        _FillLightIntensity ("Fill Light Intensity", Range(0.0, 2.0)) = 1.0
         _FillLightWeight ("Fill Light Direction Weight", Range(0.0, 1.0)) = 1.0
 
         [Header(Toon Parameters)]
@@ -42,7 +42,7 @@ Shader "Render/PBRToon"
 
         [Header(Custom Parameters)]
         _RimRange ("Rim Range", Range(0.0, 1.0)) = 0.5
-        _RimStrength ("Rim Strength", Range(0.0, 1.0)) = 0.5
+        _RimIntensity ("Rim Intensity", Range(0.0, 1.0)) = 0.5
         _FresnelColor ("Fresnel Color", Color) = (1.0, 1.0, 1.0, 1.0)
 
         [Header(Mask Blur)]
@@ -91,7 +91,7 @@ Shader "Render/PBRToon"
         float _Brightness;
         float _Roughness;
         float _Metallic;
-        float _FillLightStrength;
+        float _FillLightIntensity;
         float _FillLightWeight;
         float _Anisotropy;
         float _SSSScatter;
@@ -100,7 +100,7 @@ Shader "Render/PBRToon"
         float _ToonRange;
         float _ToonSmoothness;
         float _RimRange;
-        float _RimStrength;
+        float _RimIntensity;
         float _OutlineColor;
         float _OutlineScale;
         float _MaskBlurWeight;
@@ -271,7 +271,7 @@ Shader "Render/PBRToon"
         float3 shadowSSS  = lerp(shadowNdotL, SSS, _SSSWeight);
         float3 shadowArea = shadowMain * shadowSSS * shadowAO;
 
-        float3 radiance1 = mainLitColor * mainLitDistanceAtten * shadowArea + fillColor * _FillLightStrength;
+        float3 radiance1 = mainLitColor * mainLitDistanceAtten * shadowArea + fillColor * _FillLightIntensity;
         float3 radiance2 = mainLitColor * mainLitDistanceAtten * mainLitShadowAtten * NdotL;
         float3 F0 = lerp(0.04, baseColor.rgb, _Metallic);
         float3 F  = F_Fast(F0, VdotH);
@@ -280,12 +280,12 @@ Shader "Render/PBRToon"
             * PI * radiance1 * (1.0 - _Metallic) * (1.0 - F);
         float3 Specular = Spec_Unity(NdotH, LdotH, VdotH, TdotH, BdotH, roughness, _Anisotropy)
             * PI * radiance2 * F;
-        float3 ambient  = BRDF_Env(baseColor.rgb, NdotV, normalWS, viewDirWS, roughness, _Metallic, unity_SpecCube0, samplerunity_SpecCube0);
+        float3 ambient  = BRDF_Env(baseColor.rgb, NdotV, normalWS, viewDirWS, roughness, _Metallic, unity_SpecCube0, samplerunity_SpecCube0, unity_SpecCube0_HDR);
 
         float  rimLight    = RimLightDepth(normalWS, screenUV, _RimRange * 10);
         float  rimFresnel  = pow(1.0 - NdotV, 4);
         float  rimVertical = normalWS.y * 0.5 + 0.5;
-        float3 rim         = rimLight * rimFresnel * rimVertical * radiance2 * baseColor.rgb * _RimStrength * 10;
+        float3 rim         = rimLight * rimFresnel * rimVertical * radiance2 * baseColor.rgb * _RimIntensity * 10;
 
         float  fresnelArea = pow(1.0 - NdotV, 1);
         float3 fresnel     = lerp(1.0, _FresnelColor.rgb, fresnelArea);

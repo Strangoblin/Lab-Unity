@@ -18,6 +18,8 @@ using UnityEngine.SceneManagement;
 /// 搭建「一套正交交互捕获 + 三个表面子集」的验证场景：
 ///   GrassInteractionProcessor / SnowInteractionProcessor / SandInteractionProcessor
 /// 共用同一个 UniversalInteractionManager、同一台交互相机和同一个跟随探针。
+/// 地面只有一块 LayeredGround：草/沙/雪是它的三层，每层各自绑定一路交互场；
+/// 草叶（GrassChunkManager）仍按原来的场弯曲，地面绘制交给 LayeredGround。
 /// 场景保存为 Assets/Mine/Scripts/InteractionManager/InteractionSurfacesDemo.unity。
 /// 不修改当前打开场景的内容。
 /// </summary>
@@ -30,6 +32,7 @@ public class Script
     private const string SnowMaterial    = DemoFolder + "/Materials/SnowGround.mat";
     private const string SandMaterial    = DemoFolder + "/Materials/SandGround.mat";
     private const string GrassMaterial   = DemoFolder + "/Materials/GrassGround.mat";
+    private const string LayeredMaterial = DemoFolder + "/Materials/LayeredGround.mat";
     private const string PatchMeshPath   = DemoFolder + "/Meshes/InteractionPatch.asset";
 
     private const string GrassComputePath = Folder + "/Grass/GrassInteraction.compute";
@@ -101,8 +104,13 @@ public class Script
             grassGround.SetFloat("_PatchStrength", 0.15f);
             EditorUtility.SetDirty(grassGround);
 
-            Material probeMaterial = EnsureMaterial(ProbeMaterial, "InteractionManager/InteractorObject");
-            probeMaterial.SetFloat("_Intensity", 0.4f);
+            // 多层混合地面：层参数现在挂在 LayeredGroundSurface 的层数组上（见
+            // BuildLayeredPatch），材质只保留所有层共用的混合参数。
+            Material layeredGround = EnsureMaterial(LayeredMaterial, "InteractionManager/LayeredGround");
+            layeredGround.SetFloat("_PatchStrength",   0.10f);
+            EditorUtility.SetDirty(layeredGround);
+
+            Material probeMaterial = EnsureMaterial(ProbeMaterial, "InteractionManager/InteractorObject");            probeMaterial.SetFloat("_Intensity", 0.4f);
             probeMaterial.SetColor("_BaseColor", new Color(1f, 0.45f, 0.15f, 1f));
             EditorUtility.SetDirty(probeMaterial);
 
@@ -158,10 +166,11 @@ public class Script
             SetSerializedFloat(driver, "_speed", 0.12f);
             SetSerializedFloat(driver, "_sway", 1.2f);
 
-            // ── 三块表面 ─────────────────────────────────────────
-            BuildSnowSandPatch("SnowPatch", -PatchSpacing, patchMesh, snowGround);
-            BuildSnowSandPatch("SandPatch",  PatchSpacing, patchMesh, sandGround);
+            // ── 地表：一块 LayeredGround 接管三种地貌 ───────────────
+            // 雪/沙两块独立地形已经不需要了——它们的观感是 LayeredGround 的两层。
+            // 草地仍保留草叶（FlatGrassTerrain 只作采样源，不画地面）。
             BuildGrassPatch("GrassPatch", grassGround, grassMesh, grassWind, mainCamera);
+            BuildLayeredPatch(patchMesh, layeredGround);
 
             // ── 交互总控 + 三个子集 ───────────────────────────────
             var managerGO = new GameObject("Interaction Manager");
@@ -178,7 +187,7 @@ public class Script
             var sandProcessor = managerGO.AddComponent<SandInteractionProcessor>();
             SetSerialized(sandProcessor, "_computeShader", sandCompute);
             SetSerializedFloat(sandProcessor, "_rim", 0.7f);       // 沙子被挤到坑沿堆起
-            SetSerializedFloat(sandProcessor, "_repose", 0.5f);    // 坑壁最陡约 30°
+            SetSerializedFloat(sandProcessor, "_repose", 0.65f);   // 坑壁最陡约 34°（干沙休止角）
             SetSerializedFloat(sandProcessor, "_settle", 0.25f);   // 沙痕比雪痕消失得快
 
             var interactionCameraGO = new GameObject("Interaction Camera");
@@ -318,6 +327,38 @@ public class Script
         renderer.shadowCastingMode = ShadowCastingMode.Off;
     }
 
+    /// <summary>
+    /// 一块网格混合草 / 沙 / 雪。放在三块之后（z = +12），不与现有表面重叠；
+    /// 它不接任何交互处理器，只验证分层混合与共用 BRDF 的观感。
+    /// 笔画数据挂在 LayeredGroundSurface 上，随场景序列化。
+    /// </summary>
+    private static void BuildLayeredPatch(Mesh mesh, Material material)
+    {
+        var go = new GameObject("LayeredPatch");
+        go.layer = SurfaceLayer;
+        // 落在原点：探测器路径、草叶、交互域都在这块上，三个独立地形已被它取代。
+        go.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+        var surface = go.AddComponent<LayeredGroundSurface>();
+        SetSerialized(surface, "_sourceMaterial", material);
+        SetSerialized(surface, "_mesh", mesh);
+        SetSerializedFloat(surface, "_size", PatchSize);
+        SetSerializedInt(surface, "_surfaceLayer", SurfaceLayer);
+        // 层数组就是地形层的唯一定义：笔刷和权重数据的通道数都跟着它走；
+        // 每层顺带绑定它吃的那一路交互场（与 EnsureDefaultLayers 的默认值一致）。
+        surface.SetLayers(
+            new LayeredGroundLayerSettings("Grass",
+                new Color(0.22f, 0.30f, 0.13f), new Color(0.09f, 0.14f, 0.07f), 0.08f,
+                0f, LayeredGroundInteractionSource.Grass, 0.10f, 0.5f, 0.10f),
+            new LayeredGroundLayerSettings("Sand",
+                new Color(0.80f, 0.66f, 0.40f), new Color(0.42f, 0.33f, 0.20f), 0.18f,
+                0f, LayeredGroundInteractionSource.Sand, 0.30f, 1.0f, 0.12f),
+            new LayeredGroundLayerSettings("Snow",
+                new Color(0.93f, 0.96f, 1.00f), new Color(0.47f, 0.61f, 0.82f), 0.35f,
+                0f, LayeredGroundInteractionSource.Snow, 0.22f, 0.9f, 0.18f));
+        surface.Initialize();
+    }
+
     private static void BuildGrassPatch(string name, Material groundMaterial, Mesh grassMesh,
         Material grassMaterial, Camera targetCamera)
     {
@@ -331,6 +372,9 @@ public class Script
         SetSerialized(terrain, "_groundMaterial", groundMaterial);
         SetSerializedInt(terrain, "_surfaceLayer", SurfaceLayer);
         SetSerializedInt(terrain, "_surfaceSubdivisions", 8);
+        // 地面由 LayeredGround 画：这里只留草叶的采样源，不再生成可见平面，
+        // 否则会和 LayeredGround 在 y=0 打架（z-fighting）并盖掉已刷的痕迹。
+        SetSerialized(terrain, "_renderGround", false);
         terrain.Initialize();
 
         var manager = go.AddComponent<GrassChunkManager>();

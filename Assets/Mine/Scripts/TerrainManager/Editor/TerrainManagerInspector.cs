@@ -1,90 +1,107 @@
 // ════════════════════════════════════════════════════════════
-//  TerrainManagerInspector — 展示通用地图、方案资产与渲染设置
+//  TerrainManagerInspector — 数据参数、渲染入口与生成状态
 // ════════════════════════════════════════════════════════════
 
 using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace Mine.Terrain.Editor
 {
     /// <summary>
-    /// 场景组件只显示共享地图和渲染参数；专用配置交由所选方案的资产编辑器。
+    /// 场景组件只需暴露数据配置、渲染入口和当前快照状态。
     /// </summary>
     [CustomEditor(typeof(TerrainManager))]
     public sealed class TerrainManagerInspector : UnityEditor.Editor
     {
-        private UnityEditor.Editor _terrainTypeEditor;
-        private bool _showTerrainTypeSettings = true;
-
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            SerializedProperty settings = serializedObject.FindProperty("_settings");
 
-            DrawSection("General Map");
+            DrawSection("Data");
             EditorGUILayout.PropertyField(serializedObject.FindProperty("_generateOnStart"));
-            DrawField(settings, "_width");
-            DrawField(settings, "_height");
-            DrawField(settings, "_cellSize");
-            DrawField(settings, "_chunkCells");
-            DrawField(settings, "_origin");
-            DrawField(settings, "_seed");
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("_settings"), true);
 
-            DrawSection("Terrain Type");
-            SerializedProperty terrainType = serializedObject.FindProperty("_terrainType");
-            EditorGUILayout.PropertyField(terrainType);
-
-            DrawSection("Renderer");
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("_renderSettings"), true);
+            DrawSection("Render");
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("_surfaceMaterial"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("_castShadows"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("_receiveShadows"));
 
             serializedObject.ApplyModifiedProperties();
-            DrawTerrainTypeInspector(terrainType.objectReferenceValue);
 
             TerrainManager manager = (TerrainManager)target;
-            using (new EditorGUI.DisabledScope(!Application.isPlaying ||
-                terrainType.objectReferenceValue == null))
+            TerrainSettings settings = manager.Settings;
+            string validationError = null;
+            bool valid = settings != null && settings.TryValidate(out validationError);
+            if (!valid)
+                EditorGUILayout.HelpBox(validationError ?? "Terrain settings are missing.",
+                    MessageType.Error);
+
+            DrawActions(manager, valid);
+            DrawStatus(manager);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        //  操作 — 生成与释放
+        // ════════════════════════════════════════════════════════════
+
+        private static void DrawActions(TerrainManager manager, bool valid)
+        {
+            EditorGUILayout.Space();
+            using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("Regenerate Terrain"))
-                    manager.Generate();
+                using (new EditorGUI.DisabledScope(!valid))
+                {
+                    if (GUILayout.Button("Generate"))
+                        Generate(manager);
+                }
+
+                using (new EditorGUI.DisabledScope(!manager.HasData))
+                {
+                    if (GUILayout.Button("Release"))
+                        manager.Release();
+                }
             }
         }
 
-        private void OnDisable()
+        private static void Generate(TerrainManager manager)
         {
-            if (_terrainTypeEditor != null)
-                DestroyImmediate(_terrainTypeEditor);
+            try
+            {
+                manager.Generate();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception, manager);
+            }
         }
 
-        private void DrawTerrainTypeInspector(UnityEngine.Object terrainType)
+        // ════════════════════════════════════════════════════════════
+        //  状态 — 当前快照尺寸与高度范围
+        // ════════════════════════════════════════════════════════════
+
+        private static void DrawStatus(TerrainManager manager)
         {
-            if (terrainType == null)
+            if (!manager.HasData)
             {
-                if (_terrainTypeEditor != null)
-                    DestroyImmediate(_terrainTypeEditor);
-                _terrainTypeEditor = null;
-                EditorGUILayout.HelpBox("Assign a Terrain Type asset before generating the map.",
+                EditorGUILayout.HelpBox("No terrain data has been generated.",
                     MessageType.Info);
                 return;
             }
 
-            _showTerrainTypeSettings = EditorGUILayout.Foldout(_showTerrainTypeSettings,
-                "Terrain Type Settings (shared asset)", true);
-            if (!_showTerrainTypeSettings)
-                return;
-            UnityEditor.Editor.CreateCachedEditor(terrainType, null, ref _terrainTypeEditor);
-            using (new EditorGUI.IndentLevelScope())
-                _terrainTypeEditor.OnInspectorGUI();
+            TerrainGrid grid = manager.CurrentGrid;
+            DrawSection("Status");
+            EditorGUILayout.LabelField("Version", manager.DataVersion.ToString());
+            EditorGUILayout.LabelField("Cells", $"{grid.WidthCells} x {grid.HeightCells}");
+            EditorGUILayout.LabelField("Vertices", grid.VertexCount.ToString());
+            EditorGUILayout.LabelField("World Size", $"{grid.WorldWidth:F2} x {grid.WorldDepth:F2}");
+            EditorGUILayout.LabelField("Height Range", $"{grid.MinHeight:F2} .. {grid.MaxHeight:F2}");
         }
 
         private static void DrawSection(string title)
         {
             EditorGUILayout.Space();
             EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
-        }
-
-        private static void DrawField(SerializedProperty parent, string name)
-        {
-            EditorGUILayout.PropertyField(parent.FindPropertyRelative(name));
         }
     }
 }

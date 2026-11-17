@@ -1688,7 +1688,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &275965014
 Transform:
   m_ObjectHideFlags: 0
@@ -1836,7 +1836,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!81 &330585544
 AudioListener:
   m_ObjectHideFlags: 0
@@ -2924,7 +2924,7 @@ RenderTexture:
   m_TextureSettings:
     serializedVersion: 2
     m_FilterMode: 1
-    m_Aniso: 1
+    m_Aniso: 0
     m_MipBias: 0
     m_WrapU: 1
     m_WrapV: 1
@@ -3156,6 +3156,7 @@ MonoBehaviour:
   _orthoNear: 0
   _orthoFar: 10
   _resolution: 256
+  _editorPreview: 1
   _initialized: 1
 --- !u!4 &610824609
 Transform:
@@ -3188,9 +3189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Mine.Interaction.WaterInteractionProcessor
   _computeShader: {fileID: 7200000, guid: caa205674849849bba3dcdd62f740767, type: 3}
-  _waveSpeed: 0.1
-  _damping: 0.95
-  _objectForce: 1
+  _clarity: 0.5
 --- !u!1 &658628055
 GameObject:
   m_ObjectHideFlags: 0
@@ -3674,7 +3673,7 @@ MonoBehaviour:
   instanceMaterial: {fileID: 480339247}
   instanceCount: 4096
   boundsSize: 200
-  initialized: 1
+  initialized: 0
 --- !u!1 &719159370
 GameObject:
   m_ObjectHideFlags: 0
@@ -4323,7 +4322,7 @@ GameObject:
   - component: {fileID: 858340531}
   - component: {fileID: 858340530}
   m_Layer: 0
-  m_Name: FFT
+  m_Name: Wave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4340,7 +4339,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80f6d5c70ed134f5195078da3ec86dcc, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Mine.Fields.FFTWaveFieldProvider
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Fields.WaveFieldProvider
   _fftCS: {fileID: 7200000, guid: 3eac42d9e489f4c3cbb17d9f696f189b, type: 3}
   _cascadeScales:
   - 200
@@ -4350,6 +4349,10 @@ MonoBehaviour:
   - 1
   - 0.5
   - 0.25
+  _cascadeDirectionality:
+  - 3
+  - 1.6
+  - 0.7
   _windSpeed: 10
   _windDirection: {x: 1, y: 0.3}
   _choppyScale: 0.1
@@ -5872,7 +5875,7 @@ MonoBehaviour:
   instanceMaterial: {fileID: 1238077965}
   instanceCount: 2048
   boundsSize: 30
-  initialized: 1
+  initialized: 0
 --- !u!1 &1335167655
 GameObject:
   m_ObjectHideFlags: 0
@@ -7048,7 +7051,7 @@ Transform:
   m_GameObject: {fileID: 1647042573}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.03, y: 5.003, z: 2.12}
+  m_LocalPosition: {x: -0.0390625, y: 5.003, z: 2.1171875}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7274,7 +7277,7 @@ Transform:
   m_GameObject: {fileID: 1706362014}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15, y: 0.8, z: 0}
+  m_LocalPosition: {x: 15, y: 0.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []

@@ -54,17 +54,8 @@
 | [2026-09-17-shader-menu-naming.md](2026-09-17-shader-menu-naming.md) | 2026-09-17 | 固化 Mine Shader 菜单路径命名，同步 Shader/Baker 模板与规范索引 |
 | [2026-09-14-mine-write-scope.md](2026-09-14-mine-write-scope.md) | 2026-09-14 | Unity 门禁可写范围统一为 Assets/Mine；补充目录边界和软链越界回归测试 |
 | [2026-09-10-meta-mcp-bypass.md](2026-09-10-meta-mcp-bypass.md) | 2026-09-10 | meta-developer 与体系路径绕过 Unity MCP；g_entry 收紧为 unity-developer，并新增边界回归测试 |
-| [2026-09-10-unity-cli-routing.md](2026-09-10-unity-cli-routing.md) | 2026-09-10 | unity-editor skill 增加官方 Editor CLI 与 unityctl 的选择边界、同项目双实例安全约束及适配同步说明 |
-| [2026-09-04-agent-architecture-cutover.md](2026-09-04-agent-architecture-cutover.md) | 2026-09-04 | 架构解耦收尾 P0-P3 + skills 软链切流（已执行 fdf9106，人工确认） — 最终验收全绿（fixture phase7） |
-| [2026-09-04-codex-compatibility-links.md](2026-09-04-codex-compatibility-links.md) | 2026-09-04 | Codex 适配层补齐指向 `.agents/` 的相对软链，并加入架构契约测试 |
-| [2026-09-04-codex-agent-temp-cleanup.md](2026-09-04-codex-agent-temp-cleanup.md) | 2026-09-04 | 退役 Codex exec/auto 替代 agent，清理临时产物并将长期知识归档到共享 memory |
-| [2026-09-01-gate-state-persistence.md](2026-09-01-gate-state-persistence.md) | 2026-09-01 | NO_RECIPE 根因 = MCP server 空闲重启清空进程内状态；修复 = state.json 持久化 + 原子写 + 启动恢复 + reset 清文件 |
-| [2026-09-03-unityctl-bridge-host-isolation.md](2026-09-03-unityctl-bridge-host-isolation.md) | 2026-09-03 | UnityCtl bridge 宿主/网络命名空间隔离诊断与共享宿主恢复流程 |
-| [2026-09-04-interior-map-window-placement.md](2026-09-04-interior-map-window-placement.md) | 2026-09-04 | InteriorMap Baker Window 保留 GUID 归位功能 Editor 目录，并同步 window/baker 模板范例路径 |
-| [2026-09-04-fgd-window-placement.md](2026-09-04-fgd-window-placement.md) | 2026-09-04 | FGD LUT Baker Window 保留 GUID 归位功能 Editor 目录，并清除最后一个全局 EditorWindow 遗留路径 |
-| [2026-09-03-template-conventions-promoted.md](2026-09-03-template-conventions-promoted.md) | 2026-09-03 | 模板/库编写规则提升为活动规范 — layer-conventions Template 层刷新 + 新增 template-conventions.md 细则 + 索引 |
 | [2026-09-03-template-reference-taxonomy.md](2026-09-03-template-reference-taxonomy.md) | 2026-09-03 | 模板与知识库按实际职责重组：standard / script / shader，后处理允许混合 .cs/.shader/.compute/.md |
-| [history.md](history.md) | — | 已归档记忆时间线：2026-07 至 08 的体系史，逐日一句 |
+| [history.md](history.md) | — | 已归档记忆时间线：2026-07 至 11 的体系史，逐日一句 |
 
 ---
 

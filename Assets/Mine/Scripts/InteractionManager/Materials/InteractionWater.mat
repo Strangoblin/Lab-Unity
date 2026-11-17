@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: InteractionWater
+  m_Shader: {fileID: 4800000, guid: 55c2ed696ce114e8880fbe9b0f210e86, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _Alpha: 0.85
+    - _CausticsIntensity: 1
+    - _CausticsScale: 0.002
+    - _DisplacementScale: 1
+    - _Distortion: 0.25
+    - _FoamIntensity: 1
+    - _HeightIntensity: 0.1
+    - _IOR: 1.333
+    - _InteractionHeightScale: 4
+    - _InteractionNormalStrength: 4
+    - _NormalIntensity: 1
+    - _RefractionIntensity: 1
+    - _Roughness: 0.08
+    - _ScatterAnisotropy: 0.7
+    - _ScatterDensity: 1
+    - _ScatterDepth: 5
+    - _ScatterIntensity: 1
+    - _Tessellation: 8
+    - _TessellationFactor: 32
+    m_Colors:
+    - _Extinction: {r: 0.35, g: 0.09, b: 0.045, a: 0}
+    - _baseColorA: {r: 0.3443396, g: 0.76012415, b: 1, a: 1}
+    - _baseColorB: {r: 0.1, g: 0.42, b: 0.48, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

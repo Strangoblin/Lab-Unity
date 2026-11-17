@@ -114,7 +114,7 @@ Material:
     - _Flow_Direction: 0
     - _Flow_Noise_Scale: 0
     - _Flow_Speed: 0.009
-    - _FoamIntensity: 0.5
+    - _FoamIntensity: 1
     - _FoamScale: 0.5
     - _FoamSpeed: 1
     - _Foam_Amount: 1
@@ -126,6 +126,7 @@ Material:
     - _Foam_On: 1
     - _Foam_Speed: 0.06
     - _Foam_Strength: 2
+    - _HeightIntensity: 0.1
     - _Highlight_Smoothstep1: 0.8
     - _Highlight_Smoothstep2: 1
     - _Highlight_Strength: 2
@@ -136,7 +137,11 @@ Material:
     - _Hightlight_Scale_Local: 80
     - _Hightlight_Speed: 0.2
     - _Hightlight_Strength: 0.9
+    - _IOR: 1.333
+    - _InteractionHeightScale: 1
+    - _InteractionNormalStrength: 1
     - _IsNormalDistorationAllowed: 1
+    - _MaxThickness: 20
     - _NormalIntensity: 1
     - _NormalScale: 0.2
     - _NormalSpeed: 1
@@ -152,16 +157,23 @@ Material:
     - _Reflection_On: 1
     - _Reflection_Power_Fresnel: 25
     - _Reflection_Strength_Fresnel: 0.4
+    - _RefractionIntensity: 1
     - _Refraction_Cooperated_Adjustment: 0.8
     - _Refraction_Cooperated_Strength: 0.04
     - _Refraction_Cooperation_On: 1
     - _Refraction_Speed: 0.1
     - _Refraction_Strength: 0.003
+    - _Roughness: 0.2
+    - _ScatterAnisotropy: 0.65
+    - _ScatterDensity: 0.5
+    - _ScatterDepth: 5
+    - _ScatterIntensity: 1
     - _Smoothstep1: 0.01
     - _Smoothstep2: 6
     - _SrcBlend: 1
     - _Strength: 0
     - _Surface: 0
+    - _Tessellation: 8
     - _TessellationFactor: 8
     - _UnderWater_Layer_On: 0
     - _Underwater_Factor: 1
@@ -175,7 +187,9 @@ Material:
     m_Colors:
     - _CausticsIncidentDir: {r: 0, g: 11.8, b: 0, a: 0}
     - _Deep_Color: {r: 0, g: 0.20810206, b: 0.3537736, a: 0.9490196}
+    - _Extinction: {r: 0.35, g: 0.09, b: 0.045, a: 0}
     - _Flow_Color: {r: 0, g: 0, b: 0, a: 0}
+    - _FoamColor: {r: 1, g: 1, b: 1, a: 1}
     - _Foam_Color: {r: 1, g: 1, b: 1, a: 1}
     - _Foam_Edge: {r: 0.29, g: 0.3, b: 0, a: 0}
     - _Foam_Scale: {r: 1, g: 1, b: 0, a: 0}
@@ -187,8 +201,8 @@ Material:
     - _Shallow_Color: {r: 0, g: 0.5953988, b: 0.6039216, a: 0.78431374}
     - _View_Bias: {r: 0, g: 0, b: 0, a: 0}
     - _Water_Clean_Vector: {r: 0, g: 1, b: 0, a: 0}
-    - _baseColorA: {r: 0.2706924, g: 0.6452917, b: 0.7264151, a: 1}
-    - _baseColorB: {r: 0.025542913, g: 0.46556768, b: 0.7735849, a: 1}
+    - _baseColorA: {r: 0.37297297, g: 0.8918919, b: 1, a: 1}
+    - _baseColorB: {r: 0.03553301, g: 0.60406095, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &4423809351890574784

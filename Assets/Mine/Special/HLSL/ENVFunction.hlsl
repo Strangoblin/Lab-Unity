@@ -22,13 +22,13 @@ real4 GenEnvFGDLut(real NdotV, real roughness, uint sampleCount)
 // ════════════════════════════════════════════════════════════════════════════
 real3 BRDF_Env(real3 baseColor, real NdotV, real3 normalWS, real3 viewDirWS,
                real roughness, real metallic,
-               TextureCube spec, SamplerState samSpec)
+               TextureCube spec, SamplerState samSpec, real4 specHDR)
 {
     real3 F0  = lerp(0.04, baseColor, metallic);
 
     real3 R   = reflect(-viewDirWS, normalWS);
-    real  mip = roughness * 5.0;
-    real3 Pre = spec.SampleLevel(samSpec, R, mip).rgb;
+    real  mip = PerceptualRoughnessToMipmapLevel(roughness);
+    real3 Pre = DecodeHDREnvironment(spec.SampleLevel(samSpec, R, mip), specHDR);
     real3 Env = SampleSH(normalWS);
 
     // _FGDLut_TexelSize.z = width of bound texture（≥64 for real LUTs, ≤16 for fallback）

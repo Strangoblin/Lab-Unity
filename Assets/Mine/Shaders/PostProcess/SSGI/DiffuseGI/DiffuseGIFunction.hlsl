@@ -98,7 +98,9 @@ float4 DiffuseGI_Gather(float2 uv)
         if (!found)
             continue;
         float3 hitNormalWS = DiffuseGI_SampleNormal(hit.uv);
-        if (dot(hitNormalWS, -directionWS) <= 0.0 || hit.distance < _GITraceParams.z)
+        // 背面剔除只对不透明闭合物生效；薄壳（_CameraNormalsTexture.a == -1）退回纯深度判据。
+        if (hit.distance < _GITraceParams.z
+            || (SST_HitSurfaceIsClosed(hit.uv) && dot(hitNormalWS, -directionWS) <= 0.0))
             continue;
         float2 edge = abs(hit.uv * 2.0 - 1.0);
         float confidence = saturate(1.0 - pow(max(edge.x, edge.y), 4.0));

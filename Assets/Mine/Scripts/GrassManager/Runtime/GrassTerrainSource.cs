@@ -10,7 +10,34 @@ namespace Mine.Grass
         None = 0,
         Grass = 1,
         Dirt = 2,
-        Water = 4
+        Water = 4,
+        Rock = 8,
+        Sand = 16,
+        Snow = 32
+    }
+
+    /// <summary>
+    /// World-space color map that grass samples as its base color.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="Origin"/> and <see cref="Size"/> describe the world XZ rectangle the map
+    /// covers; the map is sampled with <c>(worldXZ - Origin) / Size</c>, matching the UV
+    /// layout of the terrain mesh.
+    /// </remarks>
+    public readonly struct GrassGroundColorSource
+    {
+        public readonly Texture ColorMap;
+        public readonly Vector2 Origin;
+        public readonly Vector2 Size;
+
+        public GrassGroundColorSource(Texture colorMap, Vector2 origin, Vector2 size)
+        {
+            ColorMap = colorMap;
+            Origin = origin;
+            Size = size;
+        }
+
+        public bool IsValid => ColorMap != null && Size.x > 0f && Size.y > 0f;
     }
 
     /// <summary>
@@ -39,6 +66,13 @@ namespace Mine.Grass
             bool found = TrySample(worldX, worldZ, out position, out normal);
             layer = found ? GrassTerrainLayer.Grass : GrassTerrainLayer.None;
             return found;
+        }
+
+        /// <summary>Optional color map sampled as the grass base color; unset sources draw with white.</summary>
+        public virtual bool TryGetGroundColor(out GrassGroundColorSource source)
+        {
+            source = default;
+            return false;
         }
     }
 }

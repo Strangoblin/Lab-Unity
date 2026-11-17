@@ -23,13 +23,13 @@ namespace Mine.Interaction
         [Tooltip("侧向挤出：压出的沙子堆在坑沿形成脊的强度。0 = 只挖坑不留边。")]
         [SerializeField] [Range(0f, 1f)] private float _rim = 0.7f;
 
-        [Tooltip("休止角：0 = 20°（陡坡立刻塌）、1 = 40°（几乎不塌）。控制坑壁能有多陡。")]
-        [SerializeField] [Range(0f, 1f)] private float _repose = 0.5f;
+        [Tooltip("休止角：0 = 20°（陡坡立刻塌）、1 = 40°（几乎不塌）。控制坑壁能有多陡。默认 0.65 ≈ 34°，即干沙休止角。")]
+        [SerializeField] [Range(0f, 1f)] private float _repose = 0.65f;
 
         [Tooltip("回平：坑和脊一起等比变浅直到消失的速度。0 = 永久保留，1 = 两三秒就没。")]
         [SerializeField] [Range(0f, 1f)] private float _settle = 0.25f;
 
-        [Tooltip("沙面位移尺度（米），必须与 SandGround 的 _DepthScale 一致 —— 只用来把休止角换算成归一化高差。")]
+        [Tooltip("高度场的世界尺度（米），只用来把休止角换算成归一化高差。渲染侧不再位移顶点，但与 SandGround 的 _DepthScale 保持一致，脊的坡角才和仿真的 tanθ 对得上。")]
         [SerializeField] private float _surfaceScale = 0.30f;
 
         const float kContactGain = 5f;

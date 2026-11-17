@@ -59,26 +59,28 @@ Material:
     m_Ints: []
     m_Floats:
     - _Anisotropy: 0
-    - _Brightness: 2
+    - _Brightness: 1
     - _EnableCelToon: 0
     - _EnableFabric: 0
     - _EnableOutline: 1
     - _EnableWeather: 0
     - _FabricCoverage: 0.5
     - _FabricSheen: 0.1
+    - _FillLightIntensity: 1
     - _FillLightStrength: 1
     - _FillLightWeight: 0.5
     - _MaskBlurWeight: 1
     - _Metallic: 0
     - _OutlineColor: 0.8
     - _OutlineScale: 0.5
+    - _RimIntensity: 0.5
     - _RimRange: 0.5
     - _RimStrength: 0.5
     - _Roughness: 1
     - _SSSRange: 1
     - _SSSScatter: 0.15
     - _SSSStrength: 2
-    - _SSSWeight: 0.5
+    - _SSSWeight: 1
     - _SnowAmount: 0
     - _SnowNoiseScale: 6
     - _SnowNormalBlend: 0.6

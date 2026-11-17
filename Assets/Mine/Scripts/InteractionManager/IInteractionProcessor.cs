@@ -3,24 +3,24 @@ using UnityEngine;
 namespace Mine.Interaction
 {
     /// <summary>
-    /// 通用交互处理器接口 — 接收正交相机渲染的原始交互数据 (originRT)，
-    /// 独立管理自己的输出 RT，通过 Compute Shader 处理后暴露给全局 Shader。
+    /// 交互处理器契约 — 消费 Manager 共享的 originRT，独立管理自己的输出 RT，
+    /// 并把结果发布成全局 Shader 属性。
     ///
-    /// 实现者必须是 MonoBehaviour，挂载在 UniversalInteractionManager 同一 GameObject 上。
-    /// UniversalInteractionManager 通过 GetComponent&lt;IUniversalInteractionProcessor&gt;()
-    /// 自动发现并调用。
+    /// 推荐直接继承 <see cref="InteractionProcessor"/>：它负责注册、生命周期与
+    /// 纹理重绑，实现者只需要写 CreateResources / ProcessStep / BindGlobals。
     /// </summary>
-    ///
-    /// <remarks>
-    /// 实现示例：
-    /// - WaterInteractionProcessor (波纹扩散 + 时间衰减)
-    /// - 未来：GrassInteractionProcessor (直通)、SnowInteractionProcessor (累积) 等
-    /// </remarks>
     public interface IUniversalInteractionProcessor
     {
-        /// <summary>初始化：创建输出 RT，绑定纹理到 Compute Shader，查找 kernel。</summary>
-        /// <param name="resolution">RT 分辨率（边长像素数）</param>
-        /// <param name="sourceRT">Manager 管理的共享输入 RT (originRT)</param>
+        /// <summary>语义通道名（"water" / "grass" / "snow" / "sand"）。同一时间只允许一个同名处理器。</summary>
+        string InteractionKey { get; }
+
+        /// <summary>越小越先处理；相同顺序保留注册顺序。</summary>
+        int InteractionOrder { get; }
+
+        /// <summary>资源是否已创建并绑定到 Manager 的输入 RT。</summary>
+        bool IsReady { get; }
+
+        /// <summary>创建输出 RT 并绑定到 Manager 管理的共享输入 RT (originRT)。</summary>
         void Initialize(int resolution, RenderTexture sourceRT);
 
         /// <summary>每帧处理：设置参数并 Dispatch Compute Shader。</summary>
@@ -28,10 +28,13 @@ namespace Mine.Interaction
         /// <param name="worldDelta">物体世界空间位移 (XZ)，用于 RT 数据重投影</param>
         void Process(float deltaTime, Vector2 worldDelta);
 
-        /// <summary>绑定输出 RT 为全局 Shader 属性，供 debug/渲染 shader 采样。</summary>
+        /// <summary>把输出 RT 绑定为全局 Shader 属性，供渲染 Shader 采样。</summary>
         void BindGlobalTextures();
 
-        /// <summary>释放 Compute Shader 持有的引用和自管理的 RT。</summary>
+        /// <summary>撤销全局属性（处理器禁用 / 被 Manager 卸载时调用）。</summary>
+        void ResetGlobals();
+
+        /// <summary>释放自管理的 RT。</summary>
         void Release();
     }
 }

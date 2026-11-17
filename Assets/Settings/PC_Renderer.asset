@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44f6d307490e7be45bade008fd49f400, type: 3}
   m_Name: SSCFeature
   m_EditorClassIdentifier: Assembly-CSharp::SSCFeature
-  m_Active: 0
+  m_Active: 1
   settings:
     sscShader: {fileID: 4800000, guid: 3784ad67eb3b5304b9245dd051049729, type: 3}
     mainTex2D: {fileID: 2800000, guid: b666157111b634ea093168db198dda8a, type: 2}
@@ -38,7 +38,8 @@ MonoBehaviour:
     lightDistance: 5
     softness: 0.5
     jitter: 1
-    passEvent: 500
+    cloudBufferEvent: 300
+    compositeEvent: 500
     showSSC: 0
 --- !u!114 &-6861971581733455524
 MonoBehaviour:
@@ -71,7 +72,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 124eab495a91643f4be081a51e35e833, type: 3}
   m_Name: MaskRBRFeature
   m_EditorClassIdentifier: Assembly-CSharp::MaskRBRFeature
-  m_Active: 0
+  m_Active: 1
   settings:
     shader: {fileID: 4800000, guid: 991eb88dafa5c47ff89b3b017e06ab10, type: 3}
     maskShader: {fileID: 4800000, guid: d64bff969cf53424e93ee915a781ff1a, type: 3}
@@ -86,6 +87,7 @@ MonoBehaviour:
     falloff: 2
     jitterStrength: 0
     intensity: 0.25
+    occludeWithClouds: 1
     passEvent: 400
     debug: 0
 --- !u!114 &-4968987183116551271
@@ -178,7 +180,8 @@ MonoBehaviour:
   - {fileID: 3243830817614936851}
   - {fileID: -7483881911666177618}
   - {fileID: -4392036002262086403}
-  m_RendererFeatureMap: 5cb9f3e33361c5a0159c79cf4b17bc195cd82b1cabab21aa291eca0eb996bc6e133b672bf166042dae892a7a0de92398fd0c71a4865a0cc3
+  - {fileID: 6635556024175187803}
+  m_RendererFeatureMap: 5cb9f3e33361c5a0159c79cf4b17bc195cd82b1cabab21aa291eca0eb996bc6e133b672bf166042dae892a7a0de92398fd0c71a4865a0cc3fd0c71a4865a0cc3
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -219,7 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 576fa3a7d3660458caa985fd7105602a, type: 3}
   m_Name: MaskBlur
   m_EditorClassIdentifier: Assembly-CSharp::MaskBlurFeature
-  m_Active: 0
+  m_Active: 1
   settings:
     shader: {fileID: 4800000, guid: 49706e69a6fbf43d79cdd1e56a36ea4f, type: 3}
     layerMask:
@@ -294,6 +297,19 @@ MonoBehaviour:
   m_MaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_CompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
+--- !u!114 &6635556024175187803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d86e055f04cd43799356228b5303777, type: 3}
+  m_Name: GrassRenderFeature
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Grass.GrassRenderFeature
+  m_Active: 1
 --- !u!114 &7979418361354919465
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,7 +354,7 @@ MonoBehaviour:
       maxDistance: 50
       thickness: 0.05
       normalBias: 0.03
-      roughness: 0
+      roughness: 1
     performance:
       ao: 1
       diffuseGI: 1

@@ -10,6 +10,8 @@ namespace Mine.Grass
     public sealed class GrassChunkManager : MonoBehaviour
     {
         private const int MaxInstancesPerChunk = 4000;
+        private static readonly int TerrainColorMapId = Shader.PropertyToID("_TerrainColorMap");
+        private static readonly int TerrainColorMapTransformId = Shader.PropertyToID("_TerrainColorMapTransform");
         [SerializeField] private GrassTerrainSource _terrain;
         [SerializeField] private Camera _camera;
         [SerializeField] private Mesh _grassMesh;
@@ -151,16 +153,13 @@ namespace Mine.Grass
 
         private void BeginContextRendering(ScriptableRenderContext context, List<Camera> cameras)
         {
+            // 渲染前的唯一入口：重建请求表，绘制本身交给 GrassRenderFeature 在 pass 序列里完成。
+            GrassDrawRequests.Clear();
             if (!isActiveAndEnabled || !UpdateChunks())
                 return;
             RefreshVisibility();
-            foreach (Camera camera in cameras)
-            {
-                if (camera != _camera && camera.cameraType != CameraType.SceneView)
-                    continue;
-                foreach (GrassChunk chunk in _chunks.Values)
-                    chunk.Draw(_grassMesh, _runtimeMaterial, camera, gameObject.layer);
-            }
+            foreach (GrassChunk chunk in _chunks.Values)
+                chunk.Publish(_grassMesh, _runtimeMaterial, gameObject.layer);
         }
 
         private void RefreshVisibility()
@@ -315,7 +314,8 @@ namespace Mine.Grass
             Bounds bounds = new Bounds(new Vector3(minX + width * 0.5f, (minHeight + maxHeight) * 0.5f,
                 minZ + depth * 0.5f), new Vector3(width + 2f * radius,
                 Mathf.Max(0.01f, maxHeight - minHeight + 2f * radius), depth + 2f * radius));
-            return new GrassChunk(_grassMesh, matrices, grass, indices, bounds);
+            _terrain.TryGetGroundColor(out GrassGroundColorSource groundColor);
+            return new GrassChunk(_grassMesh, matrices, grass, indices, bounds, groundColor);
         }
 
         private void OnDisable()
@@ -373,6 +373,8 @@ namespace Mine.Grass
 
         private void ClearChunks()
         {
+            // 区块释放会连带释放 ComputeBuffer，先把可能还指着它们的绘制请求清掉。
+            GrassDrawRequests.Clear();
             foreach (GrassChunk chunk in _chunks.Values)
                 chunk.Dispose();
             _chunks.Clear();
@@ -422,7 +424,8 @@ namespace Mine.Grass
             public int Count { get; }
             public int VisibleCount { get; private set; }
 
-            public GrassChunk(Mesh mesh, Matrix4x4[] matrices, GrassProperties[] grass, uint[] indices, Bounds bounds)
+            public GrassChunk(Mesh mesh, Matrix4x4[] matrices, GrassProperties[] grass, uint[] indices,
+                Bounds bounds, GrassGroundColorSource groundColor)
             {
                 Count = matrices.Length;
                 _bounds = bounds;
@@ -467,7 +470,16 @@ namespace Mine.Grass
                     _properties.SetVector("_InteractionDirection", Vector3.up);
                     _properties.SetFloat("_WindScale", 1f);
                     _properties.SetFloat("_WindStrength", 0f);
-                    _properties.SetFloat("_GroundColorBlend", 0f);
+
+                    // 地表色图缺失时退化成纯白，shader 侧不必分支。
+                    bool hasGroundColor = groundColor.IsValid;
+                    _properties.SetTexture(TerrainColorMapId,
+                        hasGroundColor ? groundColor.ColorMap : Texture2D.whiteTexture);
+                    _properties.SetVector(TerrainColorMapTransformId, new Vector4(
+                        hasGroundColor ? groundColor.Origin.x : 0f,
+                        hasGroundColor ? groundColor.Origin.y : 0f,
+                        hasGroundColor ? groundColor.Size.x : 1f,
+                        hasGroundColor ? groundColor.Size.y : 1f));
                 }
                 catch
                 {
@@ -500,12 +512,11 @@ namespace Mine.Grass
                 _arguments.SetData(_drawArguments);
             }
 
-            public void Draw(Mesh mesh, Material material, Camera camera, int layer)
+            public void Publish(Mesh mesh, Material material, int layer)
             {
                 if (VisibleCount == 0)
                     return;
-                Graphics.DrawMeshInstancedIndirect(mesh, 0, material, _bounds, _arguments, 0, _properties,
-                    ShadowCastingMode.Off, false, layer, camera);
+                GrassDrawRequests.Add(mesh, material, _arguments, _properties, layer);
             }
 
             public void Dispose()

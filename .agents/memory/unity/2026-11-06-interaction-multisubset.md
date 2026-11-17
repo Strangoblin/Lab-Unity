@@ -39,9 +39,9 @@
 
 - 草地渲染：`GrassWind.shader` 取 `_InteractionGrassTex` 的**负梯度**作为“远离压点”的方向，
   叶尖权重 `uv.y`，叠一点向下 press；世界空间偏移，不经过 TBN。
-- 雪地/沙地渲染：`SnowGround.shader` / `SandGround.shader` 做垂直位移 + 坡度法线；
-  两者都放透明队列并带**无位移 `DepthOnly` Pass**，交给现成的
-  `TransparentDepthMergeFeature` 合并参照深度（不改渲染器资产）。
+- 雪地/沙地渲染：`SnowGround.shader` / `SandGround.shader` **顶点不动，只走坡度法线 + 明暗**
+  （2026-11-09 从「顶点位移」改过来，见下）；两者都放透明队列并带 `DepthOnly` Pass，
+  交给现成的 `TransparentDepthMergeFeature` 合并参照深度（不改渲染器资产）。
 - 移动域重投影：三个 compute 都用 `_DeltaPixels = round(worldDelta × res / areaSize)`
   从上一帧坐标 `id + _DeltaPixels` 取历史；ping-pong RT，Swap 后立刻 `BindGlobals()`。
 
@@ -106,14 +106,83 @@ imprint *= exp(−_Settle·dt)                           ③ 乘性沉降
 
 ```
                        压住 2 s                                  抬离后 6 s
-sand  坑 0.787 r0     脊 +0.108 @r13（坑沿 r12）   坑 0.787→0.613→0.477→0.372   脊 0.108→0.048→0.036→0.028
-snow  压实 0.787 r0   外沿 0.052 = 峰值 6.6%，全场 min ≥ 0    0.787→0.634→0.512→0.414
+sand  坑 0.996 r0     脊 +0.077 @r15（坑沿 r15）   坑 0.996→0.776→0.604→0.470   脊 0.077→0.060→0.047→0.036
+snow  压实 0.997 r0   外沿 0.091 = 峰值 9.1%，全场 min ≥ 0    0.997→0.816→0.668→0.546
 ```
 
-雪的判据是「外沿 ≤ 峰值 10% 且全场没有负值」（它的场只有非负，结构上表达不出向上隆起，
-那 6.6% 是 5×5 蠕变晕、仍然是压痕），不是「完全没有侧向量」。
+（2026-11-06 首次跑是 0.787 / 脊 0.108。**峰值随场景里探针的初始高度变化**，两次场景状态不同，
+绝对值不可直接比；判据对两种状态都成立。）
 
-回归：`CheckDomainFade` 15/15、`CheckTraceSeam` 7/7、`CheckJitter` 10/10（sand max 0.115 / min −0.788，
+雪的判据是「外沿 ≤ 峰值 10% 且全场没有负值」（它的场只有非负，结构上表达不出向上隆起，
+那 9.1% 是 5×5 蠕变晕、仍然是压痕），不是「完全没有侧向量」。
+
+### 方程出处（2026-11-09 联网核对，取代此前「凭第一原理推导、无引用」的说法）
+
+- 休止角阈值塌落 → 阿贝尔沙堆模型的倾倒规则（超阈值向四邻分 1，质量守恒）。差别：文献一次倒到稳定，
+  我们是带速率的部分交换。
+- `L = tanθ · texel / scale` → 干沙休止角 ≈ 34°、雪 ≈ 38°（Wikipedia *Angle of repose*）。
+  `_repose` 在 tan20°–tan40° 线性映射。**2026-11-09 已把默认值从 0.5（31.0°）改成 0.65（33.9°）**，
+  对齐干沙；三处必须同步（Processor 默认值 / Demo 场景序列化 / Builder）。
+  Demo 场景那次是用编辑器脚本改的，不是手改 `.unity`。
+- 沙受压体积被挤到坑沿 → 颗粒材料近似不可压 + Reynolds dilatancy。
+- 雪只压实不堆边 → 干雪压实塑性、不可逆、由孔隙率与空气排出控制（*The Cryosphere* 14:1449, 2020）；
+  密度随深度单调增大（Wikipedia *Snow*）。`max(prev, press)` 正是"不可逆"。
+- `exp(−k·dt)` 沉降 → 蠕变律 `ε̇ = Aσⁿ` 的 `n=1` 特例；雪真实 `n>1`，这是简化不是本构。
+- 文献里的双休止角（θ_m 与 θ_r，Bagnold 角）我们没有建模，只有一个阈值 —— 相当于 θ_m = θ_r。
+
+### 地面改成「法线互动，不做网格变形」（2026-11-09）
+
+`SnowGround` / `SandGround` 的 Forward `Vert` 不再采样高度场、不写 `positionWS`；
+形状全部由 `Frag` 的法线（`slope × _DepthScale`）和明暗表达。`_DepthScale` 名字和值都留着，
+语义变成「假设真的位移了这么多米，坡度该是多少」，所以坡角与之前完全一致。
+
+- **为什么改**：顶点位移的解析度被网格细分绑死（Demo 是 96×96，约 12.5 cm/顶点），
+  而高度场是 256²/12 m；而且可见表面下陷后与 `DepthOnly` 参照面差一个位移。
+- **代价**：法线互动需要方向光 + 斜视角才读得出形状。正俯视 + 顶光实测 mean|Δ| 只有 0.0012
+  （几乎看不出），换成 3.5 m 高、约 55° 斜俯视后是 0.0086 / 8.1% 像素。
+- **判据**：`Validation~/CheckNormalOnlyGround.cs`（5/5）= 两个 shader 编译无 error
+  + 静态检查 `Vert` 体里没有 `positionWS` 写入/高度场采样 + 同一台相机空场/踩一脚两张图必须不同。
+- **踩的坑**：为了拍干净的图先把探针所有 `Renderer.enabled = false`，结果**捕获相机也拍不到探针**，
+  `_InteractionOriginTex` 恒 0、沙场恒 0 —— 看起来像「域没搬过去」。探针只在自拍图时藏，
+  `Step()` 期间必须可见。
+- `_surfaceScale`（Processor，0.30）与 `SandGround._DepthScale`（材质，0.32）应当一致；
+  现在不一致只影响「看起来的坡角」与仿真 tanθ 差约 6.7%，不再影响几何。
+
+### 再叠一层视差遮蔽映射（POM，2026-11-09）
+
+`Shaders/InteractionParallax.hlsl` 的 `InteractionParallaxOffsetWS()`，由 `_ParallaxSteps` 开关（0 = 关，默认 8）。
+法线只决定「亮度怎么变」，不决定「看得见哪一格」；POM 把采样点沿视线推进到真正可见的高度场位置，
+掠射角下才有形状（0 步时坑读成鼓包，16 步时读成真坑，近侧坑沿挡住远壁）。
+
+三件事让它在这里特别便宜，缺一不可：
+
+- **表面是平面** ⇒ TBN 就是世界 XZ，不需要切线空间，也不需要顶点 `TANGENT`。
+- **世界→UV 是仿射的** ⇒ 正交捕获相机的 `_InteractionOrthoP·_InteractionOrthoV` 作用在方向向量上 w 恒为 1，
+  `InteractionWorldToUVLinear()` 一步换 uv 位移，不用每步反投影。
+- **尺度小** ⇒ 12 m/256 = 4.69 cm/纹素，`_DepthScale` 只有 0.22–0.32 m，射线最多穿过 5–7 个纹素
+  ⇒ 8 步收敛（实测 8 vs 16 mean|Δ| = 0.0001），命中后一次二分细化就够平。
+
+只做**平面以下**那一半（沙 `saturate(-h)`、雪 `saturate(h)`）：坑沿的脊在平面之上，`t=0` 的射线穿不到负深度，
+结构上表达不出来，仍然只由法线负责。平地（深度 < 2%）早退不步进。
+**不动顶点、不动深度**，所以轮廓不随视差移动 —— 它只修正「这个像素该看到哪一格高度场」。
+
+判据：`Validation~/CheckParallaxGround.cs`（2/2，掠射约 20°）。**判「有没有效果」不能看整帧均值** —— 坑只占画面 1–2%，
+0 vs 16 的整帧 mean|Δ| 只有 0.0013；要看局部证据：峰值 |Δ| 0.365 + 1.30% 像素可见变化。收敛仍用整帧均值（8 vs 16 = 0.0001），落盘三张 PNG。
+
+### 一次「保存场景」把运行时状态写死，害两个检查变红（2026-11-09）
+
+保存 `InteractionSurfacesDemo.unity` 会把 Manager 与捕获相机此刻的运行态一起写进去：探针停在哪、
+正交相机的 `m_LocalPosition` / `orthographicSize`、`_areaSize`、以及 Manager 内部的 `_InteractionOriginTex`。
+一次保存把 `_areaSize` 12 → 20、探针 y 0.30 → 0.14，于是 `CheckTraceSeam` 4/3、`CheckSurfaceDynamics` 7/2 全红。
+
+- **症状指纹**：`CheckTraceSeam` 的硬台阶稳定出现在 **uv ≈ 0.600（x = 153）**，不在域边界。因为域比雪地贴片
+  （12×12）还大，`-1.5·area` 到 `-0.5·area` 的扫掠有一半压在空地上，痕迹从中间断成两级。
+- **判据**：`git diff` 保存后的场景，只该有你真想改的那一行。还原时探针、相机、`_areaSize` 要一起写回去。
+- **绝对值也别跨状态比**：`CheckSurfaceDynamics` 的峰值跟着探针静止高度走 —— y = 0.30 是坑 0.787 / 脊 0.109（接触圆 12 纹素），
+  y = 0 是 0.996 / 0.077（15 纹素）。压得越狠坑越深，但塌落把料往回带，脊反而更小。
+
+回归：`CheckParallaxGround` 2/2、`CheckNormalOnlyGround` 5/5、`CheckSurfaceDynamics` 9/9、
+`CheckDomainFade` 15/15、`CheckTraceSeam` 7/7、`CheckJitter` 10/10（sand max 0.115 / min −0.788，
 脊出现在 max 上）、`CheckWaterFade` 4/4（需先切到 `WaterInteractionDemo.unity`，否则报「缺对象」）。
 
 ## 验证（Demo 场景）

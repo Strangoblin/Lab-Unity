@@ -3,26 +3,38 @@
 //
 //  CSWave: 经典 2D 波动方程 (Verlet 积分) + 移动模拟域重投影
 //  - 读取 _InteractionOriginTex (当前帧，物体空间无需偏移)
+//  - 读取 _InteractionOriginPrevTex (上一帧穿透深度，用来做帧间差值)
 //  - 读取 _InteractionWaterTex   (上帧，偏移 _DeltaPixels 重投影)
 //  - 读取 _InteractionWaterPTex  (上上帧，偏移 _DeltaPixels 重投影)
 //  - 输出 _InteractionWaterTex   (h_new，当前位置)
 //  - 同时写 _InteractionWaterPTex (h_curr → 下帧 h_prev，当前位置)
+//  - 同时写 _InteractionOriginPrevTex (本帧深度 → 下帧做差用)
 //
-//  物体交互: 穿透深度 → 水面下压 (负高度)
+//  物体交互: 穿透深度的帧间变化 → 冲量（静止的物体不扰动水面）
+//  液体属性: 波速 + 整体阻尼 + 粘稠度（速度阻尼）
 //  线程组: 8×8
 // ════════════════════════════════════════════════════════════════
 
 #pragma kernel CSWave
 
+#include "Assets/Mine/Scripts/InteractionManager/Shaders/InteractionDomainEdge.hlsl"
+
 Texture2D<float>   _InteractionOriginTex;
 RWTexture2D<float> _InteractionWaterTex;
 RWTexture2D<float> _InteractionWaterPTex;
+// 上一帧的穿透深度：物体交互只认「这一帧相对上一帧的变化量」，
+// 静止的物体 delta = 0，不注入能量。读写同一像素（本线程只碰自己的格子，无竞争）。
+RWTexture2D<float> _InteractionOriginPrevTex;
 
 float _WaveSpeed;        // 波速系数，推荐 0.05~0.4
-float _Damping;          // 每帧阻尼，推荐 0.99~0.999
-float _ObjectForce;      // 物体下压力度，推荐 0.5~2.0
+float _Damping;          // 本步保留率：CPU 已把「每秒衰减率」按 dt 换算好，帧率无关（1 = 不衰减）
+float _ObjectForce;      // 冲量增益，固定 1：物体强弱由物体材质 _Intensity 缩放穿透深度决定
+float _Viscosity;        // 粘稠度：速度阻尼（每步系数），由 clarity 派生并按子步长折算
+float _Sponge;           // 边界吸收带本子步的阻尼量（每秒吸收率 × subDt，帧率无关）
 int2  _DeltaPixels;      // 像素偏移 = -worldDelta / areaSize * resolution
+float2 _EdgeAbsorb;      // 本步域位移 / 淡出带宽 × 吸收系数（域不动 = 0）
 uint  _Resolution;
+uint  _Primed;           // 0 = 初始化后的第一帧：只记录深度，不注入冲量
 
 // ── 4 邻域偏移 ──────────────────────────────────────────────
 
@@ -77,24 +89,65 @@ void CSWave(uint3 id : SV_DispatchThreadID)
     float laplacian = neighborSum - 4.0 * h_curr;
 
     // ── Verlet 积分 ──
+    float velocity = h_curr - h_prev;                       // 位移的变化率
     float h_new = 2.0 * h_curr - h_prev + _WaveSpeed * laplacian;
+
+    // ── 粘稠度: 速度阻尼 (−γ·ḣ) ──
+    // 和 _Damping 的区别: _Damping 每帧按比例缩放整个场，波刚走几格就被吃掉，表现为「传播范围变小」；
+    // 这里阻尼的是速度，振幅随时间衰减而传播速度不变，表现为「稠」而不是「短」。
+    h_new -= _Viscosity * velocity;
 
     // ── 阻尼 ──
     h_new *= _Damping;
 
-    // ── 边界淡出: RT 边缘能量逐渐衰减，防止拖尾滞留 ──
-    float border = _Resolution * 0.08;  // 8% 边界
-    float edgeX  = smoothstep(0.0, border, (float)id.x) * smoothstep(0.0, border, (float)(_Resolution - 1 - id.x));
-    float edgeY  = smoothstep(0.0, border, (float)id.y) * smoothstep(0.0, border, (float)(_Resolution - 1 - id.y));
-    h_new *= edgeX * edgeY;
+    // ── 边界吸收带 ──
+    // 窗函数见 InteractionDomainEdge.hlsl：域心 1，靠近 RT 边缘收到 0。
+    // 水面不能像印记那样「乘一次窗口就完事」：波是动的，必须真的把能量耗掉，
+    // 否则波会从那条 0 墙反射回来（以前就是 Dirichlet 墙，波在域边界上撞）。
+    // 所以这里用一条**海绵带**：阻尼率正比于 (1 - window)，在域心为 0、贴着边界最强，
+    // 按 subDt 折算（`_Sponge`），帧率无关。波进了带子是渐次衰减，不是撞墙。
+    int2  coord = int2(id.xy);
+    float window = InteractionDomainWindowAt(coord, (float)_Resolution);
 
-    // ── 物体交互: 穿透深度 → 水面下压 ──
-    if (depth > 0.0)
-    {
-        float target = -depth * _ObjectForce;
-        float weight = saturate(depth * 4.0);
-        h_new = lerp(h_new, target, weight);
-    }
+    // ── 物体交互: 只认「穿透深度的帧间变化」，不认绝对值 ──
+    // 静止的球在接触区深度恒定 → delta = 0 → 不注入任何能量，水面自己恢复平静；
+    // 压入时 delta > 0 → 接触边缘下压；抬离/划过时 delta < 0 → 吸起，留下尾迹。
+    float depthPrev = _InteractionOriginPrevTex[id.xy];
+    float delta     = depth - depthPrev;
+
+    // 单帧穿透变化上限（米）。水线在深度图上是一条硬边：球在水平方向滑 0.03 m，
+    // 边界那一圈像素就从「水面上」整块变成「水面下 0.5 m」，delta 一步到 0.7 —— 与移动速度无关。
+    // 不封顶的话横向拖动每帧都在边界上砸满额冲量，而纵向移动只是把内部深度整体抬降（每帧 0.03 量级），
+    // 于是同一套增益下「左右过冲、上下没反应」。封顶后横向的边界阶跃与纵向的平滑变化同一量级。
+    const float kMaxDelta = 0.03;
+    delta = clamp(delta, -kMaxDelta, kMaxDelta);
+
+    // 接触权重取两帧的较大深度：抬离那一帧 depth 已经掉到 0，只看本帧会漏掉吸起
+    float contact = saturate(max(depth, depthPrev) * 4.0);
+
+    // 第一帧（_Primed = 0）只记录深度：上一帧深度 RT 还是空的，
+    // 静止的球在这里会算出 delta = 1 的假变化，打出一记 0.5 的凹陷 + 一圈涟漪。
+    // 冲量本身按窗口缩：贴在域边上的探针只能搅出 ≈ 0，不会把边界顶出一个残留盘。
+    if (_Primed != 0u && delta != 0.0)
+        h_new += -delta * _ObjectForce * contact * window;
+
+    // 记录本帧深度，供下一帧做差
+    _InteractionOriginPrevTex[id.xy] = depth;
+
+    // ── 输出钳位: RT 约定 ±1（位移由 _InteractionHeightScale 换算成米）──
+    // 连续拖拽时同一片像素会被反复打冲量，不钳位会把波形推到 ±6 以上。
+    h_new  = clamp(h_new,  -1.0, 1.0);
+    h_curr = clamp(h_curr, -1.0, 1.0);
+
+    // ── 边界吸收（历史值一并收，下一步 Verlet 才不会读到未衰减的速度）──
+    // 两条一起吃：
+    //   _Sponge —— 按时间衰减的海绵带（波必须真的耗能，否则撞 0 墙反射回来）；
+    //   位移吸收 —— 按域位移吸收（InteractionDomainEdge.hlsl 第 2 条），
+    //               域把波形扫出 RT 时数据被真正吃掉，域走回来不会露出硬断口。
+    float sponge = exp(-_Sponge * (1.0 - window))
+                 * InteractionDomainAbsorb(coord, (float)_Resolution, _EdgeAbsorb);
+    h_new  *= sponge;
+    h_curr *= sponge;
 
     // ── 双写: 当前位置输出 ──
     _InteractionWaterTex[id.xy]  = h_new;

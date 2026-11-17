@@ -59,6 +59,16 @@ RAY/DDA 完成固定采样无命中返回 `MISS` 或 `LEFT_VIEW`，不再将未�
 
 使用 `HiZ` 时，需在同一个 Trace 面板将 `Assets/Mine/Special/Renderer/ScreenSpaceTrace/ScreenSpaceDepthPyramid.compute` 指定到 `Depth Pyramid Shader`。统一入口的两路同帧共享一份正眼深金字塔；独立 Specular 在透明物之后执行，使用单独的深度阶段标识。缺资源、部分视口、动态尺寸、XR 数组或未 resolve 的 MSAA 等不支持条件回退 DDA，并发出一次警告；Shader 另外核对实际深度尺寸和 UV 比例，不匹配时使用 DDA。统一模式切换会分别失效受影响的 Diffuse 与 Specular 历史，不影响 AO。实验性的 HiZ 现以屏幕像素步进（mip `m` 前进 `2^m` 像素，回退时细分到 mip 0），仍可能漏过薄几何；迭代预算为 `2 × maxSteps`，不保证与 DDA 等画质或更快。
 
+## 命中面朝向判定与薄壳
+
+Diffuse 每条射线命中后过一道背面剔除（`dot(hitNormal, -ray) <= 0` 判为假命中），Specular 用同一个朝向做 `smoothstep(0, 0.1, facing)` 置信度衰减。这条判据合法，前提是 `_CameraNormalsTexture` 存的是**几何朝向**——也就是只在**不透明闭合物**上合法。
+
+草叶是薄壳：`GrassWind.shader` 的 DepthNormals Pass 写入的是贴合地形的**着色法线**，竖直叶片也报告自己是地面，于是背向判定把整片草地判成假命中，地面 DiffuseGI 全黑。这条前提也无法从深度缓冲反推：草冠的深度场本身就是一张准地形高度场，由它重建的几何法线同样接近 ±up（实测草 70.0 % 判闭合、地表 69.9 % 判闭合，等于抛硬币）。
+
+所以改由**生产者自己声明**：`_CameraNormalsTexture.a` 写 `-1`（`SSGI_THIN_SURFACE_FLAG`）表示薄壳/双面；URP 现状下其余不透明几何该通道为 `+1`、天空为 `0`，两者都按闭合面处理。`SST_HitSurfaceIsClosed(uv)` 为假时：Diffuse 退回纯深度判据（只保留 `depth < normalBias` 的拒绝），Specular 令 `facing = 1`、只保留屏幕边缘衰减。生产者见 `GrassWind.shader` 的 `FragNormals`。
+
+> `ScreenSpaceTrace.hlsl` 现在会采样 `_CameraNormalsTexture`，include 它的 shader 必须同时声明 `DeclareDepthTexture.hlsl` 与 `DeclareNormalsTexture.hlsl`。少一条声明在 Metal 上只报 `undeclared identifier '_CameraNormalsTexture_TexelSize'`，整个 shader 退化成 error shader——现场表现是「改了 Diffuse 却一点反应都没有」。排查时先跑 `ShaderUtil.GetShaderMessages`，不要先怀疑着色器缓存。
+
 ## 合成语义
 
 AO 输出可见度 `V`，DiffuseGI 输出尚未乘接收反照率和强度的间接辐亮度近似，SpecularGI 输出空间与时间滤波后的反射辐亮度；屏幕反射低置信度时回退到 Unity 默认环境反射图，不再计算假平面反射。统一 Shader 按以下顺序合成：
@@ -123,3 +133,19 @@ Metal 实际验证：公共库 **39 组 / 89,095 断言**、SSGI 相机/入口/�
 旧 HiZ 把 DDA 单位（`L/maxSteps` 像素）当作 1 像素，再乘以 `2^mip`，实际每步只覆盖 `maxSteps/L` 的路径，mip 越大漏得越多。本轮按用户要求直接把步幅改为屏幕像素：mip `m` 前进 `2^m` 像素，粗层命中时记录 `parentEnd` 细分到 mip 0，预算改为 `2 × maxSteps`，零投影回退 DDA。公共库 README 与三个模块文档同步；采样、BRDF、空间/时域滤波和默认 DDA 不变。
 
 Unity 6000.3.14f1 / Metal：公共库 **39 组 / 88,826 断言**通过，GPU DDA 距离注入 0.5 的负控制被识别；SSGI 相机/入口/历史 **92 组 / 1,153,512 断言**通过，5 个负控制（DDA 距离、错误后端历史、空间参考、多尺度参考、默认环境 HDR）均被识别。CPU 参考模型同步为「弦像素路径 + `parentEnd` 细分」，因此这组结果证明 GPU 与新参考一致、预算有界，不证明画面漏打减少；画质与薄几何覆盖仍需在 Game View 人工确认。
+
+### 2026-11-11 命中面朝向判定的薄壳豁免
+
+同机位 A/B（640×360，`GrassManagerDemo`，Debug 视图读回相机目标；`ab/` 下含成对证据图）。A 组让 `SST_IsThinSurface` 恒返回 false，等价于改动前的行为：
+
+| 视图 | 薄壳豁免（现状） | 恒闭合（改动前） |
+|---|---|---|
+| Debug Off | 169.6 / 153.1 / 138.9 | 167.8 / 151.3 / 139.3 |
+| Debug DiffuseGI | nearBlack **1.8 %**，均值 116.8 / 100.3 / 105.9 | nearBlack **49.3 %**，均值 101.2 / 84.7 / 101.2 |
+| Debug SpecularGI | 171.8 / 148.8 / 171.6 | 176.9 / 147.2 / 176.9 |
+| poseB-specular（俯视，roughness 0.05） | 127.6 / 103.1 / 124.4 | 131.8 / 96.5 / 131.8 |
+| poseB-color | 133.5 / 133.5 / 64.6 | 128.0 / 128.0 / 63.1 |
+
+DiffuseGI 分量图从「地面整片黑」变成「地面收到草的反照绿」，是本轮要的效果；最终色只亮约 4 %，因为合成里还要乘强度与接收反照率。镜面侧的地面反射由均匀天空蓝变成带草团块的绿色。闭合面走的分支与改动前逐字相同，因此非薄壳几何不受影响。
+
+本轮未跑 `Validation~/run.sh`（会在 `Assets/Mine/Shaders/PostProcess/SSGI/RuntimeFixture` 新建文件，需要用户追加沙箱授权），也未做长时间运动镜头复核。

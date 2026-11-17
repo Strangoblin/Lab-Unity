@@ -15,6 +15,8 @@ __MACOSX/
 # 不是仓库内容。会话状态、写入、读取、删除、移动、摩擦六本账全在这里；
 # 框架级结论提炼进 memory，账本本身不入库。
 /.mcp/state/
+# 移动审计账本仍写在 .mcp/ 根（state/ 之外），同属本机记录，不入库。
+/.mcp/moves.jsonl
 # 删除留底 — 内容和当时的样子都在，属于本机可恢复层，不入库。
 /.mcp/trash/
 
@@ -28,6 +30,12 @@ __MACOSX/
 /.unityctl/bridge.json
 /Screenshots/
 /run.log
+# 验证运行产物 — 截图、日志、文本报告是「这一次运行」的输出，不入库。
+# Validation~ 只保留可复跑源码、基线与必要证据；确需归档的图用 git add -f 显式加入。
+Assets/**/Validation~/**/*.png
+Assets/**/Validation~/**/*.jpg
+Assets/**/Validation~/**/*.log
+Assets/**/Validation~/**/*.txt
 # 系统杂项与崩溃转储；既有 tracked 文件另按清单处理
 /mono_crash*.json
 /tmp/

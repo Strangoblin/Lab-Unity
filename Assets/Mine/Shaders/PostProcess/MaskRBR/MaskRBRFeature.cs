@@ -46,6 +46,10 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         [Range(0f, 1f)] public float jitterStrength = 0f;
         [Range(0f, 1f)] public float intensity = 0.25f;
 
+        [Header("Occlusion")]
+        [Tooltip("Subtract SSC cloud coverage from the source mask, so cloudy sky produces no rays. Requires SSC's ray march to run before this pass; it degrades to no occlusion otherwise.")]
+        public bool occludeWithClouds = true;
+
         [Header("Event")]
         public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingSkybox;
 
@@ -62,6 +66,7 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         internal static readonly int OutputSizeID = Shader.PropertyToID("_MaskRBROutputSize");
         internal static readonly int IntensityID = Shader.PropertyToID("_MaskRBRIntensity");
         internal static readonly int DebugModeID = Shader.PropertyToID("_MaskRBRDebugMode");
+        internal static readonly int OccludeCloudsID = Shader.PropertyToID("_MaskRBROccludeClouds");
     }
 
     sealed class MaskRBRPass : ScriptableRenderPass
@@ -71,6 +76,7 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
             public Material material;
             public TextureHandle objectMask;
             public float sourceMode;
+            public float occludeClouds;
         }
 
         sealed class RadialData
@@ -105,6 +111,12 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         };
         static readonly Vector4 BlitScaleBias = new(1f, 1f, 0f, 0f);
 
+        // Order guard state: a feature with intermediates has two times, so the
+        // contract is a partial order rather than a single passEvent. Report once
+        // per distinct configuration instead of every frame.
+        static RenderPassEvent? s_seenBuffer, s_seenComposite, s_seenConsumer;
+        static bool s_warnedLateBuffer, s_warnedEarlyComposite;
+
         readonly Settings _settings;
         readonly Material _material;
         readonly Material _maskMaterial;
@@ -125,6 +137,7 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         // ════════════════════════════════════════════════════════════
         public override void RecordRenderGraph(RenderGraph graph, ContextContainer frameData)
         {
+            ValidateCloudOrder();
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             if (resources.isActiveTargetBackBuffer || !resources.activeColorTexture.IsValid()
                 || !resources.cameraDepthTexture.IsValid())
@@ -159,6 +172,43 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
                 Mathf.Clamp01(_settings.intensity), (float)_settings.debug);
         }
 
+        // ════════════════════════════════════════════════════════════
+        //  Cloud order guard — buffer before the mask, composite after the rays.
+        // ════════════════════════════════════════════════════════════
+        void ValidateCloudOrder()
+        {
+            RenderPassEvent? buffer = SSCFeature.CloudBufferEvent;
+            RenderPassEvent? composite = SSCFeature.CloudCompositeEvent;
+            RenderPassEvent consumer = _settings.passEvent;
+
+            if (buffer != s_seenBuffer || composite != s_seenComposite || consumer != s_seenConsumer)
+            {
+                s_seenBuffer = buffer;
+                s_seenComposite = composite;
+                s_seenConsumer = consumer;
+                s_warnedLateBuffer = false;
+                s_warnedEarlyComposite = false;
+            }
+
+            if (!_settings.occludeWithClouds || buffer == null || composite == null) return;
+
+            if (!s_warnedLateBuffer && buffer.Value >= consumer)
+            {
+                s_warnedLateBuffer = true;
+                Debug.LogWarning($"[MaskRBR] Cloud occlusion is off this frame: SSC produces _SSCCloudTexture at "
+                    + $"{buffer.Value}, which is not earlier than MaskRBR's {consumer}. "
+                    + "Move SSC's Cloud Buffer Event before MaskRBR's Event.");
+            }
+
+            if (!s_warnedEarlyComposite && composite.Value <= consumer)
+            {
+                s_warnedEarlyComposite = true;
+                Debug.LogWarning($"[MaskRBR] SSC composites at {composite.Value}, which is not later than "
+                    + $"MaskRBR's {consumer}. Clouds are drawn before the rays are added, so the rays appear "
+                    + "on top of them. Move SSC's Composite Event after MaskRBR's Event.");
+            }
+        }
+
         TextureHandle RecordObjectMask(RenderGraph graph, ContextContainer frameData,
             TextureHandle scene, TextureHandle depth, int layerMask)
         {
@@ -169,6 +219,8 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         TextureHandle RecordMask(RenderGraph graph, TextureHandle scene,
             TextureHandle objectMask, TextureHandle depth, SourceMode sourceMode)
         {
+            // 只有 SSC 本帧确实记录了 ray march 才能声明该全局纹理，否则 UseGlobalTexture 会抛异常。
+            bool occludeClouds = _settings.occludeWithClouds && SSCFeature.CloudOcclusionReady;
             TextureDesc descriptor = ScreenMaskRenderer.CreateDescriptor(graph, scene, "MaskRBR.Mask", false);
             TextureHandle mask = graph.CreateTexture(descriptor);
             using (var builder = graph.AddRasterRenderPass<MaskData>(descriptor.name, out var data))
@@ -176,15 +228,19 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
                 data.material = _material;
                 data.objectMask = objectMask;
                 data.sourceMode = (float)sourceMode;
+                data.occludeClouds = occludeClouds ? 1f : 0f;
                 builder.UseTexture(objectMask, AccessFlags.Read);
                 builder.UseTexture(depth, AccessFlags.Read);
                 builder.UseGlobalTexture(Settings.ObjectMaskTextureID, AccessFlags.Read);
                 builder.UseGlobalTexture(Settings.CameraDepthTextureID, AccessFlags.Read);
+                if (occludeClouds)
+                    builder.UseGlobalTexture(SSCFeature.CloudTextureID, AccessFlags.Read);
                 builder.SetRenderAttachment(mask, 0, AccessFlags.Write);
                 builder.SetGlobalTextureAfterPass(mask, Settings.MaskTextureID);
                 builder.SetRenderFunc(static (MaskData pass, RasterGraphContext context) =>
                 {
                     pass.material.SetFloat(Settings.SourceModeID, pass.sourceMode);
+                    pass.material.SetFloat(Settings.OccludeCloudsID, pass.occludeClouds);
                     Blitter.BlitTexture(context.cmd, pass.objectMask, BlitScaleBias, pass.material, MaskPass);
                 });
             }

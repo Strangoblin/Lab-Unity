@@ -9,6 +9,9 @@ Shader "PostProcess/SSGITemporal"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
     #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
     #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+    // ScreenSpaceTrace.hlsl 现在会采样 _CameraNormalsTexture（薄壳标记），
+    // 少了这条声明会在 Metal 上编译失败，整个时间滤波退化成 error shader。
+    #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
 
     TEXTURE2D_X(_SSGIHistoryColor);
     TEXTURE2D_X(_SSGIHistoryDepth);

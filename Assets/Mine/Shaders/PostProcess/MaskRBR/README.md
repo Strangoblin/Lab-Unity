@@ -26,6 +26,23 @@
 
 稳定空间随机复用 `Assets/Mine/Special/HLSL/HashFunction.hlsl`；HG 相函数复用 Core `VolumeRendering.hlsl` 的 `HenyeyGreensteinPhaseFunction`。
 
+## 云遮光（SSC 联动）
+
+`occludeWithClouds` 开启时，遮罩 Pass 在联合结果上再乘 `1 - SSCCloudCoverage`，因此云区不发光，径向核也不会把云后漏出的光糊到云边；云越厚，光束越弱。
+
+跨 Feature 的数据通路是全局纹理 `_SSCCloudTexture`（A 通道为覆盖率，RGB 为预乘辐亮度），由 `SSCFeature` 的 ray march 通过 `SetGlobalTextureAfterPass` 导出。
+
+一个带中间产物的 Feature 有两段时间，单值的 `passEvent` 表达不了，所以字段按语义拆开：
+
+| SSC 字段 | 默认值 | 含义 |
+| --- | --- | --- |
+| `cloudBufferEvent` | `AfterRenderingOpaques`(300) | 云缓冲产出、可供消费的时刻 |
+| `compositeEvent` | `AfterRenderingTransparents`(500) | 写回相机颜色的时刻 |
+
+本 Feature 的 `passEvent`（默认 400）必须满足偏序 `cloudBufferEvent < passEvent < compositeEvent`。两个方向被破坏的后果不同：产出晚于本 Feature，遮罩拿不到覆盖率、静默退化为无遮光；合成早于本 Feature，云先画、射线后加，光束会叠在云上。`MaskRBRPass.ValidateCloudOrder()` 在录制时校验这两条，每种配置只警告一次，提示里直接给出该改哪个字段。
+
+可用性由 CPU 侧 `SSCFeature.CloudOcclusionReady` 判定：只有本帧确实记录了 ray march，遮罩 Pass 才声明 `UseGlobalTexture`，避免 SSC 未启用时抛异常。SSC 关闭、Shader 缺失或 `cloudBufferEvent` 被调到本 Feature 之后时，`_MaskRBROccludeClouds` 为 0，自动退化为无遮光的旧行为。云区同时被遮罩阶段和 SSC 合成阶段各乘一次 `(1 - coverage)`，这是刻意的双重扣减，观感上是更强的云遮光。
+
 ## 参数
 
 | 分组 | 参数 | 默认值 | 语义 |
@@ -34,6 +51,7 @@
 | Technical | source | Sky | 光束来源 |
 | Technical | layerMask | Nothing | 选中不透明物体的 Layer |
 | Performance | quality | Medium | 固定采样数与工作分辨率 |
+| Occlusion | occludeWithClouds | true | 按 SSC 云覆盖率扣减源遮罩；SSC 未就绪时自动关闭 |
 | Artistic | length | 0.2 | 最大采样跨度，占最终输出高度的比例 |
 | Artistic | falloff | 2 | 沿采样段的权重形状；0 为均匀权重 |
 | Artistic | jitterStrength | 0 | 稳定空间层内抖动，0 使用固定分布 |
@@ -60,7 +78,7 @@ R16 径向纹理只存 `normalizedMaskBlur × focusFade`；Low 升采样后，�
 
 合成阶段：`scene.rgb + _MainLightColor.rgb × emittedStrength × saturate(intensity)`，保留 scene alpha。`_MainLightColor` 是 URP 线性颜色，包含真实主光 intensity，不使用场景阈值也不裁白；因真实光照，输出可能为 HDR。`intensity=0` 或 `length=0` 且 Debug=Off 时整个 Feature 跳过。Debug Mask 无需主光即可工作；Debug Rays 在 `length=0` 时仍以单 tap 输出 `Mask × phase × cone × focusFade`（不进入模糊循环）。Debug Mask/Rays 返回标量灰度并保留原 alpha。
 
-Shader 属性：`_MaskRBRSourceMode`、`_MaskRBRRadialParameters`（length, falloff, jitter, 0）、`_MaskRBRPhaseParameters`（g, outerCos, innerCos, available）、`_MaskRBROutputSize`、`_MaskRBRIntensity`、`_MaskRBRDebugMode`；全局贴图仅 objectMask / mask / ray，移除 source 全局。Debug=Off 时 GPU 资源为 R8 遮罩、R16 径向与 RGBA16F 合成。
+Shader 属性：`_MaskRBRSourceMode`、`_MaskRBRRadialParameters`（length, falloff, jitter, 0）、`_MaskRBRPhaseParameters`（g, outerCos, innerCos, available）、`_MaskRBROutputSize`、`_MaskRBRIntensity`、`_MaskRBRDebugMode`、`_MaskRBROccludeClouds`；全局贴图仅 objectMask / mask / ray，移除 source 全局；仅在开启云遮光且 SSC 已就绪时额外声明 `_SSCCloudTexture`。Debug=Off 时 GPU 资源为 R8 遮罩、R16 径向与 RGBA16F 合成。
 
 ## 局限
 

@@ -161,7 +161,7 @@ Shader "Render/SnowEffect"
         color += Weather_SnowSparkle(input.positionWS, _SnowSparkleScale,
             _SnowSparkleDensity, NdotH) * lightColor * NdotL * _SnowSparkle * snowSolid * sparkleUp;
         color += BRDF_Env(baseColor, NdotV, normalWS, viewDirWS, roughness, metallic,
-            unity_SpecCube0, samplerunity_SpecCube0);
+            unity_SpecCube0, samplerunity_SpecCube0, unity_SpecCube0_HDR);
         color = MixFog(color, input.fogFactor);
         return half4(color, 1.0);
     }

@@ -22,7 +22,9 @@ namespace Mine.SSSLutBaker
 
         [SerializeField] private int _resolution = 128;
         [SerializeField] private int _sampleCount = 256;
-        [SerializeField] private Vector3 _profile = new Vector3(1f, 0.35f, 0.2f);
+
+        /// <summary>按颜色编辑的线性相对散射半径；A 通道不参与烘焙。</summary>
+        [SerializeField] private Color _profile = new Color(1f, 0.35f, 0.2f, 1f);
 
         // ── 固定资产路径（Save = Load）──────────────────────────
 
@@ -60,8 +62,21 @@ namespace Mine.SSSLutBaker
             EditorGUILayout.LabelField("SSS Lut Baker", EditorStyles.boldLabel);
             _resolution = EditorGUILayout.IntSlider("Resolution", _resolution, 16, 512);
             _sampleCount = EditorGUILayout.IntSlider("Samples", _sampleCount, 32, 1024);
-            _profile = EditorGUILayout.Vector3Field("Scatter Radius RGB", _profile);
-            EditorGUILayout.HelpBox("RGB controls relative scatter width (0.02 to 2). Red spreads furthest in the default profile.", MessageType.Info);
+            _profile = EditorGUILayout.ColorField(
+                new GUIContent("Scatter Radius RGB", "Linear per-channel scatter radius; A is ignored."),
+                _profile, true, false, true);
+            EditorGUILayout.LabelField(
+                $"R {_profile.r:0.000}   G {_profile.g:0.000}   B {_profile.b:0.000}   (baked values)",
+                EditorStyles.miniLabel);
+            EditorGUILayout.HelpBox(
+                "RGB are linear relative scatter radii (0.02-2), not color albedo. "
+                + "Wider channel = more bleed on the dark side. "
+                + "Skin: 1 / 0.35 / 0.2. Snow: near-neutral, slightly wider blue, e.g. 0.90 / 1.00 / 1.08.",
+                MessageType.Info);
+            if (!IsProfileInRange)
+            {
+                EditorGUILayout.HelpBox("Each radius must stay within 0.02-2 before baking.", MessageType.Warning);
+            }
             DrawAssetPathRow();
 
             EditorGUILayout.Space(4f);
@@ -109,8 +124,14 @@ namespace Mine.SSSLutBaker
         //  工具可调整
         // ════════════════════════════════════════════════════════
 
-        /// <summary>当前是否允许烘焙（如场景框架未就绪时为 false）。</summary>
-        private bool CanBake => true;
+        /// <summary>当前是否允许烘焙；轮廓越界时交给 UI 提示而不是让服务层抛异常。</summary>
+        private bool CanBake => IsProfileInRange;
+
+        private bool IsProfileInRange =>
+            IsRadiusInRange(_profile.r) && IsRadiusInRange(_profile.g) && IsRadiusInRange(_profile.b);
+
+        private static bool IsRadiusInRange(float value) =>
+            !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0.02f && value <= 2f;
 
         /// <summary>烘焙是否显示进度条（Baker 型需要；Generator 型瞬时完成）。</summary>
         private bool ShowBakeProgress => true;

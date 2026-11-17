@@ -1,0 +1,257 @@
+// ════════════════════════════════════════════════════════════
+//  Wave — Phillips 频谱海洋波浪完整管线
+//
+//  5 kernels，单文件:
+//    InitSpectrum → TimeEvolve → PrepareChoppy → IFFT2D → MergeOutput
+//
+//  输入: 高斯噪声 → 频域波谱 H(k) → 空间域位移 + 法线
+//  输出: _Displacement (RGB=XYZ位移, A=foam), _Normal (RGB=法线)
+// ════════════════════════════════════════════════════════════
+
+#pragma kernel InitSpectrum
+#pragma kernel TimeEvolve
+#pragma kernel PrepareChoppy
+#pragma kernel IFFT2D
+#pragma kernel MergeOutput
+
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
+
+// ══════════════════════════════════════════════════════════════
+//  共享资源
+// ══════════════════════════════════════════════════════════════
+
+// InitSpectrum
+Texture2D<float4> _Noise;
+SamplerState sampler_Noise;
+RWTexture2D<float4> _H0;
+float _Amplitude;
+float2 _WindDirection;
+
+// TimeEvolve + PrepareChoppy
+Texture2D<float4> _H0Read;
+SamplerState sampler_H0Read;
+RWTexture2D<float4> _Ht;
+RWTexture2D<float4> _ChoppySpec;
+float _Time;
+
+// IFFT2D
+Texture2D<float4> _Input;
+RWTexture2D<float4> _Output;
+uint _Direction;
+uint _Inv;
+
+// MergeOutput
+Texture2D<float> _HeightTex;
+SamplerState sampler_HeightTex;
+Texture2D<float> _ChoppyXTex;
+SamplerState sampler_ChoppyXTex;
+Texture2D<float> _ChoppyYTex;
+SamplerState sampler_ChoppyYTex;
+RWTexture2D<float4> _Displacement;
+RWTexture2D<float4> _Normal;
+float _ChoppyScale;
+float _HeightScale;
+float _PatchSize;
+
+// 共享参数
+float _WindSpeed;
+float _LengthScale;
+float _Gravity;
+float _DirectionalPower;
+float _DirectionalNormalization;
+uint _Resolution;
+uint _ChoppyAxis;
+
+// ══════════════════════════════════════════════════════════════
+//  Kernel 1: InitSpectrum — Phillips 频谱初始化
+// ══════════════════════════════════════════════════════════════
+[numthreads(8, 8, 1)]
+void InitSpectrum(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Resolution || id.y >= _Resolution) return;
+
+    float2 uv = id.xy / (float)_Resolution;
+    float4 noise = _Noise.SampleLevel(sampler_Noise, uv, 0);
+
+    float2 k = (id.xy - _Resolution * 0.5) * (2.0 * PI / _LengthScale);
+    float kLen = length(k);
+    if (kLen < 1e-6) { _H0[id.xy] = float4(0, 0, 0, 0); return; }
+
+    float kLen2 = kLen * kLen;
+    float kLen4 = kLen2 * kLen2;
+    float L = _WindSpeed * _WindSpeed / _Gravity;
+    float kDotW = dot(normalize(k), _WindDirection);
+    // Directionality is a per-cascade exponent. Power 3 reproduces the original
+    // cos^3 Phillips lobe; lower powers widen it into a cross-sea wind wave.
+    // _DirectionalNormalization compensates the integrated energy of the wider lobe.
+    float directional = pow(saturate(kDotW), max(0.05, _DirectionalPower));
+    float phillips = _Amplitude * _DirectionalNormalization
+                   * exp(-1.0 / (kLen2 * L * L)) / kLen4 * directional;
+
+    float2 epsilon = noise.rg * 2.0 - 1.0;
+    float sqrtPh = sqrt(phillips * 0.5);
+    float2 h0k = float2(epsilon.x * sqrtPh, epsilon.y * sqrtPh);
+    _H0[id.xy] = float4(h0k.x, h0k.y, h0k.x, -h0k.y);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Kernel 2: TimeEvolve — 波谱时间演化 H(k,t)
+// ══════════════════════════════════════════════════════════════
+[numthreads(8, 8, 1)]
+void TimeEvolve(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Resolution || id.y >= _Resolution) return;
+
+    float2 uv = id.xy / (float)_Resolution;
+    float4 h0 = _H0Read.SampleLevel(sampler_H0Read, uv, 0);
+
+    float2 k = (id.xy - _Resolution * 0.5) * (2.0 * PI / _LengthScale);
+    float kLen = length(k);
+    if (kLen < 1e-6) { _Ht[id.xy] = float4(0, 0, 0, 0); return; }
+
+    float omega = sqrt(_Gravity * kLen);
+    float phase = omega * _Time;
+    float cosP = cos(phase);
+    float sinP = sin(phase);
+
+    float2 h0k  = h0.rg;
+    float2 h0nk = h0.ba;
+
+    float2 htk;
+    htk.x = h0k.x * cosP - h0k.y * sinP + h0nk.x * cosP + h0nk.y * sinP;
+    htk.y = h0k.x * sinP + h0k.y * cosP - h0nk.x * sinP + h0nk.y * cosP;
+
+    _Ht[id.xy] = float4(htk.x, htk.y, 0, 0);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Kernel 3: PrepareChoppy — choppy 位移频谱 D(k) = -i·k/|k|·H(k)
+// ══════════════════════════════════════════════════════════════
+[numthreads(8, 8, 1)]
+void PrepareChoppy(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Resolution || id.y >= _Resolution) return;
+
+    float4 ht = _Ht[id.xy];
+
+    float2 k = (id.xy - _Resolution * 0.5) * (2.0 * PI / _LengthScale);
+    float kLen = length(k);
+    if (kLen < 1e-6) { _ChoppySpec[id.xy] = float4(0, 0, 0, 0); return; }
+
+    float kComponent = (_ChoppyAxis == 0) ? k.x : k.y;
+    float factor = kComponent / kLen;
+
+    float2 choppy;
+    choppy.x =  factor * ht.g;
+    choppy.y = -factor * ht.r;
+
+    _ChoppySpec[id.xy] = float4(choppy.x, choppy.y, 0, 0);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Kernel 4: IFFT2D — groupshared-memory Cooley-Tukey 2D IFFT
+// ══════════════════════════════════════════════════════════════
+#define IFFT_N 256
+#define IFFT_LOG2N 8
+groupshared float2 g_IFFTData[IFFT_N];
+
+[numthreads(IFFT_N, 1, 1)]
+void IFFT2D(uint3 id : SV_DispatchThreadID, uint3 group : SV_GroupID, uint3 thread : SV_GroupThreadID)
+{
+    uint t = thread.x;
+
+    uint2 coord;
+    if (_Direction == 0)
+        coord = uint2(t, group.y);
+    else
+        coord = uint2(group.x, t);
+
+    float4 val = _Input.Load(uint3(coord, 0));
+    g_IFFTData[t] = val.rg;
+    GroupMemoryBarrierWithGroupSync();
+
+    for (uint s = 0; s < IFFT_LOG2N; s++)
+    {
+        uint halfBlock = 1u << s;
+        if ((t & halfBlock) == 0)
+        {
+            uint idx0 = t;
+            uint idx1 = t | halfBlock;
+            float2 v0 = g_IFFTData[idx0];
+            float2 v1 = g_IFFTData[idx1];
+
+            uint   k     = t & (halfBlock - 1u);
+            float  angle = k * 2.0 * PI / (float)(halfBlock << 1u);
+            if (!_Inv) angle = -angle;
+
+            float sinW, cosW;
+            sincos(angle, sinW, cosW);
+
+            float2 twV1;
+            twV1.x = cosW * v1.x - sinW * v1.y;
+            twV1.y = cosW * v1.y + sinW * v1.x;
+
+            g_IFFTData[idx0] = v0 + twV1;
+            g_IFFTData[idx1] = v0 - twV1;
+        }
+        GroupMemoryBarrierWithGroupSync();
+    }
+
+    _Output[coord] = float4(g_IFFTData[t], 0, 0);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Kernel 5: MergeOutput — 位移+法线+foam
+// ══════════════════════════════════════════════════════════════
+[numthreads(8, 8, 1)]
+void MergeOutput(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Resolution || id.y >= _Resolution) return;
+
+    float2 uv = (id.xy + 0.5) / _Resolution;
+    float invN = 1.0 / _Resolution;
+
+    float height  = _HeightTex.SampleLevel(sampler_HeightTex, uv, 0) * invN;
+    float choppyX = _ChoppyXTex.SampleLevel(sampler_ChoppyXTex, uv, 0) * invN;
+    float choppyY = _ChoppyYTex.SampleLevel(sampler_ChoppyYTex, uv, 0) * invN;
+
+    float3 displacement = float3(choppyX * _ChoppyScale, height * _HeightScale, choppyY * _ChoppyScale);
+
+    float texelSize = 1.0 / _Resolution;
+    float hR = _HeightTex.SampleLevel(sampler_HeightTex, uv + float2(texelSize, 0), 0) * invN * _HeightScale;
+    float hL = _HeightTex.SampleLevel(sampler_HeightTex, uv - float2(texelSize, 0), 0) * invN * _HeightScale;
+    float hU = _HeightTex.SampleLevel(sampler_HeightTex, uv + float2(0, texelSize), 0) * invN * _HeightScale;
+    float hD = _HeightTex.SampleLevel(sampler_HeightTex, uv - float2(0, texelSize), 0) * invN * _HeightScale;
+
+    float xR = _ChoppyXTex.SampleLevel(sampler_ChoppyXTex, uv + float2(texelSize, 0), 0) * invN * _ChoppyScale;
+    float xL = _ChoppyXTex.SampleLevel(sampler_ChoppyXTex, uv - float2(texelSize, 0), 0) * invN * _ChoppyScale;
+    float zR = _ChoppyYTex.SampleLevel(sampler_ChoppyYTex, uv + float2(texelSize, 0), 0) * invN * _ChoppyScale;
+    float zL = _ChoppyYTex.SampleLevel(sampler_ChoppyYTex, uv - float2(texelSize, 0), 0) * invN * _ChoppyScale;
+
+    float xU = _ChoppyXTex.SampleLevel(sampler_ChoppyXTex, uv + float2(0, texelSize), 0) * invN * _ChoppyScale;
+    float xD = _ChoppyXTex.SampleLevel(sampler_ChoppyXTex, uv - float2(0, texelSize), 0) * invN * _ChoppyScale;
+    float zU = _ChoppyYTex.SampleLevel(sampler_ChoppyYTex, uv + float2(0, texelSize), 0) * invN * _ChoppyScale;
+    float zD = _ChoppyYTex.SampleLevel(sampler_ChoppyYTex, uv - float2(0, texelSize), 0) * invN * _ChoppyScale;
+
+    float wsTexel = _PatchSize / _Resolution;
+
+    float3 tangentX = normalize(float3(wsTexel + (xR - xL), hR - hL, zR - zL));
+    float3 tangentZ = normalize(float3(xU - xD, hU - hD, wsTexel + (zU - zD)));
+    float3 normal = normalize(cross(tangentZ, tangentX)) * 0.5 + 0.5;
+
+    // Foam: Laplacian + Jacobian
+    float laplacian = (hR + hL + hU + hD - 4.0 * height) / (wsTexel * wsTexel);
+    float crestFoam = saturate(-laplacian * 0.05);
+
+    float dDx_dx = (xR - xL) / (2.0 * wsTexel);
+    float dDz_dz = (zU - zD) / (2.0 * wsTexel);
+    float dDx_dz = (xU - xD) / (2.0 * wsTexel);
+    float dDz_dx = (zR - zL) / (2.0 * wsTexel);
+    float J = (1.0 + dDx_dx) * (1.0 + dDz_dz) - dDx_dz * dDz_dx;
+    float jacobianFoam = 1.0 - saturate(J * 4.0);
+
+    float foam = max(crestFoam, jacobianFoam);
+
+    _Displacement[id.xy] = float4(displacement, foam);
+    _Normal[id.xy]       = float4(normal, 0);
+}

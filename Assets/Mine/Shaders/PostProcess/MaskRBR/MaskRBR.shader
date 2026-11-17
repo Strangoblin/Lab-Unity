@@ -11,6 +11,7 @@ Shader "PostProcess/MaskRBR"
         [HideInInspector] _MaskRBROutputSize ("Output Size", Vector) = (1920, 1080, 0, 0)
         [HideInInspector] _MaskRBRIntensity ("Intensity", Float) = 0.25
         [HideInInspector] _MaskRBRDebugMode ("Debug Mode", Float) = 0
+        [HideInInspector] _MaskRBROccludeClouds ("Occlude Clouds", Float) = 0
     }
 
     HLSLINCLUDE
@@ -22,6 +23,8 @@ Shader "PostProcess/MaskRBR"
     TEXTURE2D_X(_MaskRBRObjectMaskTexture);
     TEXTURE2D_X(_MaskRBRMaskTexture);
     TEXTURE2D_X(_MaskRBRRayTexture);
+    // 由 SSCFeature 的 ray march 导出，A 通道是云覆盖率。
+    TEXTURE2D_X(_SSCCloudTexture);
 
     CBUFFER_START(UnityPerMaterial)
         float _MaskRBRSourceMode;
@@ -30,6 +33,7 @@ Shader "PostProcess/MaskRBR"
         float4 _MaskRBROutputSize;
         float _MaskRBRIntensity;
         float _MaskRBRDebugMode;
+        float _MaskRBROccludeClouds;
     CBUFFER_END
 
     #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
@@ -159,6 +163,16 @@ Shader "PostProcess/MaskRBR"
             mask = Mask_Union(skyMask, objectMask);
         else if (_MaskRBRSourceMode > 0.5)
             mask = objectMask;
+
+        // 云遮光：在源遮罩阶段扣除覆盖率，径向核因此也不会把云后漏出的光糊到云边。
+        if (_MaskRBROccludeClouds > 0.5)
+        {
+            float cloudCoverage = SAMPLE_TEXTURE2D_X(
+                _SSCCloudTexture, sampler_LinearClamp,
+                UnityStereoTransformScreenSpaceTex(input.texcoord)).a;
+            mask *= saturate(1.0 - cloudCoverage);
+        }
+
         return float4(saturate(mask), 0.0, 0.0, 1.0);
     }
 

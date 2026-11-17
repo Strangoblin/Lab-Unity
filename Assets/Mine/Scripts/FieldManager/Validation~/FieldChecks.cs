@@ -99,11 +99,11 @@ public class Script
 
     private static void CheckContract(Report report)
     {
-        Run(report, "contract.fft_is_wave_provider", () =>
+        Run(report, "contract.wave_provider", () =>
         {
             Require(typeof(WaveFieldProvider).IsSubclassOf(typeof(FieldProvider)), "WaveFieldProvider derives from FieldProvider");
-            Require(typeof(FFTWaveFieldProvider).IsSubclassOf(typeof(WaveFieldProvider)), "FFTWaveFieldProvider derives from WaveFieldProvider");
-            Require(typeof(FFTWaveFieldProvider).IsSealed, "FFTWaveFieldProvider is sealed");
+            Require(typeof(WaveFieldProvider).IsSealed, "WaveFieldProvider is sealed");
+            Require(FindType("Mine.Fields.FFTWaveFieldProvider") == null, "FFTWaveFieldProvider no longer exists");
         });
 
         Run(report, "contract.keys", () =>
@@ -127,7 +127,7 @@ public class Script
             GameObject root = Own(owned, "FieldChecks Orders");
             root.SetActive(false);
             WindFieldProvider wind = root.AddComponent<WindFieldProvider>();
-            FFTWaveFieldProvider wave = root.AddComponent<FFTWaveFieldProvider>();
+            WaveFieldProvider wave = root.AddComponent<WaveFieldProvider>();
 
             Equal(-200, wind.FieldOrder, "wind order");
             Equal(-100, wave.FieldOrder, "wave order");
@@ -225,7 +225,7 @@ public class Script
 
             GameObject root = Own(owned, "FieldChecks Unregister");
             root.SetActive(false);
-            FFTWaveFieldProvider wave = root.AddComponent<FFTWaveFieldProvider>();
+            WaveFieldProvider wave = root.AddComponent<WaveFieldProvider>();
             Require(Register(wave), "inert wave registers");
 
             Unregister(wave);
@@ -252,7 +252,7 @@ public class Script
             {
                 temporary = new GameObject("FieldChecks Order Wave");
                 temporary.SetActive(false);
-                wave = temporary.AddComponent<FFTWaveFieldProvider>();
+                wave = temporary.AddComponent<WaveFieldProvider>();
                 Require(Register(wave), "inert wave registers");
             }
 

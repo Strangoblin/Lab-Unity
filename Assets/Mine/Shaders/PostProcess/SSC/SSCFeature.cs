@@ -13,8 +13,10 @@ using UnityEngine.Serialization;
 /// 噪声固定使用 2D 循环纹理的 R 通道，不再保留 3D / RG 噪声分支。
 /// </summary>
 /// <remarks>
-/// 渲染流：Ray March → 云缓冲；Composite → 新颜色目标；最后把新目标接回 cameraColor。
-/// 两段 Pass 都通过 RenderGraph 的 TextureHandle 声明依赖，不创建额外的主色拷贝。
+/// 渲染流：Ray March → 云缓冲（并导出 `_SSCCloudTexture` 全局，A 通道为覆盖率）；
+/// Composite → 新颜色目标；最后把新目标接回 cameraColor。两段 Pass 分别调度，
+/// Ray March 可早于其它后处理，供 MaskRBR 等消费者扣除云区。两段 Pass 都通过
+/// RenderGraph 的 TextureHandle 声明依赖，不创建额外的主色拷贝。
 /// </remarks>
 public sealed class SSCFeature : ScriptableRendererFeature
 {
@@ -53,6 +55,30 @@ public sealed class SSCFeature : ScriptableRendererFeature
             case Quality.High: return new Tier(RayCount.COUNT128, 1);
             default: return new Tier(RayCount.COUNT64, 2);
         }
+    }
+
+    // 云缓冲的 A 通道是覆盖率；消费者（MaskRBR）按 (1 - coverage) 扣除源遮罩。
+    public static readonly int CloudTextureID = Shader.PropertyToID("_SSCCloudTexture");
+
+    // 本次相机是否已记录 Ray March。消费者在 RecordRenderGraph 中读取，
+    // 仅在为 true 时声明全局纹理依赖，避免 SSC 关闭时 UseGlobalTexture 抛异常。
+    public static bool CloudOcclusionReady { get; private set; }
+
+    // 本相机 SSC 的产出／写入时刻，供消费者校验偏序；SSC 未启用时为 null。
+    // 一个 Feature 有两段时间，passEvent 这种单值字段表达不了，故单独发布。
+    public static RenderPassEvent? CloudBufferEvent { get; private set; }
+    public static RenderPassEvent? CloudCompositeEvent { get; private set; }
+
+    static SSCFeature()
+    {
+        RenderPipelineManager.beginCameraRendering += ResetCloudOcclusion;
+    }
+
+    static void ResetCloudOcclusion(ScriptableRenderContext context, Camera camera)
+    {
+        CloudOcclusionReady = false;
+        CloudBufferEvent = null;
+        CloudCompositeEvent = null;
     }
 
     [System.Serializable]
@@ -100,7 +126,12 @@ public sealed class SSCFeature : ScriptableRendererFeature
         [Range(0f, 1f)] public float jitter = 1.0f;
 
         [Header("Event")]
-        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingTransparents;
+        [Tooltip("When the cloud buffer is produced and exported as _SSCCloudTexture. Consumers such as MaskRBR must run later than this.")]
+        [FormerlySerializedAs("rayMarchEvent")]
+        public RenderPassEvent cloudBufferEvent = RenderPassEvent.AfterRenderingOpaques;
+        [Tooltip("When SSC writes the composited color back to the camera. Keep it after every consumer of the cloud buffer, otherwise rays are added on top of the clouds.")]
+        [FormerlySerializedAs("passEvent")]
+        public RenderPassEvent compositeEvent = RenderPassEvent.AfterRenderingTransparents;
 
         [Header("Debug")]
         [FormerlySerializedAs("SSCFeature")]
@@ -191,21 +222,27 @@ public sealed class SSCFeature : ScriptableRendererFeature
         internal static readonly int DownsampleID = Shader.PropertyToID("_SSCDownsample");
     }
 
-    sealed class SSCRenderPass : ScriptableRenderPass
+    // Ray March 与 Composite 之间共享本帧的云缓冲与尺寸；TextureHandle 只在同一张图中有效。
+    sealed class FrameState
+    {
+        public TextureHandle cloudTexture;
+        public Vector4 textureSize;
+        public int downsample;
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  Ray March — 低分辨率云缓冲，导出覆盖率全局
+    // ════════════════════════════════════════════════════════════
+    sealed class RayMarchPass : ScriptableRenderPass
     {
         sealed class PassData
         {
             public Material material;
             public TextureHandle source;
             public TextureHandle cloudRT;
-            public TextureHandle compositeRT;
-            public bool showSSC;
         }
 
-        // Shader Pass 顺序：0 = Ray March, 1 = Composite
         const int RayMarchPassIndex = 0;
-        const int CompositePassIndex = 1;
-
         const string RayCount32Keyword = "SSC_RAY_COUNT_32";
         const string RayCount64Keyword = "SSC_RAY_COUNT_64";
         const string RayCount128Keyword = "SSC_RAY_COUNT_128";
@@ -213,24 +250,25 @@ public sealed class SSCFeature : ScriptableRendererFeature
 
         readonly Settings _settings;
         readonly Material _material;
+        readonly FrameState _state;
 
-        public SSCRenderPass(Settings settings)
+        public RayMarchPass(Settings settings, Material material, FrameState state)
         {
             _settings = settings;
-            _material = CoreUtils.CreateEngineMaterial(settings.sscShader);
-            renderPassEvent = settings.passEvent;
+            _material = material;
+            _state = state;
+            renderPassEvent = settings.cloudBufferEvent;
+            requiresIntermediateTexture = true;
             ConfigureInput(ScriptableRenderPassInput.Depth);
         }
 
-        // ════════════════════════════════════════════════════════════
-        //  RecordRenderGraph — Ray March 写低分辨率云缓冲，Composite 写全分辨率颜色
-        // ════════════════════════════════════════════════════════════
-        public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
+        public override void RecordRenderGraph(RenderGraph graph, ContextContainer frameData)
         {
-            UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
+            UniversalResourceData resources = frameData.Get<UniversalResourceData>();
             UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
 
-            TextureHandle source = resourceData.activeColorTexture;
+            _state.cloudTexture = default;
+            TextureHandle source = resources.activeColorTexture;
             if (!source.IsValid() || _material == null) return;
 
             Tier tier = _settings.Budget;
@@ -249,26 +287,22 @@ public sealed class SSCFeature : ScriptableRendererFeature
             cloudDesc.height = Mathf.Max(1, desc.height >> shift);
             // 云 RGB 是预乘辐亮度，A 是覆盖率；相机 HDR 格式可能没有 alpha。
             cloudDesc.graphicsFormat = GraphicsFormat.R16G16B16A16_SFloat;
-            _material.SetVector(Settings.TextureSizeID, new Vector4(
-                1f / cloudDesc.width, 1f / cloudDesc.height, cloudDesc.width, cloudDesc.height));
-            _material.SetFloat(Settings.DownsampleID, shift);
+            _state.textureSize = new Vector4(
+                1f / cloudDesc.width, 1f / cloudDesc.height, cloudDesc.width, cloudDesc.height);
+            _state.downsample = shift;
 
             TextureHandle cloudRT = UniversalRenderer.CreateRenderGraphTexture(
-                renderGraph, cloudDesc, "_SSCCloudRT", false, FilterMode.Bilinear);
-            TextureHandle compositeRT = UniversalRenderer.CreateRenderGraphTexture(
-                renderGraph, desc, "_SSCCompositeRT", false, FilterMode.Bilinear);
+                graph, cloudDesc, "_SSCCloudRT", false, FilterMode.Bilinear);
 
-            TextureHandle depth = resourceData.cameraDepthTexture;
-            AddRayMarchPass(renderGraph, source, cloudRT, depth);
-            AddCompositePass(renderGraph, source, cloudRT, compositeRT, depth);
-
-            // 合成结果直接接管相机颜色，后续 Pass 读取新颜色。
-            resourceData.cameraColor = compositeRT;
+            TextureHandle depth = resources.cameraDepthTexture;
+            AddRayMarchPass(graph, source, cloudRT, depth);
+            _state.cloudTexture = cloudRT;
+            CloudOcclusionReady = true;
         }
 
-        void AddRayMarchPass(RenderGraph renderGraph, TextureHandle source, TextureHandle cloudRT, TextureHandle depth)
+        void AddRayMarchPass(RenderGraph graph, TextureHandle source, TextureHandle cloudRT, TextureHandle depth)
         {
-            using (var builder = renderGraph.AddUnsafePass<PassData>("SSC Ray March", out var passData))
+            using (var builder = graph.AddUnsafePass<PassData>("SSC Ray March", out var passData))
             {
                 passData.material = _material;
                 passData.source = source;
@@ -277,50 +311,13 @@ public sealed class SSCFeature : ScriptableRendererFeature
                 builder.UseTexture(source, AccessFlags.Read);
                 if (depth.IsValid()) builder.UseTexture(depth, AccessFlags.Read);
                 builder.UseTexture(cloudRT, AccessFlags.Write);
+                builder.SetGlobalTextureAfterPass(cloudRT, CloudTextureID);
                 builder.AllowPassCulling(false);
 
                 builder.SetRenderFunc((PassData data, UnsafeGraphContext context) =>
                 {
                     CommandBuffer cmd = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
                     Blitter.BlitCameraTexture(cmd, data.source, data.cloudRT, data.material, RayMarchPassIndex);
-                });
-            }
-        }
-
-        void AddCompositePass(
-            RenderGraph renderGraph,
-            TextureHandle source,
-            TextureHandle cloudRT,
-            TextureHandle compositeRT,
-            TextureHandle depth)
-        {
-            using (var builder = renderGraph.AddUnsafePass<PassData>("SSC Composite", out var passData))
-            {
-                passData.material = _material;
-                passData.source = source;
-                passData.cloudRT = cloudRT;
-                passData.compositeRT = compositeRT;
-                passData.showSSC = _settings.showSSC;
-
-                builder.UseTexture(source, AccessFlags.Read);
-                if (depth.IsValid()) builder.UseTexture(depth, AccessFlags.Read);
-                builder.UseTexture(cloudRT, AccessFlags.Read);
-                builder.UseTexture(compositeRT, AccessFlags.Write);
-                builder.AllowPassCulling(false);
-
-                builder.SetRenderFunc((PassData data, UnsafeGraphContext context) =>
-                {
-                    CommandBuffer cmd = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
-
-                    if (data.showSSC)
-                    {
-                        Blitter.BlitCameraTexture(cmd, data.cloudRT, data.compositeRT);
-                        return;
-                    }
-
-                    cmd.SetGlobalTexture(Settings.SSCTexID, data.cloudRT);
-                    Blitter.BlitCameraTexture(
-                        cmd, data.source, data.compositeRT, data.material, CompositePassIndex);
                 });
             }
         }
@@ -345,6 +342,8 @@ public sealed class SSCFeature : ScriptableRendererFeature
             _material.SetFloat(Settings.LightDistanceID, _settings.lightDistance);
             _material.SetFloat(Settings.SoftnessID, _settings.softness);
             _material.SetFloat(Settings.JitterID, _settings.jitter);
+            _material.SetVector(Settings.TextureSizeID, _state.textureSize);
+            _material.SetFloat(Settings.DownsampleID, _state.downsample);
 
             _material.DisableKeyword(RayCount32Keyword);
             _material.DisableKeyword(RayCount64Keyword);
@@ -359,35 +358,142 @@ public sealed class SSCFeature : ScriptableRendererFeature
                 default:                _material.EnableKeyword(RayCount128Keyword); break;
             }
         }
+    }
 
-        public void Release()
+    // ════════════════════════════════════════════════════════════
+    //  Composite — 预乘合成，接管相机颜色
+    // ════════════════════════════════════════════════════════════
+    sealed class CompositePass : ScriptableRenderPass
+    {
+        sealed class PassData
         {
-            CoreUtils.Destroy(_material);
+            public Material material;
+            public TextureHandle source;
+            public TextureHandle cloudRT;
+            public TextureHandle compositeRT;
+            public bool showSSC;
+            public Vector4 textureSize;
+            public int downsample;
+        }
+
+        const int CompositePassIndex = 1;
+
+        readonly Settings _settings;
+        readonly Material _material;
+        readonly FrameState _state;
+
+        public CompositePass(Settings settings, Material material, FrameState state)
+        {
+            _settings = settings;
+            _material = material;
+            _state = state;
+            renderPassEvent = settings.compositeEvent;
+            requiresIntermediateTexture = true;
+            ConfigureInput(ScriptableRenderPassInput.Depth);
+        }
+
+        public override void RecordRenderGraph(RenderGraph graph, ContextContainer frameData)
+        {
+            UniversalResourceData resources = frameData.Get<UniversalResourceData>();
+            UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
+
+            TextureHandle source = resources.activeColorTexture;
+            if (!source.IsValid() || _material == null || !_state.cloudTexture.IsValid()) return;
+
+            RenderTextureDescriptor desc = cameraData.cameraTargetDescriptor;
+            desc.depthBufferBits = 0;
+            desc.msaaSamples = 1;
+            desc.bindMS = false;
+            desc.useMipMap = false;
+            desc.autoGenerateMips = false;
+
+            TextureHandle compositeRT = UniversalRenderer.CreateRenderGraphTexture(
+                graph, desc, "_SSCCompositeRT", false, FilterMode.Bilinear);
+
+            TextureHandle depth = resources.cameraDepthTexture;
+            AddCompositePass(graph, source, _state.cloudTexture, compositeRT, depth);
+
+            // 合成结果直接接管相机颜色，后续 Pass 读取新颜色。
+            resources.cameraColor = compositeRT;
+        }
+
+        void AddCompositePass(RenderGraph graph, TextureHandle source, TextureHandle cloudRT,
+            TextureHandle compositeRT, TextureHandle depth)
+        {
+            using (var builder = graph.AddUnsafePass<PassData>("SSC Composite", out var passData))
+            {
+                passData.material = _material;
+                passData.source = source;
+                passData.cloudRT = cloudRT;
+                passData.compositeRT = compositeRT;
+                passData.showSSC = _settings.showSSC;
+                passData.textureSize = _state.textureSize;
+                passData.downsample = _state.downsample;
+
+                builder.UseTexture(source, AccessFlags.Read);
+                if (depth.IsValid()) builder.UseTexture(depth, AccessFlags.Read);
+                builder.UseTexture(cloudRT, AccessFlags.Read);
+                builder.UseTexture(compositeRT, AccessFlags.Write);
+                builder.AllowPassCulling(false);
+
+                builder.SetRenderFunc((PassData data, UnsafeGraphContext context) =>
+                {
+                    CommandBuffer cmd = CommandBufferHelpers.GetNativeCommandBuffer(context.cmd);
+
+                    if (data.showSSC)
+                    {
+                        Blitter.BlitCameraTexture(cmd, data.cloudRT, data.compositeRT);
+                        return;
+                    }
+
+                    data.material.SetVector(Settings.TextureSizeID, data.textureSize);
+                    data.material.SetFloat(Settings.DownsampleID, data.downsample);
+                    cmd.SetGlobalTexture(Settings.SSCTexID, data.cloudRT);
+                    Blitter.BlitCameraTexture(
+                        cmd, data.source, data.compositeRT, data.material, CompositePassIndex);
+                });
+            }
         }
     }
 
     public Settings settings = new Settings();
-    SSCRenderPass sscPass;
+    Material _material;
+    RayMarchPass _rayMarchPass;
+    CompositePass _compositePass;
+    FrameState _frameState;
 
     // ════════════════════════════════════════════════════════════
-    //  生命周期 — 材质随 Pass 一起重建与释放
+    //  生命周期 — 两个 Pass 共享材质与帧状态
     // ════════════════════════════════════════════════════════════
     public override void Create()
     {
-        sscPass?.Release();
-        sscPass = settings.sscShader != null ? new SSCRenderPass(settings) : null;
+        CoreUtils.Destroy(_material);
+        _material = settings.sscShader != null ? CoreUtils.CreateEngineMaterial(settings.sscShader) : null;
+        _frameState = new FrameState();
+        _rayMarchPass = _material != null ? new RayMarchPass(settings, _material, _frameState) : null;
+        _compositePass = _material != null ? new CompositePass(settings, _material, _frameState) : null;
     }
 
     protected override void Dispose(bool disposing)
     {
-        sscPass?.Release();
-        sscPass = null;
+        CoreUtils.Destroy(_material);
+        _material = null;
+        _rayMarchPass = null;
+        _compositePass = null;
+        _frameState = null;
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
-        if (sscPass == null) return;
-        sscPass.renderPassEvent = settings.passEvent;
-        renderer.EnqueuePass(sscPass);
+        // 所有 Feature 的 AddRenderPasses 都在任何 Pass 录制之前完成，
+        // 因此这里发布的两个时刻对消费者（不论其在列表中的先后）都已可见。
+        CloudBufferEvent = settings.cloudBufferEvent;
+        CloudCompositeEvent = settings.compositeEvent;
+
+        if (_rayMarchPass == null || _compositePass == null) return;
+        _rayMarchPass.renderPassEvent = settings.cloudBufferEvent;
+        _compositePass.renderPassEvent = settings.compositeEvent;
+        renderer.EnqueuePass(_rayMarchPass);
+        renderer.EnqueuePass(_compositePass);
     }
 }

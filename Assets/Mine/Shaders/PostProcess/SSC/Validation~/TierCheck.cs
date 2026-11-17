@@ -12,7 +12,7 @@ using UnityEditor;
 /// <summary>SSC quality migration and real RenderGraph budget wiring. No asset/scene saves.</summary>
 public class Script
 {
-    const string Root = "tmp/sessions/2026-10-20-ssc-tiers/output";
+    const string Root = "tmp/sessions/2026-11-13-ssc-cloud-occlusion/output";
     const BindingFlags Private = BindingFlags.NonPublic | BindingFlags.Instance;
     static int assertions;
     static void Check(bool condition, string message)
@@ -129,8 +129,7 @@ public class Script
                 f.settings.SetBudget(rayCounts[i], shifts[i]);
                 f.settings.quality = qualities[i]; f.Create();
                 byte[] pixels = Capture(camera, rt, readback);
-                var pass = typeof(SSCFeature).GetField("sscPass", Private).GetValue(f);
-                var material = (Material)pass.GetType().GetField("_material", Private).GetValue(pass);
+                var material = (Material)typeof(SSCFeature).GetField("_material", Private).GetValue(f);
                 Vector4 size = material.GetVector("_SSCTextureSize");
                 int w = 961 >> shifts[i], h = 541 >> shifts[i];
                 Check(size.z == w && size.w == h && Mathf.Abs(size.x - 1f / w) < 1e-4f && Mathf.Abs(size.y - 1f / h) < 1e-4f, "actual odd-size RT/uniform " + qualities[i] + " expected=" + w + "x" + h + " actual=" + size + " shiftUniform=" + material.GetFloat("_SSCDownsample"));

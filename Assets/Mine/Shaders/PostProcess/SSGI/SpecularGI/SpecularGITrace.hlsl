@@ -31,7 +31,10 @@ SpecularTraceResult SpecularGI_TraceScreen(
         return result;
 
     float3 hitNormalWS = SampleSceneNormals(hit.uv);
-    float facing = saturate(dot(hitNormalWS, -directionWS));
+    // 薄壳（_CameraNormalsTexture.a == -1：草、植被、双面卡片）的法线不是几何朝向，
+    // 背面判定会把整片叶子判成假命中；这些像素不接受朝向衰减，只保留屏幕边缘衰减。
+    float facing = SST_HitSurfaceIsClosed(hit.uv)
+        ? saturate(dot(hitNormalWS, -directionWS)) : 1.0;
     result.uv = hit.uv;
     result.distance = hit.distance;
     result.confidence = SpecularGI_EdgeConfidence(hit.uv) * smoothstep(0.0, 0.1, facing);

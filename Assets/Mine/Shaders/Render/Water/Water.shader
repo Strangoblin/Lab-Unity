@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  Water.shader — FFT 位移、透明折射、泡沫与单点反推焦散
+//  Water.shader — FFT 位移、BRDF 界面、单步体积散射、泡沫与单点反推焦散
 //  私有功能库：Assets/Mine/Shaders/Render/Water/WaterFunction.hlsl
 // ═══════════════════════════════════════════════════════════════
 
@@ -7,23 +7,34 @@ Shader "Render/Water"
 {
     Properties
     {
-        [Header(Opaque)]
-        _baseColorA("Base Color A", Color) = (1, 1, 1, 1)
-        _baseColorB("Base Color B", Color) = (1, 1, 1, 1)
+        [Header(BaseColor)]
+        _baseColorA("Shallow Scatter Color", Color) = (0.02, 0.12, 0.18, 1)
+        _baseColorB("Deep Scatter Color", Color) = (0.1, 0.42, 0.48, 1)
+        _Extinction("Extinction RGB (per meter)", Vector) = (0.35, 0.09, 0.045, 0)
 
-        [Header(FFT Wave)]
-        _DisplacementScale("Displacement Scale", Float) = 1.0
+        [Header(Scattering)]
+        _ScatterIntensity("Scatter Intensity", Range(0, 2)) = 1.0
+        _ScatterAnisotropy("Scatter Anisotropy", Range(-0.9, 0.9)) = 0.7
+        _ScatterDepth("Scatter Depth", Range(0.1, 10)) = 5.0
+        _ScatterDensity("Scatter Density", Range(0.1, 10)) = 2.0
+
+        [Header(Interface)]
+        _IOR("Index of Refraction", Range(1, 2)) = 1.333
+        _Roughness("Surface Roughness", Range(0, 1)) = 0.08
+
+        [Header(Geometry)]
+        _HeightIntensity("Height Intensity", Range(0, 2)) = 0.1
         _NormalIntensity("Normal Intensity", Range(0, 2)) = 1.0
-        _TessellationFactor("Tessellation Factor", Range(1, 32)) = 8
-        _FoamIntensity("Foam Intensity", Range(0, 1)) = 0.5
+        _Tessellation("Tessellation", Range(1, 32)) = 8
 
-        [Header(Caustics)]
-        _CausticsScale("Caustics Scale", Range(0, 1)) = 0.0
+        [Header(Custom)]
+        _FoamIntensity("Foam Intensity", Range(0, 2)) = 1.0
         _CausticsIntensity("Caustics Intensity", Range(0, 2)) = 1.0
+        _RefractionIntensity("Refraction Intensity", Range(0, 2)) = 1.0
 
-        [Header(Transparency)]
-        _Distortion("Distortion", Range(0, 1)) = 0.1
-        _Alpha("Alpha", Range(0, 1)) = 1.0
+        [Header(Interaction)]
+        _InteractionHeightScale("Interaction Height Scale", Range(0, 4)) = 1.0
+        _InteractionNormalStrength("Interaction Normal Strength", Range(0, 4)) = 1.0
     }
 
     HLSLINCLUDE
@@ -40,21 +51,31 @@ Shader "Render/Water"
     #include "Assets/Mine/Special/HLSL/ENVFunction.hlsl"
 
     #include "Assets/Mine/Scripts/FieldManager/Wave/WaveField.hlsl"
+    #include "Assets/Mine/Scripts/InteractionManager/Shaders/InteractionField.hlsl"
 
     CBUFFER_START(UnityPerMaterial)
         float4 _baseColorA;
         float4 _baseColorB;
+        float4 _Extinction;
 
-        float _DisplacementScale;
+        float _ScatterIntensity;
+        float _ScatterAnisotropy;
+        float _ScatterDepth;
+        float _ScatterDensity;
+
+        float _IOR;
+        float _Roughness;
+
+        float _HeightIntensity;
         float _NormalIntensity;
-        float _TessellationFactor;
+        float _Tessellation;
+
         float _FoamIntensity;
-
-        float _CausticsScale;
         float _CausticsIntensity;
+        float _RefractionIntensity;
 
-        float _Distortion;
-        float _Alpha;
+        float _InteractionHeightScale;
+        float _InteractionNormalStrength;
     CBUFFER_END
 
     #include "Assets/Mine/Shaders/Render/Water/WaterFunction.hlsl"
@@ -114,10 +135,10 @@ Shader "Render/Water"
     TessellationFactors HullConst(InputPatch<HullControlPoint, 3> patch)
     {
         TessellationFactors f;
-        f.edge[0] = _TessellationFactor;
-        f.edge[1] = _TessellationFactor;
-        f.edge[2] = _TessellationFactor;
-        f.inside  = _TessellationFactor;
+        f.edge[0] = _Tessellation;
+        f.edge[1] = _Tessellation;
+        f.edge[2] = _Tessellation;
+        f.inside  = _Tessellation;
         return f;
     }
 
@@ -157,7 +178,8 @@ Shader "Render/Water"
                           + patch[2].uv         * bary.z;
 
         float3 positionWS = TransformObjectToWorld(positionOS);                      // 位移前
-        positionWS += ComputeFFTWave(positionWS);
+        positionWS += ComputeFFTWave(positionWS);                                    // FFT（FieldManager 发布）
+        positionWS += ComputeInteractionWave(positionWS);                            // 交互凹陷（正交交互 RT）
 
         output.positionCS = TransformWorldToHClip(positionWS);
         output.positionWS = positionWS;
@@ -169,7 +191,7 @@ Shader "Render/Water"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  Frag — 片元着色器
+    //  Frag — 界面 BRDF + 单步体积散射合成
     // ════════════════════════════════════════════════════════════
     half4 Frag(WaterVaryings input) : SV_Target
     {
@@ -177,6 +199,7 @@ Shader "Render/Water"
         float3 positionWS  = input.positionWS;
         float3 defaultNormalWS = normalize(input.normalWS);
         float3 normalWS    = ComputeFFTNormal(positionWS, defaultNormalWS);
+        normalWS           = ComputeInteractionNormal(positionWS, normalWS);
         float3 viewDirWS   = normalize(camPos - positionWS);
 
         float3 mainLitDir;
@@ -185,28 +208,65 @@ Shader "Render/Water"
         float  mainLitShadowAtten;
         MainLight(positionWS, mainLitDir, mainLitColor, mainLitDistanceAtten, mainLitShadowAtten);
 
-        float4 positionSS1 = ComputePositionSS(positionWS, normalWS, _Distortion * 0.1);
-        float4 positionSS2 = ComputePositionSS(positionWS, normalWS, 0);
-        float4 positionSS  = ComparePositionSS(positionWS, positionSS1, positionSS2);
+        // ── 折射路径：基础屏幕坐标估计水柱厚度 ──
+        float4 positionSSBasic = ComputeScreenPos(TransformWorldToHClip(positionWS));
+        float2 basicUV         = positionSSBasic.xy / positionSSBasic.w;
+        float  basicRawDepth   = SampleSceneDepth(basicUV);
+        float3 basicScenePosWS = ComputeWorldSpacePosition(basicUV, basicRawDepth, UNITY_MATRIX_I_VP);
+        float  basicWaterDepth = max(positionWS.y - basicScenePosWS.y, 0.0);
+
+        float3 refrDir       = Water_RefractionDirection(normalWS, viewDirWS);
+        float3 offsetWS      = Water_RefractionOffsetWS(refrDir, basicWaterDepth);
+        float4 positionSS    = ComparePositionSS(
+            positionWS,
+            Water_RefractionSS(positionWS, offsetWS),
+            positionSSBasic);
 
         float2 screenUV   = positionSS.xy / positionSS.w;
         float  sceneDepth = SampleSceneDepth(screenUV);
-        float3 sceneNorWS = SampleSceneNormals(screenUV);
         float3 scenePosWS = ComputeWorldSpacePosition(screenUV, sceneDepth, UNITY_MATRIX_I_VP);
+        float3 sceneNorWS = SampleSceneNormals(screenUV);
+        float  sceneDepDf = max(positionWS.y - scenePosWS.y, 0.0);
+        float  pathLen    = Water_PathLength(sceneDepDf, refrDir);
+
+        // ── 界面：Fresnel 分配反射与透射 ──
+        float  NdotV       = saturate(dot(normalWS, viewDirWS));
+        float  F           = Water_InterfaceFresnel(NdotV);
+        float3 envRadiance = Water_EnvReflection(normalWS, viewDirWS, _Roughness);
+        float3 sunSpecular = Water_SunSpecular(normalWS, viewDirWS, mainLitDir,
+                                               mainLitColor * mainLitDistanceAtten,
+                                               mainLitShadowAtten, _Roughness);
+        float3 reflection  = envRadiance * F + sunSpecular;
+
+        // ── 体积：吸收 + 单步 in-scattering ──
+        //  覆盖率 C 与背景做混合而非相加：薄水（0.2 m）加性散射只有几个百分点，
+        //  亮水底上完全看不出水色；混合后薄水即有明显水体色，深水 C→1 退化为纯水体色。
+        float3 lightDirWater = Water_LightDirectionUnderwater(mainLitDir);
+        float3 transmittance = exp(-_Extinction.xyz * pathLen);
+        float  coverage      = Water_BodyCoverage(pathLen);
+        float3 bodyRadiance  = Water_BodyRadiance(pathLen, refrDir, lightDirWater,
+                                                  mainLitColor * mainLitDistanceAtten,
+                                                  mainLitShadowAtten);
 
         float normalDiff = dot(normalWS, defaultNormalWS);
-        float sceneDepDf = positionWS.y - scenePosWS.y;
-        float3 baseColor = lerp(_baseColorA.rgb, _baseColorB.rgb, saturate(sceneDepDf));
+        float caustics   = 0.0;
+        if (sceneDepDf > 0.0 && sceneDepDf < _ScatterDepth)
+        {
+            caustics = ComputeCaustics(positionWS, mainLitDir, scenePosWS, sceneDepDf, sceneNorWS);
+        }
 
-        float3 opaque      = ComputeOpaque(baseColor, positionWS, normalWS, viewDirWS, mainLitDir, mainLitColor, mainLitDistanceAtten, mainLitShadowAtten);
-        float3 transparent = SampleSceneColor(screenUV);
-        float  caustics    = ComputeCaustics(positionWS, mainLitDir, scenePosWS, sceneDepDf, sceneNorWS);
-        float  edge        = ComputeEdgeFoam(sceneDepDf, positionWS, normalDiff);
-        float  wave        = ComputeWaveFoam(positionWS);
-        float  foam        = saturate(edge + wave);
+        float3 background = SampleSceneColor(screenUV);
+        background += caustics.xxx * mainLitColor;
+        float3 waterColor = background * transmittance * (1.0 - coverage) + bodyRadiance * coverage;
 
-        float3 color = lerp(transparent, opaque, _Alpha);
-        color += (foam + caustics) * mainLitColor;
+        // ── 合成 ──
+        float3 color = reflection + (1.0 - F) * waterColor;
+
+        // ── 泡沫覆盖层 ──
+        float edge = ComputeEdgeFoam(sceneDepDf, positionWS, normalDiff);
+        float foam = saturate(edge);
+        float3 foamLit = mainLitColor * mainLitShadowAtten * saturate(dot(normalWS, mainLitDir)) + SampleSH(normalWS);
+        color = lerp(color, foamLit, foam);
 
         return half4(color, 1);
     }
@@ -225,7 +285,7 @@ Shader "Render/Water"
             Cull Back
             ZWrite Off
             ZTest LEqual
-            Blend SrcAlpha OneMinusSrcAlpha
+            Blend One Zero
 
             HLSLPROGRAM
             #pragma target 4.6
@@ -239,6 +299,44 @@ Shader "Render/Water"
 
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHTS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHTS_VERTEX
+            ENDHLSL
+        }
+
+        // ════════════════════════════════════════════════════════════
+        //  Pass — 深度参照（只被 TransparentDepthMergeFeature 用到）
+        //
+        //  水面是透明队列，正常情况下不写深度；交互相机要让「水面本身」
+        //  当穿透深度的参照面，就靠 TransparentDepthMergeFeature 用这个
+        //  LightMode 把透明队列再画一遍（强制 ZWrite）并进 _CameraDepthTexture。
+        //
+        //  这里刻意**不细分、不位移**：
+        //  - 不位移是必须的。把 ComputeInteractionWave 算进参照面，就会变成
+        //    「水面被压下去 → 参照面更深 → 穿透更大 → 压得更深」的正反馈。
+        //  - 不细分是因为位移前就是一块平板，顶点直接变换即可，省一遍曲面细分。
+        //    想让参照面跟着 FFT 大浪起伏，就得把 hull/domain 一起搬过来。
+        // ════════════════════════════════════════════════════════════
+        Pass
+        {
+            Name "DepthOnly"
+            Tags { "LightMode" = "DepthOnly" }
+
+            Cull Back
+            ZWrite On
+            ColorMask 0
+
+            HLSLPROGRAM
+            #pragma vertex DepthOnlyVert
+            #pragma fragment DepthOnlyFrag
+
+            float4 DepthOnlyVert(WaterAttributes input) : SV_POSITION
+            {
+                return TransformObjectToHClip(input.positionOS);
+            }
+
+            half4 DepthOnlyFrag() : SV_Target
+            {
+                return 0;
+            }
             ENDHLSL
         }
     }

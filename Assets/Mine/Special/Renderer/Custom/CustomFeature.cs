@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-//  Interaction Capture Feature — layer-restricted depth / normal / colour.
+//  Custom Feature — layer-restricted depth / normal / colour.
 // ════════════════════════════════════════════════════════════════
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,7 +24,7 @@ namespace Mine.Rendering
     /// <c>_CameraNormalTexture</c>, and the colour pass clears the camera target to transparent black
     /// before drawing its own layer set.
     /// </remarks>
-    public sealed class InteractionCaptureFeature : ScriptableRendererFeature
+    public sealed class CustomFeature : ScriptableRendererFeature
     {
         [System.Serializable]
         public sealed class Settings

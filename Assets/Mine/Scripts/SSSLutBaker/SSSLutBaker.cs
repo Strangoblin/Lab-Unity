@@ -13,7 +13,9 @@ namespace Mine.SSSLutBaker
     public static class SSSLutBaker
     {
         public const float MaxSpread = 2f;
-        public static readonly Vector3 DefaultProfile = new Vector3(1f, 0.35f, 0.2f);
+
+        /// <summary>默认皮肤轮廓：红色扩散最远。RGB 为线性相对散射半径，A 忽略。</summary>
+        public static readonly Color DefaultProfile = new Color(1f, 0.35f, 0.2f, 1f);
 
         // ════════════════════════════════════════════════════════════
         //  Bake — 绘制全屏三角形并读取线性 RGBAHalf 纹理
@@ -24,7 +26,7 @@ namespace Mine.SSSLutBaker
             return Bake(resolution, sampleCount, DefaultProfile);
         }
 
-        public static Texture2D Bake(int resolution, int sampleCount, Vector3 profile)
+        public static Texture2D Bake(int resolution, int sampleCount, Color profile)
         {
             resolution = Mathf.Clamp(resolution, 16, 512);
             sampleCount = Mathf.Clamp(sampleCount, 32, 1024);
@@ -46,7 +48,7 @@ namespace Mine.SSSLutBaker
                 material = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
                 material.SetFloat("_SampleCount", sampleCount);
                 material.SetVector("_LutResolution", new Vector4(resolution, resolution, 0f, 0f));
-                material.SetVector("_ScatterProfile", new Vector4(profile.x, profile.y, profile.z, MaxSpread));
+                material.SetVector("_ScatterProfile", new Vector4(profile.r, profile.g, profile.b, MaxSpread));
 
                 target = RenderTexture.GetTemporary(resolution, resolution, 0,
                     RenderTextureFormat.ARGBHalf, RenderTextureReadWrite.Linear);
@@ -89,13 +91,15 @@ namespace Mine.SSSLutBaker
         //  参数验证 — 有限、正值的 RGB 相对散射半径
         // ════════════════════════════════════════════════════════════
 
-        private static void ValidateProfile(Vector3 profile)
+        private static void ValidateProfile(Color profile)
         {
-            for (int i = 0; i < 3; i++)
-            {
-                if (float.IsNaN(profile[i]) || float.IsInfinity(profile[i]) || profile[i] < 0.02f || profile[i] > 2f)
-                    throw new ArgumentOutOfRangeException(nameof(profile), "Each profile radius must be between 0.02 and 2.");
-            }
+            if (!IsValidRadius(profile.r) || !IsValidRadius(profile.g) || !IsValidRadius(profile.b))
+                throw new ArgumentOutOfRangeException(nameof(profile), "Each profile radius must be between 0.02 and 2.");
+        }
+
+        private static bool IsValidRadius(float value)
+        {
+            return !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0.02f && value <= 2f;
         }
     }
 }

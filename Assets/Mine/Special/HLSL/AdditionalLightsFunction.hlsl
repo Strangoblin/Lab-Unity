@@ -11,18 +11,20 @@
 
 void MainLight(float3 positionWS, out float3 direction, out float3 color, out float distanceAtten, out float shadowAtten)
 {
-    #if SHADOWS_SCREEN
-        float4 positionCS  = TransformWorldToHClip(positionWS);
-        float4 shadowCoord = ComputeScreenPos(positionCS);
-    #else
-        float4 shadowCoord = TransformWorldToShadowCoord(positionWS);
-    #endif
-    Light mainLight = GetMainLight(shadowCoord);
+    Light mainLight = GetMainLight();
 
     direction       = mainLight.direction;
     color           = mainLight.color;
     distanceAtten   = mainLight.distanceAttenuation;
-    shadowAtten     = mainLight.shadowAttenuation;
+
+    // 必须走 MainLightShadow 而不是 GetMainLight(shadowCoord)：
+    // 后者内部只调 MainLightRealtimeShadow，**不含阴影距离淡出**。
+    // 超出 shadow distance 后 shadowCoord 越界，阴影贴图的比较采样是 clamp 的，
+    // 会读到贴图边缘的纹素 —— 表现为远处地形/草随机变暗、随相机移动闪烁。
+    // MainLightShadow 会用 GetMainLightShadowFade 把实时阴影按距离 lerp 回 1。
+    // 无光照贴图，baked 恒为 1，occlusionProbeChannels 传 0。
+    float4 shadowCoord = TransformWorldToShadowCoord(positionWS);
+    shadowAtten = MainLightShadow(shadowCoord, positionWS, half4(1, 1, 1, 1), half4(0, 0, 0, 0));
 }
 
 float AdditionalLights(float3 positionWS, float3 normalWS, float3 viewDirWS, float smoothness)

@@ -218,8 +218,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 992483776}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.10452846, y: 0, z: 0, w: 0.9945219}
-  m_LocalPosition: {x: 0, y: 3.5, z: -8}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: -2.27}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -304,7 +304,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 0
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -405,8 +405,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1938891865}
-  - component: {fileID: 1938891864}
   - component: {fileID: 1938891863}
+  - component: {fileID: 1938891867}
+  - component: {fileID: 1938891866}
   m_Layer: 0
   m_Name: Grass Manager Demo
   m_TagString: Untagged
@@ -426,7 +427,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dd875cb9d4e54cffab6d7a4cacb1105, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Mine.Grass.GrassChunkManager
-  _terrain: {fileID: 1938891864}
+  _terrain: {fileID: 1938891866}
   _camera: {fileID: 992483777}
   _grassMesh: {fileID: -1317210101720645879, guid: 91d070380c5271f4db966cd8bdc5adba, type: 3}
   _grassMaterial: {fileID: 2100000, guid: 5246bfe1b5914a5ca6d7a82d48e737b8, type: 2}
@@ -436,20 +437,6 @@ MonoBehaviour:
   _size: 4
   _heightPaint:
     _tiles: []
---- !u!114 &1938891864
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1938891862}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8d02bb2c0c0434ad687d79ed974423d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Mine.Grass.ProceduralGrassTerrain
-  _groundMaterial: {fileID: 0}
-  _chunkSize: 20
 --- !u!4 &1938891865
 Transform:
   m_ObjectHideFlags: 0
@@ -465,6 +452,47 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1938891866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938891862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fcd5916da7ec484eb99a1d5eb8f8350, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Grass.TerrainGrassSource
+  _terrain: {fileID: 1938891867}
+  _chunkSize: 20
+--- !u!114 &1938891867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1938891862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bfcc8ac41c72fe4e8cd83a3cfd69a59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Terrain.TerrainManager
+  _settings:
+    _widthCells: 100
+    _heightCells: 100
+    _cellSize: 1
+    _origin: {x: -50, y: 0, z: -50}
+    _seed: 42
+    _provider: 1
+    _defaultLayer: 0
+    _heightScale: 2
+    _noiseScale: 0.025
+    _noiseOctaves: 3
+  _generateOnStart: 1
+  _surfaceMaterial: {fileID: 0}
+  _castShadows: 1
+  _receiveShadows: 1
 --- !u!1 &2000000001
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mine.Grass;
+using Mine.Terrain;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -312,33 +313,76 @@ namespace Mine.Grass.Editor
         public static void RunSavedSceneInBatch()
         {
             Require(Application.isBatchMode, "Saved-scene validation must run in a separate batch Editor process");
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             EditorSceneManager.OpenScene(GrassManagerDemoSetup.ScenePath, OpenSceneMode.Single);
+            ValidateSavedScene();
+        }
+
+        /// <summary>Checks the saved demo in the open Editor; the demo must already be the active scene.</summary>
+        public static void RunSavedSceneInEditor()
+        {
+            Require(SceneManager.GetActiveScene().path == GrassManagerDemoSetup.ScenePath,
+                $"Open {GrassManagerDemoSetup.ScenePath} before running the saved-scene validation in the Editor");
+            ValidateSavedScene();
+        }
+
+        private static void ValidateSavedScene()
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             GrassChunkManager manager = UnityEngine.Object.FindFirstObjectByType<GrassChunkManager>();
-            ProceduralGrassTerrain terrain = UnityEngine.Object.FindFirstObjectByType<ProceduralGrassTerrain>();
+            TerrainManager terrain = UnityEngine.Object.FindFirstObjectByType<TerrainManager>();
+            TerrainGrassSource source = UnityEngine.Object.FindFirstObjectByType<TerrainGrassSource>();
             Camera camera = Camera.main;
-            Require(manager != null && terrain != null && camera != null, "Saved scene components or Main Camera missing");
-            Require(Mathf.Approximately(terrain.ChunkSize, 20f), "Saved demo must default to a 20-unit chunk");
+            Require(manager != null && terrain != null && source != null && camera != null,
+                "Saved scene must contain a grass manager, a TerrainManager and Main Camera");
+            Require(manager.gameObject.GetComponent<ProceduralGrassTerrain>() == null,
+                "Saved scene must not keep the retired in-memory grass terrain");
+            Require(source.Terrain == terrain, "Saved demo terrain source must reference its TerrainManager");
+            Require((GrassTerrainSource)typeof(GrassChunkManager).GetField("_terrain", flags).GetValue(manager) == source &&
+                (Camera)typeof(GrassChunkManager).GetField("_camera", flags).GetValue(manager) == camera,
+                "Saved demo must reference its terrain source and Main Camera");
+            Require(Mathf.Approximately(source.ChunkSize, 20f), "Saved demo must default to a 20-unit chunk");
             Require((GrassTerrainLayer)typeof(GrassChunkManager).GetField("_terrainLayers", flags).GetValue(manager) ==
                 GrassTerrainLayer.Grass, "Saved demo must select the Grass terrain layer by default");
             Require((manager.MeshRotation - new Vector3(-90f, 0f, 0f)).sqrMagnitude < 0.0001f,
                 "Saved demo must rotate its grass mesh -90 degrees about X");
-            Require((GrassTerrainSource)typeof(GrassChunkManager).GetField("_terrain", flags).GetValue(manager) == terrain &&
-                (Camera)typeof(GrassChunkManager).GetField("_camera", flags).GetValue(manager) == camera,
-                "Saved demo must reference its terrain and Main Camera");
+
+            source.Initialize();
+            TerrainGrid grid = terrain.CurrentGrid;
+            Require(grid != null && grid.WidthCells == 100 && grid.HeightCells == 100 &&
+                Mathf.Approximately(grid.CellSize, 1f), "Saved demo terrain must be a 100x100 grid of 1-unit cells");
+            Require(terrain.GeneratedRoot != null, "Saved demo must render a terrain surface");
+            Require(source.ChunkCountX == 5 && source.ChunkCountZ == 5 &&
+                Mathf.Approximately(source.Width, 100f) && Mathf.Approximately(source.Depth, 100f),
+                "Saved demo must expose a 100x100 world extent as 5x5 logical chunks");
+
             MethodInfo update = typeof(GrassChunkManager).GetMethod("UpdateChunks", flags);
             MethodInfo cull = typeof(GrassChunkManager).GetMethod("RefreshVisibility", flags);
             Require(update != null && cull != null && (bool)update.Invoke(manager, null), "Saved scene chunk update failed");
             cull.Invoke(manager, null);
-            Require(terrain.SurfaceMeshCount == 1 && terrain.ChunkCountX == 5 && terrain.ChunkCountZ == 5,
-                "Saved scene must generate a single terrain mesh with 5x5 logical chunks");
             Require(manager.ActiveInstanceCount > 0 && manager.VisibleInstanceCount > 0,
                 "Saved scene must generate visible grass from Main Camera");
-            CheckDefaultDistribution(manager, terrain);
+            CheckInstancesWithinTerrain(manager, source, GrassTerrainLayer.Grass);
             Mesh mesh = (Mesh)typeof(GrassChunkManager).GetField("_grassMesh", flags).GetValue(manager);
-            CheckMeshRotation(manager, terrain, mesh, Quaternion.Euler(-90f, 0f, 0f));
-            Debug.Log($"GRASS_SAVED_SCENE_VALIDATION_PASS: mesh={terrain.SurfaceMeshCount}, " +
-                $"chunkSize={terrain.ChunkSize}, instances={manager.ActiveInstanceCount}, visible={manager.VisibleInstanceCount}.");
+            CheckMeshRotation(manager, source, mesh, Quaternion.Euler(-90f, 0f, 0f));
+
+            // 地块边长属于草侧划分，改它只能重建草，不能动地形数据。
+            // 临时降密度，避免 10/㎡ × 30 m 地块触发每块 4000 株的上限警告。
+            float originalDensity = manager.Density;
+            manager.Density = 0.8f;
+            int originalVersion = source.DataVersion;
+            source.ChunkSize = 30f;
+            Require((bool)update.Invoke(manager, null), "Chunk size change must rebuild the grass chunks");
+            Require(source.ChunkCountX == 4 && source.ChunkCountZ == 4 && source.DataVersion != originalVersion &&
+                Mathf.Approximately(source.Width, 100f), "Chunk size change must re-partition without changing the terrain");
+            CheckInstancesWithinTerrain(manager, source, GrassTerrainLayer.Grass);
+            source.ChunkSize = 20f;
+            manager.Density = originalDensity;
+            Require((bool)update.Invoke(manager, null), "Restoring chunk size failed");
+            Require(source.ChunkCountX == 5 && manager.ActiveInstanceCount > 0, "Restored chunk size lost its grass");
+            cull.Invoke(manager, null);
+
+            Debug.Log($"GRASS_SAVED_SCENE_VALIDATION_PASS: terrain={grid.WidthCells}x{grid.HeightCells}, " +
+                $"chunkSize={source.ChunkSize}, instances={manager.ActiveInstanceCount}, visible={manager.VisibleInstanceCount}.");
         }
 
         /// <summary>Exercises the actual visible-index buffers without opening or changing a user scene.</summary>
@@ -423,7 +467,7 @@ namespace Mine.Grass.Editor
                 cull.Invoke(manager, null);
                 Require(manager.ActiveChunkCount == 4 && manager.IsChunkActive(3, 3),
                     "Partial edge chunks must be resident at the terrain corner");
-                CheckInstancesWithinTerrain(manager, terrain);
+                CheckInstancesWithinTerrain(manager, terrain, GrassTerrainLayer.Grass);
                 FieldInfo layers = typeof(GrassChunkManager).GetField("_terrainLayers", flags);
                 Require(layers != null, "Terrain layer selector missing");
                 layers.SetValue(manager, GrassTerrainLayer.Grass);
@@ -572,7 +616,8 @@ namespace Mine.Grass.Editor
             return (int)chunk.GetType().GetProperty("Count").GetValue(chunk);
         }
 
-        private static void CheckInstancesWithinTerrain(GrassChunkManager manager, ProceduralGrassTerrain terrain)
+        private static void CheckInstancesWithinTerrain(GrassChunkManager manager, GrassTerrainSource terrain,
+            GrassTerrainLayer allowed)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             IDictionary chunks = (IDictionary)typeof(GrassChunkManager).GetField("_chunks", flags).GetValue(manager);
@@ -588,8 +633,8 @@ namespace Mine.Grass.Editor
                 {
                     Vector3 position = matrix.GetColumn(3);
                     Require(terrain.TrySample(position.x, position.z, out Vector3 surface, out Vector3 normal,
-                        out GrassTerrainLayer layer) && layer == GrassTerrainLayer.Grass && normal.y > 0f &&
-                        Mathf.Abs(position.y - surface.y) < 0.0001f,
+                        out GrassTerrainLayer layer) && (layer & allowed) != GrassTerrainLayer.None &&
+                        normal.y > 0f && Mathf.Abs(position.y - surface.y) < 0.0001f,
                         "Grass in a partial chunk must be on an allowed terrain surface");
                     checkedInstances++;
                 }
@@ -657,7 +702,7 @@ namespace Mine.Grass.Editor
             Require(count > 0, "Grass-only selection unexpectedly removed every instance");
         }
 
-        private static void CheckMeshRotation(GrassChunkManager manager, ProceduralGrassTerrain terrain,
+        private static void CheckMeshRotation(GrassChunkManager manager, GrassTerrainSource terrain,
             Mesh mesh, Quaternion meshRotation)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

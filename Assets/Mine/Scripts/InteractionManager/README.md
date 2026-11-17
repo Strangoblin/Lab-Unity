@@ -47,7 +47,7 @@ UniversalInteractionManager              ← 总控：只管理共享输入与�
 | `WaterInteractionDemo.unity` | 水面 Demo（相机 / 总控 / 处理器 / 探针 / 水面） |
 | `InteractionSurfacesDemo.unity` | 三表面 Demo：草地 / 雪地 / 沙地共用一套捕获与一个探针 |
 | `Materials/` | 水面 Demo 用的两个材质（Debug 水面 / 交互物体） |
-| `Validation~/` | `BuildWaterInteractionDemo.cs`、`BuildInteractionSurfacesDemo.cs`、`CheckJitter.cs`、`CheckDomainFade.cs`、`CheckTraceSeam.cs`、`CheckSurfaceDynamics.cs`、`CheckWaterFade.cs`（`~` 目录不进资产管线） |
+| `Validation~/` | `BuildWaterInteractionDemo.cs`、`BuildInteractionSurfacesDemo.cs`、`CheckJitter.cs`、`CheckDomainFade.cs`、`CheckTraceSeam.cs`、`CheckSurfaceDynamics.cs`、`CheckNormalOnlyGround.cs`、`CheckParallaxGround.cs`、`CheckWaterFade.cs`（`~` 目录不进资产管线） |
 
 ---
 
@@ -158,6 +158,22 @@ float InteractionDomainAbsorb(pixel, res, absorbPerBand)  // ② 按位移吸收
 乘性衰减（`h *= exp(−k·dt)`）而不是线性回填（`h − k·dt`）：线性会把坑底磨平、形状失真；
 乘性保持形状、整体等比变浅，这才是"痕迹随时间消失"该有的样子。
 
+#### 物理依据（2026-11-09 联网核对）
+
+上面四条方程不是凭感觉定的，逐条对得上的出处：
+
+| 实现 | 文献 | 差异 |
+|------|------|------|
+| 休止角阈值塌落 `\|Δh\| > L` 才塌 | 阿贝尔沙堆模型：格点高度超过阈值就向四邻倾倒，倾倒后整体守恒 | 文献是一次倒到稳定态；我们是带速率的部分交换（`1 − e^{−k·dt}`），拖尾更柔和 |
+| `L = tanθ · texelWorld / surfaceScale` | 干沙休止角 ≈ 34°，雪 ≈ 38°（Wikipedia *Angle of repose*） | 见下方角度映射 |
+| 受压体积被挤到坑沿 | 颗粒材料近似不可压；受剪切时还会**膨胀**（Reynolds dilatancy），压力绝不会让沙凭空消失 | 我们只守恒到一阶，`_settle` 与边界吸收会故意破坏守恒 |
+| 雪只往下压实、不堆边 | 干雪压实是**塑性、不可逆**的，由孔隙率与空气排出控制（*The Cryosphere* 14, 1449, 2020），密度随深度单调增大（Wikipedia *Snow*） | 只建模表面高度，不建孔隙率场；`max(prev, press)` 正好对应"不可逆" |
+| `exp(−k·dt)` 沉降 / 蠕变 | 蠕变律 `ε̇ = Aσⁿ`（Wikipedia *Creep*）；`n = 1` 时解就是指数松弛 | 雪真实蠕变指数 `n > 1`，我们取的是线性（Newtonian）特例，是简化而非雪的本构 |
+
+休止角的参数映射：`_repose` 在 `tan20°…tan40°` 之间线性插值。
+默认值取 **`0.65 → 33.9°`**，对齐干沙的 34°（原先的 0.5 只有 31.0°，偏浅）。
+三处必须同步：`SandInteractionProcessor` 的默认值、Demo 场景序列化值、`BuildInteractionSurfacesDemo`。
+
 **两个 `min/max` 守卫，少一个就抹掉痕迹**（都实测踩过）：
 
 - `if (press > 0) h = min(h, −press)` —— 抬离后 `press == 0`，无条件的 `min` 会把坑沿所有**正值**压成 0，脊一离地就没了。
@@ -167,10 +183,42 @@ float InteractionDomainAbsorb(pixel, res, absorbPerBand)  // ② 按位移吸收
 渲染侧：
 
 - **草地**：`GrassWind.shader` 采样 `_InteractionGrassTex` 的梯度，取负梯度方向作为“远离压点”的弯曲方向，叶尖位移最大；同时叠加一点向下的 press。没有草地子集时偏移为 0。
-- **雪地**：`SnowGround.shader` 用压实量做垂直下沉 + 坡度法线，并按压实量变暗。
-- **沙地**：`SandGround.shader` 用带符号高度做垂直位移（负值下陷、正值隆起）+ 坡度法线，叠加程序化沙纹。
+- **雪地**：`SnowGround.shader` **顶点不动**，只把压实量换算成坡度法线 + 按压实量变暗。
+- **沙地**：`SandGround.shader` **顶点不动**，只把带符号高度换算成坡度法线 + 明暗（坑暗脊亮），叠加程序化沙纹。
 
-三种地面都放在**透明队列**，并各带一个不做位移的 `DepthOnly` Pass —— 这样现有的 `TransparentDepthMergeFeature` 会把它们当参照面合并进 `_CameraDepthTexture`，不需要改渲染器资产。
+**2026-11-09：雪 / 沙改成「法线互动」，不做网格变形。** 之前 Forward 会在顶点里 `positionWS.y ±= height × _DepthScale`，
+代价是痕迹解析度被网格细分（96×96，约 12.5 cm/顶点）绑死，而且可见表面与 `DepthOnly` 参照面之间会差出一个位移。
+现在 `Vert` 只做坐标变换，形状**全部**由 `Frag` 的法线与明暗表达：
+
+- `_DepthScale` 保留，语义变成「假如这层压痕真的位移了这么多米，坡度该是多少」——同一个值，同样的坡角，只是不再动顶点。
+- 判据落在 `Validation~/CheckNormalOnlyGround.cs`：编译无 error + **静态**检查 `Vert` 体里没有对 `positionWS` 的写入/高度场采样 + 同一台相机空场/踩一脚两张图必须不同（画面确实还受交互驱动）。
+- 副作用（正向）：地面网格多疏都不影响痕迹解析度；可见表面与参照面不再有位移差。
+- 代价：正俯视 + 顶光下几乎看不出来（实测 mean|Δ| 0.0012）——法线互动需要方向光和斜视角才读得出形状。
+
+**2026-11-09：再叠一层视差遮蔽映射（POM，`_ParallaxSteps`，0 = 关、默认 8）。** 法线只改"亮度怎么变"，
+不改"看得见哪一格"：俯视时坑底和坑沿出现在同一个像素上，画面就只剩一片明暗。POM 把每个像素的采样点沿视线
+推到真正可见的高度场位置，形状才在**掠射角**下也读得出来（0 步时坑读成"鼓包"，16 步时读成真坑，近侧坑沿挡住远壁）。
+
+为什么这件事在这个场景里特别便宜 —— 三个条件缺一不可：
+
+- **表面是一张平面**：TBN 就是世界 XZ，不需要切线空间，也不需要 `TANGENT` 顶点流。
+- **世界 → UV 是仿射的**：正交捕获相机的 `_InteractionOrthoP · _InteractionOrthoV` 作用在方向向量上 w 恒为 1，
+  所以 `InteractionWorldToUVLinear()` 能把"沿视线走了 t 米"直接换成 uv 位移，不用每步反投影。
+- **尺度小**：12 m 域 / 256 texel = 4.69 cm 每纹素，压痕的垂直尺度只有几厘米（`_DepthScale` 0.22 / 0.32 m），
+  一条射线最多穿过 5–7 个纹素的深度 ⇒ 8 步足够收敛，命中后加一次二分细化就够平。
+
+实现上只做**平面以下**的那一半：沙取 `saturate(-h)`（坑），雪取 `saturate(h)`（压痕）。坑沿那圈**脊在平面之上**，
+`t` 恒为 0 的射线不可能穿到"负深度"，所以脊在结构上就表达不出来 —— 那部分仍然只由法线负责。
+平地（深度 < 2%）直接早退，不做步进。
+
+判据落在 `Validation~/CheckParallaxGround.cs`（2 条）：压到约 20° 掠射，同一台相机 `_ParallaxSteps` 0 与 16
+的画面必须不同（**峰值** |Δ| 0.365、1.30% 的像素有可见变化 —— 整帧均值只有 0.0013，会被大片平地稀释，所以判据不用它），
+8 与 16 之间必须已收敛（整帧 mean|Δ| 0.0001）；顺带落盘 `steps-0/8/16.png` 供人工对比。
+
+边界说清楚：**不动顶点、不动深度**（`DepthOnly` 参照面仍是平面），轮廓不随视差移动，所以它不会像真位移那样
+挡住掠射视线里的其它物体 —— 它只修正"这个像素该看到哪一格高度场"。
+
+三种地面都放在**透明队列**，并各带一个 `DepthOnly` Pass —— 这样现有的 `TransparentDepthMergeFeature` 会把它们当参照面合并进 `_CameraDepthTexture`，不需要改渲染器资产。
 
 ---
 
@@ -411,6 +459,28 @@ CSWave：delta = 本帧 − 上帧 → clamp(±0.03) → h += −delta × 1 × c
 
 想调「这个物体推水有多重」就改它材质的 `_Intensity`，不要动 `_clarity`（那是水的性格）。
 
+### 贴地物体：`_ContactDepth` 虚拟下沉
+
+真实互动里网格不会互相插入——脚踩在地上、球搁在地上，背面与参照面的深度差恒 ≤ 0，`max(0, …)` 之后永远是 0，**场里一个字都写不进去**。要给这类物体开偏置：
+
+```
+fullPress = 1 / (_Intensity × _ContactGain)        // 压满所需的穿透深度（米），_ContactGain 三个地面子集恒为 5
+d = max(0, fragEye + _ContactDepth × fullPress − sceneEye)
+```
+
+`_ContactDepth` 归一化到「刚好压满」：0 = 老行为（必须真插进去），1 = 接触点恰好输出 1.0，`_Intensity` 怎么改这个语义都不变。
+
+偏置加在 `CaptureFrag` 的逐像素 `fragEye` 上，数学上等价于「物体按 b 米沉进地面」；又因为捕获的是背面（`Cull Front`），压痕恰好是物体在 `h = b` 处的真实截面——球得到 `√(2Rb−b²)` 的圆盘、值从中心线性衰减到 0，软边和形状都是免费的。**不要**改成在 compute 里给整张图加常数：轮廓外是 0，整片会被抬成同一个值，形状和软边全丢，退化成平底硬边的圆盘。
+
+实测（探针半径 0.70、球心抬到 y = 0.70 即刚好贴地、`_Intensity` 0.4 → fullPress = 0.5 m）：
+
+| `_ContactDepth` | 0 | 0.5 | 1.0 |
+|---|---|---|---|
+| `_originRT` max | 0.0000 | 0.0988 | 0.1988 |
+| 子集 `press`（×5） | 0.000 | 0.494 | **0.994（压满）** |
+
+同一个 `_ContactDepth = 0` 在球按老办法沉到 −0.40 m 时给出 RT 0.1588 → `press` 0.794，可见偏置与真实穿透完全可加。压满以上的偏置只会削平形状，建议 ≤ 0.5；想更深就调大 `_Intensity`（但它是全场共用的饱和点，见上一节）。
+
 #### 传播速度：能调的只有「步进频率」
 
 波速 `c` 受显式五点拉普拉斯的 CFL 条件限制（`c ≤ 0.25`，再大直接发散），清澈端 0.22 已在 88% 上，没有余量。真正决定「波纹多久跑到对面」的是步进频率：
@@ -518,23 +588,34 @@ sand  : 21.7% → 11.2%              2 → 8 纹素
 
 （箭头左边是「读时除、写时乘」版本，右边是「窗口化输入 + 位移吸收」。）
 
-### 雪 / 沙材料动力学的验证（2026-11-06，`Validation~/CheckSurfaceDynamics.cs`）
+### 雪 / 沙材料动力学的验证（2026-11-09，`Validation~/CheckSurfaceDynamics.cs`）
 
 把 `_followTarget` 钉在原点（域不动、无重投影），探针压到域中心**按住 2 s**，再抬高 3 m 空跑 6 s。
 全程读回 `_InteractionSandTex` / `_InteractionSnowTex`，沿穿过峰值纹素的那一行做径向剖面：
 
 ```
                       压住 2 s（r 从坑心往外）                        抬离后 6 s
-sand  坑 0.787  r0    脊 +0.108 @r13（坑沿 r12）   坑 0.787→0.613→0.477→0.372   脊 0.108→0.048→0.036→0.028
+sand  坑 0.787  r0    脊 +0.109 @r13（坑沿 r12）   坑 0.787→0.613→0.477→0.372   脊 0.109→0.059→0.046→0.036
 snow  压实 0.787 r0   外沿 0.052 = 峰值 6.6%，全场 min ≥ 0（没有脊）   0.787→0.634→0.512→0.414
 ```
+
+**别把运行时状态存进场景。** 保存 `InteractionSurfacesDemo.unity` 会把 Manager 与捕获相机此刻的运行态一起写死：
+探针停在哪、正交相机跟到哪（位置 + `orthographicSize`）、`_areaSize`、以及 Manager 内部那个 `_InteractionOriginTex`。
+2026-11-09 一次保存就把 `_areaSize` 从 12 写成 20、探针从 y = 0.30 写成 0.14，之后 `CheckTraceSeam` 4/3、
+`CheckSurfaceDynamics` 7/2 一起变红 —— 域比雪地贴片还大，`-1.5·area` 到 `-0.5·area` 的扫掠有一半压在空地上，
+痕迹在 uv ≈ 0.6 处断成硬台阶。**保存后先 `git diff` 看一眼，只该有你真想改的那一行**；
+还原时把探针、相机的作者位置和 `_areaSize` 一起写回去，别只改一处。
+
+**这些绝对值跟着场景里探针的静止高度走**（`_areaSize` 12、探针 y = 0.30）：球心在 0.3、半径 0.7，压入 0.4 m，
+接触圆半径 ≈ 0.57 m = 12 纹素。同一个检查在探针被停到 y = 0 时读到 0.996 / 脊 0.077、接触圆 15 纹素 ——
+峰值更大但脊更小，因为压得更狠时坑壁更陡、塌落把料往回带。判据阈值对两种状态都成立，但**跨状态比绝对值没有意义**。
 
 九条断言全过：沙有坑有脊、脊在坑沿外侧、脊不超过坑深的一半、雪只向下压实且没有脊、两种痕迹都单调变浅并且 6 s 内掉到 80%（沙）/ 85%（雪）以下。
 
 判据里的两个坑，写检查时踩过：
 
 - **脊要按带符号的最大值量**，不能按 `|v|`：坑壁比休止角陡，抬离后按休止线塌向坑内，紧贴坑壁那一格会掉到 0 以下（实测 −0.05）。那是塌坡，不是脊 —— 按 `|v|` 量会把一个负值当成"脊还在"。
-- **雪的场只有非负**（正 = 往下压），结构上就表达不出向上的隆起；外沿那 6.6% 是 5×5 蠕变晕（仍然是压痕），所以雪的判据是"外沿不超过峰值 10% 且全场无负值"，而不是"完全没有侧向量"。
+- **雪的场只有非负**（正 = 往下压），结构上就表达不出向上的隆起；外沿那 9.1% 是 5×5 蠕变晕（仍然是压痕），所以雪的判据是"外沿不超过峰值 10% 且全场无负值"，而不是"完全没有侧向量"。
 
 `CheckWaterFade`：在吸收带起点（uv ≈ 0.92）压下去再抬起来打一记冲量，空跑 8 s 逐帧采样：
 
@@ -630,3 +711,9 @@ public class MudInteractionProcessor : InteractionProcessor
 ```
 
 把它挂到 Manager 同一 GameObject（或任意激活物体）即可：`OnEnable` 自动注册，Manager 下一帧补挂接（`IsReady == false` 时会调用 `Initialize`）。再写一个消费 `_InteractionMudTex` 的表面 Shader 就完成了一个子集 —— 不需要改 Manager、不需要在 Manager 上登记。
+
+---
+
+## 待办
+
+- [斜坡交互没有修正](TODO.md) —— 整条链路按水平面假设运行，坡度超过约 20° 起可见幅度、足迹与法线误差。记录含误差分项、阻塞点与 L1/L2/L3 修法分层。

@@ -1,6 +1,6 @@
-# CustomRenderer → InteractionCaptureFeature（2026-11-04）
+# CustomRenderer → CustomFeature（2026-11-04，原名 CustomFeature）
 
-`Assets/Mine/Special/Renderer/InteractionCapture/` 取代已删除的 `CustomRenderer`（`ScriptableRenderer` 子类）。
+`Assets/Mine/Special/Renderer/Custom/` 取代已删除的 `CustomRenderer`（`ScriptableRenderer` 子类）。
 
 ## 根因（不是「API 变了」，是记账点没了）
 
@@ -34,7 +34,7 @@ URP 17 只有 `Setup(ScriptableRenderContext, ref RenderingData)` 会调用自�
 
 `Validation~/MigrateInteractionRenderer.cs`（读取旧 `CustomRendererData` 的串行化字段 → 删除并重建为 `UniversalRendererData` + 子资产 Feature → 写 `m_RendererFeatures` / `m_RendererFeatureMap` → 回填 `PC_RPAsset.m_RendererDataList[1]`）。`AssetDatabase.DeleteAsset` + `CreateAsset` 同一路径复用了原 GUID（`043a360db22f840808eb7dd39afcb466`），场景里只引用 renderer index，无需改引用。
 
-`Validation~/CaptureSmokeTest.cs`（`SingleCameraRequest` 渲染 64×64 RFloat 临时目标，真实 `InteractionManager` 两个 shader）：
+`Validation~/CustomSmokeTest.cs`（`SingleCameraRequest` 渲染 64×64 RFloat 临时目标，真实 `InteractionManager` 两个 shader）：
 
 ```
 {"status":"ok","withFeatureMaxR":1.0000,"withoutFeatureMaxR":0.0000,"rendererIndex":1,"errors":[],"warnings":[]}

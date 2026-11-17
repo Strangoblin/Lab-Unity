@@ -235,10 +235,10 @@ Shader "Render/RainEffect"
 
         float3 color = (diffuse + specular) * PI * lightColor * NdotL;
         color += BRDF_Env(baseColor, NdotV, normalWS, viewDirWS, roughness, metallic,
-            unity_SpecCube0, samplerunity_SpecCube0);
+            unity_SpecCube0, samplerunity_SpecCube0, unity_SpecCube0_HDR);
         // 水珠镜面反射：扰动后的法线采样环境，按水膜菲涅耳加权，避免整颗珠泛白
-        float3 beadReflection = unity_SpecCube0.SampleLevel(samplerunity_SpecCube0,
-            reflect(-viewDirWS, normalWS), 0.0).rgb;
+        float3 beadReflection = DecodeHDREnvironment(unity_SpecCube0.SampleLevel(samplerunity_SpecCube0,
+            reflect(-viewDirWS, normalWS), 0.0), unity_SpecCube0_HDR);
         color += beadReflection * waterF * (dropletMask * 2.0);
         color = MixFog(color, input.fogFactor);
         return half4(color, 1.0);

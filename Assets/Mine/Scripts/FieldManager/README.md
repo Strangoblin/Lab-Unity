@@ -13,16 +13,18 @@ Unity 6 / URP 17. Field data is in world coordinates and has explicit physical u
 - Wind/WindField.compute: steady base wind, traveling gust bands, advected spatial disturbance,
   and the divergence-derived vertical channel.
 - Wind/WindField.hlsl: shared material/Compute sampling.
-- Wave/WaveFieldProvider.cs: Wave channel base; implementations publish periodic displacement.
+- Wave/WaveFieldProvider.cs + Wave/WaveField.compute: 3-cascade Phillips wave producer.
 - Wave/WaveFieldBindings.cs: Wave key, cascade property IDs and neutral bindings.
-- Wave/WaveField.hlsl: shared FFT sampling.
-- Wave/FFT/FFTWaveFieldProvider.cs + FFT.compute: FFT producer, owned by the Wave channel.
+- Wave/WaveField.hlsl: shared wave sampling.
 - Editor/FieldContractProbe.compute: GPU sampling contract checks for wind and waves.
 - FieldManager.prefab: ready-to-use manager and wind producer.
 
-Instantiate FieldManager.prefab in a scene. Existing FFTWaveFieldProvider components register
+Instantiate FieldManager.prefab in a scene. Existing WaveFieldProvider components register
 automatically as the Wave provider; their original shader references and cascade settings remain.
-The prefab contains only the manager and wind. The current scene's FFT is an independent object.
+The prefab contains only the manager and wind. The scene's Wave is an independent producer and is
+parented under the FieldManager instance in WaterInteractionDemo so all providers share one hierarchy
+node; it stays a scene-level addition rather than a prefab child. RenderScene keeps a standalone Wave
+because that scene has no FieldManager.
 
 The registry accepts one active provider per FieldKey. A second producer for the same output
 is rejected and disabled rather than overwriting global textures. Providers may exist on
@@ -114,7 +116,7 @@ A new channel needs no edit to FieldManager.cs or FieldProvider.cs:
 2. Add `<Name>FieldBindings.cs : IFieldBindings` with `public const string Key`,
    `public static readonly Instance`, one `Shader.PropertyToID` per published global, and
    `BindNeutral` / `BindNeutralGlobals` using the same defaults.
-3. Add `<Name>FieldProvider.cs : FieldProvider` (or a channel base such as `WaveFieldProvider`)
+3. Add `<Name>FieldProvider.cs : FieldProvider`
    with `FieldKey`, `FieldOrder`, resource creation, simulation, publication, explicit Compute
    bindings and `ResetGlobals() => <Name>FieldBindings.Instance.BindNeutralGlobals()`.
 4. Add `<Name>Field.hlsl` beside the provider and document its unit and sampling contract.
@@ -144,19 +146,24 @@ Include `Assets/Mine/Scripts/FieldManager/Wave/WaveField.hlsl` after the pipelin
 - SampleWaveNormalBlendWS(positionWS): original unnormalized blend, for Water's material mixing.
 - SampleWaveFoam(positionWS): original 0.5/0.3/0.2 cascade weights.
 
-The FFT provider retains _WaveDisplacement0..2 / _WaveNormal0..2 / _WavePatchSize0..2.
+The Wave provider retains _WaveDisplacement0..2 / _WaveNormal0..2 / _WavePatchSize0..2.
 Textures repeat in XZ, unlike the finite wind rectangle. Normal textures encode [-1,1] to [0,1].
 Water displacement scale and normal intensity remain material response parameters.
+
+Each cascade keeps its own directional concentration (`_cascadeDirectionality`). The large
+cascade is a narrow swell; the smaller cascades widen into a cross-sea, so their crests no
+longer line up with the swell. Power 3 reproduces the original Phillips cos^3 lobe and is
+energy-normalized, so widening a lobe redistributes energy rather than adding it.
 
 For Compute use `FieldManager.BindCompute(WaveFieldBindings.Instance, shader, kernel)`.
 With no Wave provider the function binds neutral textures and validity=0, and returns false.
 Wind and Wave are the implemented channels; future channels must define their own neutral bindings.
 The generic registry alone does not define an acceleration texture or acceleration solver.
 
-FFT's spectral wind controls remain independent from the instantaneous shared wind.
+The provider's spectral wind controls remain independent from the instantaneous shared wind.
 This integration shares publication/scheduling and sampling contracts, without altering its spectrum model.
 Spectrum regeneration on Inspector changes is deferred until the next field update.
-FFT.compute and its temporary transform textures remain owned by FFTWaveFieldProvider.
+WaveField.compute and its temporary transform textures remain owned by WaveFieldProvider.
 
 ## Verification results
 
