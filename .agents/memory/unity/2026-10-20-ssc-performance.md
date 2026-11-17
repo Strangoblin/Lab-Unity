@@ -59,7 +59,7 @@ Apple M2 / Metal / Unity6000.3.14f1，RenderScene，1920×1080 ARGBHalf、Render
 - [边缘场景逐样本](evidence/2026-10-20-ssc-performance/edge-benchmark-samples.csv) / [元数据](evidence/2026-10-20-ssc-performance/edge-benchmark-metadata.json)
 - [画面误差](evidence/2026-10-20-ssc-performance/visual-metrics.csv)、[覆盖率](evidence/2026-10-20-ssc-performance/coverage-metrics.csv)、[HDR四组](evidence/2026-10-20-ssc-performance/hdr-cases.csv)
 - [被否决的近似早停原始失败数据](evidence/2026-10-20-ssc-performance/rejected-approximate-stop-cases.csv)
-- [修改前](evidence/2026-10-20-ssc-performance/before.png)、[修改后](evidence/2026-10-20-ssc-performance/after.png)、[细前景](evidence/2026-10-20-ssc-performance/thin-foreground.png)
+- 对照项：修改前 / 修改后 / 细前景（PNG 已按仓库策略清理）
 
 所有者SSC性能验证；依赖上述源码hash、RenderScene/噪声/光照和协议。后续正式基准替代时可人工确认清理长期证据。
 OpenCode按指定deepseek-v4.1-flash参与只读复核，但读取了范围外memory后中止（130、未见写入）；最终实现、独立数学复核与全部GPU验证由主会话/原生子代理完成。

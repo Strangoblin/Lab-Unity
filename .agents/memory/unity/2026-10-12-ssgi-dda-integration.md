@@ -36,8 +36,8 @@ Unity 6000.3.14f1 / URP 17.3.0 / macOS Metal，Edit Mode 的真实 Game camera `
 
 显示证据是 640×360、Medium、无 temporal shader、固定相机/场景/射线帧号的空间信号，不是最终艺术画质：
 
-- Diffuse：[DDA](evidence/2026-10-12-ssgi-dda-integration/diffuse-medium-DDA.png) / [RAY](evidence/2026-10-12-ssgi-dda-integration/diffuse-medium-Ray.png)。
-- Specular：[DDA](evidence/2026-10-12-ssgi-dda-integration/specular-medium-DDA.png) / [RAY](evidence/2026-10-12-ssgi-dda-integration/specular-medium-Ray.png)。
+- Diffuse：DDA / RAY。
+- Specular：DDA / RAY。
 
 PNG IHDR 均核实为 640×360，已打开全图。来源是本任务拥有的临时 Renderer 与合成受光几何；依赖当前 Unity/URP/Metal。精选 JSON/PNG 属于此 dated memory，保留用于该接线版本历史对照；新运行输出回 task session，不累积进功能目录。
 

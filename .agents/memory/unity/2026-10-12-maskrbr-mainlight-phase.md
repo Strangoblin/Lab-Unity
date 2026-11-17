@@ -26,7 +26,7 @@ Unity 6000.3.14f1／URP 17／Metal（Apple M2）。C# 编译通过，两 Shader 
 - [GPU 报告](evidence/2026-10-12-maskrbr-mainlight-v2/shader-results-archived.json)：47/47，0 失败，全局恢复。使用实际 R8／RHalf／ARGBHalf 输出及 float 回读；独立径向、视线、HG／角窗 oracle，覆盖三种 source、三档预算、横竖屏、越界及 Clamp 负控、稳定 jitter、主光条件、g 端点、峰值归一、Y 镜像负控、场景 RGB 无关、颜色／强度缩放与 alpha。
 - [真实隔离 URP 报告](evidence/2026-10-12-maskrbr-mainlight-v2/pipeline-results-archived.json)：32/32，0 失败／渲染错误，28 请求／28 begin-camera 回调。覆盖可见／完全遮挡来源、天空联合、三档轮廓外扩散、非居中主光、真实颜色／光强、参数端点、窄窗、Low 窗外零、缺光／背光／正交、jitter 和 renderScale=0.1／2 的最终尺寸绑定。pipelineRestored、activeSceneUnchanged、originalRendererUnchanged、lightSettingsRestored 全部为 true。
 - GPU 单通道 RT 回读时，Metal 将未存储的 GBA 填 1；夹具修正为只对 R8／R16 的 R 断言数值，Composite 对全部 RGBA 断言，所有返回分量仍检查有限。容差 `0.002 × (1 + |expected|)`。此修正不改变生产算法。
-- 完整 640×360 对照图：[baseline](evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-baseline.png)、[mask](evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-mask.png)、[rays](evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-rays.png)、[composite](evidence/2026-10-12-maskrbr-mainlight-v2/maskrbr-composite.png)。主光颜色的蓝色光束从选中红色 cube 向外扩散，未选蓝色 cube 不发光；PNG 用 `c/(1+c)` 后 sRGB 显示，不用于反推 HDR 数值。
+- 完整 640×360 对照图：baseline / mask / rays / composite。主光颜色的蓝色光束从选中红色 cube 向外扩散，未选蓝色 cube 不发光；PNG 用 `c/(1+c)` 后 sRGB 显示，不用于反推 HDR 数值。
 
 验证源码已归入功能 `Validation~/` 并从正式入口实际复跑。尚未验证 XR、动态分辨率、全 MSAA 组合、现有多个 Feature 的排序组合或 GPU 耗时；SingleCameraRequest 不提供实际 RenderGraph 预算证据。目标场景观感需按主光和角度参数调节。
 

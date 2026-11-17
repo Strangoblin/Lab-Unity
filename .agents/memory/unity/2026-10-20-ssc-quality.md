@@ -29,12 +29,7 @@ Unity 6000.3.14f1 / Metal、PC_RPAsset、SampleScene。未进入 Play；原场�
 
 ## 证据和限制
 
-以下为固定条件 PNG，所有者 SSC 质量诊断；依赖当日场景/光照/噪声，后续视觉基线替代时可人工确认后清理：
-
-- [修复前 1/4](evidence/2026-10-20-ssc-quality/before-sky-quarter.png)
-- [修复后 1/4](evidence/2026-10-20-ssc-quality/after-sky-quarter.png)
-- [固定新颜色的线性控制组](evidence/2026-10-20-ssc-quality/linear-same-color-quarter.png)
-- [前景与 1/8 云](evidence/2026-10-20-ssc-quality/foreground-eighth.png)
+以下四组为固定条件 PNG（修复前 1/4、修复后 1/4、固定新颜色的线性控制组、前景与 1/8 云），由 SSC 质量诊断产出，依赖当日场景/光照/噪声；原图已按仓库策略清理，结论保留。
 
 可复跑源码与条件见 `Assets/Mine/Shaders/PostProcess/SSC/Validation~/README.md`，运行输出回 tmp/sessions。
 1/8、尤其1/16仍会损失细节并变软，硬密度阈值和 mip0 噪声保留；不是时域抗锯齿。RGBA16F/16tap/边缘中心积分有成本，未做GPU计时；运动、XR、动态分辨率和其它平台未验证。

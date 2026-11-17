@@ -21,7 +21,7 @@ date: 2026-10-10
 - 9 个目标逐字节搬运核验通过；之后修改范围为两个 Shader 菜单及 README。文件 / 目录 meta GUID 保持且唯一，旧路径不存在。
 - Unity asset refresh 返回 compilation succeeded；两个 Shader 默认无关键字 Pass 0 同步编译，ShaderUtil.GetShaderMessages 均为空，isSupported=true。
 - 在 Edit Mode 临时预览场景的 Game/Base 相机中，使用当前 URP 的真实 PC Renderer（index=0）和迁入的 DebugOutputFeature，执行共享 OffscreenCameraCapture helper。
-- [DebugOutput UV](../../../../tmp/sessions/2026-10-10-render-debug-move-8df2/output/DebugOutput.png) 与 [InteriorMapping 默认输出](../../../../tmp/sessions/2026-10-10-render-debug-move-8df2/output/InteriorMappingScreenDebug.png) 均为完整 640×360 PNG；真实 IHDR 尺寸与整图方向检查通过。
+- DebugOutput UV 与 InteriorMapping 默认输出均为完整 640×360 PNG（`DebugOutput.png` / `InteriorMappingScreenDebug.png`，已按仓库策略清理）；真实 IHDR 尺寸与整图方向检查通过。
 - [状态证据](../../../../tmp/sessions/2026-10-10-render-debug-move-8df2/evidence/editor-validation.json)：原 Feature settings 引用及 Active 恢复，预览场景 / 临时材质释放；原 Edit Mode、SampleScene dirty=false、Renderer dirty=true 保持。
 - PC_Renderer.asset 磁盘哈希前后不变，Editor 的 MonoScript 路径解析为新位置、脚本 GUID 仍为 `b3dcbe7b74f544b58bb86d2e2f92a478`。没有回写其它 Feature 或 Renderer 设置。
 - 独立只读复核：活动文档链接与资源存在，整个 Assets 无旧 Shader 菜单名或完整旧资源路径引用。

@@ -36,6 +36,14 @@ Assets/**/Validation~/**/*.png
 Assets/**/Validation~/**/*.jpg
 Assets/**/Validation~/**/*.log
 Assets/**/Validation~/**/*.txt
+# evidence 目录只留结论与数据文件（JSON/CSV/README）；截图默认不入库，需要时 git add -f。
+.agents/memory/**/evidence/**/*.png
+.agents/memory/**/evidence/**/*.jpg
+.agents/memory/**/evidence/**/*.jpeg
+.agents/memory/**/evidence/**/*.bmp
+.agents/memory/**/evidence/**/*.exr
+.agents/memory/**/evidence/**/*.gif
+.agents/memory/**/evidence/**/*.webp
 # 系统杂项与崩溃转储；既有 tracked 文件另按清单处理
 /mono_crash*.json
 /tmp/

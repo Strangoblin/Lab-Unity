@@ -26,7 +26,7 @@ date: 2026-10-13
 
 本轮新增方法后从既有 `Validation~/run.sh` 复跑，原 39 组 / 1,152,437 断言、距离与历史两个负控制通过。生产 RayStep/ScreenTrace/SST/Controls/三个 GI Features、PC_Renderer/SampleScene 开工与收尾 SHA1 相同；新增源码只有验证与说明。原 Settings、Renderer 实例/Feature 引用/Active 与 dirty 校验通过，所有两个 runner 的 fixture/metas 门禁清理；没有保存资产或场景，未提交/推送。Editor 和本轮启动的 bridge 留运行、Edit Mode。
 
-固定镜头 PNG 是实际最终合成显示证据，不能由“看起来相近”证明等画质：[RAY](evidence/2026-10-13-ssgi-dda-wall-timing/Ray-Ray-642x366.png)、[DDA256](evidence/2026-10-13-ssgi-dda-wall-timing/DDA256-DDA256-642x366.png)、[DDA48/64 控制](evidence/2026-10-13-ssgi-dda-wall-timing/DDA48-DDA64-642x366.png)。全部六张运行图 IHDR 已核对尺寸，当前尺寸的三张已打开；这里仅归档当前尺寸三张。JSON/PNG 属于本 dated memory，依赖本轮 SampleScene/SSGI/URP/Metal，用于此版本历史对照；新的运行输出回 tmp/sessions，不累积到功能源目录。
+固定镜头 PNG 是实际最终合成显示证据，不能由“看起来相近”证明等画质：RAY、DDA256、DDA48/64 控制。运行图 IHDR 已核对尺寸，当前尺寸的三张已打开；PNG 已按仓库策略清理，JSON 属于本 dated memory，依赖本轮 SampleScene/SSGI/URP/Metal，用于此版本历史对照；新的运行输出回 tmp/sessions，不累积到功能源目录。
 
 OpenCode 一次 `opencode-go/deepseek-v4.1-flash` 隔离四份快照审计完成，报告在 `tmp/sessions/2026-10-13-ssgi-perf-a1/fixtures/hotspot-review/AUDIT.md`。主 agent 修正“AO 也用 DDA 预算”错误；源码中最多若干除法不等于 GPU 实际执行同等数量，编译器可能折叠/提升。审计没有替代真实计时。没有运行中 worker。
 
