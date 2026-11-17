@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════
-//  SSL Feature — screen space light (ray march / radial blur)
+//  SSL Feature — screen space light (HG ray march)
 // ════════════════════════════════════════════════════════════
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -8,18 +8,11 @@ using UnityEngine.Rendering.Universal;
 using UnityEngine.Serialization;
 
 /// <summary>
-/// 屏幕空间光：RAY3D 沿视线步进累积阴影光照或深度密度，RBR2D 沿主光方向做全屏径向模糊。
+/// 屏幕空间 HG 体积光：沿视线步进累积阴影光照 × 主光彩色 Cookie。
 /// 管线为 生成 → 多级模糊链 → 合成，中间结果按 <c>_SSLTex</c> 发布给其他 Shader。
 /// </summary>
 public sealed class SSLFeature : ScriptableRendererFeature
 {
-    public enum SSLMode
-    {
-        RAY3D_Fog,
-        RAY3D_Light,
-        RBR2D
-    }
-
     /// <summary>纯成本档位：一次决定步进数与模糊链层级 / 迭代数。</summary>
     public enum QualityMode
     {
@@ -39,11 +32,10 @@ public sealed class SSLFeature : ScriptableRendererFeature
     {
         [Header("Technical")]
         public Shader sslShader;
-        public SSLMode sslMode = SSLMode.RAY3D_Light;
 
         [Header("Performance")]
         [Tooltip("Low = 16 步、无模糊链；Medium = 32 步、1 级 x1；High = 64 步、2 级 x2。"
-                 + "默认 Medium 逐字段复现整理前的面板值 (32, 1, 1)。")]
+                 + "质量只改变采样精度与模糊链，不改变体积光亮度。")]
         public QualityMode quality = QualityMode.Medium;
 
         [Header("Artistic")]
@@ -110,12 +102,6 @@ public sealed class SSLFeature : ScriptableRendererFeature
         const int BlurVerticalPassIndex   = 2;
         const int MixPassIndex            = 3;
 
-        // 模式关键字：RAY3D 再由 FOG / LIGHT 细分
-        const string RBR2DKeyword  = "SSL_RBR2D";
-        const string RAY3DKeyword  = "SSL_RAY3D";
-        const string FogKeyword    = "SSL_FOG";
-        const string LightKeyword  = "SSL_LIGHT";
-
         readonly Settings _settings;
         readonly Material _material;
 
@@ -149,26 +135,6 @@ public sealed class SSLFeature : ScriptableRendererFeature
             _material.SetFloat(Settings.SSLScaleID, _settings.sslScale);
             _material.SetFloat(Settings.BlurScaleID, _settings.blurScale);
             _material.SetFloat(Settings.JitterScaleID, _settings.jitterScale);
-
-            // ── 模式关键字 ──
-            _material.DisableKeyword(RBR2DKeyword);
-            _material.DisableKeyword(RAY3DKeyword);
-            _material.DisableKeyword(FogKeyword);
-            _material.DisableKeyword(LightKeyword);
-            switch (_settings.sslMode)
-            {
-                case SSLMode.RAY3D_Fog:
-                    _material.EnableKeyword(RAY3DKeyword);
-                    _material.EnableKeyword(FogKeyword);
-                    break;
-                case SSLMode.RAY3D_Light:
-                    _material.EnableKeyword(RAY3DKeyword);
-                    _material.EnableKeyword(LightKeyword);
-                    break;
-                case SSLMode.RBR2D:
-                    _material.EnableKeyword(RBR2DKeyword);
-                    break;
-            }
 
             // ── RT ──
             RenderTextureDescriptor desc = cameraData.cameraTargetDescriptor;
@@ -221,7 +187,7 @@ public sealed class SSLFeature : ScriptableRendererFeature
                     // 原图留档，供最终合成使用
                     Blitter.BlitCameraTexture(cmd, data.source, data.tempMainRT);
 
-                    // Pass 0: SSL 生成（RAY3D 步进 / RBR2D 径向模糊）→ blurPing[0] (full res)
+                    // Pass 0: SSL 生成（HG 体积光步进）→ blurPing[0] (full res)
                     Blitter.BlitCameraTexture(cmd, data.source, data.blurPing[0], data.material, GeneratePassIndex);
 
                     // ── 多级模糊 ──
