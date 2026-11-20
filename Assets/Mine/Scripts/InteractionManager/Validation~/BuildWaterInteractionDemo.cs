@@ -98,7 +98,7 @@ public class Script
 
             // ── 交互物体：倒立凹形（Π），模仿双足触水 ──────────────
             // 一个物体、两个 Pass，靠 LightMode Tag 分流：
-            //   InteractionCapture → 只有正交交互相机的 CustomFeature 命中，输出穿透深度
+            //   InteractionCapture → 只有正交交互相机的 InteractionCaptureFeature 命中，输出穿透深度
             //   UniversalForward   → 主相机用，输出可见外观
             // 两条腿各自是一个闭合的胶囊体，从正上方看每个像素只有一个背面（下半个球面）——
             // 这是捕获 Pass（Cull Front + ZWrite Off）能被确定采样的前提。

@@ -2,7 +2,7 @@
 //  SSL — 屏幕空间光（Screen Space Light）
 //
 //  Unity 6 URP 17+ 全屏后处理，单一 HG 体积光模式：
-//    沿视线 3D 步进，累积阴影光照 × 光空间彩色透射图
+//    沿视线 3D 步进，累积阴影光照 × 光空间透明透射图
 //    Pass 0 生成 → Pass 1/2 多级模糊链（BlurFunction.hlsl）→ Pass 3 加法合成
 //  参数全部由 SSLFeature 经 PropertyToID 传入，面板不暴露。
 // ════════════════════════════════════════════════════════════
@@ -21,7 +21,7 @@ Shader "PostProcess/SSL"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl"
     #include "Assets/Mine/Special/HLSL/HashFunction.hlsl"
     #include "Assets/Mine/Special/HLSL/BlurFunction.hlsl"
-    #include "Assets/Mine/Special/Renderer/TransparentDepth/ColoredShadow/ColoredShadowFunction.hlsl"
+    #include "Assets/Mine/Special/Renderer/TransparentShadow/TransparentShadowFunction.hlsl"
 
     // ── 参数 ──
     CBUFFER_START(UnityPerMaterial)
@@ -105,10 +105,10 @@ Shader "PostProcess/SSL"
             float shadow = SampleShadow(samplePos);
             if (shadow <= 0.0)
             {
-                continue;                 // 阴影区跳过 Cookie 采样
+                continue;                 // 阴影区跳过透射采样
             }
 
-            density += stepSize * shadow * ColoredShadow_Transmission(samplePos);
+            density += stepSize * shadow * TransparentShadow_Transmission(samplePos);
         }
 
         return density * (phase / SSL_REFERENCE_STEPS);

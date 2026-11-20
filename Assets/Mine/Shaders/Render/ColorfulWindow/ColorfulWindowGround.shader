@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════════════════════
 //  ColorfulWindowGround — 彩窗测试地面
 //
-//  仅用于 ColorfulWindowTest.unity：从 ColoredShadowFeature 的光空间彩色
+//  测试地面接收端（独立测试场景已于 2026-11-20 删除）：从 TransparentShadowFeature 的光空间
 //  透射图取逐像素透射色，按深度比较区分玻璃前后；地面与 SSL 读同一份数据。
 // ════════════════════════════════════════════════════════════
 Shader "Render/ColorfulWindowGround"
@@ -35,7 +35,7 @@ Shader "Render/ColorfulWindowGround"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Assets/Mine/Special/Renderer/TransparentDepth/ColoredShadow/ColoredShadowFunction.hlsl"
+            #include "Assets/Mine/Special/Renderer/TransparentShadow/TransparentShadowFunction.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseColor;
@@ -73,7 +73,7 @@ Shader "Render/ColorfulWindowGround"
                 float3 normalWS = normalize(input.normalWS);
                 float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
                 Light mainLight = GetMainLight(shadowCoord);
-                mainLight.color *= ColoredShadow_Transmission(input.positionWS);
+                mainLight.color *= TransparentShadow_Transmission(input.positionWS);
 
                 float NdotL = saturate(dot(normalWS, mainLight.direction));
                 float3 direct = _BaseColor.rgb * mainLight.color

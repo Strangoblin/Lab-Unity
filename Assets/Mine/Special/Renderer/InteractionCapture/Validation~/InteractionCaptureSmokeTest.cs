@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-//  Custom Feature Smoke Test — the feature must own the camera target.
+//  Interaction Capture Smoke Test — the feature must own the camera target.
 // ════════════════════════════════════════════════════════════════
 using System;
 using System.Collections.Generic;
@@ -48,7 +48,7 @@ public class Script
 
         try
         {
-            Require(feature != null, $"{RendererPath} has no CustomFeature.");
+            Require(feature != null, $"{RendererPath} has no InteractionCaptureFeature.");
 
             target = new RenderTexture(Width, Height, 24, RenderTextureFormat.RFloat, RenderTextureReadWrite.Linear)
             {
@@ -112,13 +112,13 @@ public class Script
         }
     }
 
-    private static CustomFeature LoadFeature()
+    private static InteractionCaptureFeature LoadFeature()
     {
         var data = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
         if (data == null || data.rendererFeatures == null)
             return null;
         foreach (ScriptableRendererFeature feature in data.rendererFeatures)
-            if (feature is CustomFeature capture) return capture;
+            if (feature is InteractionCaptureFeature capture) return capture;
         return null;
     }
 

@@ -12,7 +12,7 @@ namespace Mine.Interaction
     /// <summary>
     /// 正交交互系统总控 — 共享捕获 + 多子集调度。
     ///
-    /// 正交相机用 IA_Renderer（UniversalRendererData + CustomFeature）渲染到 _InteractionOriginTex，
+    /// 正交相机用 IA_Renderer（UniversalRendererData + InteractionCaptureFeature）渲染到 _InteractionOriginTex，
     /// Manager 只管理这一份共享输入（originRT + 正交矩阵 + 全局 Shader 属性）。
     /// 每种交互表面实现一个 <see cref="InteractionProcessor"/> 子集（Water / Grass / Snow / Sand …），
     /// 按 <see cref="InteractionProcessor.InteractionKey"/> 注册、按 InteractionOrder 排序、各自管理输出 RT。

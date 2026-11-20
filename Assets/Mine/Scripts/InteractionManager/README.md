@@ -53,7 +53,7 @@ UniversalInteractionManager              ← 总控：只管理共享输入与�
 
 ## 设置步骤
 
-1. `IA_Renderer`（`UniversalRendererData` + `CustomFeature` + `TransparentDepthMergeFeature`，URP 自身层掩码全空，`CopyDepthMode = ForcePrepass`）已在 `PC_RPAsset` 的 Renderer List 里
+1. `IA_Renderer`（`UniversalRendererData` + `InteractionCaptureFeature` + `TransparentDepthMergeFeature`，URP 自身层掩码全空，`CopyDepthMode = ForcePrepass`）已在 `PC_RPAsset` 的 Renderer List 里
 2. 场景中创建正交相机子物体，挂载 `UniversalAdditionalCameraData`，Renderer Index 指向该 Renderer；Clear Flags 用 SolidColor（黑），不要用 Skybox
 3. 在 GameObject 上挂载 `UniversalInteractionManager`，拖入相机与 `_followTarget`
 4. **同一 GameObject 上挂载需要的每个子集**（`WaterInteractionProcessor` / `GrassInteractionProcessor` / …），拖入各自的 Compute Shader。它们会在 `OnEnable` 自动注册，不需要在 Manager 上逐个拖引用
@@ -295,7 +295,7 @@ sand   : min -0.79 / max +0.11       ← 坑 + 坑沿堆脊；0.79 → 0.61 → 
 
 | Pass | LightMode | 谁画 | 作用 |
 |------|-----------|------|------|
-| `InteractionCapture` | `InteractionCapture` | 交互相机（`CustomFeature` 的颜色捕获列表，**排在最后**） | `Cull Front` + `ZTest Always`，采样 `_CameraDepthTexture` 输出穿透深度 |
+| `InteractionCapture` | `InteractionCapture` | 交互相机（`InteractionCaptureFeature` 的颜色捕获列表，**排在最后**） | `Cull Front` + `ZTest Always`，采样 `_CameraDepthTexture` 输出穿透深度 |
 | `Forward` | `UniversalForward` | 主相机（标准 URP 前向） | 输出 `_BaseColor`，就是物体正常的样子 |
 
 标准 URP 的前向 Pass 只认 `SRPDefaultUnlit / UniversalForward / UniversalForwardOnly`，所以主相机永远不会画到 `InteractionCapture`。
@@ -321,7 +321,7 @@ sand   : min -0.79 / max +0.11       ← 坑 + 坑沿堆脊；0.79 → 0.61 → 
 
 为什么 DepthOnly Pass 必须**排除交互位移**：若参照面跟着位移一起下沉，就会形成「位移越深 → 参照越深 → 穿透越大 → 位移更深」的正反馈，水面会自激。用位移前的平面网格当参照，物理上也正好是「静止水面」这个定义。
 
-前置条件：`IA_Renderer` 的 `CopyDepthMode` 必须是 **ForcePrepass（2）**。`AfterTransparents`（1）只做颜色格式（`R32_SFloat`）的深度拷贝，不是深度附件，`SetRenderAttachmentDepth` 会直接报 `has a color format R32_SFloat`。另外 `CustomFeature` 的颜色捕获排在 `AfterRenderingTransparents`，且 `copyDepth` 关闭时**不能**把 `_CameraDepthTexture` 同时挂成附件再采样。
+前置条件：`IA_Renderer` 的 `CopyDepthMode` 必须是 **ForcePrepass（2）**。`AfterTransparents`（1）只做颜色格式（`R32_SFloat`）的深度拷贝，不是深度附件，`SetRenderAttachmentDepth` 会直接报 `has a color format R32_SFloat`。另外 `InteractionCaptureFeature` 的颜色捕获排在 `AfterRenderingTransparents`，且 `copyDepth` 关闭时**不能**把 `_CameraDepthTexture` 同时挂成附件再采样。
 
 ### 水面接入交互 RT（Shader `Render/Water`）
 
@@ -535,7 +535,7 @@ water       : min -0.657  centroid(185.8, 101.0)
 逐帧校验和  : -524.8 → -522.4 → -518.3 → -512.1 → -504.0 → -494.1 → -482.7 → -469.6
 ```
 
-- 捕获质心与探针像素坐标一致（差 < 1px）：正交相机 → `CustomFeature` → `_InteractionOriginTex` 的空间映射正确。
+- 捕获质心与探针像素坐标一致（差 < 1px）：正交相机 → `InteractionCaptureFeature` → `_InteractionOriginTex` 的空间映射正确。
 - 波面凹陷质心与探针像素一致：`_InteractionOriginTex → Compute → _InteractionWaterTex` 的映射正确。
 - 校验和逐帧单调变化：`UniversalInteractionManager.Update` 每帧在跑 `Process`。
 - 主相机成图上能看到探针拖出的红/蓝同心波纹环，探针正下方是蓝色凹陷。
@@ -686,7 +686,7 @@ snow  压实 0.787 r0   外沿 0.052 = 峰值 6.6%，全场 min ≥ 0（没有�
 | `_InteractionSnowTex` | SnowProcessor | 踩印量 0..1 |
 | `_InteractionSandTex` | SandProcessor | 带符号高度 −1..0.25 |
 | `_InteractionGrassValid` / `_InteractionSnowValid` / `_InteractionSandValid` | 各 Processor | 子集是否存在；0 时渲染侧不做任何位移 |
-| `_CustomDepthTexture` | CustomFeature（`copyDepth` 开启时） | 正交深度纹理；Demo 里关闭，参照面改由 `_CameraDepthTexture` 提供 |
+| `_InteractionDepthTexture` | InteractionCaptureFeature（`copyDepth` 开启时） | 正交深度纹理；Demo 里关闭，参照面改由 `_CameraDepthTexture` 提供 |
 
 ---
 

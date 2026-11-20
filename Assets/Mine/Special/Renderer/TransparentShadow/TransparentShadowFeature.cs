@@ -1,10 +1,11 @@
 // ════════════════════════════════════════════════════════════════
-//  Colored Shadow Feature — light-space colored transmission map.
+//  Transparent Shadow Feature — light-space colored transmission map.
 //
-//  Renders the transmissive glass layer from the main light's view into
-//  an RGB transmission + normalized light-space depth target (A channel).
-//  Receivers compare their own light-space depth against the glass depth:
-//  before the glass = white daylight, behind it = glass color.
+//  Renders the glass layer (TransparentWithShadow layer) from the main
+//  light's view into an RGB transmission + normalized light-space depth
+//  target (A channel). Receivers compare their own light-space depth
+//  against the glass depth: before the glass = white daylight, behind it
+//  = glass color.
 // ════════════════════════════════════════════════════════════════
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -15,20 +16,19 @@ using UnityEngine.Rendering.Universal;
 namespace Mine.Rendering
 {
     /// <summary>
-    /// Pipeline-level colored transmission map: one light-space pass for all
-    /// renderers selected by <see cref="Settings.layerMask"/>.
+    /// Pipeline-level transparent transmission map: one light-space pass for
+    /// all renderers selected by <see cref="Settings.layerMask"/>.
+    /// Align that mask with the <c>TransparentWithShadow</c> layer; glass on it
+    /// provides a <c>LightMode = "TransparentShadow"</c> pass.
     /// </summary>
-    public sealed class ColoredShadowFeature : ScriptableRendererFeature
+    public sealed class TransparentShadowFeature : ScriptableRendererFeature
     {
         [System.Serializable]
         public sealed class Settings
         {
             [Header("Technical")]
-            [Tooltip("Transmissive renderers to render into the colored shadow map. 0 = off.")]
-            public LayerMask layerMask = 0;
-
-            [Tooltip("Pass tag used by colored glass materials.")]
-            public string shaderTag = "ColoredShadow";
+            [Tooltip("Pass tag used by glass materials.")]
+            public string shaderTag = "TransparentShadow";
 
             [Range(256, 4096)]
             [Tooltip("Square light-space map resolution.")]
@@ -46,18 +46,24 @@ namespace Mine.Rendering
             [Tooltip("Normalized depth bias when comparing receiver against glass depth.")]
             public float depthBias = 0.003f;
 
+            // Event groups the effect's frame scope: which visible objects feed
+            // the map (space) and when the pass runs (time), read as one pair.
             [Header("Event")]
-            [Tooltip("Must run before opaque receivers sample the colored map.")]
+            [Tooltip("Objects on these layers are additionally rendered into the transparent shadow map; " +
+                     "align it with the TransparentWithShadow layer.")]
+            public LayerMask layerMask = 0;
+            [Tooltip("Must run before opaque receivers sample the transparent map.")]
             public RenderPassEvent passEvent = RenderPassEvent.BeforeRenderingOpaques;
         }
 
         public Settings settings = new Settings();
 
-        ColoredShadowPass _pass;
+        TransparentShadowPass _pass;
+        static bool s_warnedEmptyLayers;
 
         public override void Create()
         {
-            _pass = new ColoredShadowPass(settings);
+            _pass = new TransparentShadowPass(settings);
         }
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -71,7 +77,19 @@ namespace Mine.Rendering
                 return;
 
             _pass.renderPassEvent = settings.passEvent;
+            ValidateLayers();
             renderer.EnqueuePass(_pass);
+        }
+
+        void ValidateLayers()
+        {
+            bool emptyLayers = settings.layerMask.value == 0;
+            if (emptyLayers == s_warnedEmptyLayers)
+                return;
+            s_warnedEmptyLayers = emptyLayers;
+            if (emptyLayers)
+                Debug.LogWarning("[TransparentShadow] Layer Mask is Nothing, so no glass feeds the map. " +
+                                 "Align it with the TransparentWithShadow layer.");
         }
 
         protected override void Dispose(bool disposing)
@@ -80,14 +98,14 @@ namespace Mine.Rendering
         }
 
         // ════════════════════════════════════════════════════════════
-        //  Colored shadow pass — layer bounds → light-space RT → global.
+        //  Transparent shadow pass — layer bounds → light-space RT → global.
         // ════════════════════════════════════════════════════════════
-        sealed class ColoredShadowPass : ScriptableRenderPass
+        sealed class TransparentShadowPass : ScriptableRenderPass
         {
-            static readonly int TexId = Shader.PropertyToID("_ColoredShadowTex");
-            static readonly int WorldToLightId = Shader.PropertyToID("_ColoredShadowWorldToLight");
-            static readonly int ParamsId = Shader.PropertyToID("_ColoredShadowParams");
-            static readonly int DepthId = Shader.PropertyToID("_ColoredShadowDepth");
+            static readonly int TexId = Shader.PropertyToID("_TransparentShadowTex");
+            static readonly int WorldToLightId = Shader.PropertyToID("_TransparentShadowWorldToLight");
+            static readonly int ParamsId = Shader.PropertyToID("_TransparentShadowParams");
+            static readonly int DepthId = Shader.PropertyToID("_TransparentShadowDepth");
 
             readonly Settings _settings;
 
@@ -96,10 +114,10 @@ namespace Mine.Rendering
                 public RendererListHandle list;
             }
 
-            public ColoredShadowPass(Settings settings)
+            public TransparentShadowPass(Settings settings)
             {
                 _settings = settings;
-                profilingSampler = new ProfilingSampler("Colored Shadow Map");
+                profilingSampler = new ProfilingSampler("Transparent Shadow Map");
                 requiresIntermediateTexture = false;
             }
 
@@ -109,7 +127,8 @@ namespace Mine.Rendering
                 UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
                 UniversalLightData lightData = frameData.Get<UniversalLightData>();
 
-                if (_settings.layerMask.value == 0
+                int layerMask = _settings.layerMask.value;
+                if (layerMask == 0
                     || lightData.mainLightIndex < 0
                     || lightData.mainLightIndex >= lightData.visibleLights.Length)
                 {
@@ -125,7 +144,7 @@ namespace Mine.Rendering
                 }
 
                 Matrix4x4 worldToLight = mainLight.transform.worldToLocalMatrix;
-                if (!TryComputeBounds(worldToLight, out Vector2 center, out Vector2 size,
+                if (!TryComputeBounds(worldToLight, layerMask, out Vector2 center, out Vector2 size,
                         out float minZ, out float maxZ))
                 {
                     Disable();
@@ -142,7 +161,7 @@ namespace Mine.Rendering
                     renderingData, cameraData, lightData, SortingCriteria.CommonOpaque);
                 drawing.perObjectData = PerObjectData.None;
 
-                var filtering = new FilteringSettings(RenderQueueRange.all, _settings.layerMask);
+                var filtering = new FilteringSettings(RenderQueueRange.all, layerMask);
                 RendererListHandle list = graph.CreateRendererList(
                     new RendererListParams(renderingData.cullResults, drawing, filtering));
 
@@ -157,12 +176,12 @@ namespace Mine.Rendering
                     clearBuffer = true,
                     clearColor = Color.white,
                     msaaSamples = MSAASamples.None,
-                    name = "_ColoredShadowMap"
+                    name = "_TransparentShadowMap"
                 };
                 TextureHandle color = graph.CreateTexture(desc);
 
                 using var builder = graph.AddRasterRenderPass<PassData>(
-                    "Colored Shadow Map", out PassData passData, profilingSampler);
+                    "Transparent Shadow Map", out PassData passData, profilingSampler);
 
                 passData.list = list;
                 builder.UseRendererList(list);
@@ -180,7 +199,7 @@ namespace Mine.Rendering
             // ════════════════════════════════════════════════════════
             //  TryComputeBounds — layer renderers → light-space XY/Z bounds.
             // ════════════════════════════════════════════════════════
-            bool TryComputeBounds(Matrix4x4 worldToLight, out Vector2 center, out Vector2 size,
+            bool TryComputeBounds(Matrix4x4 worldToLight, int mask, out Vector2 center, out Vector2 size,
                 out float minZ, out float maxZ)
             {
                 center = Vector2.zero;
@@ -194,7 +213,6 @@ namespace Mine.Rendering
                 maxZ = float.MinValue;
                 bool found = false;
 
-                int mask = _settings.layerMask.value;
                 Renderer[] renderers = Object.FindObjectsByType<Renderer>(
                     FindObjectsInactive.Exclude, FindObjectsSortMode.None);
                 foreach (Renderer renderer in renderers)

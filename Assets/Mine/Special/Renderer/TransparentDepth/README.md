@@ -38,9 +38,9 @@
 - 透明 shader 自己若采样 `_CameraDepthTexture`，读到的是合并后的版本，可能自遮挡。
 - 未验证：MSAA > 1 时的调试 blit、XR 单 pass instanced、Deferred 渲染路径。
 
-## 测试场景
+## 测试场景（已删除）
 
-`Test/TransparentDepthTest.unity`（不随工程默认打开）：
+`Test/TransparentDepthTest.unity` 与测试材质已于 2026-11-20 删除。以下为当时的场景与复现记录：
 
 - 相机在原点朝 +Z，`far = 30`；不透明背景墙 z = 20，不透明方块 z ≈ 14；
 - 两层重叠的 URP Unlit 透明面：近 z = 6、远 z = 10，`renderQueue = 3000`、`ZWrite Off`。

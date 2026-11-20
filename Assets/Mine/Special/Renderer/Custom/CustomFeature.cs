@@ -1,5 +1,11 @@
 // ════════════════════════════════════════════════════════════════
-//  Custom Feature — layer-restricted depth / normal / colour.
+//  Custom Feature — configurable layer-restricted capture baseline.
+//
+//  A working starting point for project-specific pipelines: capture
+//  depth, normals and/or colour for configured layers into published
+//  globals or the camera target. Every layer mask, pass tag, output
+//  name and pass event is a setting, so a specialised pipeline can
+//  configure this feature or copy it as a template.
 // ════════════════════════════════════════════════════════════════
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,17 +18,14 @@ using UnityEngine.Rendering.Universal.Internal;
 namespace Mine.Rendering
 {
     /// <summary>
-    /// Render Graph replacement for the legacy <c>CustomRenderer</c>: captures a depth buffer,
-    /// an optional normal buffer and a colour buffer restricted to configured layers.
+    /// Configurable custom pipeline: layer-restricted depth, normal and colour capture.
     /// </summary>
     /// <remarks>
-    /// URP 17 records render-graph passes through <see cref="ScriptableRenderer.OnRecordRenderGraph"/>,
-    /// which is internal, so a custom <see cref="ScriptableRenderer"/> can no longer record passes.
-    /// Attach this feature to a dedicated <see cref="UniversalRendererData"/> whose own layer masks are
-    /// all empty: URP then draws no opaques, transparents or prepasses of its own, and this feature owns
-    /// the camera target. Depth is published as <c>_CustomDepthTexture</c>, normals as
-    /// <c>_CameraNormalTexture</c>, and the colour pass clears the camera target to transparent black
-    /// before drawing its own layer set.
+    /// Depth is published as <see cref="Settings.depthTextureName"/> (default
+    /// <c>_CustomDepthTexture</c>) and normals as <see cref="Settings.normalTextureName"/>.
+    /// The colour pass clears the camera target to transparent black and then draws the
+    /// configured colour layers, so the feature owns the target when attached to a
+    /// <see cref="UniversalRendererData"/> whose own layer masks are empty.
     /// </remarks>
     public sealed class CustomFeature : ScriptableRendererFeature
     {
@@ -30,14 +33,21 @@ namespace Mine.Rendering
         public sealed class Settings
         {
             [Header("Outputs")]
-            [Tooltip("Capture layer-restricted depth into _CustomDepthTexture.")]
+            [Tooltip("Capture layer-restricted depth into depthTextureName.")]
             public bool copyDepth = true;
 
-            [Tooltip("Capture layer-restricted geometry into the camera colour target.")]
+            [Tooltip("Draw layer-restricted colour into the camera target.")]
             public bool copyColor = true;
 
-            [Tooltip("Capture layer-restricted normals into _CameraNormalTexture.")]
+            [Tooltip("Capture layer-restricted normals into normalTextureName.")]
             public bool copyNormal = false;
+
+            [Header("Output textures")]
+            [Tooltip("Global texture name used for the captured depth.")]
+            public string depthTextureName = "_CustomDepthTexture";
+
+            [Tooltip("Global texture name used for the captured normals.")]
+            public string normalTextureName = "_CameraNormalTexture";
 
             [Header("Layers")]
             [Tooltip("Objects whose depth is captured. Layer 0 = nothing.")]
@@ -49,6 +59,21 @@ namespace Mine.Rendering
             [Tooltip("Objects whose normals are captured. Layer 0 = nothing.")]
             public LayerMask normalLayerMask = -1;
 
+            [Header("Pass tags")]
+            [Tooltip("Pass tags used for the depth capture. Empty = skip depth.")]
+            public string[] depthPassTags = { "DepthOnly" };
+
+            [Tooltip("Pass tags used for the normal capture. Empty = skip normals.")]
+            public string[] normalPassTags = { "DepthNormals", "DepthNormalsOnly" };
+
+            [Tooltip("Pass tags used for the colour capture. Later tags take priority per object.")]
+            public string[] colorPassTags =
+            {
+                "SRPDefaultUnlit",
+                "UniversalForward",
+                "UniversalForwardOnly"
+            };
+
             [Header("Queue")]
             [Tooltip("Draw every queue and move the capture behind transparency instead of capturing opaque only.")]
             public bool transparentMode = false;
@@ -56,18 +81,18 @@ namespace Mine.Rendering
 
         public Settings settings = new Settings();
 
-        DepthCapturePass _depthPass;
+        CapturePass _capturePass;
         ColorCapturePass _colorPass;
 
         public override void Create()
         {
-            _depthPass = new DepthCapturePass(settings);
+            _capturePass = new CapturePass(settings);
             _colorPass = new ColorCapturePass(settings);
         }
 
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            if (_depthPass == null || _colorPass == null)
+            if (_capturePass == null || _colorPass == null)
                 return;
 
             CameraData camera = renderingData.cameraData;
@@ -80,16 +105,17 @@ namespace Mine.Rendering
 
             if (settings.copyDepth || settings.copyNormal)
             {
-                _depthPass.renderPassEvent = settings.transparentMode
+                _capturePass.renderPassEvent = settings.transparentMode
                     ? RenderPassEvent.AfterRenderingTransparents
                     : RenderPassEvent.BeforeRenderingPrePasses;
-                renderer.EnqueuePass(_depthPass);
+                renderer.EnqueuePass(_capturePass);
             }
 
             if (settings.copyColor)
             {
-                // 非 transparentMode 时颜色捕获要排在透明深度合并之后：那一步才把水面
-                // （透明队列）的深度并进 _CameraDepthTexture，捕获 Pass 要拿它当参照面。
+                // After transparents the depth global already includes transparent surfaces
+                // merged by a depth-merge feature; the colour capture can use it as the
+                // reference surface instead of sampling the camera attachment.
                 _colorPass.renderPassEvent = settings.transparentMode
                     ? RenderPassEvent.BeforeRenderingTransparents
                     : RenderPassEvent.AfterRenderingTransparents;
@@ -99,13 +125,27 @@ namespace Mine.Rendering
 
         protected override void Dispose(bool disposing)
         {
-            _depthPass = null;
+            _capturePass = null;
             _colorPass = null;
         }
 
         // ════════════════════════════════════════════════════════════
         //  Shared helpers
         // ════════════════════════════════════════════════════════════
+
+        static List<ShaderTagId> ToTags(string[] names)
+        {
+            var tags = new List<ShaderTagId>(names?.Length ?? 0);
+            if (names == null)
+                return tags;
+
+            foreach (string name in names)
+            {
+                if (!string.IsNullOrEmpty(name))
+                    tags.Add(new ShaderTagId(name));
+            }
+            return tags;
+        }
 
         static RendererListHandle CreateList(RenderGraph graph, UniversalRenderingData renderingData,
             UniversalCameraData cameraData, UniversalLightData lightData, List<ShaderTagId> tags,
@@ -135,20 +175,16 @@ namespace Mine.Rendering
             };
         }
 
-        // ════════════════════════════════════════════════════════════
-        //  Depth / normal capture — the legacy depth and depth-normal prepasses.
-        // ════════════════════════════════════════════════════════════
-        sealed class DepthCapturePass : ScriptableRenderPass
+        static int TextureId(string name, string fallback)
         {
-            internal static readonly int CustomDepthId = Shader.PropertyToID("_CustomDepthTexture");
-            static readonly int CameraNormalId = Shader.PropertyToID("_CameraNormalTexture");
+            return Shader.PropertyToID(string.IsNullOrEmpty(name) ? fallback : name);
+        }
 
-            static readonly List<ShaderTagId> DepthOnlyTags = new() { new ShaderTagId("DepthOnly") };
-            static readonly List<ShaderTagId> DepthNormalTags = new()
-            {
-                new ShaderTagId("DepthNormals"), new ShaderTagId("DepthNormalsOnly")
-            };
-
+        // ════════════════════════════════════════════════════════════
+        //  Depth / normal capture — the legacy prepasses, layer-restricted.
+        // ════════════════════════════════════════════════════════════
+        sealed class CapturePass : ScriptableRenderPass
+        {
             readonly Settings _settings;
 
             sealed class PassData
@@ -156,10 +192,10 @@ namespace Mine.Rendering
                 public RendererListHandle list;
             }
 
-            public DepthCapturePass(Settings settings)
+            public CapturePass(Settings settings)
             {
                 _settings = settings;
-                profilingSampler = new ProfilingSampler("Interaction Capture Depth");
+                profilingSampler = new ProfilingSampler("Custom Capture Depth");
                 // Only private textures are written; the camera colour target is untouched.
                 requiresIntermediateTexture = false;
             }
@@ -184,20 +220,29 @@ namespace Mine.Rendering
             void RecordDepth(RenderGraph graph, UniversalRenderingData renderingData,
                 UniversalCameraData cameraData, UniversalLightData lightData, RenderQueueRange queue)
             {
-                TextureHandle depth = graph.CreateTexture(CreateDepthDesc(cameraData, "_CustomDepthTexture"));
-                RendererListHandle list = CreateList(graph, renderingData, cameraData, lightData, DepthOnlyTags,
+                List<ShaderTagId> tags = ToTags(_settings.depthPassTags);
+                if (tags.Count == 0)
+                    return;
+
+                string textureName = string.IsNullOrEmpty(_settings.depthTextureName)
+                    ? "_CustomDepthTexture"
+                    : _settings.depthTextureName;
+                int depthId = TextureId(textureName, "_CustomDepthTexture");
+
+                TextureHandle depth = graph.CreateTexture(CreateDepthDesc(cameraData, textureName));
+                RendererListHandle list = CreateList(graph, renderingData, cameraData, lightData, tags,
                     queue, _settings.depthLayerMask, cameraData.defaultOpaqueSortFlags);
 
-                using var builder = graph.AddRasterRenderPass<PassData>("Interaction Capture Depth",
+                using var builder = graph.AddRasterRenderPass<PassData>("Custom Capture Depth",
                     out PassData passData, profilingSampler);
                 passData.list = list;
                 builder.UseRendererList(list);
 
                 builder.SetRenderAttachmentDepth(depth, AccessFlags.Write);
-                builder.SetGlobalTextureAfterPass(depth, CustomDepthId);
+                builder.SetGlobalTextureAfterPass(depth, depthId);
 
-                // The global is consumed outside this graph, so an empty or colour-only capture
-                // must still produce a cleared texture.
+                // The global is consumed outside this graph, so an empty capture must still
+                // produce a cleared texture.
                 builder.AllowPassCulling(false);
                 builder.AllowGlobalStateModification(true);
                 builder.SetRenderFunc((PassData data, RasterGraphContext context) =>
@@ -207,6 +252,15 @@ namespace Mine.Rendering
             void RecordNormals(RenderGraph graph, UniversalRenderingData renderingData,
                 UniversalCameraData cameraData, UniversalLightData lightData, RenderQueueRange queue)
             {
+                List<ShaderTagId> tags = ToTags(_settings.normalPassTags);
+                if (tags.Count == 0)
+                    return;
+
+                string textureName = string.IsNullOrEmpty(_settings.normalTextureName)
+                    ? "_CameraNormalTexture"
+                    : _settings.normalTextureName;
+                int normalId = TextureId(textureName, "_CameraNormalTexture");
+
                 RenderTextureDescriptor cameraDesc = cameraData.cameraTargetDescriptor;
                 var desc = new TextureDesc(cameraDesc.width, cameraDesc.height)
                 {
@@ -216,23 +270,23 @@ namespace Mine.Rendering
                     clearBuffer = true,
                     clearColor = Color.black,
                     msaaSamples = MSAASamples.None,
-                    name = "_CameraNormalTexture",
+                    name = textureName,
                 };
                 TextureHandle normals = graph.CreateTexture(desc);
                 // Private depth: the normal layer set must not overwrite the published depth capture.
-                TextureHandle depth = graph.CreateTexture(CreateDepthDesc(cameraData, "_CameraNormalDepth"));
+                TextureHandle depth = graph.CreateTexture(CreateDepthDesc(cameraData, textureName + "Depth"));
 
-                RendererListHandle list = CreateList(graph, renderingData, cameraData, lightData, DepthNormalTags,
+                RendererListHandle list = CreateList(graph, renderingData, cameraData, lightData, tags,
                     queue, _settings.normalLayerMask, cameraData.defaultOpaqueSortFlags);
 
-                using var builder = graph.AddRasterRenderPass<PassData>("Interaction Capture Normals",
+                using var builder = graph.AddRasterRenderPass<PassData>("Custom Capture Normals",
                     out PassData passData, profilingSampler);
                 passData.list = list;
                 builder.UseRendererList(list);
 
                 builder.SetRenderAttachment(normals, 0, AccessFlags.Write);
                 builder.SetRenderAttachmentDepth(depth, AccessFlags.Write);
-                builder.SetGlobalTextureAfterPass(normals, CameraNormalId);
+                builder.SetGlobalTextureAfterPass(normals, normalId);
 
                 builder.AllowPassCulling(false);
                 builder.AllowGlobalStateModification(true);
@@ -242,25 +296,11 @@ namespace Mine.Rendering
         }
 
         // ════════════════════════════════════════════════════════════
-        //  Colour capture — clears the camera target, draws the colour layer set.
+        //  Colour capture — clears the camera target, draws the colour layers.
         // ════════════════════════════════════════════════════════════
         sealed class ColorCapturePass : ScriptableRenderPass
         {
             static readonly int CameraDepthTextureId = Shader.PropertyToID("_CameraDepthTexture");
-
-            // 每个物体只会被画一次，选哪个 Pass 由这张表决定——**表里靠后的 Tag 优先**。
-            // 实测（Unity 6.3 / URP 17）：InteractionCapture 放在最前时，带两个 Pass 的互动物体
-            // 永远被 UniversalForward 命中，捕获 RT 里存的是 Forward 的颜色（球是红色 → 恒 1.0），
-            // 于是穿透深度退化成一个二值圆盘：上下移动水面没反应、左右移动只剩边缘满幅阶跃。
-            // 把 InteractionCapture 放到最后，互动物体才会走捕获 Pass；
-            // 没有该 Pass 的普通物体不受影响，仍会落到前面几个标准 Tag。
-            static readonly List<ShaderTagId> ForwardTags = new()
-            {
-                new ShaderTagId("SRPDefaultUnlit"),
-                new ShaderTagId("UniversalForward"),
-                new ShaderTagId("UniversalForwardOnly"),
-                new ShaderTagId("InteractionCapture"),
-            };
 
             readonly Settings _settings;
 
@@ -272,7 +312,7 @@ namespace Mine.Rendering
             public ColorCapturePass(Settings settings)
             {
                 _settings = settings;
-                profilingSampler = new ProfilingSampler("Interaction Capture Color");
+                profilingSampler = new ProfilingSampler("Custom Capture Color");
                 requiresIntermediateTexture = false;
             }
 
@@ -286,6 +326,10 @@ namespace Mine.Rendering
                 if (!resources.activeColorTexture.IsValid())
                     return;
 
+                List<ShaderTagId> tags = ToTags(_settings.colorPassTags);
+                if (tags.Count == 0)
+                    return;
+
                 RenderQueueRange queue = _settings.transparentMode
                     ? RenderQueueRange.transparent
                     : RenderQueueRange.opaque;
@@ -293,20 +337,19 @@ namespace Mine.Rendering
                     ? SortingCriteria.CommonTransparent
                     : cameraData.defaultOpaqueSortFlags;
 
-                RendererListHandle list = CreateList(graph, renderingData, cameraData, lightData, ForwardTags,
+                RendererListHandle list = CreateList(graph, renderingData, cameraData, lightData, tags,
                     queue, _settings.colorLayerMask, sorting);
 
-                using var builder = graph.AddRasterRenderPass<PassData>("Interaction Capture Color",
+                using var builder = graph.AddRasterRenderPass<PassData>("Custom Capture Color",
                     out PassData passData, profilingSampler);
                 passData.list = list;
                 builder.UseRendererList(list);
 
                 builder.SetRenderAttachment(resources.activeColorTexture, 0, AccessFlags.Write);
-                // 参照面深度从全局 _CameraDepthTexture 读：TransparentDepthMergeFeature 会先把
-                // 透明表面（水面）合并进去。copyDepth 关掉时这个全局就是相机自己的深度附件
-                // （Renderer 用 CopyDepthMode.ForcePrepass），此时**不能**再把它挂成本 Pass 的
-                // 深度附件——同一个资源不能既当附件又当全局纹理采样。
-                // 深度附件原本只为交互物的 stencil 服务，本管线里没有 stencil 读者。
+
+                // When a depth capture runs, the colour pass may bind the camera depth as a
+                // reference attachment. The same resource cannot be both an attachment and a
+                // global texture, so the reference depth is read from _CameraDepthTexture.
                 if (_settings.copyDepth && resources.activeDepthTexture.IsValid())
                     builder.SetRenderAttachmentDepth(resources.activeDepthTexture, AccessFlags.ReadWrite);
 

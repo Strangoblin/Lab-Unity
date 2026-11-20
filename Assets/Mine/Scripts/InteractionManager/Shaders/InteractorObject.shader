@@ -4,7 +4,7 @@ Shader "InteractionManager/InteractorObject"
     //  互动物体 Shader — 两个 Pass，两个相机各取一个：
     //
     //  Pass 0 "InteractionCapture" (LightMode = InteractionCapture)
-    //      CustomFeature 的颜色捕获用它：采样 _CustomDepthTexture，
+    //      InteractionCaptureFeature 的颜色捕获用它：采样 _CameraDepthTexture，
     //      输出穿透深度到交互 RT。只有挂了该 Feature 的正交相机会命中这个 Tag。
     //
     //  Pass 1 "Forward" (LightMode = UniversalForward)
