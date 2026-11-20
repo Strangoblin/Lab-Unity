@@ -11,6 +11,8 @@ Shader "Render/PBRToon"
         _NormalTex ("Normal Map", 2D) = "bump" {}
         _AOTex ("AO Map", 2D) = "white" {}
         _EmissionTex ("Emission Map", 2D) = "black" {}
+        _MicroTex ("Micro Height", 2D) = "grey" {}
+        [Toggle(ENABLE_MICRO)]_EnableMicro ("Enable Micro Height", Float) = 0
 
         [Header(PBR Parameters)]
         _Brightness ("Brightness", Range(0.0, 2.0)) = 1.0
@@ -77,6 +79,8 @@ Shader "Render/PBRToon"
     SAMPLER(sampler_AOTex);
     TEXTURE2D(_EmissionTex);
     SAMPLER(sampler_EmissionTex);
+    TEXTURE2D(_MicroTex);
+    SAMPLER(sampler_MicroTex);
     TEXTURE2D(_FabricLut);
     SAMPLER(sampler_FabricLut);
     CBUFFER_START(UnityPerMaterial)
@@ -85,9 +89,11 @@ Shader "Render/PBRToon"
         float4 _NormalTex_ST;
         float4 _AOTex_ST;
         float4 _EmissionTex_ST;
+        float4 _MicroTex_ST;
         float _EnableCelToon;
         float _EnableOutline;
         float _EnableFabric;
+        float _EnableMicro;
         float _Brightness;
         float _Roughness;
         float _Metallic;
@@ -111,6 +117,7 @@ Shader "Render/PBRToon"
         float4 _FabricColor;
         float4 _SSSLut_TexelSize;
         float4 _FabricLut_TexelSize;
+        float4 _MicroTex_TexelSize;
     CBUFFER_END
 
     float3 _LightDirection;
@@ -147,11 +154,39 @@ Shader "Render/PBRToon"
     }
 
     // ════════════════════════════════════════════════════════════
+    //  BlendNormal_Whiteout — 切空间白化叠加，保留基础与微法线两层起伏
+    // ════════════════════════════════════════════════════════════
+    float3 BlendNormal_Whiteout(float3 baseTS, float3 detailTS)
+    {
+        return normalize(float3(baseTS.xy + detailTS.xy, baseTS.z * detailTS.z));
+    }
+
+    // ════════════════════════════════════════════════════════════
+    //  ComputeMicroNormalTS — 单通道高度图前向差分求切空间微法线
+    //  高度差按纹素计；SampleGrad 让硬件 mip 随像素足迹自动衰减细节
+    // ════════════════════════════════════════════════════════════
+    float3 ComputeMicroNormalTS(PBRVaryings input)
+    {
+        float2 microUV = TRANSFORM_TEX(input.uv, _MicroTex);
+        float2 uvDdx = ddx(microUV);
+        float2 uvDdy = ddy(microUV);
+        float2 texel = max(_MicroTex_TexelSize.xy, 1e-6);
+        float h0 = SAMPLE_TEXTURE2D_GRAD(_MicroTex, sampler_MicroTex, microUV, uvDdx, uvDdy).r;
+        float hR = SAMPLE_TEXTURE2D_GRAD(_MicroTex, sampler_MicroTex, microUV + float2(texel.x, 0.0), uvDdx, uvDdy).r;
+        float hU = SAMPLE_TEXTURE2D_GRAD(_MicroTex, sampler_MicroTex, microUV + float2(0.0, texel.y), uvDdx, uvDdy).r;
+        float2 slope = float2(hR - h0, hU - h0);
+        return normalize(float3(-slope, 1.0));
+    }
+
+    // ════════════════════════════════════════════════════════════
     //  ComputeNormalWS — 使用独立法线贴图 UV 变换重建世界法线
     // ════════════════════════════════════════════════════════════
     float3 ComputeNormalWS(PBRVaryings input)
     {
         float3 normalTS = UnpackNormal(SAMPLE_TEXTURE2D(_NormalTex, sampler_NormalTex, TRANSFORM_TEX(input.uv, _NormalTex)));
+        #if defined(ENABLE_MICRO)
+            normalTS = BlendNormal_Whiteout(normalTS, ComputeMicroNormalTS(input));
+        #endif
         return normalize(
             input.tangentWS   * normalTS.x +
             input.bitanentWS * normalTS.y +
@@ -400,6 +435,7 @@ Shader "Render/PBRToon"
             #pragma multi_compile_fog
             #pragma shader_feature_local ENABLE_CELTOON
             #pragma shader_feature_local ENABLE_FABRIC
+            #pragma shader_feature_local ENABLE_MICRO
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
