@@ -70,6 +70,8 @@ namespace Mine.HDRMaps.Editor
 
         private void OnGUI()
         {
+            HandleAssetDrop();
+
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             EditorGUILayout.LabelField("HDR Map Baker", EditorStyles.boldLabel);
@@ -265,6 +267,24 @@ namespace Mine.HDRMaps.Editor
                 }
             }
             EditorGUILayout.EndHorizontal();
+        }
+
+        /// <summary>把拖进窗口的 2D 纹理载入。</summary>
+        private void HandleAssetDrop()
+        {
+            if (!AssetPathDropTarget.TryConsumeWindowDrop(this, IsBakedMap, out UnityEngine.Object dropped))
+            {
+                return;
+            }
+
+            AssetPath = AssetDatabase.GetAssetPath(dropped);
+            LoadFromAsset();
+        }
+
+        /// <summary>拖拽只接受本工具产出的 2D 纹理。</summary>
+        private static bool IsBakedMap(UnityEngine.Object candidate)
+        {
+            return candidate is Texture2D;
         }
 
         /// <summary>标准行动行：[Bake] [Load] [Save]。</summary>

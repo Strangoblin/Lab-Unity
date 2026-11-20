@@ -57,7 +57,7 @@ float3 smoothNormal = vertexColor.rgb * 2.0 - 1.0;
 |---|---|
 | Input | 只接受一个 Mesh 资产（FBX 内的网格同样以 Mesh 引用传入）；不可读时禁用 Bake |
 | Smoothing Settings | 角度阈值、位置容差、存储模式 |
-| Asset Path | 固定资产路径，Save 与 Load 共用；Browse 只改绑同一字段 |
+| Asset Path | 固定资产路径，Save 与 Load 共用；Browse 只改绑同一字段；从 Project 把 Mesh 拖进窗口可直接载入 |
 | Bake | 调用 `CreateSmoothedMesh`，结果移交窗口；显示进度条 |
 | Load | 回看路径上的 Mesh；路径不是 Mesh 时拒绝载入 |
 | Save | 同名 Mesh 原位更新（`CopySerialized`）并保留 GUID；覆盖前确认；只保存目标资产 |

@@ -124,6 +124,7 @@ public sealed class NoiseGeneratorWindow : EditorWindow
     {
         EnsureChannelSettings();
         EnsureSliceState();
+        HandleAssetDrop();
 
         EditorGUILayout.LabelField("Noise Generator", EditorStyles.boldLabel);
 
@@ -635,7 +636,7 @@ public sealed class NoiseGeneratorWindow : EditorWindow
     //  共享 UI — 路径行与行动行
     // ════════════════════════════════════════════════════════
 
-    /// <summary>固定资产路径行：可直接编辑 + Browse 选择。</summary>
+    /// <summary>固定资产路径行：可直接编辑、Browse 选择，或从 Project 拖入资产直接载入。</summary>
     private void DrawAssetPathRow(string label = "Asset Path")
     {
         EditorGUILayout.BeginHorizontal();
@@ -653,6 +654,25 @@ public sealed class NoiseGeneratorWindow : EditorWindow
             }
         }
         EditorGUILayout.EndHorizontal();
+    }
+
+    /// <summary>把拖进窗口的噪声资产载入；资产类型决定输出模式，先切模式路径才落到对应的那条。</summary>
+    private void HandleAssetDrop()
+    {
+        if (!AssetPathDropTarget.TryConsumeWindowDrop(this, IsNoiseTexture, out UnityEngine.Object dropped))
+        {
+            return;
+        }
+
+        _outputMode = dropped is Texture3D ? OutputMode.Texture3D : OutputMode.Texture2D;
+        AssetPath = AssetDatabase.GetAssetPath(dropped);
+        LoadFromAsset();
+    }
+
+    /// <summary>拖拽只接受本工具产出的 2D / 3D 噪声纹理。</summary>
+    private static bool IsNoiseTexture(UnityEngine.Object candidate)
+    {
+        return candidate is Texture2D || candidate is Texture3D;
     }
 
     /// <summary>标准行动行：[Bake / Generate] [Load] [Save]。</summary>

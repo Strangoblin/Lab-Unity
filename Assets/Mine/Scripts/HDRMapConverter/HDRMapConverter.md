@@ -13,7 +13,7 @@ Coverage is independent of projection: `Panorama = 0` retains all available dire
 
 Resolution is 16–4096 in the service API, subject to device texture-size limits; the UI offers standard sizes. All results are **linear RGBAHalf, mip 0**, with Alpha reserved for source content and coverage. No reflection prefiltering or BRDF processing is performed. Equirectangular U repeats, V clamps; octahedral filtering reconnects folded edges explicitly.
 
-Convert creates a temporary output; Load/Save share `Asset Path` (default `Assets/Textures/HDRSamplingMap.asset`). Saving preserves an existing Texture2D GUID, confirms overwrites, rejects different asset types and saves only the target asset. Unsaved output is released on replacement/close. Baker handoff sources are independently owned snapshots and released separately from output.
+Convert creates a temporary output; Load/Save share `Asset Path` (default `Assets/Textures/HDRSamplingMap.asset`); a Texture2D dropped into the window is loaded directly. Saving preserves an existing Texture2D GUID, confirms overwrites, rejects different asset types and saves only the target asset. Unsaved output is released on replacement/close. Baker handoff sources are independently owned snapshots and released separately from output.
 
 ## Unified sampling
 

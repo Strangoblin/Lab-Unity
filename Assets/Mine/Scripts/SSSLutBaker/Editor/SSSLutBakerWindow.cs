@@ -57,6 +57,8 @@ namespace Mine.SSSLutBaker
 
         private void OnGUI()
         {
+            HandleAssetDrop();
+
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             EditorGUILayout.LabelField("SSS Lut Baker", EditorStyles.boldLabel);
@@ -178,6 +180,24 @@ namespace Mine.SSSLutBaker
                 }
             }
             EditorGUILayout.EndHorizontal();
+        }
+
+        /// <summary>把拖进窗口的 2D LUT 载入。</summary>
+        private void HandleAssetDrop()
+        {
+            if (!AssetPathDropTarget.TryConsumeWindowDrop(this, IsBakedLut, out UnityEngine.Object dropped))
+            {
+                return;
+            }
+
+            AssetPath = AssetDatabase.GetAssetPath(dropped);
+            LoadFromAsset();
+        }
+
+        /// <summary>拖拽只接受本工具产出的 2D LUT。</summary>
+        private static bool IsBakedLut(UnityEngine.Object candidate)
+        {
+            return candidate is Texture2D;
         }
 
         /// <summary>标准行动行：[Bake / Generate] [Load] [Save]。</summary>

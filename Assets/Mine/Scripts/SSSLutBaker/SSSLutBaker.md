@@ -15,7 +15,7 @@
 `_SSSLut_TexelSize` 留在调用 Shader 的 `UnityPerMaterial` 中，传给 `SSS_SampleLut(NdotL, positionWS, normalWS, scatteringDistance, texelSize)`，避免材质常量移出 CBUFFER。
 函数内部计算曲率和散射范围；输入归一化几何法线，在片元阶段调用。函数返回原始查表结果（未赋 LUT 或范围为零返回零贡献），强度与 Half-Lambert 组合由材质处理；`SSS_Response` 已移除。
 
-窗口独立继承 `EditorWindow`，`Asset Path` 是 Bake 后 Save 与 Load 的共同路径。三个按钮与资产所有权在本工具内实现；覆盖其他同类型资产前确认，保存只写目标资产。
+窗口独立继承 `EditorWindow`，`Asset Path` 是 Bake 后 Save 与 Load 的共同路径。把 2D 纹理从 Project 拖进窗口会直接载入。三个按钮与资产所有权在本工具内实现；覆盖其他同类型资产前确认，保存只写目标资产。
 
 ## 雪的 SSS 配方
 

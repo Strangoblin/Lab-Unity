@@ -79,7 +79,7 @@ FGDLutBaker.LogDiagnostics(lut);
 | 控件 | 说明 |
 |------|------|
 | Resolution / Sample Count | 烘焙参数 |
-| Asset Path | Save / Load 共用 .asset 路径，默认 `Assets/Textures/FGD_LUT.asset` |
+| Asset Path | Save / Load 共用 .asset 路径，默认 `Assets/Textures/FGD_LUT.asset`；从 Project 把 2D 纹理拖进窗口可直接载入 |
 | Bake | GPU 烘焙新 LUT |
 | Load | 从 Asset Path 载入纹理，不恢复烘焙参数 |
 | Save | 保存到 Asset Path；覆盖其他同类型资产前确认，原位更新保留 GUID |

@@ -86,6 +86,8 @@ namespace Mine.NormalSmoother
 
         private void OnGUI()
         {
+            HandleAssetDrop();
+
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             EditorGUILayout.LabelField("Normal Smoother", EditorStyles.boldLabel);
@@ -233,6 +235,24 @@ namespace Mine.NormalSmoother
                 }
             }
             EditorGUILayout.EndHorizontal();
+        }
+
+        /// <summary>把拖进窗口的 Mesh 载入。</summary>
+        private void HandleAssetDrop()
+        {
+            if (!AssetPathDropTarget.TryConsumeWindowDrop(this, IsBakedMesh, out UnityEngine.Object dropped))
+            {
+                return;
+            }
+
+            AssetPath = AssetDatabase.GetAssetPath(dropped);
+            LoadFromAsset();
+        }
+
+        /// <summary>拖拽只接受本工具产出的 Mesh。</summary>
+        private static bool IsBakedMesh(UnityEngine.Object candidate)
+        {
+            return candidate is Mesh;
         }
 
         /// <summary>标准行动行：[Bake] [Load] [Save]。</summary>

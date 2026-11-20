@@ -13,7 +13,7 @@ Create a standard framework, or select an existing HDRMapBaker (including a lega
 | Face Resolution | Base capture quality; output width = 2 × resolution, height = resolution |
 | Capture Range | Box guide; its farthest world corner from the capture origin determines far clipping |
 | Capture Frame | Position and orientation of the image, with +Y up / +Z forward |
-| Asset Path | Shared Save/Load path; default `Assets/Textures/HDRPanorama.asset` |
+| Asset Path | Shared Save/Load path; default `Assets/Textures/HDRPanorama.asset`; dropping a Texture2D into the window loads it |
 
 `Nothing + Include Sky` captures only the sky. `Nothing + no sky` produces transparent pixels. Render Layers is a **GameObject LayerMask**, not URP light Rendering Layers. The selected URP Renderer also applies its opaque/transparent layer filters; the camera mask does not override them. The range is a clipping-distance guide, not an exact volume stencil; objects inside that far distance may be captured even outside the box.
 

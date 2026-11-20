@@ -76,6 +76,8 @@ public sealed class CurveGeneratorWindow : EditorWindow
 
     private void OnGUI()
     {
+        HandleAssetDrop();
+
         _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
 
         EditorGUILayout.LabelField("Curve Generator", EditorStyles.boldLabel);
@@ -317,6 +319,24 @@ public sealed class CurveGeneratorWindow : EditorWindow
             }
         }
         EditorGUILayout.EndHorizontal();
+    }
+
+    /// <summary>把拖进窗口的曲线资产载入。</summary>
+    private void HandleAssetDrop()
+    {
+        if (!AssetPathDropTarget.TryConsumeWindowDrop(this, IsCurve, out UnityEngine.Object dropped))
+        {
+            return;
+        }
+
+        AssetPath = AssetDatabase.GetAssetPath(dropped);
+        LoadFromAsset();
+    }
+
+    /// <summary>拖拽只接受本工具产出的曲线资产。</summary>
+    private static bool IsCurve(UnityEngine.Object candidate)
+    {
+        return candidate is CurveAsset;
     }
 
     /// <summary>标准行动行：[Bake / Generate] [Load] [Save]。</summary>

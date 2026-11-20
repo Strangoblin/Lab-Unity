@@ -80,7 +80,7 @@ CurveBake.Result                       内存预览
 | Dimension | Toolbar | XYZ | XYZ / XY / XZ / YZ，投影到指定平面 |
 | Samples | Slider | 256 | 采样分辨率 (16–4096)，均匀分配至各段、每段保底 1 样本 |
 | Loop | Toggle | false | 首尾闭合 |
-| Asset Path | Text | `Assets/Mine/Data/Curves/NewCurve.asset` | Save / Load 共用资产路径（Browse... 可选） |
+| Asset Path | Text | `Assets/Mine/Data/Curves/NewCurve.asset` | Save / Load 共用资产路径（Browse... 可选；从 Project 把 CurveAsset 拖进窗口可直接载入） |
 
 ### CurveAsset 资产格式
 
