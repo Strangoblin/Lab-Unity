@@ -122,7 +122,8 @@ public sealed class SSLFeature : ScriptableRendererFeature
             UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
 
             TextureHandle source = resourceData.activeColorTexture;
-            if (!source.IsValid() || _material == null) return;
+            TextureHandle cameraDepth = resourceData.cameraDepthTexture;
+            if (!source.IsValid() || !cameraDepth.IsValid() || _material == null) return;
 
             // ── 质量档展开（纯函数，不缓存状态） ──
             Settings.ResolveQuality(_settings.quality,
@@ -172,6 +173,7 @@ public sealed class SSLFeature : ScriptableRendererFeature
                 passData.debug = _settings.debug;
 
                 builder.UseTexture(source, AccessFlags.ReadWrite);
+                builder.UseTexture(cameraDepth, AccessFlags.Read);
                 builder.UseTexture(tempMainRT, AccessFlags.ReadWrite);
                 for (int i = 0; i <= maxLevel; i++)
                 {
