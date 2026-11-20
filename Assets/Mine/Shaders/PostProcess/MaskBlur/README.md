@@ -13,7 +13,7 @@
 1. 在 Universal Renderer Data 添加 `MaskBlurFeature`。
 2. 将 `settings.shader` 指定为同目录 `MaskBlur.shader`（菜单路径 `PostProcess/MaskBlur`）。序列化引用保证构建包含该 Shader。
 3. 使用带 `Tags { "LightMode" = "MaskBlur" }` Pass 的材质。PBRToon 已提供此 Pass，材质 `_MaskBlurWeight` 控制贡献，默认 1，设为 0 退出柔光。
-4. 用 Feature 的 `layerMask` 限定物体层；实际选择还会与 Renderer 的 Opaque Layer Mask 相交。
+4. 用 Feature 的 `layerMask` 限定物体层；实际选择还会与 Renderer 的 Opaque Layer Mask 相交，并且材质本身必须带 `MaskBlur` Pass。`layerMask` 设为 Nothing 时效果不可见，运行期会警告一次。
 
 遮罩针对相机已渲染的不透明表面生成。材质 Mask Pass 采样 `_CameraDepthTexture`，将被其他表面遮挡的片元置零；使用 `ZTest Always`、`ZWrite Off` 和 `BlendOp Max / Blend One One`。独立 R8 遮罩每帧清黑，单采样且不绑定相机深度附件，因此与开启 MSAA 的相机配合时不会产生附件采样数不匹配。此路径不需要 Stencil。
 
@@ -24,7 +24,6 @@ Feature 在 `AfterRenderingSkybox` 执行，用当前场景颜色提取柔光。
 | 分组 | 参数 | 默认值 | 行为 |
 | --- | --- | --- | --- |
 | Technical | shader | 空 | 必须绑定本目录 Shader |
-| Technical | layerMask | Everything | 限定产生遮罩的物体层 |
 | Technical | kernel | Gaussian | Gaussian 为固定核；JitteredGaussian 为稳定空间分层抖动核 |
 | Performance | quality | Medium | 固定滤波预算档位 |
 | Artistic | radiusMode | Pixels | Pixels 使用最终输出像素；Normalized 使用输出高度比例 |
@@ -32,7 +31,11 @@ Feature 在 `AfterRenderingSkybox` 执行，用当前场景颜色提取柔光。
 | Artistic | normalizedRadius | 0.005 | Normalized 模式的核步长，单位为输出高度比例；面板范围 0–0.05 |
 | Artistic | jitterStrength | 1 | JitteredGaussian 的层内位置扰动强度，范围 0–1；0 完全回到 Gaussian 路径 |
 | Artistic | intensity | 0.5 | 柔光叠加强度，范围 0–1 |
+| Event | layerMask | Everything | 限定产生遮罩的物体层，与 Renderer 的 Opaque Layer Mask 相交；Nothing 时不产生任何遮罩 |
+| Event | passEvent | AfterRenderingSkybox | 提取、滤波与合成的帧内阶段 |
 | Debug | debug | Off | Off 为合成画面；Mask 为原始灰度遮罩；Blur 为真实模糊颜色 |
+
+`Event` 组把该效果的两个适用范围并排列出：`layerMask` 决定**谁参与**（空间范围），`passEvent` 决定**何时执行**（帧内时机）。两者独立生效、互不覆盖，但都会让效果静默失效：`layerMask` 为 Nothing 时遮罩恒为 0，柔光不可见，运行期会在进入该状态时警告一次；`passEvent` 过早会被后续不透明物覆盖，过晚则采不到想要的颜色。事件默认值等于改造前硬编码的阶段，`AddRenderPasses` 每帧写回，面板改动即时生效。
 
 以下预算针对半径大于 0 的完整效果。滤波读取数是各 H/V Pass 的纹理采样总数，按一个工作像素统计；不包括 Extract、Mask 材质绘制、深度读取或 Composite。
 

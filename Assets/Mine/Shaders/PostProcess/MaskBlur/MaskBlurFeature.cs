@@ -23,7 +23,6 @@ public sealed class MaskBlurFeature : ScriptableRendererFeature
     {
         [Header("Technical")]
         public Shader shader;
-        public LayerMask layerMask = -1;
         public KernelMode kernel = KernelMode.Gaussian;
 
         [Header("Performance")]
@@ -39,7 +38,12 @@ public sealed class MaskBlurFeature : ScriptableRendererFeature
         [Range(0f, 1f)] public float jitterStrength = 1f;
         [Range(0f, 1f)] public float intensity = 0.5f;
 
+        // Event groups the effect's frame scope: which visible objects feed the
+        // mask (space) and when the pass runs (time), read as one pair.
         [Header("Event")]
+        [Tooltip("Opaque objects on these layers can feed the mask; intersected with the renderer's opaque layer mask. Materials still need a MaskBlur pass, so Nothing produces no glow.")]
+        public LayerMask layerMask = -1;
+        [Tooltip("Frame stage where scene color is extracted, blurred and composited.")]
         public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingSkybox;
 
         [Header("Debug")]
@@ -330,6 +334,10 @@ public sealed class MaskBlurFeature : ScriptableRendererFeature
     public Settings settings = new();
     MaskBlurPass _pass;
 
+    // A Nothing layer mask is a silent no-op: the feature still renders the
+    // whole blur chain from an all-zero mask. Warn on entering that state.
+    static bool s_warnedEmptyLayers;
+
     // ════════════════════════════════════════════════════════════
     //  Lifecycle — recreate and dispose the runtime material together.
     // ════════════════════════════════════════════════════════════
@@ -353,6 +361,17 @@ public sealed class MaskBlurFeature : ScriptableRendererFeature
             || (settings.intensity <= 0f && settings.debug == DebugMode.Off))
             return;
         _pass.renderPassEvent = settings.passEvent;
+        ValidateLayers();
         renderer.EnqueuePass(_pass);
+    }
+
+    void ValidateLayers()
+    {
+        bool emptyLayers = settings.layerMask.value == 0;
+        if (emptyLayers == s_warnedEmptyLayers)
+            return;
+        s_warnedEmptyLayers = emptyLayers;
+        if (emptyLayers)
+            Debug.LogWarning("[MaskBlur] Layer Mask is Nothing, so no material can feed the mask and the effect is invisible. Select the layers that carry a MaskBlur pass.");
     }
 }

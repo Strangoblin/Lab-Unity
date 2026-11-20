@@ -15,7 +15,6 @@ using UnityEditor;
 /// </summary>
 public class Script
 {
-    const string Root = "tmp/sessions/2026-11-13-ssc-cloud-occlusion/output";
     const int Width = 961;
     const int Height = 541;
     static int assertions;
@@ -26,9 +25,13 @@ public class Script
         if (!condition) throw new Exception(message);
     }
 
-    public static object Main()
+    public static object Main(string[] args)
     {
-        Directory.CreateDirectory(Root);
+        if (args == null || args.Length == 0 || string.IsNullOrWhiteSpace(args[0]))
+            throw new ArgumentException("Pass the output directory for this cloud occlusion run.");
+        string output = args[0];
+        Directory.CreateDirectory(output);
+        assertions = 0;
         var rd = AssetDatabase.LoadAssetAtPath<UniversalRendererData>("Assets/Settings/PC_Renderer.asset");
         var ssc = rd.rendererFeatures.OfType<SSCFeature>().Single();
         var rbr = rd.rendererFeatures.OfType<MaskRBRFeature>().Single();
@@ -83,6 +86,7 @@ public class Script
             rbr.settings.intensity = 1f;
             rbr.settings.length = 0.2f;
             rbr.settings.occludeWithClouds = true;
+            rbr.settings.passEvent = RenderPassEvent.AfterRenderingTransparents;
             rbr.SetActive(true);
 
             // SSC: stationary fields, black clouds so the composite contributes (1 - alpha) only.
@@ -91,20 +95,22 @@ public class Script
             ssc.settings.showSSC = false;
             ssc.settings.baseColorA = Color.black;
             ssc.settings.baseColorB = Color.black;
+            ssc.settings.cloudBufferEvent = RenderPassEvent.AfterRenderingOpaques;
+            ssc.settings.compositeEvent = RenderPassEvent.BeforeRenderingPostProcessing;
             ssc.Create();
 
             ssc.SetActive(false);
-            CheckCapture(camera, rt, readback, "a-mask-noclouds.png");
+            CheckCapture(camera, rt, readback, Path.Combine(output, "a-mask-noclouds.png"));
             float[] background = ReadPixels(rt, readback);
             Check(!SSCFeature.CloudOcclusionReady, "cloud handoff off when SSC inactive");
 
             ssc.SetActive(true);
-            CheckCapture(camera, rt, readback, "b-mask-clouds-occlude.png");
+            CheckCapture(camera, rt, readback, Path.Combine(output, "b-mask-clouds-occlude.png"));
             float[] occluded = ReadPixels(rt, readback);
             Check(SSCFeature.CloudOcclusionReady, "cloud handoff flagged after SSC ray march");
 
             rbr.settings.occludeWithClouds = false;
-            CheckCapture(camera, rt, readback, "c-mask-clouds-no-occlude.png");
+            CheckCapture(camera, rt, readback, Path.Combine(output, "c-mask-clouds-no-occlude.png"));
             float[] compositeOnly = ReadPixels(rt, readback);
 
             int solid = 0, dimmedByComposite = 0, dimmedByMask = 0, inverted = 0;
@@ -134,17 +140,18 @@ public class Script
 
             // Order guard: both directions of the partial order must be reported.
             rbr.settings.occludeWithClouds = true;
-            ssc.settings.cloudBufferEvent = RenderPassEvent.AfterRenderingSkybox;
-            string lateWarn = CaptureWarnings(() => CheckCapture(camera, rt, readback, "d-late-buffer.png"));
+            ssc.settings.cloudBufferEvent = RenderPassEvent.AfterRenderingTransparents + 1;
+            string lateWarn = CaptureWarnings(() => CheckCapture(camera, rt, readback, Path.Combine(output, "d-late-buffer.png")));
             Check(lateWarn.Contains("Cloud occlusion is off"), "late cloud buffer warns: " + lateWarn);
 
             ssc.settings.cloudBufferEvent = RenderPassEvent.AfterRenderingOpaques;
             ssc.settings.compositeEvent = RenderPassEvent.AfterRenderingOpaques;
-            string earlyWarn = CaptureWarnings(() => CheckCapture(camera, rt, readback, "e-early-composite.png"));
+            string earlyWarn = CaptureWarnings(() => CheckCapture(camera, rt, readback, Path.Combine(output, "e-early-composite.png")));
             Check(earlyWarn.Contains("composites at"), "early composite warns: " + earlyWarn);
 
-            File.WriteAllText(Path.Combine(Root, "cloud-occlusion.txt"), report.ToString());
-            return Path.GetFullPath(Path.Combine(Root, "cloud-occlusion.txt"));
+            string reportPath = Path.Combine(output, "cloud-occlusion.txt");
+            File.WriteAllText(reportPath, report.ToString());
+            return Path.GetFullPath(reportPath);
         }
         catch (Exception error)
         {
@@ -167,7 +174,7 @@ public class Script
                 && rbrOriginal == JsonUtility.ToJson(rbr.settings)
                 && ssc.isActive == sscActive && rbr.isActive == rbrActive
                 && scene.isDirty == dirty;
-            File.WriteAllText(Path.Combine(Root, "cloud-occlusion-report.json"), JsonUtility.ToJson(new Report
+            File.WriteAllText(Path.Combine(output, "cloud-occlusion-report.json"), JsonUtility.ToJson(new Report
             {
                 assertions = assertions,
                 passed = failure == null && restored,
@@ -192,13 +199,13 @@ public class Script
         return string.Join("\n", logs);
     }
 
-    static void CheckCapture(Camera camera, RenderTexture rt, Texture2D readback, string name)
+    static void CheckCapture(Camera camera, RenderTexture rt, Texture2D readback, string outputPath)
     {
         RenderPipeline.SubmitRenderRequest(camera, new UniversalRenderPipeline.SingleCameraRequest { destination = rt });
         RenderTexture.active = rt;
         readback.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0, false);
         readback.Apply(false, false);
-        File.WriteAllBytes(Path.Combine(Root, name), readback.EncodeToPNG());
+        File.WriteAllBytes(outputPath, readback.EncodeToPNG());
     }
 
     static float[] ReadPixels(RenderTexture rt, Texture2D readback)

@@ -10,10 +10,10 @@ using UnityEngine.Rendering.Universal;
 namespace Mine.Rendering
 {
     /// <summary>
-    /// Records visible opaque object masks and creates shared R8 coverage descriptors.
+    /// Records visible object masks and creates shared coverage descriptors.
     /// </summary>
     /// <remarks>
-    /// Coverage is stored in R, with zero excluded and one fully selected.
+    /// Scalar callers store coverage in R. Override materials can use separate channels.
     /// The caller owns shader tags, materials and any published global texture ID.
     /// Object shaders sample the current camera depth; no depth attachment is written.
     /// Handles belong only to the supplied graph and camera frame.
@@ -23,6 +23,8 @@ namespace Mine.Rendering
         sealed class ObjectMaskData
         {
             public RendererListHandle rendererList;
+            public RendererListHandle transparentList;
+            public RendererListHandle transparentOccluders;
         }
 
         static readonly int CameraDepthTextureID = Shader.PropertyToID("_CameraDepthTexture");
@@ -51,7 +53,9 @@ namespace Mine.Rendering
         // ════════════════════════════════════════════════════════════
         public static TextureHandle RecordObjects(RenderGraph graph, ContextContainer frameData,
             TextureHandle sizeReference, TextureHandle depth, int layerMask, ShaderTagId[] shaderTags,
-            Material overrideMaterial, int overridePassIndex, string name, int outputGlobalID = -1)
+            Material overrideMaterial, int overridePassIndex, string name, int outputGlobalID = -1,
+            int transparentOverridePassIndex = -1, int transparentOccluderPassIndex = -1,
+            GraphicsFormat colorFormat = GraphicsFormat.R8_UNorm)
         {
             if (shaderTags == null || shaderTags.Length == 0)
                 throw new System.ArgumentException("At least one shader tag is required.", nameof(shaderTags));
@@ -73,11 +77,25 @@ namespace Mine.Rendering
             RendererListHandle rendererList = graph.CreateRendererList(
                 new RendererListParams(rendering.cullResults, drawing, filtering));
 
-            TextureHandle mask = graph.CreateTexture(CreateDescriptor(graph, sizeReference, name));
+            int transparentLayers = rendering.transparentLayerMask.value;
+            RendererListHandle transparentList = CreateTransparentList(graph, rendering, drawing,
+                transparentLayers & layerMask, transparentOverridePassIndex);
+            RendererListHandle transparentOccluders = CreateTransparentList(graph, rendering, drawing,
+                transparentLayers, transparentOccluderPassIndex);
+
+            TextureDesc descriptor = CreateDescriptor(graph, sizeReference, name);
+            descriptor.colorFormat = colorFormat;
+            TextureHandle mask = graph.CreateTexture(descriptor);
             using (var builder = graph.AddRasterRenderPass<ObjectMaskData>(name, out var data))
             {
                 data.rendererList = rendererList;
+                data.transparentList = transparentList;
+                data.transparentOccluders = transparentOccluders;
                 builder.UseRendererList(rendererList);
+                if (transparentList.IsValid())
+                    builder.UseRendererList(transparentList);
+                if (transparentOccluders.IsValid())
+                    builder.UseRendererList(transparentOccluders);
                 builder.UseTexture(depth, AccessFlags.Read);
                 builder.UseGlobalTexture(CameraDepthTextureID, AccessFlags.Read);
                 builder.SetRenderAttachment(mask, 0, AccessFlags.Write);
@@ -87,9 +105,27 @@ namespace Mine.Rendering
                 builder.SetRenderFunc(static (ObjectMaskData pass, RasterGraphContext context) =>
                 {
                     context.cmd.DrawRendererList(pass.rendererList);
+                    if (pass.transparentList.IsValid())
+                        context.cmd.DrawRendererList(pass.transparentList);
+                    if (pass.transparentOccluders.IsValid())
+                        context.cmd.DrawRendererList(pass.transparentOccluders);
                 });
             }
             return mask;
+        }
+
+        static RendererListHandle CreateTransparentList(RenderGraph graph, UniversalRenderingData rendering,
+            DrawingSettings drawing, int layerMask, int overridePassIndex)
+        {
+            if (overridePassIndex < 0 || layerMask == 0)
+                return default;
+
+            SortingSettings sorting = drawing.sortingSettings;
+            sorting.criteria = SortingCriteria.CommonTransparent;
+            drawing.sortingSettings = sorting;
+            drawing.overrideMaterialPassIndex = overridePassIndex;
+            FilteringSettings filtering = new(RenderQueueRange.transparent, layerMask);
+            return graph.CreateRendererList(new RendererListParams(rendering.cullResults, drawing, filtering));
         }
     }
 }

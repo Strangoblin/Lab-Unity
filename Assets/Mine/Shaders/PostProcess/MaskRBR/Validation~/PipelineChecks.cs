@@ -18,6 +18,7 @@ public class Script
     private const int Height = 360;
     private const int SelectedLayer = 30;
     private const int OtherLayer = 29;
+    private const int TransparentLayer = 28;
     private const float Tolerance = 0.002f;
     private const string Root = "Assets/Mine/Shaders/PostProcess/MaskRBR/";
     private static readonly BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -51,7 +52,7 @@ public class Script
         var report = new Report
         {
             graphicsDevice = SystemInfo.graphicsDeviceType + " / " + SystemInfo.graphicsDeviceName,
-            scope = "Actual URP SingleCameraRequest with main directional light, production MaskRBRFeature/MaskRBR shaders, scalar receiver HG/cone and radial CPU oracles, visible and fully occluded opaque geometry in a disposable preview scene, cloned renderer and pipeline. Existing scene feature order, XR and performance are outside this fixture.",
+            scope = "Actual URP SingleCameraRequest with main directional light, production MaskRBR shaders, RGB radial and HG/cone CPU oracles, visible and occluded opaque and transparent geometry in a disposable preview scene, cloned renderer and pipeline. Existing scene feature order, XR and performance are outside this fixture.",
             graphBudget = "Not measured: URP suppresses RenderGraph debug data during render requests; compiled graph budget needs a normal camera-frame capture.",
             pngDisplayMapping = "Optional full 640x360 PNG: linear HDR RGB uses c/(1+c), then linear-to-sRGB; numeric assertions use linear RGBAFloat readback."
         };
@@ -69,8 +70,8 @@ public class Script
         int[] originalFeatureIds = null;
         Scene preview = default(Scene);
         var owned = new List<UnityEngine.Object>();
-        var originalMaskGlobals = new Texture[4];
-        string[] maskGlobals = { "_CameraDepthTexture", "_MaskRBRObjectMaskTexture", "_MaskRBRMaskTexture", "_MaskRBRRayTexture" };
+        string[] maskGlobals = { "_CameraDepthTexture", "_MaskRBRPreTransparentColor", "_MaskRBRObjectMaskTexture", "_MaskRBRMaskTexture", "_MaskRBRRayTexture" };
+        var originalMaskGlobals = new Texture[maskGlobals.Length];
         for (int i = 0; i < maskGlobals.Length; i++) originalMaskGlobals[i] = Shader.GetGlobalTexture(maskGlobals[i]);
         Vector4 originalLightPosition = Shader.GetGlobalVector("_MainLightPosition");
         Vector4 originalLightColor = Shader.GetGlobalVector("_MainLightColor");
@@ -101,6 +102,7 @@ public class Script
             owned.Add(renderer);
             renderer.rendererFeatures.Clear();
             renderer.opaqueLayerMask = (1 << SelectedLayer) | (1 << OtherLayer);
+            renderer.transparentLayerMask = (1 << TransparentLayer) | (1 << OtherLayer);
             renderer.intermediateTextureMode = IntermediateTextureMode.Always;
             feature = ScriptableObject.CreateInstance<MaskRBRFeature>();
             feature.name = "MaskRBR disposable validation feature";
@@ -112,6 +114,7 @@ public class Script
                 "The explicit production shader references are missing.");
             feature.settings.source = MaskRBRFeature.SourceMode.Objects;
             feature.settings.layerMask = 1 << SelectedLayer;
+            feature.settings.passEvent = RenderPassEvent.AfterRenderingSkybox;
             feature.settings.quality = MaskRBRFeature.QualityMode.High;
             feature.settings.length = 0.3f;
             feature.settings.falloff = 1f;
@@ -153,6 +156,7 @@ public class Script
             QualitySettings.renderPipeline = pipeline;
 
             RunCases(feature, pipeline, camera, light, lightDirection, red, blue, hiddenCenter, cases, report, args);
+            RunTransparentCases(feature, renderer, preview, camera, light, hiddenCenter, owned, cases, report);
             Require(errors.Count == 0, "Render errors: " + string.Join(" | ", errors.ToArray()));
         }
         catch (Exception exception) { report.error = exception.ToString(); }
@@ -195,7 +199,7 @@ public class Script
     }
 
     // ════════════════════════════════════════════════════════════
-    //  Cases — visible masks, independent scalar rays and real main-light emission
+    //  Cases — visible masks, independent RGB rays and main-light direction
     // ════════════════════════════════════════════════════════════
     private static void RunCases(MaskRBRFeature feature, UniversalRenderPipelineAsset pipeline, Camera camera,
         Light light, Vector3 lightDirection, Material selected, Material unselected, Vector3 hiddenCenter,
@@ -255,17 +259,17 @@ public class Script
         {
             feature.settings.quality = (MaskRBRFeature.QualityMode)quality;
             Color[] rays = Render(camera, report);
-            var item = InspectScalar("Rays.Quality" + quality,
-                "Actual fixed quality variant emits bounded grayscale scalar rays beyond the selected silhouette", rays);
+            var item = Inspect("Rays.Quality" + quality,
+                "Actual fixed quality variant emits red HDR rays beyond the selected red silhouette", rays);
             for (int i = 0; i < rays.Length; i++)
                 if (objectMask[i].r < 0.01f && rays[i].r > 0.005f) item.outsideMaskPixels++;
-            item.passed &= item.maxRed > 0.1f && item.outsideMaskPixels > 20;
+            item.passed &= item.maxRed > 1f && item.maxBlue < Tolerance && item.outsideMaskPixels > 20;
             VerifyBindings(feature, item, quality);
             cases.Add(item);
             if (quality == 2) highRays = rays;
         }
         AddCompare(cases, "Rays.OffCenterDirectionOracle",
-            "Independent Camera viewport direction, bilinear mask taps and HG/cone predict actual off-center main-light scalar rays",
+            "Independent camera direction, RGB bilinear taps and HG/cone predict off-center rays",
             highRays, RayOracle(camera, lightDirection, objectMask, baseline, feature.settings, 48));
 
         Vector4 boundDirection = Shader.GetGlobalVector("_MainLightPosition");
@@ -286,31 +290,30 @@ public class Script
 
         feature.settings.debug = MaskRBRFeature.DebugMode.Off;
         Color[] whiteComposite = Render(camera, report);
-        AddCompare(cases, "Composite.MainLightHDRAndAlpha",
-            "Production graph adds scalar rays times actual white main-light intensity and effect strength, retaining original alpha",
-            whiteComposite, CompositeOracle(baseline, highRays, expectedLightColor, feature.settings.intensity));
+        AddCompare(cases, "Composite.HDRSourceAndAlpha",
+            "Production graph adds HDR rays times effect strength, retaining original camera alpha",
+            whiteComposite, CompositeOracle(baseline, highRays, feature.settings.intensity));
 
         light.color = new Color(0.25f, 0.5f, 1f, 1f);
         feature.settings.debug = MaskRBRFeature.DebugMode.Rays;
         AddCompare(cases, "Rays.LightColorIndependent",
-            "Changing real directional-light RGB does not color or alter the scalar ray texture", Render(camera, report), highRays);
+            "Unlit source keeps its camera RGB when the real directional light changes color", Render(camera, report), highRays);
         feature.settings.debug = MaskRBRFeature.DebugMode.Off;
         Color[] coloredComposite = Render(camera, report);
-        AddCompare(cases, "Composite.LinearMainLightColor",
-            "Each emitted RGB channel inherits URP linear main-light color rather than scene RGB or white clipping",
-            coloredComposite, CompositeOracle(baseline, highRays, ActiveLightColor(light), feature.settings.intensity));
+        AddCompare(cases, "Composite.UnlitSourceKeepsColor",
+            "Source color determines emitted RGB for the unlit source while main light determines direction",
+            coloredComposite, whiteComposite);
         light.intensity = 4f;
         feature.settings.debug = MaskRBRFeature.DebugMode.Rays;
         AddCompare(cases, "Rays.LightIntensityIndependent",
-            "Doubling the real main-light intensity leaves its scalar angular/radial coverage unchanged", Render(camera, report), highRays);
+            "Doubling main-light intensity leaves the unlit source RGB and radial response unchanged", Render(camera, report), highRays);
         feature.settings.debug = MaskRBRFeature.DebugMode.Off;
-        AddCompare(cases, "Composite.LightIntensityLinear",
-            "Doubling real main-light intensity doubles RGB emission above baseline", Render(camera, report),
-            CompositeOracle(baseline, highRays, ActiveLightColor(light), feature.settings.intensity));
+        AddCompare(cases, "Composite.LightIntensityIndependent",
+            "Unlit source keeps its emission when the real directional-light intensity changes", Render(camera, report), coloredComposite);
         feature.settings.intensity = 0.2f;
         AddCompare(cases, "Composite.EffectIntensityLinear",
-            "Halving effect strength cancels doubled main-light intensity and preserves every original alpha",
-            Render(camera, report), coloredComposite);
+            "Halving effect strength halves each RGB contribution and preserves camera alpha",
+            Render(camera, report), CompositeOracle(baseline, highRays, feature.settings.intensity));
         feature.settings.intensity = 0.4f;
         light.intensity = 2f;
         light.color = Color.white;
@@ -319,10 +322,18 @@ public class Script
         unselected.SetColor("_BaseColor", new Color(16f, 1f, 0f, 1f));
         Color originalBackground = camera.backgroundColor;
         camera.backgroundColor = new Color(2f, 0f, 5f, originalBackground.a);
+        feature.SetActive(false);
+        Color[] changedBaseline = Render(camera, report);
+        feature.SetActive(true);
         feature.settings.debug = MaskRBRFeature.DebugMode.Rays;
-        AddCompare(cases, "Rays.SceneRGBIndependent",
-            "Changing selected material, occluder material and background HDR RGB does not alter scalar rays",
-            Render(camera, report), highRays);
+        Color[] changedRays = Render(camera, report);
+        // The HDR 11:0 edge magnifies GPU bilinear coordinate rounding relative to the CPU oracle.
+        AddCompare(cases, "Rays.UsesSelectedSceneRGB",
+            "Changing camera RGB feeds the selected green source while the unselected occluder and background stay excluded",
+            changedRays, RayOracle(camera, lightDirection, objectMask, changedBaseline, feature.settings, 48), 0.003f);
+        var colorChange = Inspect("Control.SourceColorChangesRays", "Selected color switches the visible rays from red to green", changedRays);
+        colorChange.passed &= highRays[focusPixel].r > 1f && changedRays[focusPixel].g > 1f && colorChange.maxRed < Tolerance;
+        cases.Add(colorChange);
         selected.SetColor("_BaseColor", new Color(4f, 0f, 0f, 1f));
         unselected.SetColor("_BaseColor", new Color(0f, 0f, 8f, 1f));
         camera.backgroundColor = originalBackground;
@@ -332,20 +343,23 @@ public class Script
         feature.settings.anisotropy = 0f;
         feature.settings.halfAngle = 90f;
         AddCompare(cases, "Phase.IsotropicZeroLength",
-            "Zero-length debug still applies phase; g=0 and a full angular window retain one-tap union mask with peak one",
-            Render(camera, report), union);
+            "Zero-length debug still applies phase to the RGB of a single masked camera sample",
+            Render(camera, report), RayOracle(camera, lightDirection, union, baseline, feature.settings, 48));
         feature.settings.anisotropy = 0.7f;
         feature.settings.halfAngle = 35f;
         Color[] phaseRays = Render(camera, report);
         AddCompare(cases, "Phase.OffCenterHGAndConeOracle",
             "Independent camera rays and peak-normalized HG/cone predict zero-length actual receiver emission and view/light sign",
             phaseRays, RayOracle(camera, lightDirection, union, baseline, feature.settings, 48));
-        var monotonic = InspectScalar("Phase.AngularConcentration",
-            "Receiver emission decreases at increasing angular separation while off-center source peak remains near one", phaseRays);
+        var monotonic = Inspect("Phase.AngularConcentration",
+            "Receiver response per unit source color falls with angular separation while its peak stays near one", phaseRays);
         int near = Pixel(focusUV.x - 0.07f, focusUV.y), far = Pixel(focusUV.x - 0.18f, focusUV.y);
+        float focusResponse = phaseRays[focusPixel].r / baseline[focusPixel].r;
+        float nearResponse = phaseRays[near].r / baseline[near].r;
+        float farResponse = phaseRays[far].r / baseline[far].r;
         monotonic.passed &= union[near].r > 0.99f && union[far].r > 0.99f
-            && phaseRays[focusPixel].r > 0.98f && phaseRays[focusPixel].r > phaseRays[near].r
-            && phaseRays[near].r > phaseRays[far].r + 0.02f;
+            && focusResponse > 0.98f && focusResponse > nearResponse
+            && nearResponse > farResponse + 0.02f;
         cases.Add(monotonic);
         feature.settings.anisotropy = 0.95f;
         feature.settings.halfAngle = 12f;
@@ -353,7 +367,7 @@ public class Script
         AddCompare(cases, "Phase.G95NarrowConeOracle",
             "Upper anisotropy endpoint remains finite and bounded, with peak one and exact zero outside a narrow angular window",
             narrow, RayOracle(camera, lightDirection, union, baseline, feature.settings, 48));
-        var cone = InspectScalar("Phase.ExactWindowAndG95Concentration",
+        var cone = Inspect("Phase.ExactWindowAndG95Concentration",
             "Selected pixels outside the angle window emit zero; upper g concentrates energy while retaining a nonzero source peak", narrow);
         int outsideWindow = 0;
         for (int i = 0; i < narrow.Length; i++)
@@ -363,18 +377,18 @@ public class Script
             if (union[i].r > 0.99f && Vector3.Dot(direction, lightDirection) < Mathf.Cos(12f * Mathf.Deg2Rad) - 0.001f)
             {
                 outsideWindow++;
-                cone.maxError = Mathf.Max(cone.maxError, Mathf.Abs(narrow[i].r));
+                cone.maxError = Mathf.Max(cone.maxError, ColorError(narrow[i], Color.clear));
             }
         }
         cone.passed &= outsideWindow > narrow.Length / 3 && cone.maxError < 0.00001f
-            && narrow[focusPixel].r > 0.95f && cone.sumRays < monotonic.sumRays * 0.25f;
+            && narrow[focusPixel].r / baseline[focusPixel].r > 0.95f && cone.sumRays < monotonic.sumRays * 0.25f;
         cases.Add(cone);
         feature.settings.anisotropy = 0.7f;
         feature.settings.length = 0.3f;
         feature.settings.source = MaskRBRFeature.SourceMode.Objects;
         feature.settings.quality = MaskRBRFeature.QualityMode.Low;
         Color[] lowNarrow = Render(camera, report);
-        var lowWindow = InspectScalar("Phase.LowUpsampleWindow",
+        var lowWindow = Inspect("Phase.LowUpsampleWindow",
             "Low radial texture is upsampled before final-resolution angular emission; receiver pixels outside the cone stay zero", lowNarrow);
         int lowOutside = 0;
         for (int i = 0; i < lowNarrow.Length; i++)
@@ -384,7 +398,7 @@ public class Script
             if (Vector3.Dot(direction, lightDirection) < Mathf.Cos(12f * Mathf.Deg2Rad) - 0.001f)
             {
                 lowOutside++;
-                lowWindow.maxError = Mathf.Max(lowWindow.maxError, Mathf.Abs(lowNarrow[i].r));
+                lowWindow.maxError = Mathf.Max(lowWindow.maxError, ColorError(lowNarrow[i], Color.clear));
             }
         }
         lowWindow.passed &= lowOutside > lowNarrow.Length / 3 && lowWindow.maxError < 0.00001f && lowWindow.maxRed > 0.1f;
@@ -393,14 +407,14 @@ public class Script
         feature.settings.halfAngle = 60f;
 
         light.enabled = false;
-        AddZero(cases, "MainLight.Absent", "Absent real main light emits no scalar rays", Render(camera, report));
+        AddZero(cases, "MainLight.Absent", "Absent real main light emits zero RGB", Render(camera, report));
         feature.settings.debug = MaskRBRFeature.DebugMode.Mask;
         AddCompare(cases, "Debug.MaskWithoutMainLight", "Mask inspection remains available when no directional main light exists",
             Render(camera, report), objectMask);
         feature.settings.debug = MaskRBRFeature.DebugMode.Rays;
         light.enabled = true;
         light.transform.rotation = Quaternion.LookRotation(lightDirection, Vector3.up);
-        AddZero(cases, "MainLight.Behind", "Behind-camera real main directional light emits no scalar rays", Render(camera, report));
+        AddZero(cases, "MainLight.Behind", "Behind-camera real main directional light emits zero RGB", Render(camera, report));
         light.transform.rotation = Quaternion.LookRotation(-lightDirection, Vector3.up);
         camera.orthographic = true;
         camera.orthographicSize = 1.5f;
@@ -412,7 +426,7 @@ public class Script
         Color[] jittered = Render(camera, report);
         AddCompare(cases, "Jitter.StableAcrossRequests", "Spatial hash jitter remains identical across successive real camera requests",
             Render(camera, report), jittered);
-        var jitterControl = InspectScalar("Control.JitterChangesTaps", "Nonzero spatial jitter changes actual boundary ray samples", jittered);
+        var jitterControl = Inspect("Control.JitterChangesTaps", "Nonzero spatial jitter changes actual boundary ray samples", jittered);
         for (int i = 0; i < jittered.Length; i++)
             jitterControl.maxNormalizedError = Mathf.Max(jitterControl.maxNormalizedError,
                 Mathf.Abs(jittered[i].r - highRays[i].r) / (1f + Mathf.Abs(highRays[i].r)));
@@ -426,8 +440,8 @@ public class Script
             pipeline.renderScale = renderScales[i];
             feature.settings.quality = i == 0 ? MaskRBRFeature.QualityMode.Low : MaskRBRFeature.QualityMode.High;
             Color[] scaledRays = Render(camera, report);
-            var scaled = InspectScalar("Rays.RenderScaleEndpoint" + renderScales[i].ToString("0.0", System.Globalization.CultureInfo.InvariantCulture),
-                "Render-scale endpoint retains finite grayscale rays and binds length to final request dimensions rather than intermediate size", scaledRays);
+            var scaled = Inspect("Rays.RenderScaleEndpoint" + renderScales[i].ToString("0.0", System.Globalization.CultureInfo.InvariantCulture),
+                "Render-scale endpoint retains finite HDR rays and binds length to final request dimensions", scaledRays);
             scaled.passed &= scaled.nonzeroPixels > 20 && scaled.maxRed > 0.05f;
             VerifyBindings(feature, scaled, i == 0 ? 0 : 2);
             cases.Add(scaled);
@@ -440,8 +454,126 @@ public class Script
             Directory.CreateDirectory(args[1]);
             WritePNG(Path.Combine(args[1], "maskrbr-baseline.png"), baseline);
             WritePNG(Path.Combine(args[1], "maskrbr-mask.png"), objectMask, true);
-            WritePNG(Path.Combine(args[1], "maskrbr-rays.png"), highRays, true);
+            WritePNG(Path.Combine(args[1], "maskrbr-rays.png"), highRays);
             WritePNG(Path.Combine(args[1], "maskrbr-composite.png"), coloredComposite);
+        }
+    }
+
+    private static void RunTransparentCases(MaskRBRFeature feature, UniversalRendererData renderer, Scene preview,
+        Camera camera, Light light, Vector3 hiddenCenter, List<UnityEngine.Object> owned, List<CaseResult> cases, Report report)
+    {
+        const string glassPath = "Assets/Mine/Shaders/Render/ColorfulWindow/ColoredGlass.shader";
+        Shader shader = AssetDatabase.LoadAssetAtPath<Shader>(glassPath);
+        Require(shader != null && shader.isSupported, "Production ColoredGlass shader is missing or unsupported.");
+        var glass = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
+        owned.Add(glass);
+        glass.SetColor("_BaseColor", new Color(0f, 4f, 0.25f, 0.5f));
+        Require((int)RenderQueue.Transparent <= glass.renderQueue, "ColoredGlass must enter the transparent queue.");
+        var unselectedGlass = new Material(glass) { hideFlags = HideFlags.HideAndDontSave };
+        owned.Add(unselectedGlass);
+
+        Vector3 visibleCenter = new Vector3(0.15f, 0.72f, 2.8f);
+        Vector3 otherCenter = new Vector3(-1.25f, 0.75f, 2.8f);
+        Vector3 glassOverOpaque = new Vector3(-0.56f, 0f, 2.4f);
+        MakePane(preview, "Selected transparent glass", visibleCenter, TransparentLayer, glass, owned);
+        MakePane(preview, "Occluded transparent glass", hiddenCenter, TransparentLayer, glass, owned);
+        MakePane(preview, "Unselected transparent glass over sky", otherCenter, OtherLayer, unselectedGlass, owned);
+        MakePane(preview, "Unselected transparent glass over selected opaque", glassOverOpaque, OtherLayer, unselectedGlass, owned);
+
+        Vector3 lightDirection = visibleCenter.normalized;
+        light.transform.rotation = Quaternion.LookRotation(-lightDirection, Vector3.up);
+        Vector3 visibleUV = camera.WorldToViewportPoint(visibleCenter);
+        Vector3 hiddenUV = camera.WorldToViewportPoint(hiddenCenter);
+        Vector3 otherUV = camera.WorldToViewportPoint(otherCenter);
+        Vector3 overOpaqueUV = camera.WorldToViewportPoint(glassOverOpaque);
+        int visiblePixel = Pixel(visibleUV.x, visibleUV.y);
+        int hiddenPixel = Pixel(hiddenUV.x, hiddenUV.y);
+        int otherPixel = Pixel(otherUV.x, otherUV.y);
+        int overOpaquePixel = Pixel(overOpaqueUV.x, overOpaqueUV.y);
+        feature.SetActive(false);
+        Color[] cameraWithGlass = Render(camera, report);
+        feature.SetActive(true);
+        feature.settings.layerMask = 1 << TransparentLayer;
+        feature.settings.debug = MaskRBRFeature.DebugMode.Mask;
+        Color[] mask = Render(camera, report);
+        var coverage = InspectScalar("Transparent.VisibleSelectedCoverage",
+            "The selected transparent pane enters the mask, its fully occluded twin and visibly rendered unselected pane stay excluded", mask);
+        coverage.passed &= cameraWithGlass[visiblePixel].g > 0.5f && cameraWithGlass[otherPixel].g > 0.5f
+            && cameraWithGlass[hiddenPixel].b > 1f && cameraWithGlass[hiddenPixel].g < Tolerance
+            && mask[visiblePixel].r > 0.99f && mask[hiddenPixel].r < Tolerance && mask[otherPixel].r < Tolerance;
+        cases.Add(coverage);
+
+        feature.settings.debug = MaskRBRFeature.DebugMode.Rays;
+        Color[] rays = Render(camera, report);
+        AddCompare(cases, "Transparent.UsesCameraColorAfterBlending",
+            "RGB rays match filtering the selected pane's already-blended camera colors", rays,
+            RayOracle(camera, lightDirection, mask, cameraWithGlass, feature.settings, 48));
+        var spread = Inspect("Transparent.ColoredRaysBeyondPane",
+            "Selected glass contributes green rays beyond its silhouette", rays);
+        for (int i = 0; i < rays.Length; i++)
+            if (mask[i].r < Tolerance && rays[i].g > 0.02f && rays[i].g > rays[i].r * 3f)
+                spread.outsideMaskPixels++;
+        spread.passed &= rays[visiblePixel].g > 0.5f && spread.outsideMaskPixels > 20;
+        cases.Add(spread);
+
+        feature.settings.debug = MaskRBRFeature.DebugMode.Off;
+        AddCompare(cases, "Transparent.CompositeAfterGlass",
+            "RGB rays are added over the camera image containing the pane, preserving camera alpha",
+            Render(camera, report), CompositeOracle(cameraWithGlass, rays, feature.settings.intensity));
+
+        CheckTransparentSourceIsolation(feature, camera, unselectedGlass, cameraWithGlass, visiblePixel,
+            otherPixel, overOpaquePixel, cases, report);
+
+        renderer.transparentLayerMask = 1 << OtherLayer;
+        feature.settings.source = MaskRBRFeature.SourceMode.Objects;
+        feature.settings.layerMask = 1 << TransparentLayer;
+        feature.settings.debug = MaskRBRFeature.DebugMode.Mask;
+        AddZero(cases, "Transparent.RendererLayerMaskExclusion",
+            "A layer omitted by the renderer's transparent mask supplies no object coverage even when selected by MaskRBR",
+            Render(camera, report));
+    }
+
+    private static void CheckTransparentSourceIsolation(MaskRBRFeature feature, Camera camera, Material unselectedGlass,
+        Color[] cameraWithGlass, int visiblePixel, int skyGlassPixel, int opaqueGlassPixel, List<CaseResult> cases, Report report)
+    {
+        var modes = new[] { MaskRBRFeature.SourceMode.Sky, MaskRBRFeature.SourceMode.Objects, MaskRBRFeature.SourceMode.SkyAndObjects };
+        var originalRays = new Color[modes.Length][];
+        feature.settings.layerMask = (1 << SelectedLayer) | (1 << TransparentLayer);
+        for (int i = 0; i < modes.Length; i++)
+        {
+            feature.settings.source = modes[i];
+            feature.settings.debug = MaskRBRFeature.DebugMode.Mask;
+            Color[] coveragePixels = Render(camera, report);
+            var coverage = InspectScalar("Transparent.Coverage." + modes[i],
+                "Glass over sky removes sky coverage; only object source modes include the selected transparent and opaque surfaces",
+                coveragePixels);
+            float objectCoverage = modes[i] == MaskRBRFeature.SourceMode.Sky ? 0f : 1f;
+            coverage.passed &= coveragePixels[skyGlassPixel].r < Tolerance
+                && Mathf.Abs(coveragePixels[visiblePixel].r - objectCoverage) < Tolerance
+                && Mathf.Abs(coveragePixels[opaqueGlassPixel].r - objectCoverage) < Tolerance;
+            cases.Add(coverage);
+            feature.settings.debug = MaskRBRFeature.DebugMode.Rays;
+            originalRays[i] = Render(camera, report);
+        }
+
+        unselectedGlass.SetColor("_BaseColor", new Color(2f, 0f, 5f, 0.5f));
+        feature.SetActive(false);
+        Color[] changedCamera = Render(camera, report);
+        feature.SetActive(true);
+        var changedColor = Inspect("Control.UnselectedGlassColorChangesCamera",
+            "Changing only the unselected glass RGB changes the displayed camera color over both sky and an opaque source",
+            changedCamera);
+        changedColor.maxNormalizedError = Mathf.Min(ColorError(changedCamera[skyGlassPixel], cameraWithGlass[skyGlassPixel]),
+            ColorError(changedCamera[opaqueGlassPixel], cameraWithGlass[opaqueGlassPixel]));
+        changedColor.passed &= changedColor.maxNormalizedError > 0.25f;
+        cases.Add(changedColor);
+
+        for (int i = 0; i < modes.Length; i++)
+        {
+            feature.settings.source = modes[i];
+            AddCompare(cases, "Transparent.UnselectedColorExcluded." + modes[i],
+                "Rays remain identical when the displayed color of unselected transparent objects changes",
+                Render(camera, report), originalRays[i]);
         }
     }
 
@@ -464,7 +596,7 @@ public class Script
         camera.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         camera.clearFlags = CameraClearFlags.SolidColor;
         camera.backgroundColor = new Color(0.05f, 0.1f, 0.2f, 0.37f);
-        camera.cullingMask = (1 << SelectedLayer) | (1 << OtherLayer);
+        camera.cullingMask = (1 << SelectedLayer) | (1 << OtherLayer) | (1 << TransparentLayer);
         camera.nearClipPlane = 0.3f;
         camera.farClipPlane = 20f;
         camera.fieldOfView = 60f;
@@ -496,13 +628,26 @@ public class Script
     private static void MakeCube(Scene preview, string name, Vector3 position, Vector3 scale, int layer,
         Material material, List<UnityEngine.Object> owned)
     {
-        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        MakePrimitive(preview, PrimitiveType.Cube, name, position, Quaternion.identity, scale, layer, material, owned);
+    }
+
+    private static void MakePane(Scene preview, string name, Vector3 position, int layer, Material material,
+        List<UnityEngine.Object> owned)
+    {
+        MakePrimitive(preview, PrimitiveType.Quad, name, position, Quaternion.Euler(0f, 180f, 0f),
+            new Vector3(0.55f, 0.45f, 1f), layer, material, owned);
+    }
+
+    private static void MakePrimitive(Scene preview, PrimitiveType primitive, string name, Vector3 position, Quaternion rotation,
+        Vector3 scale, int layer, Material material, List<UnityEngine.Object> owned)
+    {
+        var go = GameObject.CreatePrimitive(primitive);
         go.name = name;
         go.hideFlags = HideFlags.HideAndDontSave;
         owned.Add(go);
         SceneManager.MoveGameObjectToScene(go, preview);
         go.layer = layer;
-        go.transform.SetPositionAndRotation(position, Quaternion.identity);
+        go.transform.SetPositionAndRotation(position, rotation);
         go.transform.localScale = scale;
         var collider = go.GetComponent<Collider>();
         if (collider != null) UnityEngine.Object.DestroyImmediate(collider);
@@ -570,13 +715,13 @@ public class Script
         return new Color(color.r * light.intensity, color.g * light.intensity, color.b * light.intensity, 1f);
     }
 
-    private static Color[] CompositeOracle(Color[] scene, Color[] rays, Color lightColor, float intensity)
+    private static Color[] CompositeOracle(Color[] scene, Color[] rays, float intensity)
     {
         var expected = new Color[scene.Length];
         for (int i = 0; i < expected.Length; i++)
-            expected[i] = new Color(scene[i].r + lightColor.r * rays[i].r * intensity,
-                scene[i].g + lightColor.g * rays[i].r * intensity,
-                scene[i].b + lightColor.b * rays[i].r * intensity, scene[i].a);
+            expected[i] = new Color(scene[i].r + rays[i].r * intensity,
+                scene[i].g + rays[i].g * intensity,
+                scene[i].b + rays[i].b * intensity, scene[i].a);
         return expected;
     }
 
@@ -584,6 +729,9 @@ public class Script
         MaskRBRFeature.Settings settings, int taps)
     {
         var expected = new Color[mask.Length];
+        var source = new Vector3[mask.Length];
+        for (int i = 0; i < source.Length; i++)
+            source[i] = Vector3.Max(Vector3.zero, new Vector3(scene[i].r, scene[i].g, scene[i].b)) * mask[i].r;
         Vector3 focus = camera.WorldToViewportPoint(camera.transform.position + lightDirection);
         float aspect = (float)Width / Height;
         float focusFade = Mathf.Clamp01(Vector3.Dot(camera.transform.forward, lightDirection) / 0.1f);
@@ -592,25 +740,26 @@ public class Script
             Vector2 uv = new Vector2(((i % Width) + 0.5f) / Width, ((i / Width) + 0.5f) / Height);
             Vector3 direction = camera.ViewportPointToRay(new Vector3(uv.x, uv.y, 0f)).direction.normalized;
             float angular = ReceiverEnvelope(direction, lightDirection, settings.anisotropy, settings.halfAngle);
-            float value;
-            if (settings.length <= 0f) value = SampleMask(mask, uv);
+            Vector3 value;
+            if (settings.length <= 0f) value = SampleSource(source, uv);
             else
             {
                 Vector2 towardFocus = new Vector2(focus.x, focus.y) - uv;
                 float distance = new Vector2(towardFocus.x * aspect, towardFocus.y).magnitude;
                 Vector2 span = towardFocus * Mathf.Clamp01(settings.length / Mathf.Max(distance, 0.000001f));
-                double sum = 0.0, totalWeight = 0.0;
+                Vector3 sum = Vector3.zero;
+                double totalWeight = 0.0;
                 for (int tap = 0; tap < taps; tap++)
                 {
                     float t = (float)tap / (taps - 1);
                     double weight = Math.Pow(2.0, -settings.falloff * t);
-                    sum += SampleMask(mask, uv + span * t) * weight;
+                    sum += SampleSource(source, uv + span * t) * (float)weight;
                     totalWeight += weight;
                 }
-                value = (float)(sum / totalWeight);
+                value = sum / (float)totalWeight;
             }
             value *= angular * focusFade;
-            expected[i] = new Color(value, value, value, scene[i].a);
+            expected[i] = new Color(value.x, value.y, value.z, scene[i].a);
         }
         return expected;
     }
@@ -626,16 +775,16 @@ public class Script
         return (float)(Math.Pow(peakDenominator / Math.Max(denominator, 0.00000001), 1.5) * cone);
     }
 
-    private static float SampleMask(Color[] mask, Vector2 uv)
+    private static Vector3 SampleSource(Vector3[] source, Vector2 uv)
     {
-        if (uv.x < 0f || uv.y < 0f || uv.x > 1f || uv.y > 1f) return 0f;
+        if (uv.x < 0f || uv.y < 0f || uv.x > 1f || uv.y > 1f) return Vector3.zero;
         float x = uv.x * Width - 0.5f, y = uv.y * Height - 0.5f;
         int ix = Mathf.FloorToInt(x), iy = Mathf.FloorToInt(y);
         float tx = x - ix, ty = y - iy;
         int x0 = Mathf.Clamp(ix, 0, Width - 1), x1 = Mathf.Clamp(ix + 1, 0, Width - 1);
         int y0 = Mathf.Clamp(iy, 0, Height - 1), y1 = Mathf.Clamp(iy + 1, 0, Height - 1);
-        return Mathf.Lerp(Mathf.Lerp(mask[y0 * Width + x0].r, mask[y0 * Width + x1].r, tx),
-            Mathf.Lerp(mask[y1 * Width + x0].r, mask[y1 * Width + x1].r, tx), ty);
+        return Vector3.Lerp(Vector3.Lerp(source[y0 * Width + x0], source[y0 * Width + x1], tx),
+            Vector3.Lerp(source[y1 * Width + x0], source[y1 * Width + x1], tx), ty);
     }
 
     private static float ColorError(Color actual, Color expected)
@@ -677,7 +826,8 @@ public class Script
         cases.Add(item);
     }
 
-    private static void AddCompare(List<CaseResult> cases, string name, string contract, Color[] actual, Color[] expected)
+    private static void AddCompare(List<CaseResult> cases, string name, string contract, Color[] actual, Color[] expected,
+        float tolerance = Tolerance)
     {
         Require(actual.Length == expected.Length, "Mismatched comparison dimensions: " + name);
         var item = Inspect(name, contract, actual);
@@ -690,7 +840,7 @@ public class Script
                 float normalized = error / (1f + Mathf.Abs(expected[i][channel]));
                 item.maxError = Mathf.Max(item.maxError, error);
                 item.maxNormalizedError = Mathf.Max(item.maxNormalizedError, normalized);
-                changed |= normalized > Tolerance;
+                changed |= normalized > tolerance;
             }
             if (changed) item.changedPixels++;
         }
@@ -708,7 +858,7 @@ public class Script
         Vector4 size = material.GetVector("_MaskRBROutputSize");
         item.boundOutputSize = new[] { size.x, size.y, size.z, size.w };
         item.passed &= (renderPass.input & ScriptableRenderPassInput.Depth) != 0
-            && renderPass.renderPassEvent == RenderPassEvent.AfterRenderingSkybox
+            && renderPass.renderPassEvent == RenderPassEvent.AfterRenderingTransparents
             && Mathf.Abs(size.x - Width) < 0.01f && Mathf.Abs(size.y - Height) < 0.01f
             && material.IsKeywordEnabled("_MASKRBR_QUALITY_LOW") == (quality == 0)
             && material.IsKeywordEnabled("_MASKRBR_QUALITY_HIGH") == (quality == 2);

@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-//  Mask RBR — main-light colored rays from a radial mask and angular phase.
+//  Mask RBR — camera-colored rays from a radial mask and main-light phase.
 // ════════════════════════════════════════════════════════════════
 Shader "PostProcess/MaskRBR"
 {
@@ -21,6 +21,7 @@ Shader "PostProcess/MaskRBR"
     #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl"
 
     TEXTURE2D_X(_MaskRBRObjectMaskTexture);
+    TEXTURE2D_X(_MaskRBRPreTransparentColor);
     TEXTURE2D_X(_MaskRBRMaskTexture);
     TEXTURE2D_X(_MaskRBRRayTexture);
     // 由 SSCFeature 的 ray march 导出，A 通道是云覆盖率。
@@ -114,23 +115,23 @@ Shader "PostProcess/MaskRBR"
     // ════════════════════════════════════════════════════════════
     //  Radial sample — keep out-of-viewport samples black instead of clamping.
     // ════════════════════════════════════════════════════════════
-    float MaskRBRSampleMask(float2 uv)
+    float3 MaskRBRSampleSource(float2 uv)
     {
         if (any(uv < 0.0) || any(uv > 1.0))
             return 0.0;
-        return SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv).r;
+        return SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv).rgb;
     }
 
     // ════════════════════════════════════════════════════════════
-    //  Radial kernel — fixed-budget mask taps with normalized scalar coverage.
+    //  Radial kernel — weighted taps of the pre-masked camera color.
     // ════════════════════════════════════════════════════════════
-    float MaskRBRRadial(float2 uv, float2 focusUV)
+    float3 MaskRBRRadial(float2 uv, float2 focusUV)
     {
         float2 spanUV = MaskRBRGetSpan(uv, focusUV);
         uint2 pixel = (uint2)floor(uv * max(_MaskRBROutputSize.xy, float2(1.0, 1.0)));
         float falloff = clamp(_MaskRBRRadialParameters.y, 0.0, 8.0);
         float jitterStrength = saturate(_MaskRBRRadialParameters.z);
-        float accumulated = 0.0;
+        float3 accumulated = 0.0;
         float accumulatedWeight = 0.0;
 
         [unroll]
@@ -144,20 +145,21 @@ Shader "PostProcess/MaskRBR"
                 sampleT = saturate(t + jitter * jitterStrength / (float)(MASKRBR_SAMPLE_COUNT - 1));
             }
             float weight = exp2(-falloff * t);
-            accumulated += MaskRBRSampleMask(uv + spanUV * sampleT) * weight;
+            accumulated += MaskRBRSampleSource(uv + spanUV * sampleT) * weight;
             accumulatedWeight += weight;
         }
         return accumulated / max(accumulatedWeight, 0.00001);
     }
 
     // ════════════════════════════════════════════════════════════
-    //  Mask — union selected visible geometry with optional depth-based sky.
+    //  Mask — multiply the camera color by the selected source coverage.
     // ════════════════════════════════════════════════════════════
     float4 Frag_Mask(Varyings input) : SV_Target
     {
         UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-        float objectMask = SAMPLE_TEXTURE2D_X(_MaskRBRObjectMaskTexture, sampler_PointClamp, input.texcoord).r;
-        float skyMask = MaskRBRSkyMask(input.texcoord);
+        float3 objectCoverage = SAMPLE_TEXTURE2D_X(_MaskRBRObjectMaskTexture, sampler_PointClamp, input.texcoord).rgb;
+        float objectMask = Mask_Union(objectCoverage.r, objectCoverage.g);
+        float skyMask = MaskRBRSkyMask(input.texcoord) * (1.0 - objectCoverage.b);
         float mask = skyMask;
         if (_MaskRBRSourceMode > 1.5)
             mask = Mask_Union(skyMask, objectMask);
@@ -173,11 +175,15 @@ Shader "PostProcess/MaskRBR"
             mask *= saturate(1.0 - cloudCoverage);
         }
 
-        return float4(saturate(mask), 0.0, 0.0, 1.0);
+        float coverage = saturate(mask);
+        float3 scene = SAMPLE_TEXTURE2D_X(_MaskRBRPreTransparentColor, sampler_PointClamp, input.texcoord).rgb;
+        if (_MaskRBRSourceMode > 0.5 && objectCoverage.g > 0.0)
+            scene = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, input.texcoord).rgb;
+        return float4(max(scene, 0.0) * coverage, coverage);
     }
 
     // ════════════════════════════════════════════════════════════
-    //  Radial — filter scalar source coverage toward the available main light.
+    //  Radial — filter source RGB toward the available main light.
     // ════════════════════════════════════════════════════════════
     float4 Frag_Radial(Varyings input) : SV_Target
     {
@@ -185,11 +191,10 @@ Shader "PostProcess/MaskRBR"
         float3 focus = MaskRBRGetFocus();
         if (focus.z <= 0.0)
             return float4(0.0, 0.0, 0.0, 0.0);
-        float rays = MaskRBRSampleMask(input.texcoord);
+        float3 rays = MaskRBRSampleSource(input.texcoord);
         if (_MaskRBRRadialParameters.x > 0.0)
             rays = MaskRBRRadial(input.texcoord, focus.xy);
-        rays *= focus.z;
-        return float4(rays, 0.0, 0.0, 1.0);
+        return float4(rays * focus.z, 1.0);
     }
 
     // ════════════════════════════════════════════════════════════
@@ -201,14 +206,14 @@ Shader "PostProcess/MaskRBR"
         float4 scene = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, input.texcoord);
         if (_MaskRBRDebugMode > 0.5 && _MaskRBRDebugMode < 1.5)
         {
-            float mask = SAMPLE_TEXTURE2D_X(_MaskRBRMaskTexture, sampler_PointClamp, input.texcoord).r;
+            float mask = SAMPLE_TEXTURE2D_X(_MaskRBRMaskTexture, sampler_PointClamp, input.texcoord).a;
             return float4(mask, mask, mask, scene.a);
         }
-        float rays = SAMPLE_TEXTURE2D_X(_MaskRBRRayTexture, sampler_LinearClamp, input.texcoord).r;
+        float3 rays = SAMPLE_TEXTURE2D_X(_MaskRBRRayTexture, sampler_LinearClamp, input.texcoord).rgb;
         rays *= MaskRBRAngularResponse(input.texcoord);
         if (_MaskRBRDebugMode > 1.5)
-            return float4(rays, rays, rays, scene.a);
-        return float4(scene.rgb + _MainLightColor.rgb * rays * saturate(_MaskRBRIntensity), scene.a);
+            return float4(rays, scene.a);
+        return float4(scene.rgb + rays * saturate(_MaskRBRIntensity), scene.a);
     }
     ENDHLSL
 

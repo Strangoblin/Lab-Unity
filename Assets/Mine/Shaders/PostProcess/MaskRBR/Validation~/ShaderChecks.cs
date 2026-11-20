@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-/// <summary>GPU controls for the production scalar MaskRBR and main-light angular composite.</summary>
+/// <summary>GPU controls for MaskRBR HDR source color and angular composite.</summary>
 /// <remarks>Run with unityctl script execute -f. Main accepts an optional JSON output file path.</remarks>
 public class Script
 {
@@ -24,7 +24,7 @@ public class Script
         public bool passed, globalsRestored;
         public int caseCount, failures;
         public string error, graphicsDevice;
-        public string scope = "Production Mask/Radial/Composite GPU passes with float inputs, R8/RHalf/ARGBHalf outputs and float readback. Scalar targets assert stored R only; Metal readback fills unused GBA with one. Composite asserts all RGBA. Every returned component finite. Independent analytic rays/HG and bilinear radial oracle; no RenderGraph, XR or performance claim.";
+        public string scope = "Production Mask/Radial/Composite GPU passes with linear float inputs, ARGBHalf outputs and float readback. Independent RGB bilinear radial and analytic HG/cone oracles. Checks coverage alpha, scene alpha and HDR color; no RenderGraph, XR or performance claim.";
     }
 
     // ════════════════════════════════════════════════════════════
@@ -81,16 +81,28 @@ public class Script
     // ════════════════════════════════════════════════════════════
     static void CheckMasks(Material m, Fixture f, List<CaseResult> cases)
     {
-        f.Set(f.Objects, (x, y) => new Color(x < f.Width / 2 ? 1f : 0f, 0f, 0f, 1f));
+        Color PreTransparent(int x, int y) => new Color(2f + (float)x / f.Width, 0.3f, (float)y / f.Height, 0.37f);
+        Color PostTransparent(int x, int y) => new Color(0.25f, 1f + (float)y / f.Height, 0.75f, 0.6f);
+        float Opaque(int x) => x < f.Width / 2 ? 0.75f : 0f;
+        float Transparent(int x) => x >= f.Width / 3 && x < f.Width * 2 / 3 ? 1f : 0f;
+        float AllTransparent(int x) => Mathf.Max(Transparent(x), x >= f.Width * 3 / 4 ? 1f : 0f);
+        f.Set(f.PreTransparentScene, PreTransparent);
+        f.Set(f.Scene, PostTransparent);
+        f.Set(f.Objects, (x, y) => new Color(Opaque(x), Transparent(x), AllTransparent(x), 1f));
         f.SetDepth((x, y) => y >= f.Height / 2 ? FarDepth : 0.5f);
         for (int mode = 0; mode < 3; mode++)
         {
             m.SetFloat("_MaskRBRSourceMode", mode);
             int selectedMode = mode;
-            CompareScalar(cases, "Mask.UnionMode" + mode, f.Draw(m, 0, f.Objects), f.Pixels((x, y) =>
+            Compare(cases, "Mask.ColorFromSelectedSurface.Mode" + mode, f.Draw(m, 0, f.Scene), f.Pixels((x, y) =>
             {
-                float sky = y >= f.Height / 2 ? 1f : 0f, obj = x < f.Width / 2 ? 1f : 0f;
-                return new Color(selectedMode == 0 ? sky : selectedMode == 1 ? obj : Mathf.Max(sky, obj), 0f, 0f, 1f);
+                float sky = y >= f.Height / 2 ? 1f - AllTransparent(x) : 0f;
+                float transparent = selectedMode == 0 ? 0f : Transparent(x);
+                float objects = Mathf.Max(Opaque(x), transparent);
+                float coverage = selectedMode == 0 ? sky : selectedMode == 1 ? objects : Mathf.Max(sky, objects);
+                Color expected = (transparent > 0f ? PostTransparent(x, y) : PreTransparent(x, y)) * coverage;
+                expected.a = coverage;
+                return expected;
             }));
         }
     }
@@ -111,19 +123,20 @@ public class Script
     static void CheckKernel(Material m, Fixture f, List<CaseResult> cases)
     {
         f.LightDirection = Vector3.forward;
-        f.Set(f.Mask, (x, y) => Color.white);
+        var hdrColor = new Color(2f, 0.25f, 0.65f, 1f);
+        f.Set(f.Mask, (x, y) => hdrColor);
         for (int q = 0; q < 3; q++)
         {
             Quality(m, q);
             foreach (float falloff in new[] { 0f, 2f, 8f })
             {
                 SetParameters(m, f, 0.4f, falloff);
-                CompareScalar(cases, "Kernel.UnitGain.Q" + q + ".F" + falloff, f.Draw(m, 1, f.Mask),
-                    f.Pixels((x, y) => new Color(1f, 0f, 0f, 1f)));
+                Compare(cases, "Kernel.UnitGain.Q" + q + ".F" + falloff, f.Draw(m, 1, f.Mask),
+                    f.Pixels((x, y) => hdrColor));
             }
             f.Set(f.Mask, (x, y) => Color.clear);
-            CompareScalar(cases, "Kernel.Empty.Q" + q, f.Draw(m, 1, f.Mask), f.Pixels((x, y) => new Color(0f, 0f, 0f, 1f)));
-            f.Set(f.Mask, (x, y) => Color.white);
+            Compare(cases, "Kernel.Empty.Q" + q, f.Draw(m, 1, f.Mask), f.Pixels((x, y) => new Color(0f, 0f, 0f, 1f)));
+            f.Set(f.Mask, (x, y) => hdrColor);
         }
         CheckKernelAspect(m, f, cases);
         f.Set(f.Mask, (x, y) => Color.white);
@@ -132,7 +145,7 @@ public class Script
         {
             Quality(m, q); SetParameters(m, f, 1f, 0f);
             Color[] actual = f.Draw(m, 1, f.Mask);
-            CompareScalar(cases, "Kernel.ZeroOutside.Q" + q, actual, KernelOracle(f, q, 1f, 0f));
+            Compare(cases, "Kernel.ZeroOutside.Q" + q, actual, KernelOracle(f, q, 1f, 0f));
             Difference(cases, "Control.ClampBorderRejected.Q" + q, actual, f.Pixels((x, y) => new Color(1f, 0f, 0f, 1f)));
         }
         f.LightDirection = Vector3.forward;
@@ -141,30 +154,30 @@ public class Script
         Color[] fixedTaps = f.Draw(m, 1, f.Mask);
         m.SetVector("_MaskRBRRadialParameters", new Vector4(0.4f, 2f, 1f, 0f));
         Color[] first = f.Draw(m, 1, f.Mask, 1f);
-        CompareScalar(cases, "Jitter.TimeIndependent", first, f.Draw(m, 1, f.Mask, 100f));
+        Compare(cases, "Jitter.TimeIndependent", first, f.Draw(m, 1, f.Mask, 100f));
         Difference(cases, "Control.JitterChangesSamples", first, fixedTaps);
         SetParameters(m, f, 0.4f, available: false);
-        CompareScalar(cases, "Focus.Absent", f.Draw(m, 1, f.Mask), f.Pixels((x, y) => new Color(0f, 0f, 0f, 1f)));
+        Compare(cases, "Focus.Absent", f.Draw(m, 1, f.Mask), f.Pixels((x, y) => Color.clear));
         SetParameters(m, f, 0.4f); f.LightDirection = Vector3.back;
-        CompareScalar(cases, "Focus.Behind", f.Draw(m, 1, f.Mask), f.Pixels((x, y) => new Color(0f, 0f, 0f, 1f)));
+        Compare(cases, "Focus.Behind", f.Draw(m, 1, f.Mask), f.Pixels((x, y) => Color.clear));
         f.LightDirection = Vector3.forward; f.Orthographic = true;
-        CompareScalar(cases, "Focus.Orthographic", f.Draw(m, 1, f.Mask), f.Pixels((x, y) => new Color(0f, 0f, 0f, 1f)));
+        Compare(cases, "Focus.Orthographic", f.Draw(m, 1, f.Mask), f.Pixels((x, y) => Color.clear));
         f.Orthographic = false;
     }
     static void CheckKernelAspect(Material m, Fixture f, List<CaseResult> cases)
     {
         f.LightDirection = new Vector3(0.35f, 0.2f, 1f).normalized;
-        f.Set(f.Mask, (x, y) => new Color((x + y * 0.25f) / (f.Width + f.Height * 0.25f), 0f, 0f, 1f));
+        f.Set(f.Mask, (x, y) => new Color(2f * x / f.Width, (float)y / f.Height, (float)(x + y) / (f.Width + f.Height), 1f));
         for (int q = 0; q < 3; q++)
         {
             Quality(m, q); SetParameters(m, f, 0.2f);
-            CompareScalar(cases, "Kernel.AnalyticRamp." + f.Width + "x" + f.Height + ".Q" + q,
+            Compare(cases, "Kernel.AnalyticRGBRamp." + f.Width + "x" + f.Height + ".Q" + q,
                 f.Draw(m, 1, f.Mask), KernelOracle(f, q, 0.2f, 2f));
         }
     }
 
     // ════════════════════════════════════════════════════════════
-    //  Angular composite — independent camera rays/HG and main-light scaling
+    //  Angular composite — independent camera rays/HG and source color
     // ════════════════════════════════════════════════════════════
     static void CheckPhaseAndComposite(Material m, Fixture f, List<CaseResult> cases)
     {
@@ -188,13 +201,13 @@ public class Script
         Difference(cases, "Control.YMirrorRejected", offCenter, PhaseOracle(f, 0.7f, 30f));
         f.LightDirection = originalDirection;
         f.Set(f.Scene, (x, y) => new Color(20f, 5f, 0f, 0.37f));
-        Compare(cases, "Phase.SceneRGBIndependent", f.Draw(m, 2, f.Scene), offCenter);
+        Compare(cases, "Phase.UsesFilteredSourceRGB", f.Draw(m, 2, f.Scene), offCenter);
         f.Set(f.Scene, (x, y) => new Color(0.2f, 0.1f, 0.3f, 0.37f));
+        f.Set(f.Rays, (x, y) => new Color(2f, 0.5f, 1.5f, 1f));
         m.SetFloat("_MaskRBRDebugMode", 0f);
         foreach (float intensity in new[] { 0f, 0.4f, 0.8f })
         {
             m.SetFloat("_MaskRBRIntensity", intensity);
-            f.LightColor = new Vector4(2f, 0.5f, 1.5f, 1f);
             Compare(cases, "Composite.LinearStrengthAndAlpha." + intensity, f.Draw(m, 2, f.Scene),
                 f.Pixels((x, y) =>
                 {
@@ -202,15 +215,13 @@ public class Script
                     return new Color(0.2f + 2f * emission, 0.1f + 0.5f * emission, 0.3f + 1.5f * emission, 0.37f);
                 }));
         }
-        f.LightColor = new Vector4(4f, 1f, 3f, 1f); m.SetFloat("_MaskRBRIntensity", 0.4f);
-        Compare(cases, "Composite.DoubleLightColor", f.Draw(m, 2, f.Scene), f.Pixels((x, y) =>
-        {
-            float e = Envelope(f.Ray(x, y), f.LightDirection, 0.7f, 30f) * 0.8f;
-            return new Color(0.2f + 2f * e, 0.1f + 0.5f * e, 0.3f + 1.5f * e, 0.37f);
-        }));
+        m.SetFloat("_MaskRBRIntensity", 0.4f);
+        Color[] originalComposite = f.Draw(m, 2, f.Scene);
+        f.LightColor = new Vector4(4f, 1f, 3f, 1f);
+        Compare(cases, "Composite.SourceRGBRetainsChroma", f.Draw(m, 2, f.Scene), originalComposite);
         SetParameters(m, f, 0f, available: false); m.SetFloat("_MaskRBRDebugMode", 3f);
         Compare(cases, "Phase.AbsentLight", f.Draw(m, 2, f.Scene), f.Pixels((x, y) => new Color(0f, 0f, 0f, 0.37f)));
-        m.SetFloat("_MaskRBRDebugMode", 1f); f.Set(f.Mask, (x, y) => new Color(0.5f, 0f, 0f, 1f));
+        m.SetFloat("_MaskRBRDebugMode", 1f); f.Set(f.Mask, (x, y) => new Color(2f, 0f, 0f, 0.5f));
         Compare(cases, "Debug.MaskWithoutLight", f.Draw(m, 2, f.Scene), f.Pixels((x, y) => new Color(0.5f, 0.5f, 0.5f, 0.37f)));
     }
 
@@ -241,18 +252,17 @@ public class Script
             Vector2 delta = focus - uv;
             float distance = new Vector2(delta.x * aspect, delta.y).magnitude;
             Vector2 span = delta * Mathf.Clamp01(length / Mathf.Max(distance, 0.000001f));
-            double sum = 0, weights = 0;
+            Vector3 sum = Vector3.zero;
+            double weights = 0;
             for (int i = 0; i < taps; i++)
             {
                 float t = (float)i / (taps - 1); double w = Math.Pow(2, -falloff * t);
-                sum += f.Sample(uv + span * t) * w; weights += w;
+                sum += f.Sample(uv + span * t) * (float)w;
+                weights += w;
             }
-            return new Color((float)(sum / weights) * fade, 0f, 0f, 1f);
+            Vector3 rgb = sum * (fade / (float)weights);
+            return new Color(rgb.x, rgb.y, rgb.z, 1f);
         });
-    }
-    static void CompareScalar(List<CaseResult> cases, string name, Color[] actual, Color[] expected)
-    {
-        Compare(cases, name, actual, expected, 1);
     }
     static void Compare(List<CaseResult> cases, string name, Color[] actual, Color[] expected, int channels = 4)
     {
@@ -292,7 +302,7 @@ public class Script
     sealed class Fixture : IDisposable
     {
         public readonly int Width, Height;
-        public readonly Texture2D Scene, Mask, Objects, Rays, Depth;
+        public readonly Texture2D Scene, PreTransparentScene, Mask, Objects, Rays, Depth;
         public Vector3 LightDirection = Vector3.forward;
         public Vector4 LightColor = Vector4.one;
         public bool Orthographic;
@@ -302,9 +312,10 @@ public class Script
         public Fixture(int width, int height)
         {
             Width = width; Height = height;
-            Scene = Make(TextureFormat.RGBAFloat); Mask = Make(TextureFormat.RGBAFloat);
+            Scene = Make(TextureFormat.RGBAFloat); PreTransparentScene = Make(TextureFormat.RGBAFloat);
+            Mask = Make(TextureFormat.RGBAFloat);
             Objects = Make(TextureFormat.RGBAFloat); Rays = Make(TextureFormat.RGBAFloat); Depth = Make(TextureFormat.RFloat);
-            Set(Scene, (x, y) => Color.white); Set(Mask, (x, y) => Color.white);
+            Set(Scene, (x, y) => Color.white); Set(PreTransparentScene, (x, y) => Color.white); Set(Mask, (x, y) => Color.white);
             Set(Objects, (x, y) => Color.clear); Set(Rays, (x, y) => Color.white); SetDepth((x, y) => FarDepth);
         }
         Texture2D Make(TextureFormat format)
@@ -336,15 +347,17 @@ public class Script
             return new Vector3((2f * (x + 0.5f) / Width - 1) * tan * Width / Height,
                 (2f * (y + 0.5f) / Height - 1) * tan, 1f).normalized;
         }
-        public float Sample(Vector2 uv)
+        public Vector3 Sample(Vector2 uv)
         {
-            if (uv.x < 0 || uv.y < 0 || uv.x > 1 || uv.y > 1) return 0;
+            if (uv.x < 0 || uv.y < 0 || uv.x > 1 || uv.y > 1) return Vector3.zero;
             float x = uv.x * Width - 0.5f, y = uv.y * Height - 0.5f;
             int ix = Mathf.FloorToInt(x), iy = Mathf.FloorToInt(y);
             int x0 = Mathf.Clamp(ix, 0, Width - 1), x1 = Mathf.Clamp(ix + 1, 0, Width - 1);
             int y0 = Mathf.Clamp(iy, 0, Height - 1), y1 = Mathf.Clamp(iy + 1, 0, Height - 1);
-            return Mathf.Lerp(Mathf.Lerp(maskPixels[y0 * Width + x0].r, maskPixels[y0 * Width + x1].r, x - ix),
-                Mathf.Lerp(maskPixels[y1 * Width + x0].r, maskPixels[y1 * Width + x1].r, x - ix), y - iy);
+            Color bottom = Color.Lerp(maskPixels[y0 * Width + x0], maskPixels[y0 * Width + x1], x - ix);
+            Color top = Color.Lerp(maskPixels[y1 * Width + x0], maskPixels[y1 * Width + x1], x - ix);
+            Color rgb = Color.Lerp(bottom, top, y - iy);
+            return new Vector3(rgb.r, rgb.g, rgb.b);
         }
         public Color[] Draw(Material material, int pass, Texture2D source, float time = 1f)
         {
@@ -352,7 +365,7 @@ public class Script
             RenderTexture target = null; Texture2D readback = null; RTHandle handle = null;
             try
             {
-                var format = pass == 0 ? RenderTextureFormat.R8 : pass == 1 ? RenderTextureFormat.RHalf : RenderTextureFormat.ARGBHalf;
+                const RenderTextureFormat format = RenderTextureFormat.ARGBHalf;
                 target = new RenderTexture(Width, Height, 0, format, RenderTextureReadWrite.Linear) { hideFlags = HideFlags.HideAndDontSave, antiAliasing = 1 };
                 Require(target.Create(), "Required production render format unavailable: " + format);
                 readback = new Texture2D(Width, Height, TextureFormat.RGBAFloat, false, true);
@@ -370,6 +383,7 @@ public class Script
                     : Matrix4x4.Perspective(60f, (float)Width / Height, 0.3f, 250f);
                 Matrix4x4 gpuP = GL.GetGPUProjectionMatrix(cpuP, true);
                 command.SetGlobalTexture("_CameraDepthTexture", Depth);
+                command.SetGlobalTexture("_MaskRBRPreTransparentColor", PreTransparentScene);
                 command.SetGlobalTexture("_MaskRBRObjectMaskTexture", Objects);
                 command.SetGlobalTexture("_MaskRBRMaskTexture", Mask);
                 command.SetGlobalTexture("_MaskRBRRayTexture", Rays);
@@ -398,7 +412,7 @@ public class Script
     {
         readonly string[] vectors = { "_Time", "_TimeParameters", "_RTHandleScale", "unity_OrthoParams", "_MainLightPosition", "_MainLightColor", "_WorldSpaceCameraPos", "_ProjectionParams", "_CameraDepthTexture_TexelSize" };
         readonly string[] matrices = { "unity_MatrixV", "unity_MatrixVP", "glstate_matrix_projection", "unity_MatrixInvVP", "unity_MatrixInvV" };
-        readonly string[] textures = { "_CameraDepthTexture", "_MaskRBRObjectMaskTexture", "_MaskRBRMaskTexture", "_MaskRBRRayTexture" };
+        readonly string[] textures = { "_CameraDepthTexture", "_MaskRBRPreTransparentColor", "_MaskRBRObjectMaskTexture", "_MaskRBRMaskTexture", "_MaskRBRRayTexture" };
         readonly Vector4[] v; readonly Matrix4x4[] m; readonly Texture[] t;
         public SavedGlobals()
         {

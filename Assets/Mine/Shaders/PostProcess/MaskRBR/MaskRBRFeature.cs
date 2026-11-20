@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-//  Mask RBR Feature — main-light rays from radial masks and angular scattering.
+//  Mask RBR Feature — camera-colored rays from visible source masks.
 // ════════════════════════════════════════════════════════════════
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
@@ -9,11 +9,11 @@ using UnityEngine.Rendering.Universal;
 using Mine.Rendering;
 
 /// <summary>
-/// Produces radial rays from sky and selected visible opaque scene objects.
+/// Produces radial rays from camera pixels covered by sky and selected scene objects.
 /// </summary>
 /// <remarks>
-/// The object override supports solid opaque geometry. Alpha clipping and
-/// custom vertex displacement require a future original-material mask pass.
+/// Object coverage uses solid geometry in both queues, with no material alpha
+/// clipping or custom vertex displacement. Source RGB comes from the camera.
 /// </remarks>
 public sealed class MaskRBRFeature : ScriptableRendererFeature
 {
@@ -27,9 +27,8 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         [Header("Technical")]
         public Shader shader;
         public Shader maskShader;
+        [Tooltip("Sky: visible background. Objects: objects selected by Layer Mask. SkyAndObjects: union of both.")]
         public SourceMode source = SourceMode.Sky;
-        [Tooltip("Solid opaque objects on these layers can produce rays.")]
-        public LayerMask layerMask = 0;
 
         [Header("Performance")]
         public QualityMode quality = QualityMode.Medium;
@@ -50,13 +49,19 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         [Tooltip("Subtract SSC cloud coverage from the source mask, so cloudy sky produces no rays. Requires SSC's ray march to run before this pass; it degrades to no occlusion otherwise.")]
         public bool occludeWithClouds = true;
 
+        // Event groups the effect's frame scope: which visible objects feed the
+        // mask (space) and when the pass runs (time), read as one pair.
         [Header("Event")]
-        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingSkybox;
+        [Tooltip("Visible opaque and transparent objects on these layers can produce rays. Ignored when Source is Sky.")]
+        public LayerMask layerMask = 0;
+        [Tooltip("Runs no earlier than After Rendering Transparents to read selected transparent color. For cloud occlusion, run after SSC's buffer and before SSC's composite.")]
+        public RenderPassEvent passEvent = RenderPassEvent.AfterRenderingTransparents;
 
         [Header("Debug")]
         public DebugMode debug = DebugMode.Off;
 
         internal static readonly int ObjectMaskTextureID = Shader.PropertyToID("_MaskRBRObjectMaskTexture");
+        internal static readonly int PreTransparentColorID = Shader.PropertyToID("_MaskRBRPreTransparentColor");
         internal static readonly int MaskTextureID = Shader.PropertyToID("_MaskRBRMaskTexture");
         internal static readonly int RayTextureID = Shader.PropertyToID("_MaskRBRRayTexture");
         internal static readonly int CameraDepthTextureID = Shader.PropertyToID("_CameraDepthTexture");
@@ -69,12 +74,61 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         internal static readonly int OccludeCloudsID = Shader.PropertyToID("_MaskRBROccludeClouds");
     }
 
+    static readonly Vector4 BlitScaleBias = new(1f, 1f, 0f, 0f);
+
+    sealed class FrameSources : ContextItem
+    {
+        public TextureHandle preTransparentColor;
+        public FrameSources() { }
+        public override void Reset() => preTransparentColor = TextureHandle.nullHandle;
+    }
+
+    sealed class PreTransparentColorPass : ScriptableRenderPass
+    {
+        sealed class CopyData
+        {
+            public TextureHandle source;
+        }
+
+        public PreTransparentColorPass()
+        {
+            renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
+            requiresIntermediateTexture = true;
+            // Keep the sky and visibility tests based on opaque depth.
+            ConfigureInput(ScriptableRenderPassInput.Depth);
+        }
+
+        public override void RecordRenderGraph(RenderGraph graph, ContextContainer frameData)
+        {
+            var resources = frameData.Get<UniversalResourceData>();
+            var sources = frameData.GetOrCreate<FrameSources>();
+            TextureHandle scene = resources.activeColorTexture;
+            if (resources.isActiveTargetBackBuffer || !scene.IsValid())
+                return;
+
+            TextureDesc descriptor = graph.GetTextureDesc(scene);
+            descriptor.name = "MaskRBR.PreTransparentColor";
+            descriptor.msaaSamples = MSAASamples.None;
+            descriptor.bindTextureMS = false;
+            descriptor.clearBuffer = false;
+            sources.preTransparentColor = graph.CreateTexture(descriptor);
+
+            using var builder = graph.AddRasterRenderPass<CopyData>(descriptor.name, out var data);
+            data.source = scene;
+            builder.UseTexture(scene, AccessFlags.Read);
+            builder.SetRenderAttachment(sources.preTransparentColor, 0, AccessFlags.WriteAll);
+            builder.SetGlobalTextureAfterPass(sources.preTransparentColor, Settings.PreTransparentColorID);
+            builder.SetRenderFunc(static (CopyData pass, RasterGraphContext context) =>
+                Blitter.BlitTexture(context.cmd, pass.source, BlitScaleBias, 0f, false));
+        }
+    }
+
     sealed class MaskRBRPass : ScriptableRenderPass
     {
         sealed class MaskData
         {
             public Material material;
-            public TextureHandle objectMask;
+            public TextureHandle scene;
             public float sourceMode;
             public float occludeClouds;
         }
@@ -101,6 +155,9 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         const int MaskPass = 0;
         const int RadialPass = 1;
         const int CompositePass = 2;
+        const int OpaqueObjectMaskPass = 0;
+        const int TransparentObjectMaskPass = 1;
+        const int TransparentSkyOccludersPass = 2;
         const string LowKeyword = "_MASKRBR_QUALITY_LOW";
         const string HighKeyword = "_MASKRBR_QUALITY_HIGH";
 
@@ -109,13 +166,16 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
             new("UniversalForward"), new("UniversalForwardOnly"),
             new("SRPDefaultUnlit"), new("UniversalGBuffer")
         };
-        static readonly Vector4 BlitScaleBias = new(1f, 1f, 0f, 0f);
 
         // Order guard state: a feature with intermediates has two times, so the
         // contract is a partial order rather than a single passEvent. Report once
         // per distinct configuration instead of every frame.
         static RenderPassEvent? s_seenBuffer, s_seenComposite, s_seenConsumer;
         static bool s_warnedLateBuffer, s_warnedEarlyComposite;
+
+        // Source and layer mask are not independent: Sky ignores the mask, and an
+        // object source with Nothing renders an all-zero mask. Warn on transitions.
+        static bool s_warnedEmptyLayers;
 
         readonly Settings _settings;
         readonly Material _material;
@@ -127,20 +187,21 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
             _material = CoreUtils.CreateEngineMaterial(settings.shader);
             _maskMaterial = CoreUtils.CreateEngineMaterial(settings.maskShader);
             _maskMaterial.enableInstancing = true;
-            renderPassEvent = settings.passEvent;
             requiresIntermediateTexture = true;
             ConfigureInput(ScriptableRenderPassInput.Depth);
         }
 
         // ════════════════════════════════════════════════════════════
-        //  Render graph — visible source masks, scalar angular rays, light composite.
+        //  Render graph — camera-colored source mask, radial rays, angular composite.
         // ════════════════════════════════════════════════════════════
         public override void RecordRenderGraph(RenderGraph graph, ContextContainer frameData)
         {
+            ValidateSourceLayers();
             ValidateCloudOrder();
             UniversalResourceData resources = frameData.Get<UniversalResourceData>();
+            TextureHandle preTransparentColor = frameData.GetOrCreate<FrameSources>().preTransparentColor;
             if (resources.isActiveTargetBackBuffer || !resources.activeColorTexture.IsValid()
-                || !resources.cameraDepthTexture.IsValid())
+                || !resources.cameraDepthTexture.IsValid() || !preTransparentColor.IsValid())
                 return;
 
             UniversalCameraData camera = frameData.Get<UniversalCameraData>();
@@ -149,13 +210,16 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
             TextureHandle depth = resources.cameraDepthTexture;
             SourceMode sourceMode = _settings.source;
             int layerMask = sourceMode == SourceMode.Sky ? 0 : _settings.layerMask.value;
-            TextureHandle objectMask = RecordObjectMask(graph, frameData, scene, depth, layerMask);
+            int skyOccluderPass = sourceMode == SourceMode.Objects ? -1 : TransparentSkyOccludersPass;
+            TextureHandle objectMask = ScreenMaskRenderer.RecordObjects(graph, frameData, scene, depth,
+                layerMask, ObjectShaderTags, _maskMaterial, OpaqueObjectMaskPass, "MaskRBR.ObjectMask",
+                Settings.ObjectMaskTextureID, TransparentObjectMaskPass, skyOccluderPass,
+                GraphicsFormat.R8G8B8A8_UNorm);
             TextureHandle mask = RecordMask(graph, scene, objectMask, depth, sourceMode);
 
             QualityMode quality = _settings.quality;
             int downsample = quality == QualityMode.Low ? 2 : 1;
             TextureDesc descriptor = CreateColorDescriptor(graph, scene, downsample);
-            descriptor.colorFormat = GraphicsFormat.R16_SFloat;
             Vector2Int size = GetOutputSize(camera);
             Vector4 outputSize = new(size.x, size.y, 0f, 0f);
             Vector4 radialParameters = new(Mathf.Clamp01(_settings.length), Mathf.Clamp(_settings.falloff, 0f, 8f),
@@ -173,13 +237,27 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         }
 
         // ════════════════════════════════════════════════════════════
+        //  Source/layer guard — object sources with Nothing emit nothing.
+        // ════════════════════════════════════════════════════════════
+        void ValidateSourceLayers()
+        {
+            bool emptyLayers = _settings.source != SourceMode.Sky && _settings.layerMask.value == 0;
+            if (emptyLayers == s_warnedEmptyLayers)
+                return;
+            s_warnedEmptyLayers = emptyLayers;
+            if (emptyLayers)
+                Debug.LogWarning($"[MaskRBR] Source is {_settings.source} but Layer Mask is Nothing, "
+                    + "so no object can produce rays. Select object layers or switch Source to Sky.");
+        }
+
+        // ════════════════════════════════════════════════════════════
         //  Cloud order guard — buffer before the mask, composite after the rays.
         // ════════════════════════════════════════════════════════════
         void ValidateCloudOrder()
         {
             RenderPassEvent? buffer = SSCFeature.CloudBufferEvent;
             RenderPassEvent? composite = SSCFeature.CloudCompositeEvent;
-            RenderPassEvent consumer = _settings.passEvent;
+            RenderPassEvent consumer = renderPassEvent;
 
             if (buffer != s_seenBuffer || composite != s_seenComposite || consumer != s_seenConsumer)
             {
@@ -205,15 +283,8 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
                 s_warnedEarlyComposite = true;
                 Debug.LogWarning($"[MaskRBR] SSC composites at {composite.Value}, which is not later than "
                     + $"MaskRBR's {consumer}. Clouds are drawn before the rays are added, so the rays appear "
-                    + "on top of them. Move SSC's Composite Event after MaskRBR's Event.");
+                    + "on top of them. Use a later SSC Composite Event, such as BeforeRenderingPostProcessing.");
             }
-        }
-
-        TextureHandle RecordObjectMask(RenderGraph graph, ContextContainer frameData,
-            TextureHandle scene, TextureHandle depth, int layerMask)
-        {
-            return ScreenMaskRenderer.RecordObjects(graph, frameData, scene, depth,
-                layerMask, ObjectShaderTags, _maskMaterial, 0, "MaskRBR.ObjectMask", Settings.ObjectMaskTextureID);
         }
 
         TextureHandle RecordMask(RenderGraph graph, TextureHandle scene,
@@ -221,17 +292,20 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
         {
             // 只有 SSC 本帧确实记录了 ray march 才能声明该全局纹理，否则 UseGlobalTexture 会抛异常。
             bool occludeClouds = _settings.occludeWithClouds && SSCFeature.CloudOcclusionReady;
-            TextureDesc descriptor = ScreenMaskRenderer.CreateDescriptor(graph, scene, "MaskRBR.Mask", false);
+            TextureDesc descriptor = CreateColorDescriptor(graph, scene, 1);
+            descriptor.name = "MaskRBR.Mask";
             TextureHandle mask = graph.CreateTexture(descriptor);
             using (var builder = graph.AddRasterRenderPass<MaskData>(descriptor.name, out var data))
             {
                 data.material = _material;
-                data.objectMask = objectMask;
+                data.scene = scene;
                 data.sourceMode = (float)sourceMode;
                 data.occludeClouds = occludeClouds ? 1f : 0f;
+                builder.UseTexture(scene, AccessFlags.Read);
                 builder.UseTexture(objectMask, AccessFlags.Read);
                 builder.UseTexture(depth, AccessFlags.Read);
                 builder.UseGlobalTexture(Settings.ObjectMaskTextureID, AccessFlags.Read);
+                builder.UseGlobalTexture(Settings.PreTransparentColorID, AccessFlags.Read);
                 builder.UseGlobalTexture(Settings.CameraDepthTextureID, AccessFlags.Read);
                 if (occludeClouds)
                     builder.UseGlobalTexture(SSCFeature.CloudTextureID, AccessFlags.Read);
@@ -241,7 +315,7 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
                 {
                     pass.material.SetFloat(Settings.SourceModeID, pass.sourceMode);
                     pass.material.SetFloat(Settings.OccludeCloudsID, pass.occludeClouds);
-                    Blitter.BlitTexture(context.cmd, pass.objectMask, BlitScaleBias, pass.material, MaskPass);
+                    Blitter.BlitTexture(context.cmd, pass.scene, BlitScaleBias, pass.material, MaskPass);
                 });
             }
             return mask;
@@ -353,6 +427,7 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
     }
 
     public Settings settings = new();
+    PreTransparentColorPass _preTransparentColorPass;
     MaskRBRPass _pass;
 
     // ════════════════════════════════════════════════════════════
@@ -362,12 +437,14 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
     {
         _pass?.Release();
         _pass = settings.shader != null && settings.maskShader != null ? new MaskRBRPass(settings) : null;
+        _preTransparentColorPass = _pass != null ? new PreTransparentColorPass() : null;
     }
 
     protected override void Dispose(bool disposing)
     {
         _pass?.Release();
         _pass = null;
+        _preTransparentColorPass = null;
     }
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -377,7 +454,9 @@ public sealed class MaskRBRFeature : ScriptableRendererFeature
             || (camera.cameraType != CameraType.Game && camera.cameraType != CameraType.SceneView)
             || (settings.debug == DebugMode.Off && (settings.intensity <= 0f || settings.length <= 0f)))
             return;
-        _pass.renderPassEvent = settings.passEvent;
+        _pass.renderPassEvent = settings.passEvent < RenderPassEvent.AfterRenderingTransparents
+            ? RenderPassEvent.AfterRenderingTransparents : settings.passEvent;
+        renderer.EnqueuePass(_preTransparentColorPass);
         renderer.EnqueuePass(_pass);
     }
 }

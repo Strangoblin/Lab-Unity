@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════════
-//  Mask RBR Mask — redraw solid opaque geometry against sampled camera depth.
+//  Mask RBR Mask — redraw object silhouettes against sampled camera depth.
 // ════════════════════════════════════════════════════════════════
 Shader "PostProcess/MaskRBRMask"
 {
@@ -35,7 +35,7 @@ Shader "PostProcess/MaskRBRMask"
     }
 
     // ════════════════════════════════════════════════════════════
-    //  Object mask fragment — reject geometry hidden by the opaque depth.
+    //  Object mask fragment — reject geometry hidden by the camera depth.
     // ════════════════════════════════════════════════════════════
     float4 Frag_Mask(MaskRBRVaryings input) : SV_Target
     {
@@ -44,24 +44,50 @@ Shader "PostProcess/MaskRBRMask"
         float2 screenUV = GetNormalizedScreenSpaceUV(input.positionCS);
         float sceneDepth = SampleSceneDepth(screenUV);
         float visible = Mask_VisibleRawDepth(input.positionCS.z, sceneDepth, 0.0000001);
-        return float4(visible, 0.0, 0.0, 1.0);
+        return float4(visible, visible, visible, 1.0);
     }
     ENDHLSL
 
     SubShader
     {
         Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
-        Cull Back
         ZWrite Off
         ZTest Always
         BlendOp Max
         Blend One One
-        ColorMask R
 
         Pass
         {
             Name "ObjectMask"
             Tags { "LightMode" = "UniversalForward" }
+            Cull Back
+            ColorMask R
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex Vert_Mask
+            #pragma fragment Frag_Mask
+            #pragma multi_compile_instancing
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "TransparentObjectMask"
+            Cull Off
+            ColorMask G
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex Vert_Mask
+            #pragma fragment Frag_Mask
+            #pragma multi_compile_instancing
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "TransparentSkyOccluders"
+            Cull Off
+            ColorMask B
             HLSLPROGRAM
             #pragma target 3.5
             #pragma vertex Vert_Mask

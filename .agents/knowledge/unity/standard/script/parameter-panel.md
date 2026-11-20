@@ -30,6 +30,11 @@
 并在 `AddRenderPasses` 里每帧 `pass.renderPassEvent = settings.passEvent` 后再入队，
 使面板改动在运行时立即生效。MonoBehaviour / VolumeComponent 没有 Pass，不设此组。
 
+带对象遮罩来源的后处理 Feature（MaskBlur / MaskRBR）把 `layerMask` 也放进 `Event` 组，
+与 `passEvent` 上下相邻：`layerMask` 是空间范围（谁参与），`passEvent` 是帧内时机（何时执行），
+两者合起来才是效果的适用范围。两者的失败模式相同——配置无效时效果静默消失，
+因此 `layerMask == 0` 也应在进入该状态时警告一次，而不是只在文档里写。
+
 ## 规则
 
 **① 实现细节不进面板，内化为 shader 常量。**
