@@ -1,7 +1,7 @@
 # 彩窗光空间彩色透射图（2026-11-15）
 
 从主光视角把透射玻璃层渲染成光空间 RT（RGB 透射 + 归一化深度），地面与 SSL 用深度比较判断玻璃前后。
-主光彩色 Cookie + 单窗平面 mask 方案同日退役，保留在 Git 历史与遗留资产中。
+主光彩色 Cookie + 单窗平面 mask 方案同日退役，保留在 Git 历史；遗留资产已于 2026-11-19 删除。
 
 ## 已验证的数据事实（URP 17.3）
 
@@ -14,7 +14,7 @@
 
 ## 实现
 
-- `Assets/Mine/Special/Renderer/TransparentDepth/ColoredShadow/`
+- `Assets/Mine/Special/Renderer/ColoredShadow/`（2026-11-19 从 `TransparentDepth/` 提升为同级模块）
   - `ColoredShadowFeature.cs`：`BeforeRenderingOpaques` Raster Pass；Layer 内 Renderer world bounds 并集 →
     光空间包围盒（padding 1.25、depthPadding 20）；`FindObjectsByType` 每帧重算，支持动态玻璃；
     发布 `_ColoredShadowTex`（ARGBHalf：RGB 透射、A 归一化深度，背景白 A=1）、
@@ -63,6 +63,32 @@ C# `ColoredShadowFeature` 类型编译通过。
 - **RendererList 使用主相机 culling**：相机看不到的玻璃不会进入该相机透射图。
 - 包围盒来自层内 Renderer world bounds 并集，`FindObjectsByType` 每帧；适合少量动态玻璃。
 - 光空间 RT 1024²；玻璃自身屏幕像素不受影响，地面/体积细节受 RT 分辨率限制。
-- 生产地面尚未接入接收函数；旧 Cookie 资产/`ColorfulWindowLight.cs` 留在功能目录作参考，不再被场景读取。
+- 生产地面尚未接入接收函数；旧 Cookie 资产与 `ColorfulWindowLight.cs` 已于 2026-11-19 删除。
 - 全量 C# 编译依赖 `InteractionManager/InteractionProcessor.cs`；当前该项目文件缺失，
   Sand/Snow 已被用户移到 `~` 目录以绕过，编译才通过。恢复交互系统时需先补回基类。
+
+## 主管线（PC_Renderer）接入前提（2026-11-20 排查）
+
+- 主管线 = `Assets/Settings/PC_Renderer.asset`（`PC_RPAsset` list index 0）。排查时其 `m_OpaqueLayerMask` /
+  `m_TransparentLayerMask` = 247（Layer 0/1/2/4/5/6/7），**不含 Layer 30**；玻璃 Quad 在 Layer 30，
+  因此主 Renderer 的 DrawObjectsPass 直接过滤掉，窗户本体不可见。测试 Renderer 两份掩码都是
+  `0xFFFFFFFF`，所以只有 index 2 能看到窗面。`m_PrepassLayerMask` 是全层，不能作为判据。
+  **2026-11-20 用户要求保持默认，掩码维持 247**：主管线只画该掩码内的层；`TransparentWithShadow`
+  层要正常显示，必须由 URP 常规设置把该层加入 Renderer 掩码，Feature 不代改。
+- `PC_Renderer` 未挂 `TransparentShadowFeature`（旧名 `ColoredShadowFeature`；只有
+  `ColorfulWindowTestRenderer` 挂）；新实例默认 `layerMask = 0`，`RecordRenderGraph` 走
+  `Disable()`（并 Warn 一次），`_TransparentShadowDepth.z = 0` → 接收端全白。掩码由使用者手动
+  对齐到 `TransparentWithShadow` 层，Feature 不做名字解析。
+- 透射图包围盒用 `FindObjectsByType` 全场景算，但 RendererList 取自 `renderingData.cullResults`，
+  主相机 Culling Mask 必须含 Layer 30，否则列表为空；测试场景两个相机都是 Everything。
+- 生产地面 PBRToon / `LightFunction.hlsl` 未接 `TransparentShadow_Transmission`；目前接收端只有
+  `ColorfulWindowGround.shader` 与 `SSL.shader`。主管线地面要出彩色光斑还需接接收函数 + 挂 SSLFeature。
+
+2026-11-20 后续：模块与全部全局 / Shader Tag 已统一改名 `TransparentShadow*`，玻璃层约定为
+`TransparentWithShadow`（Layer 8），测试玻璃 Shader 改为普通透明队列（正常排序）。见
+[记录](2026-11-20-transparent-shadow-rename.md)。
+
+2026-11-20 收敛：演示并入 `RenderScene.unity`（Layer 8 的 `Plane (8)` + `ColorfulWindowPane.mat`），
+`PC_Renderer` 挂 `TransparentShadowFeature`（`layerMask = 256`）与 `SSLFeature`；`PC_RPAsset` 移除
+测试 Renderer，`ColorfulWindowTest.unity` / `ColorfulWindowTestRenderer.asset` / 地面与墙体材质删除。
+主管线地面仍走 PBRToon（未接接收函数），彩色光斑只经 SSL 呈现。

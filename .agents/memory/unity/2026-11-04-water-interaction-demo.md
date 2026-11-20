@@ -2,6 +2,8 @@
 
 `Assets/Mine/Scripts/InteractionManager/WaterInteractionDemo.unity` 把「正交交互相机 + `IA_Renderer`(CustomFeature) + `UniversalInteractionManager` + `WaterInteractionProcessor`」整条链路落成一个可运行场景，可被叠加加载。
 
+> 2026-11-19：互动实现已从 `Custom/` 迁至 `Assets/Mine/Special/Renderer/InteractionCapture/`（`InteractionCaptureFeature`）；文中 `CustomFeature` / `_CustomDepthTexture` 为当时名称。
+
 ## 场景结构（层是关键）
 
 | 物体 | 层 | 作用 |

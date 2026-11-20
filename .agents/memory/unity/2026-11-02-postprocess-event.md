@@ -33,6 +33,14 @@
 - `.agents/knowledge/unity/standard/script/parameter-panel.md`：分层表新增 `Event` 行（仅 RendererFeature，位于 `Debug` 之前）
 - `.agents/knowledge/unity/shader/postprocess/{feature-script-structure,fullscreen-structure}.md`：规范条目与 C# 骨架同步
 
+## 2026-11-20 补：layerMask 与 passEvent 并列
+
+带对象遮罩来源的后处理 Feature（当前 MaskBlur、MaskRBR）把 `layerMask` 从 `Technical` 移入 `Event` 组，与 `passEvent` 上下相邻：`layerMask` 定空间范围（谁参与），`passEvent` 定帧内时机（何时执行），两者共同构成效果的适用范围，且都以「静默失效」为失败模式。两者都补了 tooltip；`layerMask == 0` 时在 `AddRenderPasses` / 录制阶段进入该状态警告一次（修好后重新武装）。
+
+配套改了两份 README（参数表新增 `Event` 行 + 适用范围说明）与 `.agents/knowledge/unity/standard/script/parameter-panel.md`。`Special/Renderer/` 下的 ColoredShadow / TransparentDepthMerge 仍把 `layerMask` 放在 `Technical`，本次未迁移。
+
+**MaskRBR 的 source 与 layerMask 不冲突，是从属关系**：`source == Sky` 时 CPU 侧把层掩码强制置 0（`sourceMode == Sky ? 0 : layerMask.value`），改 `layerMask` 不改变任何输出。但 `ScreenMaskRenderer.RecordObjects` 的契约是「空对象列表仍执行清零」且 `AllowPassCulling(false)`，所以 Sky 模式每帧仍分配并清黑一张全屏 R8——无收益的固定开销，要省掉需让空层掩码不录制对象遮罩、并给主遮罩 Pass 换一个合法 Blit 源纹理。`source = Objects` + `layerMask = Nothing`（默认值）是静默全黑，已加警告。两效果默认值刻意不对称：MaskBlur `Everything`（材质必须自带 `MaskBlur` Pass 才参与）、MaskRBR `Nothing`（覆盖材质会把整屏不透明物当光源）。
+
 ## 未纳入
 
 `DebugOutputFeature`（调试工具）、`PickerFeature`（选择器）不是后处理；SSGI 的独立 `AOFeature` / `DiffuseGIFeature` / `SpecularGIFeature` 与其共用同一份 `Settings` 类型，加字段会重新出现在 SSGI 总面板里，故保持硬编码。

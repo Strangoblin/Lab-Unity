@@ -1,4 +1,6 @@
-# CustomRenderer → CustomFeature（2026-11-04，原名 CustomFeature）
+# CustomRenderer → 自录 Feature（2026-11-04；2026-11-19 拆为 InteractionCapture）
+
+> 2026-11-19：互动实现已迁至 `Assets/Mine/Special/Renderer/InteractionCapture/`（`InteractionCaptureFeature`），`Custom/` 恢复为通用模块；下文 `CustomFeature` / `_CustomDepthTexture` 为此前名称。
 
 `Assets/Mine/Special/Renderer/Custom/` 取代已删除的 `CustomRenderer`（`ScriptableRenderer` 子类）。
 
