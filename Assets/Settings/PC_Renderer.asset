@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44f6d307490e7be45bade008fd49f400, type: 3}
   m_Name: SSCFeature
   m_EditorClassIdentifier: Assembly-CSharp::SSCFeature
-  m_Active: 1
+  m_Active: 0
   settings:
     sscShader: {fileID: 4800000, guid: 3784ad67eb3b5304b9245dd051049729, type: 3}
     mainTex2D: {fileID: 2800000, guid: b666157111b634ea093168db198dda8a, type: 2}
@@ -76,19 +76,19 @@ MonoBehaviour:
   settings:
     shader: {fileID: 4800000, guid: 991eb88dafa5c47ff89b3b017e06ab10, type: 3}
     maskShader: {fileID: 4800000, guid: d64bff969cf53424e93ee915a781ff1a, type: 3}
-    source: 0
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 0
+    source: 2
     quality: 1
     halfAngle: 60
     anisotropy: 0.7
-    length: 0.2
+    length: 1
     falloff: 2
     jitterStrength: 0
     intensity: 0.25
     occludeWithClouds: 1
-    passEvent: 400
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 256
+    passEvent: 500
     debug: 0
 --- !u!114 &-4968987183116551271
 MonoBehaviour:
@@ -108,30 +108,6 @@ MonoBehaviour:
   m_OutlineMaskShader: {fileID: 0}
   m_OutlineCompositeShader: {fileID: 0}
   m_DebugShowMask: 0
---- !u!114 &-4392036002262086403
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5bbf546271bdff43bbd9d840c4afbf1, type: 3}
-  m_Name: TransparentDepthMergeFeature
-  m_EditorClassIdentifier: Assembly-CSharp::Mine.Rendering.TransparentDepthMergeFeature
-  m_Active: 0
-  settings:
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 16
-    shaderTags:
-    - UniversalForward
-    - UniversalForwardOnly
-    - SRPDefaultUnlit
-    passEvent: 500
-    debug: 0
-    debugShader: {fileID: 4800000, guid: f694643a407f23142bc6171eee1c989c, type: 3}
 --- !u!114 &-4316052137097848494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,9 +155,9 @@ MonoBehaviour:
   - {fileID: 7979418361354919465}
   - {fileID: 3243830817614936851}
   - {fileID: -7483881911666177618}
-  - {fileID: -4392036002262086403}
-  - {fileID: 6635556024175187803}
-  m_RendererFeatureMap: 5cb9f3e33361c5a0159c79cf4b17bc195cd82b1cabab21aa291eca0eb996bc6e133b672bf166042dae892a7a0de92398fd0c71a4865a0cc3fd0c71a4865a0cc3
+  - {fileID: 2622773484053843323}
+  - {fileID: 858877574813507088}
+  m_RendererFeatureMap: 5cb9f3e33361c5a0159c79cf4b17bc195cd82b1cabab21aa291eca0eb996bc6e133b672bf166042dae892a7a0de923987bcd577396f6652410de4e909a58eb0b
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -191,10 +167,10 @@ MonoBehaviour:
     m_Bits: 4294967295
   m_OpaqueLayerMask:
     serializedVersion: 2
-    m_Bits: 247
+    m_Bits: 4294967295
   m_TransparentLayerMask:
     serializedVersion: 2
-    m_Bits: 247
+    m_Bits: 4294967295
   m_DefaultStencilState:
     overrideStencilState: 0
     stencilReference: 1
@@ -210,6 +186,29 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
+--- !u!114 &858877574813507088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d25a75151302214f882203abea38714, type: 3}
+  m_Name: SSLFeature
+  m_EditorClassIdentifier: Assembly-CSharp::SSLFeature
+  m_Active: 1
+  settings:
+    sslShader: {fileID: 4800000, guid: 9181acf22f4db7d43be92990d435f68b, type: 3}
+    quality: 1
+    maxDistance: 20
+    intensity: 1
+    sslScale: 0.5
+    jitterScale: 0.5
+    blurScale: 0.5
+    passEvent: 550
+    debug: 0
 --- !u!114 &1854382760940641301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,9 +224,6 @@ MonoBehaviour:
   m_Active: 1
   settings:
     shader: {fileID: 4800000, guid: 49706e69a6fbf43d79cdd1e56a36ea4f, type: 3}
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 4294967295
     kernel: 1
     quality: 1
     radiusMode: 1
@@ -235,8 +231,34 @@ MonoBehaviour:
     normalizedRadius: 0.05
     jitterStrength: 1
     intensity: 0.5
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
     passEvent: 400
     debug: 0
+--- !u!114 &2622773484053843323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d1550d70c007f241b7593f6447058de, type: 3}
+  m_Name: TransparentShadowFeature
+  m_EditorClassIdentifier: Assembly-CSharp::Mine.Rendering.TransparentShadowFeature
+  m_Active: 1
+  settings:
+    shaderTag: TransparentShadow
+    resolution: 256
+    padding: 1.25
+    depthPadding: 10
+    depthBias: 0.003
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 256
+    passEvent: 250
 --- !u!114 &2669520963029075480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,19 +319,6 @@ MonoBehaviour:
   m_MaskShader: {fileID: 4800000, guid: 77dbc5093879244678321644aa36838a, type: 3}
   m_CompositeShader: {fileID: 4800000, guid: 3883a59e5182c4610a2e368619444f0c, type: 3}
   m_DebugShowMask: 0
---- !u!114 &6635556024175187803
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d86e055f04cd43799356228b5303777, type: 3}
-  m_Name: GrassRenderFeature
-  m_EditorClassIdentifier: Assembly-CSharp::Mine.Grass.GrassRenderFeature
-  m_Active: 1
 --- !u!114 &7979418361354919465
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,9 +365,9 @@ MonoBehaviour:
       normalBias: 0.03
       roughness: 1
     performance:
-      ao: 1
-      diffuseGI: 1
-      specularGI: 1
+      ao: 0
+      diffuseGI: 0
+      specularGI: 0
     intensity:
       ao: 1
       diffuseGI: 1

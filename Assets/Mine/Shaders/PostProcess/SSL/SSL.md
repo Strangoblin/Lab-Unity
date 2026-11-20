@@ -1,7 +1,7 @@
 # SSL — Screen Space Light
 
 > 纯后处理（RendererFeature + settings，无 Volume）。单一 HG 体积光模式。
-> 2026-11-15：主光彩色 Cookie + 窗平面方案退役，改为光空间彩色透射图 + 深度比较。
+> 2026-11-15：主光彩色 Cookie + 窗平面方案退役，改为光空间透明透射图 + 深度比较。
 
 ---
 
@@ -10,7 +10,7 @@
 SSL 是全屏屏幕空间体积光：沿视线从相机步进到深度重建点，每一步：
 
 1. 采样主光 shadow map；阴影为 0 的步直接跳过（墙/窗洞可见性）；
-2. 调用 `ColoredShadow_Transmission(positionWS)`：
+2. 调用 `TransparentShadow_Transmission(positionWS)`：
    - 世界点投到主光光空间，与玻璃深度比较；
    - 玻璃前 / 无玻璃 → 白色；
    - 玻璃后 → 玻璃透射色；
@@ -18,7 +18,7 @@ SSL 是全屏屏幕空间体积光：沿视线从相机步进到深度重建点�
 
 最终 `density × _Intensity × mainLight.color` 加法合成到场景。
 
-彩色透射图由 [ColoredShadowFeature](../../../Special/Renderer/TransparentDepth/ColoredShadow/README.md)
+透射图由 [TransparentShadowFeature](../../../Special/Renderer/TransparentShadow/README.md)
 产生，与 opaque shadow map 共存：shadow map 决定“哪里能见光”，透射图决定“光是什么颜色、是否在玻璃后”。
 
 ## 管线结构
@@ -76,41 +76,41 @@ return density * (phase / SSL_REFERENCE_STEPS);
 ```hlsl
 float shadow = SampleShadow(samplePos);
 if (shadow <= 0.0) continue;
-density += stepSize * shadow * ColoredShadow_Transmission(samplePos);
+density += stepSize * shadow * TransparentShadow_Transmission(samplePos);
 ```
 
 相位每像素计算一次，循环外乘到累积密度。
 
-## 彩色透射图（2026-11-15）
+## 透明透射图（2026-11-15）
 
-`ColoredShadowFunction.hlsl` 的接收逻辑：
+`TransparentShadowFunction.hlsl` 的接收逻辑：
 
-- `_ColoredShadowDepth.z = 0` → 返回白色（Feature 未启用/没有透射对象）。
+- `_TransparentShadowDepth.z = 0` → 返回白色（Feature 未启用/没有透射对象）。
 - UV 越界 → 白色。
 - 比较点深度与玻璃深度；玻璃后取 `.rgb`，玻璃前回白。
 - 循环内用 `SAMPLE_TEXTURE2D_LOD(..., 0)`，避免隐式导数在变长循环中的未定义值。
 
 **不再使用主光 Cookie / `_LIGHT_COOKIES` / `_ColorfulWindowPlane`**。旧实现与文档思路保留在 Git 历史；
-Cookie 纹理与 `ColorfulWindowLight.cs` 仍在功能目录中作参考资产，但测试场景和 Shader 不再读取。
+`StainedGlassCookie.asset` 与 `ColorfulWindowLight.cs` 已于 2026-11-19 删除（可从未跟踪的 `.mcp/trash` 恢复）。
 
 ## 与场景深度的关系
 
 SSL 的射线终点来自 `SampleSceneDepth(uv)`，**不做逐点场景深度遮挡**。建筑/地形若要在 SSL 中遮挡体积，
 必须位于相机深度纹理：不透明、`ZWrite On`、被 Renderer 的深度输入收集。透明或 `ZWrite Off` 的自定义
-材质不会遮挡。彩色透射图只负责颜色与玻璃前后，不替代相机深度。
+材质不会遮挡。透射图只负责颜色与玻璃前后，不替代相机深度。
 
 ## 测试入口
 
-`Assets/Mine/Shaders/Render/ColorfulWindow/ColorfulWindowTest.unity`：
+`Assets/Scenes/RenderScene.unity`（主管线 `PC_Renderer`）：
 
-- `ColoredShadowFeature`（BeforeRenderingOpaques）+ `SSLFeature`（BeforeRenderingPostProcessing）；
-- 彩窗 Quad 在 Layer 30，玻璃材质 `Render/ColoredGlass`；
+- `TransparentShadowFeature`（BeforeRenderingOpaques）+ `SSLFeature`（BeforeRenderingPostProcessing）；
+- 玻璃在 Layer 8（`TransparentWithShadow`），`PC_Renderer` 的 Feature `layerMask = 256`；玻璃材质 `Render/ColoredGlass`，`Plane (8)` 使用 `ColorfulWindowPane.mat`；
 - 主光 `cookie = null`；
-- 地面/墙体使用 `ColorfulWindowGround.shader`，直接调用 `ColoredShadow_Transmission`；
-- 静态/动态验证见 [ColorfulWindow.md](../../Render/ColorfulWindow/ColorfulWindow.md)。
+- 测试地面 Shader `ColorfulWindowGround.shader` 仍保留 `TransparentShadow_Transmission` 接收实现，当前演示不再使用；
+- 静态/动态验证见 [ColorfulWindow.md](../../Render/ColorfulWindow/ColorfulWindow.md)。原独立测试场景 `ColorfulWindowTest.unity` 与 `ColorfulWindowTestRenderer` 已于 2026-11-20 删除。
 
 ## 历史
 
 - 2026-08-27 RBR2D 径向模糊与 RAY3D_Fog 深度密度模式移除；SSL 收敛为单一 HG Light。
-- 2026-11-15 主光彩色 Cookie + 单窗平面 mask 移除，改为 ColoredShadowFeature 的光空间透射图 + 深度比较。
+- 2026-11-15 主光彩色 Cookie + 单窗平面 mask 移除，改为 TransparentShadowFeature 的光空间透射图 + 深度比较。
   旧 Cookie 的 Clamp 黑边会把包围盒外乘成黑光（伪阴影），该问题随方案退役。
